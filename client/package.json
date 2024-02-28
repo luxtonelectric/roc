@@ -1,0 +1,24 @@
+{
+  "name": "simsig-controller",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@nuxtjs/axios": "^5.12.5",
+    "@nuxtjs/fontawesome": "^1.1.2",
+    "core-js": "^3.8.3",
+    "nuxt": "^2.14.12",
+    "nuxt-socket-io": "^1.1.14",
+    "vue-eva-icons": "^1.1.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/svg": "^0.1.12",
+    "@nuxtjs/tailwindcss": "^3.4.2"
+  }
+}

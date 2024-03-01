@@ -112,12 +112,18 @@ class ROCManager {
     // console.log(data);
     var caller = this.players[data.sender];
     var reciever = this.players[data.user];
-    console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), caller.discordID, chalk.magentaBright("Reciever:"), reciever.discordID);
-    reciever.callQueue[caller.discordID] = {"discordID": caller.discordID, "panel": caller.panel, "sim": data.sendersim, "timePlaced": Date.now()};
-    console.log(chalk.yellow("Queue for"), reciever.discordID, reciever.callQueue);
-    reciever.socket.emit("newCallInQueue", reciever.callQueue);
-    this.players[data.user] = reciever;
-    this.updatePlayerUI();
+
+    if(caller !== reciever) {
+      console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), caller.discordID, chalk.magentaBright("Reciever:"), reciever.discordID);
+      reciever.callQueue[caller.discordID] = {"discordID": caller.discordID, "panel": caller.panel, "sim": data.sendersim, "timePlaced": Date.now()};
+      console.log(chalk.yellow("Queue for"), reciever.discordID, reciever.callQueue);
+      reciever.socket.emit("newCallInQueue", reciever.callQueue);
+      this.players[data.user] = reciever;
+      this.updatePlayerUI();
+    } else {
+      console.log(chalk.yellow("A player ("), caller.discordID, chalk.yellow(")tried to call themselves as was rejected."));
+      this.sockets.to(this.players[data.sender].socket.id).emit('rejectCall', {"success":false})
+    }
   }
 
   acceptCall(data)

@@ -131,27 +131,28 @@ class ROCManager {
     // this.players[data.user].callQueue[data.sender];
     if(this.players[data.sender].inCall === false)
     {
-    var p = this.players[data.sender];
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Length:"), this.privateCalls['priv-1'].length);
-    if(this.privateCalls['priv-1'].length < 1)
-    {
-      this.privateCalls['priv-1'] = [data.user, data.sender];
-      this.joinCall(data, 0);
+      var p = this.players[data.sender];
+      console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Length:"), this.privateCalls['priv-1'].length);
+      if(this.privateCalls['priv-1'].length < 1)
+      {
+        this.privateCalls['priv-1'] = [data.user, data.sender];
+        this.joinCall(data, 0);
+      }
+      else if(this.privateCalls['priv-2'] < 1)
+      {
+        this.privateCalls['priv-2'] = [data.user, data.sender];
+        this.joinCall(data, 1);
+      }
+      else if(this.privateCalls['priv-3'] < 1)
+      {
+        this.privateCalls['priv-3'] = [data.user, data.sender];
+        this.joinCall(data, 2);
+      }
+      else
+      {
+        this.sockets.to(p.socket.id).emit('rejectCall', {"success":false})
+      }
     }
-    else if(this.privateCalls['priv-2'] < 1)
-    {
-      this.privateCalls['priv-2'] = [data.user, data.sender];
-      this.joinCall(data, 1);
-    }
-    else if(this.privateCalls['priv-3'] < 1)
-    {
-      this.privateCalls['priv-3'] = [data.user, data.sender];
-      this.joinCall(data, 2);
-    }
-    else
-    {
-      this.sockets.to(p.socket.id).emit('rejectCall', {"success":false})
-    }}
     else
     {
       this.sockets.to(this.players[data.sender].socket.id).emit('rejectCall', {"success":false})
@@ -223,7 +224,13 @@ class ROCManager {
             this.privateCalls[call].splice(index, 1);
             this.players[data.user].inCall = false;
           }
-          this.movePlayerToSim(data.user, data.sim);
+          this.movePlayerToSim(data.user, this.players[data.user].sim);
+
+          if(this.privateCalls[call].length == 1) {
+            const caller = this.privateCalls[call][0];
+            this.players[caller].inCall = false;
+            this.movePlayerToSim(caller, this.players[caller].sim);
+          }
         }
       }
     }
@@ -305,6 +312,7 @@ playerStartREC(data)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToSim"), player, sim);
     this.bot.setUserVoiceChannel(player, this.channels[getKeyByValue(this.sims, sim)]);
+    this.players[player].sim = sim;
   }
 
   getGameState()

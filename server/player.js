@@ -6,6 +6,7 @@ class Player {
     this.discordID = discordID;
     this.callQueue = {};
     this.inCall = false;
+    this.sim = "";
   }
 
   

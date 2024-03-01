@@ -70,9 +70,9 @@ export default {
     }
   },
   created() {
-    this.rejectedAudio = new Audio(require('@/assets/audio/rejected.mp3'));
-    this.callAudio = new Audio(require('@/assets/audio/telephone-ring.mp3'));
-    this.recAudio = new Audio(require('@/assets/audio/rec.mp3'));
+    this.rejectedAudio = new Audio('/audio/rejected.mp3');
+    this.callAudio = new Audio('/audio/telephone-ring.mp3');
+    this.recAudio = new Audio('/audio/rec.mp3');
     this.callAudio.loop = true;
   },
   mounted() {

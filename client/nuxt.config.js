@@ -1,4 +1,4 @@
-export default {
+export default defineNuxtConfig({
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'simsig-controller',
@@ -26,42 +26,30 @@ export default {
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
-  // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [
-    // https://go.nuxtjs.dev/tailwindcss
-    '@nuxtjs/tailwindcss',
-    '@nuxtjs/svg',
-    ['@nuxtjs/fontawesome', {
-      component: 'fa',
-      suffix: true,
-      icons: {
-        solid: true
-      }
-    }]
-  ],
-
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
-    // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios',
     'nuxt-socket-io',
-    '@nuxtjs/proxy',
+    '@nuxtjs/tailwindcss',
+    //'@nuxtjs/svg',
+    //['@nuxtjs/fontawesome', {
+    //  component: 'fa',
+    //  suffix: true,
+    //  icons: {
+    //    solid: true
+    //  }
+    //}]
   ],
   io: {
     sockets: [{
       name: 'main',
       url: 'http://roc.onourlines.co.uk:3001'
-      // url: 'http://localhost:3001',
+      //url: 'http://localhost:3001'
       // url: 'http://cronchyboi.redirectme.net:3001'
     }]
   },
-  // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {
-    proxy: true
-  },
   proxy: {
-    // '/api/': 'http://localhost:3001/',
-    // '/sockets': 'http://localhost:3001'
+     // '/api/': 'http://localhost:3001/',
+     // '/sockets': 'http://localhost:3001'
   },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
@@ -80,4 +68,4 @@ export default {
     host:'0.0.0.0',
     // port: 80
   }
-}
+})

@@ -18,8 +18,7 @@
       <Main :gameData="gameData" :username="username" :socket="socketPointer"/>
     </div>
     <div v-else>
-      <Login :username.sync="username" @joinGame="joinUser"/>
-      <p v-if="randomChance" class="text-gray-500">Jarley Smells</p>
+      <Login v-model:username="username" @joinGame="joinUser"/>
     </div>
 <!--    <div class="w-screen">-->
 <!--      <pre><code>{{debugData}}</code></pre>-->
@@ -27,7 +26,6 @@
   </div>
 </template>
 <script>
-import Vuex from 'vuex';
 import Login from "../components/Login";
 import Main from "../components/Main";
 export default {

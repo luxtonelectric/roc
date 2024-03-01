@@ -40,7 +40,7 @@ class ROCManager {
   //takes player object
   addPlayer(player) {
     console.info(chalk.yellow("AddPlayer"), "New Player Joining");
-    if (/^((.{2,32})#\d{4})$/.test(player.discordID)) //arturs did this and its fuck'd
+    if (/^((.{2,32}))$/.test(player.discordID))
     {
       var channel = this.bot.getUserVoiceChannel(player.discordID);
       if (channel) {
@@ -297,6 +297,7 @@ playerStartREC(data)
   //strings in
   movePlayerToSim(player, sim)
   {
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToSim"), player, sim);
     this.bot.setUserVoiceChannel(player, this.channels[getKeyByValue(this.sims, sim)]);
   }
 

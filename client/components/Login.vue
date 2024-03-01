@@ -20,7 +20,7 @@
 export default {
   name: "Login",
   props: {
-    inputData: String
+    modelValue: String
   },
   data()
   {

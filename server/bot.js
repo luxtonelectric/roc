@@ -5,13 +5,13 @@ require('better-logging')(console, {
 });
 // End Better Logger
 
-const Discord = require('discord.js');
+  const {Client, GatewayIntentBits} = require('discord.js');
 
 
 class DiscordBot {
   constructor (token, prefix, guild)
   {
-    this.client = new Discord.Client();
+    this.client = new Client({intents:[GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences]});
     this.token = token;
     this.prefix = prefix;
     this.guild = guild;
@@ -41,7 +41,7 @@ class DiscordBot {
   getMember(user)
   {
     let guild = this.client.guilds.cache.get(this.guild);
-    let member = guild.members.cache.find(us=> us.user.username===user.split("#")[0]);
+    let member = guild.members.cache.find(us=> us.displayName===user);
     return member;
   }
 
@@ -59,8 +59,12 @@ class DiscordBot {
       }
       else
       {
+        console.info(chalk.red("getUserVoiceChannel"), chalk.yellow("No voice channel:"), chalk.white(user));
         return false;
       }
+    }else{
+      console.info(chalk.red("getUserVoiceChannel"), chalk.yellow("No member:"), chalk.white(user));
+      return false;
     }
   }
 

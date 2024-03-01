@@ -1,7 +1,7 @@
 <template>
 <div>
   <AdminControlPanel v-if="adminLoggedIn" :socket="socketPointer"/>
-  <AdminLogin v-else  @adminLogin="adminLogin" :adminPassword.sync="adminPassword"/>
+  <AdminLogin v-else  @adminLogin="adminLogin" v-model:adminPassword="adminPassword"/>
 </div>
 </template>
 

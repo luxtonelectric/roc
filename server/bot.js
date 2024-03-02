@@ -59,7 +59,7 @@ class DiscordBot {
       }
       else
       {
-        console.info(chalk.red("getUserVoiceChannel"), chalk.yellow("No voice channel:"), chalk.white(user));
+        console.warn(chalk.red("getUserVoiceChannel"), chalk.yellow("No voice channel:"), chalk.white(user));
         return false;
       }
     }else{
@@ -83,9 +83,16 @@ class DiscordBot {
   {
     var member = this.getMember(user);
     var c  = this.getVoiceChannel(channel)
-    member.voice.setChannel(c).then(()=>{
+    try {
+      member.voice.setChannel(c).then(()=>{
       this.gameManager.updatePlayerUI();
+    }).catch((error)=>{
+      console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
     });
+    } catch (error) {
+      console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
+    }
+    
   }
 }
 

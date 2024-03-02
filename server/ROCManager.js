@@ -47,6 +47,7 @@ class ROCManager {
         console.info(chalk.yellow("AddPlayer"), `User ${player.discordID} is in a voice channel:`, chalk.magentaBright(channel));
         if (channel === this.channels.lobby) {
           console.info(chalk.yellow("AddPlayer"), `User ${player.discordID} is in lobby channel`);
+          player.sim = "lobby";
           this.players[player.discordID] = player;
           // this.players[player.discordID].inCall = true;
           // console.info(this.players);
@@ -126,30 +127,31 @@ class ROCManager {
     }
   }
 
+  getAvailableCallChannel() {
+    //let channel = null;
+    //const keys = Object.keys(this.privateCalls);
+    for(const key in this.privateCalls) {
+      if(this.privateCalls[key].length == 0) {
+        return key;
+      }
+    }
+    console.log(chalk.red("No available call channels:"),this.privateCalls);
+    return null;
+  }
+
   acceptCall(data)
   {
     // this.players[data.user].callQueue[data.sender];
     if(this.players[data.sender].inCall === false)
     {
       var p = this.players[data.sender];
-      console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Length:"), this.privateCalls['priv-1'].length);
-      if(this.privateCalls['priv-1'].length < 1)
-      {
-        this.privateCalls['priv-1'] = [data.user, data.sender];
-        this.joinCall(data, 0);
-      }
-      else if(this.privateCalls['priv-2'] < 1)
-      {
-        this.privateCalls['priv-2'] = [data.user, data.sender];
-        this.joinCall(data, 1);
-      }
-      else if(this.privateCalls['priv-3'] < 1)
-      {
-        this.privateCalls['priv-3'] = [data.user, data.sender];
-        this.joinCall(data, 2);
-      }
-      else
-      {
+      const available = this.getAvailableCallChannel();
+      
+      if(available !== null) {
+        console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Length:"), this.privateCalls[available].length);
+        this.privateCalls[available] = [data.user, data.sender];
+        this.joinCall(data, available);
+      } else {
         this.sockets.to(p.socket.id).emit('rejectCall', {"success":false})
       }
     }
@@ -173,27 +175,10 @@ class ROCManager {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Incoming Data"), data);
     data.users.forEach((d) =>{
       var p = this.players[d];
-      switch(channel)
-      {
-        case 0:
-          this.movePlayerToSim(p.discordID, this.sims["priv-1"]);
-          this.sockets.to(p.socket.id).emit("joinedCall",{"success":true});
-          success = true;
-          break;
-        case 1:
-          this.movePlayerToSim(p.discordID, this.sims["priv-2"]);
-          success = true;
-          this.sockets.to(p.socket.id).emit("joinedCall",{"success":true});
-          break;
-        case 2:
-          this.movePlayerToSim(p.discordID, this.sims["priv-3"]);
-          success = true;
-          this.sockets.to(p.socket.id).emit("joinedCall",{"success":true});
-          break;
-        default:
-          this.sockets.to(p.socket.id).emit("rejectCall", {"success":false});
-          break;
-      }
+      this.movePlayerToCall(p.discordID, channel);
+      success = true;
+      this.sockets.to(p.socket.id).emit("joinedCall",{"success":true});
+
       if(success === true)
       {
         this.players[data.user].inCall = true;
@@ -224,12 +209,15 @@ class ROCManager {
             this.privateCalls[call].splice(index, 1);
             this.players[data.user].inCall = false;
           }
+          //console.log(this.players[data.user]);
+          //TODO: What do we replace these calls with?
           this.movePlayerToSim(data.user, this.players[data.user].sim);
 
           if(this.privateCalls[call].length == 1) {
             const caller = this.privateCalls[call][0];
             this.players[caller].inCall = false;
             this.movePlayerToSim(caller, this.players[caller].sim);
+            this.sockets.to(this.players[caller].socket.id).emit("kickedFromCall", {"success": true});
           }
         }
       }
@@ -242,36 +230,44 @@ class ROCManager {
 
 // REc
  //obj and strings
- playerJoinREC(player)
+ playerJoinREC(playerId, channelId)
  {
-   console.log(chalk.blueBright("GameManager"), chalk.yellow("Player joining REC:"), chalk.white(player));
+   console.log(chalk.blueBright("GameManager"), chalk.yellow("Player joining REC:"), chalk.white(playerId));
   //  this.acceptCall({users:[player]}, 1);
-  this.movePlayerToSim(this.players[player].discordID, this.sims["priv-3"]);
+  this.movePlayerToCall(playerId, channelId);
+  this.sockets.to(this.players[playerId].socket.id).emit("joinedCall",{"success":true});
  }
 
 playerStartREC(data)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("playerStartREC"), chalk.magenta("REC started by:"), data.user);
     var gs = this.getGameState();
-    this.privateCalls['priv-3'].push(data.user);
-    this.playerJoinREC(data.user);
-    gs.forEach(el => {
-      if(el.name === data.panel)
-      {
-        if(el.players != null)
+    const available = this.getAvailableCallChannel();
+    if(available !== null) {
+      this.privateCalls[available].push(data.user);
+      this.playerJoinREC(data.user,available);
+      gs.forEach(el => {``
+        console.log(el.name, data.panel)
+        if(el.name === data.panel)
         {
-          el.players.forEach(p => {
-            if(p.discordID != data.user)
-            {
-              console.log(chalk.blueBright("playerStartREC"), chalk.yellow("el.players foreach"), chalk.white(), p);
-              var player = this.players[p.discordID];
-              this.privateCalls['priv-3'].push(p.discordID);
-              this.sockets.to(player.socket.id).emit('incomingREC');
-            }
-          });
+          if(el.players != null)
+          {
+            el.players.forEach(p => {
+              if(p.discordID != data.user)
+              {
+                console.log(chalk.blueBright("playerStartREC"), chalk.yellow("el.players foreach"), chalk.white(), p);
+                var player = this.players[p.discordID];
+                this.privateCalls[available].push(p.discordID);
+                this.sockets.to(player.socket.id).emit('incomingREC',{"channel":available});
+              }
+            });
+          }
         }
-      }
-    });
+      });
+    } else {
+      console.log(chalk.red("REC Failed due to no available call channels"))
+    }
+    
   }
 
 // end REC
@@ -289,7 +285,7 @@ playerStartREC(data)
     }
     for(const [key, value] of Object.entries(this.players))
     {
-      var loc = this.getPlayerLocation(value);
+      var loc = this.getPlayerSim(value);
       if (!locations[loc]){ locations[loc] = [];}
       var player = {discordID: value.discordID, panel: value.panel, inCall: value.inCall, callQueue: value.callQueue};
       if(!locations[loc][player])
@@ -302,31 +298,41 @@ playerStartREC(data)
 
   // Take in a player object.
   // return their location
-  getPlayerLocation(player)
+  getPlayerSim(player)
   {
-    return getKeyByValue(this.channels, this.bot.getUserVoiceChannel(player.discordID));
+    const expectedSim = this.players[player.discordID].sim;
+    const playerChannel = this.bot.getUserVoiceChannel(player.discordID);
+    //return getKeyByValue(this.channels, this.bot.getUserVoiceChannel(player.discordID));
+    return expectedSim;
   }
 
   //strings in
   movePlayerToSim(player, sim)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToSim"), player, sim);
-    this.bot.setUserVoiceChannel(player, this.channels[getKeyByValue(this.sims, sim)]);
+    this.movePlayerToCall(player, this.sims[sim].channel);
     this.players[player].sim = sim;
   }
+
+  movePlayerToCall(player, call)
+  {
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToCall"), player, call);
+    this.bot.setUserVoiceChannel(player, this.channels[call]);
+  }
+
 
   getGameState()
   {
     var obj = [];
     var playerLocs = this.getAllPlayerLocs();
-    var channels = this.channels;
+    //var channels = this.channels;
     var sims = this.sims;
-    Object.keys(this.channels).forEach(key => {
-      var chan = channels[key];
+    Object.keys(this.sims).forEach(key => {
+      //var chan = channels[key];
       obj.push({
         players: playerLocs[key],
-        id: chan,
-        name: sims[getKeyByValue(channels,chan)]
+        id: key,
+        name: sims[key].title
       });
     });
     console.info(chalk.yellow("Game State:"), obj);

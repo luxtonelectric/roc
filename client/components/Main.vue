@@ -36,7 +36,7 @@
       | <a tabindex="0" class="link py-1" href="https://bradshaw.onourlines.co.uk/wiki/SimSig:Railway_Operating_Centre" target="_blank">ROC User Manual</a>
     </div>
     <CallWindow v-if="incomingCall" :callData="callData" :socket="socket" :username="username" @rejectCall="rejectCall" :callChannel="callChannel" @acceptCall="acceptCall"/>
-    <IncomingREC v-if="incomingRec" :callData="callData" :socket="socket" :username="username" @joinREC="joinREC"/>
+    <IncomingREC v-if="incomingRec" :callData="callData" :socket="socket" :username="username" :callChannel="callChannel" @joinREC="joinREC"/>
     <StartREC v-if="considerRec" :gameData="gameData" :socket="socket" :username="username" @cancelRec="cancelREC"
               @startREC="startREC"/>
     <CallPlacedDialog v-if="hasPlacedCall" @hideCallDialog="hidePlacedCall" />
@@ -90,8 +90,8 @@ export default {
       that.rejectedAudio.play();
     });
     this.socket.on("incomingREC", function (msg) {
-
       that.incomingRec = true;
+      that.callChannel = msg.channel;
       that.recAudio.play();
     });
     this.socket.on('newCallInQueue', function (msg) {
@@ -145,12 +145,12 @@ export default {
     cancelREC() {
       this.considerRec = false;
     },
-    joinREC() {
+    joinREC(msg) {
       // this.lastChannel = this.panel;
       this.incomingRec = false;
       this.recAudio.pause();
       this.recAudio.currentTime = 0;
-      this.socket.emit("joinREC", {"user": this.username});
+      this.socket.emit("joinREC", {"user": this.username,"channel": msg.channel});
     },
     movedSim(sim) {
       this.lastChannel = sim;

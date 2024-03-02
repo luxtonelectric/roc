@@ -310,6 +310,10 @@ playerStartREC(data)
   movePlayerToSim(player, sim)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToSim"), player, sim);
+    if(this.sims[sim] === undefined) {
+      console.log(chalk.blueBright("GameManager"), chalk.red("movePlayerToSim sim is undefined"), player, sim);
+      return false;
+    }
     this.movePlayerToCall(player, this.sims[sim].channel);
     this.players[player].sim = sim;
   }

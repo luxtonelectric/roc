@@ -8,7 +8,7 @@
           <!--          style="color: #e53e3e"-->
           <h1 class="text-6xl p-5 font-bold text-green-600">Call Placed</h1>
           <p class="text-4xl mb-6 font-semibold">You have been waiting for {{timer}}.</p>
-          <a class="rounded-2xl mt-4 mx-4 border border-green-600 bg-green-500 py-5 px-20 text-white text-2xl font-semibold hover:bg-green-800 focus:bg-green-800 active:bg-green-800" @click="confirm()">Hide</a>
+          <a class="rounded-2xl mt-4 mx-4 border border-green-600 bg-green-500 py-5 px-20 text-white text-2xl font-semibold hover:bg-green-800 focus:bg-green-800 active:bg-green-800" @click="hangUp()">Hang Up</a>
         </div>
         <div  class="flex-grow py-1"></div>
       </div>
@@ -19,6 +19,7 @@
 <script>
 export default {
   name: "CallPlacedDialog",
+  props: ["socket", "callData"],
   data() {
     return {
       time: 0,
@@ -48,8 +49,9 @@ export default {
     incrementTime() {
       this.time = parseInt(this.time) + 1;
     },
-    confirm()
+    hangUp()
     {
+      this.socket.emit('rejectCall', {"senderPhoneId": this.callData.sender, "receiverPhoneId": this.callData.receiver})
       this.$emit('hideCallDialog');
     }
   }

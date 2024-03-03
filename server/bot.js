@@ -79,18 +79,20 @@ class DiscordBot {
 
 
   //strings in
-  setUserVoiceChannel(user, channel)
+  async setUserVoiceChannel(user, channel)
   {
     var member = this.getMember(user);
     var c  = this.getVoiceChannel(channel)
     try {
-      member.voice.setChannel(c).then(()=>{
-      this.gameManager.updatePlayerUI();
-    }).catch((error)=>{
-      console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
-    });
+      const mem = await member.voice.setChannel(c).catch((error)=>{
+        console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
+        return false;
+      });
+
+      return true;
     } catch (error) {
       console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
+      return false;
     }
     
   }

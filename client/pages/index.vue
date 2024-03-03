@@ -15,7 +15,7 @@
       </div>
     </div>
     <div v-if="loggedIn">
-      <Main :gameData="gameData" :username="username" :socket="socketPointer"/>
+      <Main :gameData="gameData" :playerData="playerData" :username="username" :socket="socketPointer"/>
     </div>
     <div v-else>
       <Login v-model:username="username" @joinGame="joinUser"/>
@@ -35,6 +35,7 @@ export default {
       error: "",
       username: "Username#1234",
       gameData: {},
+      playerData: {phones:{}},
       socketStatus: {},
       socketPointer: null,
       connected: false,
@@ -44,23 +45,12 @@ export default {
   components:{
     Login
   },
-  computed:{
-    randomChance: function () {
-      if(Math.floor(Math.random() * 10) > 8){
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-  },
+  computed:{},
   mounted() {
     var that = this;
     this.socket = this.$nuxtSocket({
       options: {
         cors:true,
-        // origins:["http://localhost:3001"],
         statusProp: 'socketStatus'
       }
     });
@@ -80,6 +70,9 @@ export default {
       console.log(msg);
       that.gameData = msg;
     });
+    this.socket.on("playerInfo", function (msg){
+      that.playerData = msg;
+    });
     this.socket.on('disconnect', function (reason){
       console.log(reason);
       that.error = `You have been disconnected from ROC. (${reason})`;
@@ -95,7 +88,6 @@ export default {
 
     joinUser()
     {
-
       this.socket.emit("newPlayer", {panel: "NONE", socket: null, discordID: this.username});
     },
     annoyMe()

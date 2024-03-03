@@ -9,9 +9,17 @@
       <p v-else-if="simData.name.includes('Emergency Call')"></p>
       <a v-else tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Sim</a>
     </div>
-    <div v-if="simData.players">
-      <a class="button inline-block" v-for="(player, key) in simData.players" :key="key" @click="placeCall(player.discordID)">{{player.panel ? player.panel : player.discordID}}</a>
+    <div v-if="simData.panels">
+      <div v-for="(panel, key) in simData.panels">
+        <h5>{{panel.name}}</h5>
+        <a class="button inline-block" :key="key" @click="placeCall(panel.phone)">Call</a>
+        <a v-if="!panel.player" class="button inline-block" :key="key" @click="claimPanel(simData.id,key)">Claim</a>
+        <a v-if="panel.player === username" class="button inline-block" :key="key" @click="releasePanel(simData.id,key)">Release</a>
+      </div>
+
     </div>
+    <div class="text-right"><input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
+        <a class="link" @click="callNumber">Call Number</a></div>
 <!--    <hr class="mt-5"/>-->
   </div>
 
@@ -20,7 +28,12 @@
 <script>
 export default {
   name: "Sim",
-  props: ["simData", "socket", "username", "panel", "playerSim"],
+  props: ["simData", "socket", "username", "panel", "playerSim", "selectedPhone"],
+  data() {
+    return {
+      phoneNumber: "",
+    }
+  },
   mounted()
   {
     // this.socket.on("test", function (msg)
@@ -35,10 +48,21 @@ export default {
       this.socket.emit("movePlayerSim", {"user": this.username, "sim": this.simData.id});
       this.$emit("movedSim", this.simData.name);
     },
+    callNumber(){
+      this.placeCall(this.phoneNumber);
+    },
     placeCall(key)
     {
-      this.$emit('placedCall');
-      this.socket.emit("placeCall", {"user":key, "sender": this.username, "senderpanel": this.panel, "sendersim": this.playerSim});
+      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
+      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
+    },
+    claimPanel(sim, key)
+    {
+      this.socket.emit("claimPanel", {"sim": sim, "panel":key, "sender": this.username});
+    },
+    releasePanel(sim, key)
+    {
+      this.socket.emit("releasePanel", {"sim": sim, "panel":key, "sender": this.username});
     },
     leaveCall()
     {

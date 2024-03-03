@@ -29,23 +29,33 @@ module.exports = function (socket, gameManager) {
   });
 
   // Working
+  socket.on('claimPanel', function(msg){
+    gameManager.claimPanel(msg.sender, msg.sim, msg.panel)
+  });
+
+  // Working
+  socket.on('releasePanel', function(msg){
+    gameManager.releasePanel(msg.sender, msg.sim, msg.panel)
+  });
+
+  // Working
   socket.on('movePlayerSim', function(msg){
     gameManager.movePlayerToSim(msg.user, msg.sim);
   });
 
   // Working
   socket.on("placeCall", function(msg){
-    gameManager.placeCall(msg);
+    gameManager.placeCall(socket.id, msg.receiver,msg.sender);
   });
 
   // Not Working
   socket.on("rejectCall", function(msg){
-    gameManager.rejectCall(msg);
+    gameManager.rejectCall(socket.id,msg.senderPhoneId,msg.receiverPhoneId);
   });
   
   // Working
   socket.on("acceptCall", function(msg){
-    gameManager.acceptCall(msg);
+    gameManager.acceptCall(socket.id,msg.sender, msg.receiver);
   });
 
   // Working

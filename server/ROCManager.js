@@ -21,6 +21,7 @@ let Player = require('./player');
 class ROCManager {
   players = {};
   admins = {};
+  phones = {};
   privateCalls;
   constructor(sockets, bot, config) {
     this.sockets = sockets;
@@ -28,13 +29,14 @@ class ROCManager {
     this.guild = config.guild;
     this.channels = config.channels;
     this.sims = config.sims;
+    this.phones = config.phones;
     this.config = config;
     this.privateCalls = config.privateCalls;
     console.info(chalk.yellow("constructor"), `Welcome! Yum yum!`);
   }
   
   
-  // ============================= BEGIN PLAYER SHIT =============================
+  // ============================= BEGIN PLAYER CODE =============================
 
 
   //takes player object
@@ -45,6 +47,16 @@ class ROCManager {
       var channel = this.bot.getUserVoiceChannel(player.discordID);
       if (channel) {
         console.info(chalk.yellow("AddPlayer"), `User ${player.discordID} is in a voice channel:`, chalk.magentaBright(channel));
+
+        if(this.players[player.discordID] !== undefined) {
+          // This player has already logged in!
+          //console.log(this.players[player.discordID]);
+          //console.log(player);
+        } else{
+          // Brand new Player
+          //console.log("Brand New Player!");
+        }
+
         if (channel === this.channels.lobby) {
           console.info(chalk.yellow("AddPlayer"), `User ${player.discordID} is in lobby channel`);
           player.sim = "lobby";
@@ -55,8 +67,8 @@ class ROCManager {
             "loggedIn": true,
             "error": ""
           });
-          this.sockets.emit("gameInfo", this.getGameState());
           this.updatePlayerUI();
+          this.updatePlayerInfo(player);
         } else {
           console.info(chalk.yellow("AddPlayer"), `User ${player.discordID} is not in the lobby.`);
           this.sockets.to(player.socket.id).emit("loggedIn", {
@@ -87,43 +99,138 @@ class ROCManager {
     this.updatePlayerUI();
   }
 
-  //take in a player's name
-  deletePlayer(player)
+  //Takes in a SocketId
+  deletePlayer(socketId)
   {
-    console.info("Player wishes to leave:", player);
+    console.log("Player wishes to leave:", socketId);
+    // Delete the player from the players list...
     for(var [key, value] of Object.entries(this.players))
     {
-      if(value.socket.id === player)
+      if(value.socket.id === socketId)
       {
+        console.log(chalk.yellow("Delete Player"), key ,chalk.white("was deleted from the game"));
         delete this.players[key];
+        // Unclaim any claimed panels
+        for(var skey of Object.keys(this.sims))
+        {
+          if(typeof this.sims[skey].panels !== "undefined") {
+            for(var pkey of Object.keys(this.sims[skey].panels))
+            {
+              if(this.sims[skey].panels[pkey].player === key) {
+                console.log(chalk.yellow("Delete Player"), key, chalk.white("was removed as controlling panel"), pkey);
+                this.sims[skey].panels[pkey].player = undefined;
+              }
+            }
+          }
+        }
       }
     }
     this.updatePlayerUI();
   }
 
+  claimPanel(user, requestedSim, requestedPanel) {
+    const player = this.players[user];
+    if( player === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
+      return false;
+    }
 
-  // ============================== END PLAYER SHIT ==============================
+    const sim = this.sims[requestedSim]; 
+    if( sim === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined sim"), user, requestedSim, requestedPanel);
+      return false;
+    }
 
-  // ============================== BEGIN CALL SHIT ==============================
+    const panel = sim.panels[requestedPanel]; 
+    if( panel === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
+      return false;
+    }
+    //Assign the player to the panel
+    panel.player = user;
+    this.phones[panel.phone].player = user;
+    //Update the panel's phone to be assigned to the player
+    this.updatePlayerInfo(player);
+    this.updatePlayerUI();
+  }
+
+  releasePanel(user, requestedSim, requestedPanel) {
+    const player = this.players[user];
+    if( player === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
+      return false;
+    }
+
+    const sim = this.sims[requestedSim]; 
+    if( sim === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined sim"), user, requestedSim, requestedPanel);
+      return false;
+    }
+
+    const panel = sim.panels[requestedPanel]; 
+    if( panel === "undefined") {
+      console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
+      return false;
+    }
+    //Assign the player to the panel
+    panel.player = undefined;
+    this.phones[panel.phone].player = undefined;
+    //Update the panel's phone to be assigned to the player
+    this.updatePlayerUI();
+  }
+
+
+  // ============================== END PLAYER CODE ==============================
+
+  // ============================== BEGIN CALL CODE ==============================
 
 
   // take in an object with sender and reciever
-  placeCall(data)
+  placeCall(socketId, receiverPhoneId, senderPhoneId)
   {
-    // console.log(data);
-    var caller = this.players[data.sender];
-    var reciever = this.players[data.user];
+    if (typeof this.phones[receiverPhoneId] === 'undefined' || typeof this.phones[receiverPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
 
-    if(caller !== reciever) {
-      console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), caller.discordID, chalk.magentaBright("Reciever:"), reciever.discordID);
-      reciever.callQueue[caller.discordID] = {"discordID": caller.discordID, "panel": caller.panel, "sim": data.sendersim, "timePlaced": Date.now()};
-      console.log(chalk.yellow("Queue for"), reciever.discordID, reciever.callQueue);
-      reciever.socket.emit("newCallInQueue", reciever.callQueue);
-      this.players[data.user] = reciever;
+    if (typeof this.phones[senderPhoneId] === 'undefined' || typeof this.phones[senderPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    const sendingPhone = this.phones[senderPhoneId];
+    const sendingPlayerId = sendingPhone.player;
+    const sendingPlayer = this.players[sendingPlayerId];
+
+    if(socketId !== sendingPlayer.socket.id) {
+      console.error(chalk.red("ATTEMPTING TO MAKE A CALL FOR ANOTHER USER"), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    const receivingPhone = this.phones[receiverPhoneId];
+    const receivingPlayerId = receivingPhone.player;
+    const receivingPlayer = this.players[receivingPlayerId];
+
+    
+    if(typeof receivingPlayer === "undefined") {
+      console.error(chalk.red("Attempting to call a player that does not exist"), data);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if(sendingPlayer !== receivingPlayer) {
+      console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayer.discordID, chalk.magentaBright("Reciever:"), receivingPlayer.discordID);
+      receivingPlayer.callQueue[sendingPlayer.discordID] = {"senderId": senderPhoneId, "senderName": sendingPhone.displayName, "receiverId": receiverPhoneId, "receiverName": receivingPhone.displayName,"timePlaced": Date.now()};
+      console.log(chalk.yellow("Queue for"), receivingPlayer.discordID, receivingPlayer.callQueue);
+      receivingPlayer.socket.emit("newCallInQueue", receivingPlayer.callQueue);
+      //this.players[data.user] = reciever; //???
       this.updatePlayerUI();
     } else {
-      console.log(chalk.yellow("A player ("), caller.discordID, chalk.yellow(")tried to call themselves as was rejected."));
-      this.sockets.to(this.players[data.sender].socket.id).emit('rejectCall', {"success":false})
+      console.log(chalk.yellow("A player ("), sendingPlayer.discordID, chalk.yellow(")tried to call themselves as was rejected."));
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
     }
   }
 
@@ -139,59 +246,104 @@ class ROCManager {
     return null;
   }
 
-  acceptCall(data)
+  acceptCall(socketId, senderPhoneId,receiverPhoneId)
   {
-    // this.players[data.user].callQueue[data.sender];
-    if(this.players[data.sender].inCall === false)
+    if (typeof this.phones[receiverPhoneId] === 'undefined' || typeof this.phones[receiverPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if (typeof this.phones[senderPhoneId] === 'undefined' || typeof this.phones[senderPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    const sendingPhone = this.phones[senderPhoneId];
+    const sendingPlayerId = sendingPhone.player;
+    const sendingPlayer = this.players[sendingPlayerId];
+
+    const receivingPhone = this.phones[receiverPhoneId];
+    const receivingPlayerId = receivingPhone.player;
+    const receivingPlayer = this.players[receivingPlayerId];
+
+    if(socketId !== receivingPlayer.socket.id) {
+      console.error(chalk.red("ATTEMPTING TO MAKE A CALL FOR ANOTHER USER"), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+    
+    if(typeof receivingPlayer === "undefined") {
+      console.error(chalk.red("Attempting to call a player that does not exist"), data);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if(sendingPlayer.inCall === false)
     {
-      var p = this.players[data.sender];
       const available = this.getAvailableCallChannel();
       
       if(available !== null) {
         console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Length:"), this.privateCalls[available].length);
-        this.privateCalls[available] = [data.user, data.sender];
-        this.joinCall(data, available);
+        this.privateCalls[available] = [receivingPlayerId, sendingPlayerId];
+        this.joinCall(sendingPlayer, receivingPlayer, available);
       } else {
-        this.sockets.to(p.socket.id).emit('rejectCall', {"success":false})
+        this.sockets.to(sendingPlayer.socket.id).emit('rejectCall', {"success":false})
       }
     }
     else
     {
-      this.sockets.to(this.players[data.sender].socket.id).emit('rejectCall', {"success":false})
+      this.sockets.to(sendingPlayer.socket.id).emit('rejectCall', {"success":false})
     }
   }
 
-  rejectCall(data)
+  rejectCall(socketId,senderPhoneId,receiverPhoneId)
   {
-    delete this.players[data.user].callQueue[data.sender];
-    this.sockets.to(this.players[data.sender].socket.id).emit("rejectCall",{"success": false});
-    this.sockets.to(this.players[data.user].socket.id).emit('updateMyCalls', this.players[data.user].callQueue);
+    if (typeof this.phones[receiverPhoneId] === 'undefined' || typeof this.phones[receiverPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if (typeof this.phones[senderPhoneId] === 'undefined' || typeof this.phones[senderPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    const senderPlayerId = this.phones[senderPhoneId].player;
+    const receiverPlayerId = this.phones[receiverPhoneId].player;
+
+    delete this.players[receiverPlayerId].callQueue[senderPlayerId];
+    this.sockets.to(this.players[senderPlayerId].socket.id).emit("rejectCall",{"success": false});
+    this.sockets.to(this.players[receiverPlayerId].socket.id).emit('updateMyCalls', this.players[receiverPlayerId].callQueue);
     this.updatePlayerUI();
   }
 
-  joinCall(data, channel)
+  joinCall(sendingPlayer, receivingPlayer, channel)
   {
     var success = false;
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Incoming Data"), data);
-    data.users.forEach((d) =>{
-      var p = this.players[d];
-      this.movePlayerToCall(p.discordID, channel);
-      success = true;
-      this.sockets.to(p.socket.id).emit("joinedCall",{"success":true});
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Incoming Data"), sendingPlayer.discordID, receivingPlayer.discordID, channel);
 
-      if(success === true)
-      {
-        this.players[data.user].inCall = true;
-        this.players[data.sender].inCall = true;
-        delete this.players[data.user].callQueue[data.sender];
-        this.sockets.to(this.players[data.user].socket.id).emit('updateMyCalls', this.players[data.user].callQueue);
+    if(this.movePlayerToCall(sendingPlayer.discordID, channel)) {
+      if(this.movePlayerToCall(receivingPlayer.discordID, channel)) {
+        //both players joined call
+        this.sockets.to(sendingPlayer.socket.id).emit("joinedCall",{"success":true});
+        this.sockets.to(receivingPlayer.socket.id).emit("joinedCall",{"success":true});
+        this.players[sendingPlayer.discordID].inCall = true;
+        this.players[receivingPlayer.discordID].inCall = true;
+        delete this.players[receivingPlayer.discordID].callQueue[sendingPlayer.discordID];
+        this.sockets.to(receivingPlayer.socket.id).emit('updateMyCalls', this.players[receivingPlayer.discordID].callQueue);
+      } else {
+        // could not move receiving player
+        // TODO: Handle this error condition
       }
-      else
-      {
-        console.log("shit");
-      }
-      this.updatePlayerUI();
-    });
+    } else {
+      // could not move the sending player
+      // TODO: Handle this error condition
+    }
+    this.updatePlayerUI();
   }
 
   leaveCall(data)
@@ -226,7 +378,7 @@ class ROCManager {
   }
 
 
-  // =============================== END CALL SHIT ===============================
+  // =============================== END CALL CODE ===============================
 
 // REc
  //obj and strings
@@ -247,7 +399,6 @@ playerStartREC(data)
       this.privateCalls[available].push(data.user);
       this.playerJoinREC(data.user,available);
       gs.forEach(el => {``
-        console.log(el.name, data.panel)
         if(el.name === data.panel)
         {
           if(el.players != null)
@@ -273,7 +424,17 @@ playerStartREC(data)
 // end REC
 
 
-
+  getPlayerPhones(playerID){
+    const keys = Object.keys(this.phones).filter((key) => this.phones[key].player === playerID);
+    const result = [];
+    result.push()
+    keys.forEach((x) => {
+       const y = this.phones[x];
+       y.id = x;
+       result.push(y);
+    });
+    return result;
+  }
 
 
   getAllPlayerLocs()
@@ -286,8 +447,9 @@ playerStartREC(data)
     for(const [key, value] of Object.entries(this.players))
     {
       var loc = this.getPlayerSim(value);
+      const allPhones = this.getPlayerPhones(key);
       if (!locations[loc]){ locations[loc] = [];}
-      var player = {discordID: value.discordID, panel: value.panel, inCall: value.inCall, callQueue: value.callQueue};
+      var player = {discordID: value.discordID, panel: value.panel, inCall: value.inCall, callQueue: value.callQueue, phones:allPhones};
       if(!locations[loc][player])
       {
         locations[loc].push(player);
@@ -318,36 +480,45 @@ playerStartREC(data)
     this.players[player].sim = sim;
   }
 
-  movePlayerToCall(player, call)
+  async movePlayerToCall(player, call)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToCall"), player, call);
-    this.bot.setUserVoiceChannel(player, this.channels[call]);
+    return await this.bot.setUserVoiceChannel(player, this.channels[call]);
   }
 
 
   getGameState()
   {
     var obj = [];
-    var playerLocs = this.getAllPlayerLocs();
+    const playerLocs = this.getAllPlayerLocs();
     //var channels = this.channels;
     var sims = this.sims;
     Object.keys(this.sims).forEach(key => {
       //var chan = channels[key];
       obj.push({
         players: playerLocs[key],
+        panels: sims[key].panels,
         id: key,
         name: sims[key].title
       });
     });
-    console.info(chalk.yellow("Game State:"), obj);
+    //console.info(chalk.yellow("Game State:"), obj);
     return obj;
   }
 
-  // Just updates the player UI
+  // Just updates the player UI for all players
   updatePlayerUI()
   {
     this.sockets.emit("gameInfo", this.getGameState());
     this.updateAdminUI();
+  }
+
+  updatePlayerInfo(player) {
+    const phones = this.getPlayerPhones(player.discordID);
+    const info = {};
+    info.phones = phones;
+    this.sockets.to(player.socket.id).emit("playerInfo", info);
+    //console.log(chalk.yellow("updatePlayerInfo"), info);
   }
 
   // ================================================= ADMIN STUFF ================================================= 
@@ -377,7 +548,7 @@ playerStartREC(data)
         {
           if(this.privateCalls[call].indexOf(data.user)>-1)
           {
-            console.log(this.privateCalls[call]);
+            //console.log(this.privateCalls[call]);
             var index = this.privateCalls[call].indexOf(data.user);
             if (index !== -1) {
               this.privateCalls[call].splice(index, 1);

@@ -20,7 +20,7 @@
 export default {
   name: "IncomingREC",
 
-  props: ['username', 'socket', 'callData'],
+  props: ['username', 'socket', 'callChannel'],
 
   data() {
     return {
@@ -46,7 +46,7 @@ export default {
     },
     joinREC()
     {
-      this.$emit("joinREC", true);
+      this.$emit("joinREC", {"channel": this.callChannel});
     }
   }
 

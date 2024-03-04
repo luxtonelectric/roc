@@ -32,7 +32,7 @@ export default {
   methods: {
     movePlayer()
     {
-      this.socket.emit("movePlayerSim", {"user": this.username, "sim": this.simData.name});
+      this.socket.emit("movePlayerSim", {"user": this.username, "sim": this.simData.id});
       this.$emit("movedSim", this.simData.name);
     },
     placeCall(key)

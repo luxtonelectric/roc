@@ -55,7 +55,7 @@ module.exports = function (socket, gameManager) {
 
   // Working
   socket.on("joinREC", function(msg){
-    gameManager.playerJoinREC(msg.user);
+    gameManager.playerJoinREC(msg.user, msg.channel);
   });
 
   // Working

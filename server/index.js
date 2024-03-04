@@ -14,6 +14,12 @@ let io = require('socket.io')(port, {
   'pingInterval': 3000,
   cors: {
     origin: config.corsOrigin
+  },
+  connectionStateRecovery: {
+    // the backup duration of the sessions and the packets
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    // whether to skip middlewares upon successful recovery
+    skipMiddlewares: true,
   }
 });
 

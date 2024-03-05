@@ -60,11 +60,11 @@ class DiscordBot {
       else
       {
         console.warn(chalk.red("getUserVoiceChannel"), chalk.yellow("No voice channel:"), chalk.white(user));
-        return false;
+        return null;
       }
     }else{
       console.info(chalk.red("getUserVoiceChannel"), chalk.yellow("No member:"), chalk.white(user));
-      return false;
+      return null;
     }
   }
 

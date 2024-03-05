@@ -7,6 +7,7 @@ class Player {
     this.callQueue = {};
     this.inCall = false;
     this.sim = "";
+    this.isConnected = true;
   }
 
   

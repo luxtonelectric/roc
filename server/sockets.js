@@ -70,12 +70,12 @@ module.exports = function (socket, gameManager) {
 
   // Working
   socket.on("startREC", function(msg){
-    gameManager.playerStartREC(msg);
+    gameManager.playerStartREC(msg.user,msg.panel);
   });
 
   // Working
   socket.on('disconnect', function(msg){
-    gameManager.deletePlayer(socket.id);
+    gameManager.checkDisconnectingPlayer(socket.id);
     console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id);
   });
 }

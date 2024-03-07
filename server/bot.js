@@ -1,20 +1,18 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
-  format: ctx => `${ctx.time24} ${ctx.time12} ${ctx.date} ${ctx.type} ${ctx.STAMP('DiscordBot', chalk.blueBright)} ${ctx.msg}`
+import chalk from 'chalk';
+import betterLogging from 'better-logging';
+betterLogging(console,{
+  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('bot.js', chalk.blueBright)} ${ctx.msg}`
 });
-// End Better Logger
-
-  const {Client, GatewayIntentBits} = require('discord.js');
+import {Client, GatewayIntentBits} from 'discord.js';
 
 
-class DiscordBot {
-  constructor (token, prefix, guild)
+export default class DiscordBot {
+  constructor (token, prefix, guildId)
   {
     this.client = new Client({intents:[GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences]});
     this.token = token;
     this.prefix = prefix;
-    this.guild = guild;
+    this.guildId = guildId;
     this.gameManager = null;
     this.setUpBot();
   }
@@ -38,24 +36,24 @@ class DiscordBot {
     this.client.login(this.token).then((v) =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
   }
 
-  getMember(user)
+  async getMember(userId)
   {
-    let guild = this.client.guilds.cache.get(this.guild);
-    let member = guild.members.cache.find(us=> us.displayName===user);
+    const guild = await this.client.guilds.fetch(this.guildId);
+    const member = await guild.members.fetch(userId);
     return member;
   }
 
 
   //get a user voice channel
   //takes a string
-  getUserVoiceChannel(user)
+  async getUserVoiceChannel(user)
   {
-    let member = this.getMember(user);
+    let member = await this.getMember(user);
     if(member)
     {
       if(member.voice.channel)
       {
-        return member.voice.channel.name.toString();
+        return await member.voice.channel.name.toString();
       }
       else
       {
@@ -72,7 +70,7 @@ class DiscordBot {
   //vc out
   getVoiceChannel(channel)
   {
-    let guild = this.client.guilds.cache.get(this.guild);
+    let guild = this.client.guilds.cache.get(this.guildId);
     let vc = guild.channels.cache.find(chan => chan.name === channel);
     return vc;
   }
@@ -97,7 +95,3 @@ class DiscordBot {
     
   }
 }
-
-
-  
-module.exports = DiscordBot;

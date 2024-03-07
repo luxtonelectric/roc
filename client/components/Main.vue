@@ -55,7 +55,7 @@
 
 export default {
   name: "Main",
-  props: ["gameData", "socket", "username", "playerData"],
+  props: ["gameData", "socket", "username", "playerData", "socket"],
   data() {
     return {
       panel: "No Panel Set",

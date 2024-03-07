@@ -1,4 +1,4 @@
-class Player {
+export default class Player {
   constructor(panel, socket, discordID)
   {
     this.panel = panel;
@@ -16,6 +16,3 @@ class Player {
     this.panel = panel;
   }
 }
-
-
-module.exports = Player;

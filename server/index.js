@@ -1,15 +1,28 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}e${ctx.STAMP('ROCManager.js', chalk.blueBright)} ${ctx.msg}`
+import betterLogging from 'better-logging';
+betterLogging(console,{
+  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('index.js', chalk.blueBright)} ${ctx.msg}`
 });
+
+import { readFileSync } from "fs";
+import { createServer } from "https";
+import { Server } from "socket.io";
+import chalk from 'chalk';
+import ROCManager from "./ROCManager.js";
+import DiscordBot from "./bot.js";
+import config from "./config.json" with { type: "json" };
+
+import { rocSockets } from './sockets.js';
+import { adminSockets } from './adminSockets.js';
 // End Better Logger
 
 
-const port = 3001;
-const config = require('./config.json');
-const DiscordBot = require('./bot');
-let io = require('socket.io')(port, {
+const port = config.server.port;
+const httpsServer = createServer({
+  key: readFileSync(config.server.ssl.key),
+  cert: readFileSync(config.server.ssl.cert)
+});
+
+const io = new Server(httpsServer,{
   'pingTimeout': 7000,
   'pingInterval': 3000,
   cors: {
@@ -23,8 +36,6 @@ let io = require('socket.io')(port, {
   }
 });
 
-
-let ROCManager = require('./ROCManager.js');
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
 const rocManager = new ROCManager(io, discordBot, config);
 discordBot.setGameManager(rocManager);
@@ -32,6 +43,7 @@ discordBot.setGameManager(rocManager);
 
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
-  require('./sockets')(socket, rocManager);
-  require('./adminSockets')(socket, rocManager, config);
+  rocSockets(socket, rocManager);
+  adminSockets(socket, rocManager, config);
 });
+httpsServer.listen(port);

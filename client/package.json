@@ -12,12 +12,14 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@nuxtjs/fontawesome": "^1.1.2",
     "core-js": "^3.8.3",
-    "nuxt-socket-io": "^3.0.13",
+    "socket.io-client": "^4.7.4",
     "vue-eva-icons": "^1.1.1"
   },
   "devDependencies": {
     "@nuxtjs/svg": "^0.0.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
+    "@sidebase/nuxt-auth": "^0.6.7",
+    "next-auth": "4.21.1",
     "nuxt": "^3.10.3",
     "vue": "^3.4.21"
   }

@@ -1,24 +1,12 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
+import chalk from 'chalk'
+import Player from './player.js';
+import betterLogging from 'better-logging';
+import DiscordBot from './bot.js';
+betterLogging(console,{
   format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('ROCManager.js', chalk.blueBright)} ${ctx.msg}`
 });
-// End Better Logger
 
-/*
-
-Log info:
-console.info(chalk.yellow("FuncHere()"), "Message Here");
-
-*/
-
-const {
-  ReactionUserManager
-} = require('discord.js');
-let Player = require('./player');
-
-
-class ROCManager {
+export default class ROCManager {
   players = {};
   admins = {};
   phones = {};
@@ -40,11 +28,11 @@ class ROCManager {
 
 
   //takes player object
-  addPlayer(newPlayer) {
+  async addPlayer(newPlayer) {
     console.info(chalk.yellow("AddPlayer"), "New Player Joining");
-    if (/^((.{2,32}))$/.test(newPlayer.discordID))
+    if (typeof newPlayer.discordID !== 'undefined' && newPlayer.discordID.length > 2)
     {
-      var channel = this.bot.getUserVoiceChannel(newPlayer.discordID);
+      var channel = await this.bot.getUserVoiceChannel(newPlayer.discordID);
       if (channel) {
         console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is in a voice channel:`, chalk.magentaBright(channel));
 
@@ -184,19 +172,19 @@ class ROCManager {
 
   claimPanel(user, requestedSim, requestedPanel) {
     const player = this.players[user];
-    if( player === "undefined") {
+    if(typeof player === "undefined") {
       console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
     }
 
     const sim = this.sims[requestedSim]; 
-    if( sim === "undefined") {
+    if(typeof sim === "undefined") {
       console.error(chalk.red("Claim panel called with undefined sim"), user, requestedSim, requestedPanel);
       return false;
     }
 
     const panel = sim.panels[requestedPanel]; 
-    if( panel === "undefined") {
+    if(typeof panel === "undefined") {
       console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
@@ -210,19 +198,19 @@ class ROCManager {
 
   releasePanel(user, requestedSim, requestedPanel) {
     const player = this.players[user];
-    if( player === "undefined") {
+    if(typeof player === "undefined") {
       console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
     }
 
     const sim = this.sims[requestedSim]; 
-    if( sim === "undefined") {
+    if(typeof sim === "undefined") {
       console.error(chalk.red("Claim panel called with undefined sim"), user, requestedSim, requestedPanel);
       return false;
     }
 
     const panel = sim.panels[requestedPanel]; 
-    if( panel === "undefined") {
+    if(typeof panel === "undefined") {
       console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
@@ -270,7 +258,7 @@ class ROCManager {
 
     
     if(typeof receivingPlayer === "undefined") {
-      console.error(chalk.red("Attempting to call a player that does not exist"), data);
+      console.error(chalk.red("Attempting to call a player that does not exist"), receivingPlayerId);
       this.sockets.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
@@ -650,9 +638,6 @@ playerStartREC(playerId, panelId)
 
   // ================================================= ADMIN STUFF ================================================= 
 }
-
-module.exports = ROCManager;
-
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);

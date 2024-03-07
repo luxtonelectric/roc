@@ -1,13 +1,10 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('ROCManager.js', chalk.blueBright)} ${ctx.msg}`
+import chalk from 'chalk';
+import betterLogging from 'better-logging';
+betterLogging(console,{
+  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('adminSockets.js', chalk.blueBright)} ${ctx.msg}`
 });
-// End Better Logger
 
-const config = 
-
-module.exports = function (socket, gameManager, config) {  
+export function adminSockets(socket, gameManager, config) {  
   socket.on("adminLogin", function(msg){
     console.info(msg);
     if(msg.password === config.adminPassword)

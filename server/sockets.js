@@ -1,16 +1,12 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('ROCManager.js', chalk.blueBright)} ${ctx.msg}`
+import chalk from 'chalk';
+import betterLogging from 'better-logging';
+betterLogging(console,{
+  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('sockets.js', chalk.blueBright)} ${ctx.msg}`
 });
-// End Better Logger
 
+import Player from './player.js';
 
-
-const Player = require("./player");
-
-
-module.exports = function (socket, gameManager) {  
+export function rocSockets (socket, gameManager) {  
   // Working
   socket.on('newPlayer', function (msg) {
     console.info(chalk.yellow("Event newPlayer", "New Player has joined"));

@@ -4,7 +4,8 @@ betterLogging(console,{
 });
 
 import { readFileSync } from "fs";
-import { createServer } from "https";
+import { createServer as createSecureServer} from "https";
+import { createServer } from "http";
 import { Server } from "socket.io";
 import chalk from 'chalk';
 import ROCManager from "./ROCManager.js";
@@ -15,12 +16,19 @@ import { rocSockets } from './sockets.js';
 import { adminSockets } from './adminSockets.js';
 // End Better Logger
 
+let httpServer
+
+if(typeof config.server.ssl !== undefined) {
+  httpServer = createSecureServer({
+    key: readFileSync(config.server.ssl.key),
+    cert: readFileSync(config.server.ssl.cert)
+  });
+} else {
+  httpServer = createServer();
+}
 
 const port = config.server.port;
-const httpsServer = createServer({
-  key: readFileSync(config.server.ssl.key),
-  cert: readFileSync(config.server.ssl.cert)
-});
+
 
 const io = new Server(httpsServer,{
   'pingTimeout': 7000,
@@ -35,6 +43,7 @@ const io = new Server(httpsServer,{
     skipMiddlewares: true,
   }
 });
+httpServer.listen(port);
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
 const rocManager = new ROCManager(io, discordBot, config);
@@ -46,4 +55,3 @@ io.on('connection', (socket) => {
   rocSockets(socket, rocManager);
   adminSockets(socket, rocManager, config);
 });
-httpsServer.listen(port);

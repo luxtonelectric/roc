@@ -4,6 +4,7 @@ import DiscordProvider from "next-auth/providers/discord";
 const scopes = ['identify']
 
 export default NuxtAuthHandler({
+    secret: process.env.AUTH_SECRET,
     providers: [
         // @ts-expect-error
         DiscordProvider.default({

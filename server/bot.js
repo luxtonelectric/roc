@@ -83,13 +83,13 @@ export default class DiscordBot {
     var c  = this.getVoiceChannel(channel)
     try {
       const mem = await member.voice.setChannel(c).catch((error)=>{
-        console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
+        console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", user),error);
         return false;
       });
 
       return true;
     } catch (error) {
-      console.warn(chalk.red("Member is not in a voice channel and cannot be moved:", user),error);
+      console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", user),error);
       return false;
     }
     

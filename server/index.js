@@ -19,11 +19,13 @@ import { adminSockets } from './adminSockets.js';
 let httpServer;
 
 if(typeof config.server.ssl !== 'undefined') {
+  console.log(chalk.greenBright("HTTPS MODE ENABLED: Using certificate..."));
   httpServer = createSecureServer({
     key: readFileSync(config.server.ssl.key),
     cert: readFileSync(config.server.ssl.cert)
   });
 } else {
+  console.log(chalk.greenBright("STARTING HTTP SERVER"));
   httpServer = createServer();
 }
 
@@ -43,7 +45,9 @@ const io = new Server(httpServer,{
     skipMiddlewares: true,
   }
 });
+
 httpServer.listen(port);
+console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
 const rocManager = new ROCManager(io, discordBot, config);

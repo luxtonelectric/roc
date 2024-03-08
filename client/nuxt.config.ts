@@ -9,7 +9,6 @@ export default defineNuxtConfig({
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
-    'nuxt-socket-io',
     '@nuxtjs/tailwindcss',
     '@sidebase/nuxt-auth'
     //'@nuxtjs/svg',

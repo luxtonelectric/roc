@@ -16,9 +16,9 @@ import { rocSockets } from './sockets.js';
 import { adminSockets } from './adminSockets.js';
 // End Better Logger
 
-let httpServer
+let httpServer;
 
-if(typeof config.server.ssl !== undefined) {
+if(typeof config.server.ssl !== 'undefined') {
   httpServer = createSecureServer({
     key: readFileSync(config.server.ssl.key),
     cert: readFileSync(config.server.ssl.cert)
@@ -30,7 +30,7 @@ if(typeof config.server.ssl !== undefined) {
 const port = config.server.port;
 
 
-const io = new Server(httpsServer,{
+const io = new Server(httpServer,{
   'pingTimeout': 7000,
   'pingInterval': 3000,
   cors: {

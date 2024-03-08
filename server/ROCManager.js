@@ -230,14 +230,26 @@ export default class ROCManager {
   // take in an object with sender and reciever
   placeCall(socketId, receiverPhoneId, senderPhoneId)
   {
-    if (typeof this.phones[receiverPhoneId] === 'undefined' || typeof this.phones[receiverPhoneId].player === 'undefined') {
+    if (typeof this.phones[receiverPhoneId] === 'undefined') {
       console.warn(chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
       this.sockets.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
 
-    if (typeof this.phones[senderPhoneId] === 'undefined' || typeof this.phones[senderPhoneId].player === 'undefined') {
+    if (typeof this.phones[receiverPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if (typeof this.phones[senderPhoneId] === 'undefined') {
       console.warn(chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId, this.phones);
+      this.sockets.to(socketId).emit('rejectCall', {"success":false})
+      return false;
+    }
+
+    if (typeof this.phones[senderPhoneId].player === 'undefined') {
+      console.warn(chalk.red("Sender phone not assigned to a player: "), receiverPhoneId, senderPhoneId, this.phones);
       this.sockets.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }

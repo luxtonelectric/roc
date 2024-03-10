@@ -1,8 +1,10 @@
 <template>
   <div class="mx-auto align-middle">
     <div class="flex flex-col">
-      <div class="text-right"><input maxlength="25" class="border border-purple-600 rounded" placeholder="Panel Here" v-model="panel" v-on:keyup.enter="sendPanel">
-        <a class="link" @click="sendPanel">Set Panel</a></div>
+        <div class="text-right">
+      <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
+        <a class="link" @click="callNumber">Call Number</a>
+    </div>
     </div>
 <!--    <div class="flex flex-col">-->
 <!--      -->
@@ -71,7 +73,8 @@ export default {
       callChannel: 0,
       myCalls: [],
       hasPlacedCall: false,
-      inCall: false
+      inCall: false,
+      phoneNumber: ""
     }
   },
   created() {
@@ -113,8 +116,13 @@ export default {
     });
   },
   methods: {
-    sendPanel() {
-      this.socket.emit("updatePlayerPanel", {"user": this.username, "panel": this.panel});
+    callNumber(){
+      this.placeCall(this.phoneNumber);
+    },
+    placeCall(key)
+    {
+      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
+      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
     },
     acceptCall() {
       this.incomingCall = false;

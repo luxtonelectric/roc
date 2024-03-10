@@ -54,6 +54,11 @@ export default {
     {
       this.socket.emit("releasePanel", {"sim": sim, "panel":key, "sender": this.username});
     },
+    placeCall(key)
+    {
+      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
+      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
+    },
     leaveCall()
     {
       this.$emit('leaveCall');

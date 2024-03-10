@@ -218,6 +218,7 @@ export default class ROCManager {
     panel.player = undefined;
     this.phones[panel.phone].player = undefined;
     //Update the panel's phone to be assigned to the player
+    this.updatePlayerInfo(player);
     this.updatePlayerUI();
   }
 

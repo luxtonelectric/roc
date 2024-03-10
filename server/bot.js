@@ -79,7 +79,7 @@ export default class DiscordBot {
   //strings in
   async setUserVoiceChannel(user, channel)
   {
-    var member = this.getMember(user);
+    var member = await this.getMember(user);
     var c  = this.getVoiceChannel(channel)
     try {
       const mem = await member.voice.setChannel(c).catch((error)=>{
@@ -89,7 +89,7 @@ export default class DiscordBot {
 
       return true;
     } catch (error) {
-      console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", user),error);
+      console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", user),JSON.stringify(error, Object.getOwnPropertyNames(error)));
       return false;
     }
     

@@ -76,20 +76,16 @@ function joinUser() {
 
 <template>
   <div>
-    <div v-if="error" class="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-md text-red-100 bg-red-700 border border-red-700 ">
-      <div slot="avatar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-octagon w-5 h-5 mx-2">
-          <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
+    <div v-if="error" class="py-3 px-10">
+      <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+        ERROR
       </div>
-      <div class="text-xl font-normal  max-w-full flex-initial">
-        {{ error }}</div>
-      <div class="flex flex-auto flex-row-reverse">
-
+      <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+        <p>{{ error }}</p>
       </div>
     </div>
+
+
     <div v-if="loggedIn">
       <Main :gameData="gameData" :username=username :playerData="playerData" :socket="socket" />
     </div>

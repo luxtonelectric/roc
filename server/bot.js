@@ -119,7 +119,6 @@ export default class DiscordBot {
   {
     const guild = this.client.guilds.cache.get(this.guildId);
     const vc = await guild.channels.fetch(channelId);
-    console.log(vc);
     return vc;
   }
 

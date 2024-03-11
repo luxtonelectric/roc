@@ -11,7 +11,7 @@ export default class ROCManager {
   players = {};
   admins = {};
   phones = {};
-  privateCalls;
+  privateCalls = {};
   constructor(sockets, bot, config) {
     this.sockets = sockets;
     this.bot = bot;
@@ -20,7 +20,6 @@ export default class ROCManager {
     this.sims = config.sims;
     this.phones = config.phones;
     this.config = config;
-    this.privateCalls = config.privateCalls;
     console.info(chalk.yellow("constructor"), `Welcome! Yum yum!`);
   }
   
@@ -135,11 +134,11 @@ export default class ROCManager {
           if(existingPlayer.isConnected === false) {
             console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is reconnecting after socket disconnect`);
             // They DCd and we caught it just let them back in
-            if(existingPlayer.sim === channel) {
+            if(existingPlayer.voiceChannelId === channel) {
               //They're still in the same place they were before. Everything is good with the world
             } else {
               //They're somehow changed rooms... guess we should update
-              existingPlayer.sim = channel;
+              existingPlayer.voiceChannelId = channel;
             }
 
             existingPlayer.socket = newPlayer.socket;
@@ -389,7 +388,7 @@ export default class ROCManager {
         return key;
       }
     }
-    console.log(chalk.red("No available call channels:"),this.privateCalls);
+    console.log(chalk.red("No available private call rooms:"),this.privateCalls);
     return null;
   }
 
@@ -493,7 +492,7 @@ export default class ROCManager {
     this.sendGameUpdateToPlayers();
   }
 
-  leaveCall(data)
+  async leaveCall(data)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("Leave Call"), chalk.magenta("Before:"), this.privateCalls);
     
@@ -510,12 +509,12 @@ export default class ROCManager {
           }
           //console.log(this.players[data.user]);
           //TODO: What do we replace these calls with?
-          this.movePlayerToSim(data.user, this.players[data.user].sim);
+          await this.movePlayerToVoiceChannel(data.user, this.players[data.user].voiceChannelId);
 
           if(this.privateCalls[call].length == 1) {
             const caller = this.privateCalls[call][0];
             this.players[caller].inCall = false;
-            this.movePlayerToSim(caller, this.players[caller].sim);
+            await this.movePlayerToVoiceChannel(caller, this.players[caller].voiceChannelId);
             this.sockets.to(this.players[caller].socket.id).emit("kickedFromCall", {"success": true});
           }
         }
@@ -629,28 +628,27 @@ playerStartREC(playerId, panelId)
   // return their location
   getPlayerSim(player)
   {
-    const expectedSim = this.players[player.discordId].sim;
+    const expectedSim = this.players[player.discordId].voiceChannelId;
     const playerChannel = this.bot.getUserVoiceChannel(player.discordId);
-    //return getKeyByValue(this.channels, this.bot.getUserVoiceChannel(player.discordId));
     return expectedSim;
   }
 
   //strings in
-  movePlayerToSim(player, sim)
+  async movePlayerToVoiceChannel(player, channel)
   {
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToSim"), player, sim);
-    if(this.sims[sim] === undefined) {
-      console.log(chalk.blueBright("GameManager"), chalk.red("movePlayerToSim sim is undefined"), player, sim);
-      return false;
-    }
-    this.movePlayerToCall(player, this.sims[sim].channel);
-    this.players[player].sim = sim;
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), player, channel);
+    // if(!(channel in this.channels)) {
+    //   console.log(chalk.blueBright("GameManager"), chalk.red("movePlayerToVoiceChannel channel is undefined"), player, channel);
+    //   return false;
+    // }
+    this.players[player].voiceChannelId = channel;
+    await this.bot.setUserVoiceChannel(player, channel);
   }
 
   async movePlayerToCall(player, call)
   {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToCall"), player, call);
-    return await this.bot.setUserVoiceChannel(player, this.channels[call]);
+    return await this.bot.setUserVoiceChannel(player, call);
   }
 
 
@@ -658,15 +656,14 @@ playerStartREC(playerId, panelId)
   {
     var obj = [];
     const playerLocs = this.getAllPlayerLocs();
-    //var channels = this.channels;
     var sims = this.sims;
     Object.keys(this.sims).forEach(key => {
-      //var chan = channels[key];
       obj.push({
         players: playerLocs[key],
         panels: sims[key].panels,
         id: key,
-        name: sims[key].title
+        name: sims[key].title,
+        channel: sims[key].channel
       });
     });
     //console.info(chalk.yellow("Game State:"), obj);

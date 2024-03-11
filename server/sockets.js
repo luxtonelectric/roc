@@ -34,8 +34,8 @@ export function rocSockets (socket, gameManager) {
   });
 
   // Working
-  socket.on('movePlayerSim', function(msg){
-    gameManager.movePlayerToSim(msg.user, msg.sim);
+  socket.on('movePlayerVoiceChannel', function(msg){
+    gameManager.movePlayerToVoiceChannel(msg.user, msg.channel);
   });
 
   // Working

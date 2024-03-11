@@ -52,6 +52,30 @@ export default class DiscordBot {
     await this.client.login(this.token).then((v) =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
   }
 
+  async configureVoiceChannels() {
+    console.log(chalk.yellow('configureVoiceChannels'));
+    const guild = await this.client.guilds.fetch(this.guildId);
+    const channels = await guild.channels.fetch();
+    const voiceChannels = channels.filter(x => x.isVoiceBased());
+
+    const privateCallChannels = voiceChannels.filter(x => x.name.startsWith(this.prefix));
+    for (const vc of privateCallChannels.values()){
+      this.gameManager.privateCalls[vc.id] = [];
+    }
+
+    for(const sim of Object.keys(this.gameManager.sims)) {
+      if("channel" in this.gameManager.sims[sim]) {
+        const simChannel = voiceChannels.filter(x => x.name === this.gameManager.sims[sim].channel).first();
+        if(simChannel !== null && typeof simChannel !== 'undefined') {
+          this.gameManager.sims[sim].channel = simChannel.id;
+        } else {
+          console.warn(chalk.red("Channel"), this.gameManager.sims[sim].channel, chalk.red("for sim"), key, chalk.red("does not exist for this Guild"));
+        }
+      }
+    }
+
+  }
+
   async getMember(userId)
   {
     const guild = await this.client.guilds.fetch(this.guildId);
@@ -84,21 +108,28 @@ export default class DiscordBot {
 
   //string in 
   //vc out
-  getVoiceChannel(channel)
+  getVoiceChannelByName(channel)
   {
     let guild = this.client.guilds.cache.get(this.guildId);
     let vc = guild.channels.cache.find(chan => chan.name === channel);
     return vc;
   }
 
+  async getVoiceChannelById(channelId)
+  {
+    const guild = this.client.guilds.cache.get(this.guildId);
+    const vc = await guild.channels.fetch(channelId);
+    console.log(vc);
+    return vc;
+  }
+
 
   //strings in
-  async setUserVoiceChannel(user, channel)
+  async setUserVoiceChannel(user, channelId)
   {
-    var member = await this.getMember(user);
-    var c  = this.getVoiceChannel(channel)
+    const member = await this.getMember(user);
     try {
-      const mem = await member.voice.setChannel(c).catch((error)=>{
+      const mem = await member.voice.setChannel(channelId).catch((error)=>{
         console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", user),error);
         return false;
       });

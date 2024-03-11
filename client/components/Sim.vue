@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-semibold ">{{ simData.name }} ({{simData.id}})</h1>
       </div>
       <a v-if="simData.name.includes('Private Call')" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400" @click="leaveCall">Leave Call</a>
-      <a v-else tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Sim</a>
+      <a v-else tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
     </div>
     <div v-if="simData.panels" class="flex flex-wrap">
       <div v-for="(panel, key) in simData.panels" class="w-1/3">
@@ -43,7 +43,7 @@ export default {
   methods: {
     movePlayer()
     {
-      this.socket.emit("movePlayerSim", {"user": this.username, "sim": this.simData.id});
+      this.socket.emit("movePlayerVoiceChannel", {"user": this.username, "channel": this.simData.channel});
       this.$emit("movedSim", this.simData.name);
     },
     claimPanel(sim, key)

@@ -50,10 +50,13 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
-await discordBot.setUpBot();
 const rocManager = new ROCManager(io, discordBot, config);
-discordBot.setGameManager(rocManager);
 
+discordBot.setGameManager(rocManager);
+await discordBot.setUpBot().then(() => {
+  console.log("Configuring voice channels");
+  discordBot.configureVoiceChannels()
+});
 
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));

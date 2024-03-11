@@ -121,7 +121,7 @@ export default {
     },
     placeCall(key)
     {
-      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
+      this.placedCall({"receiver":key, "sender": this.selectedPhone})
       this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
     },
     acceptCall() {

@@ -54,7 +54,7 @@ onMounted(() =>{
 
 function joinUser() {
   username.value = session.sub;
-  socket?.emit("newPlayer", {discordID: session?.sub});
+  socket?.emit("newPlayer", {discordId: session?.sub});
 }
 </script>
 
@@ -93,4 +93,7 @@ function joinUser() {
       <p>Awaiting connection...</p>
     </div>
   </div>
+  <div class="fixed bottom-0 w-full">
+            <AuthenticationStatus :socket="socket" />
+        </div>
 </template>

@@ -9,9 +9,8 @@ import Player from './player.js';
 export function rocSockets (socket, gameManager) {  
   // Working
   socket.on('newPlayer', function (msg) {
-    console.info(chalk.yellow("Event newPlayer", "New Player has joined"));
-    let p = new Player(msg.panel, socket, msg.discordID);
-    gameManager.addPlayer(p);
+    console.info(chalk.yellow("Event newPlayer", "New Player has joined the WebUI"));
+    gameManager.registerWebUI(socket, msg.discordId);
   });
 
   // Working
@@ -72,6 +71,6 @@ export function rocSockets (socket, gameManager) {
   // Working
   socket.on('disconnect', function(msg){
     gameManager.checkDisconnectingPlayer(socket.id);
-    console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id);
+    console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id, msg);
   });
 }

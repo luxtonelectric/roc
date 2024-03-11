@@ -9,7 +9,7 @@
       <div v-if="gameState.gameState">
         <div v-for="(sim, key) in gameState.gameState" :key="key" class="my-1">
           <h2 class="text-xl">{{sim.name}}</h2>
-          <a class="button inline-block" v-for="(player, key) in sim.players" :key="key">{{player.panel}} ({{player.discordID}})</a>
+          <a class="button inline-block" v-for="(player, key) in sim.players" :key="key">{{player.panel}} ({{player.discordId}})</a>
         </div>
       </div>
     </div>

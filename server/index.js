@@ -50,6 +50,7 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
+await discordBot.setUpBot();
 const rocManager = new ROCManager(io, discordBot, config);
 discordBot.setGameManager(rocManager);
 

@@ -28,8 +28,5 @@ useHead({
               <NuxtPage />
           </NuxtLayout>
         </div>
-        <div class="fixed bottom-0 w-full">
-            <AuthenticationStatus />
-        </div>
     </div>
 </template>

@@ -1,9 +1,9 @@
 export default class Player {
-  constructor(panel, socket, discordID)
+  constructor(socket, discordId, voiceChannelId)
   {
-    this.panel = panel;
     this.socket = socket;
-    this.discordID = discordID;
+    this.discordId = discordId;
+    this.voiceChannelId = voiceChannelId;
     this.callQueue = {};
     this.inCall = false;
     this.sim = "";

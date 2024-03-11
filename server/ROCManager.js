@@ -7,6 +7,7 @@ betterLogging(console,{
 });
 
 export default class ROCManager {
+  prospects = {};
   players = {};
   admins = {};
   phones = {};
@@ -26,22 +27,113 @@ export default class ROCManager {
   
   // ============================= BEGIN PLAYER CODE =============================
 
+  async registerWebUI(socket, discordId) {
+    console.log(chalk.yellow("registerWebUI"), discordId);
+    if(typeof this.prospects[discordId] === 'undefined') {
+      // This is an unknown prospect are they a player already?
+      if(typeof this.players[discordId] === 'undefined') {
+        // They're totally new.
+        const p = new Player(socket, discordId, null);
+
+        const vc = await this.bot.getUserVoiceChannel(discordId);
+        if(vc === null) {
+          console.log(chalk.yellow("registerWebUI"), discordId, "has no VC yet...");
+          this.prospects[discordId] = p;
+
+          this.sockets.to(socket.id).emit("loggedIn", {
+            "loggedIn": false,
+            "error": "You aren't in a voice chat.."
+          });  
+        } else {
+          console.log(chalk.yellow("registerWebUI"), discordId,"adding player...");
+          p.voiceChannelId = vc;
+          this.addPlayer(p);
+        }
+      } else {
+        // They're already a player...
+        console.log(chalk.yellow("registerWebUI"), discordId, "is already a player");
+        this.players[discordId].socket = socket;
+        this.sockets.to(this.players[discordId].socket.id).emit("loggedIn", {
+          "loggedIn": true,
+          "error": ""
+        });
+        this.sendGameUpdateToPlayer(this.players[discordId]);
+        this.updatePlayerInfo(this.players[discordId]);
+      }
+    } else {
+      // They're a prospect already...
+      console.log(chalk.yellow("registerWebUI"), discordId, "is already a prospect");
+      if(this.prospects[discordId].socket === null && this.prospects[discordId].voiceChannelId !== null) {
+        // They're in a VC and we now have a socket, process the new player
+        this.prospects[discordId].socket = socket;
+        this.addPlayer(this.prospects[discordId]);
+      } else {
+        console.log(chalk.yellow("registerWebUI"), discordId, this.prospects[discordId].voiceChannelId);
+        // They're refreshing? Update the socket and await both connections...
+        this.prospects[discordId].socket = socket;
+
+        this.sockets.to(socket.id).emit("loggedIn", {
+          "loggedIn": false,
+          "error": "You aren't in a voice chat.."
+        });
+      }
+    }
+  }
+
+  registerDiscordVoice(discordId, voiceChannelId) {
+    if(typeof this.prospects[discordId] === 'undefined') {
+      // They're not a prospect... are they already a player?
+      if(typeof this.players[discordId] === 'undefined') {
+        // Not a prospect, not a player...
+        const p = new Player(null, discordId, voiceChannelId);
+        this.prospects[discordId] = p;
+      } else {
+        // They're already a player...
+        this.sockets.to(this.players[discordId].socket.id).emit("loggedIn", {
+          "loggedIn": true,
+          "error": ""
+        });
+        this.sendGameUpdateToPlayer(this.players[discordId]);
+        this.updatePlayerInfo(this.players[discordId]);
+      }
+    } else {
+      // They're a prospect already...
+      if(this.prospects[discordId].socket !== null && this.prospects[discordId].voiceChannelId === null) {
+        this.prospects[discordId].voiceChannelId = voiceChannelId;
+        this.addPlayer(this.prospects[discordId]);
+      }
+    }
+  }
+
+  unregisterDiscordVoice(discordId) {
+    if(discordId in this.players) {
+      this.players[discordId].voiceChannelId = null;
+      if(this.players[discordId].socket !== null) {
+        this.sockets.to(this.players[discordId].socket.id).emit("loggedIn", {
+          "loggedIn": false,
+          "error": "You aren't in a voice chat.."
+        });
+      }
+    }
+  }
+
+  
 
   //takes player object
   async addPlayer(newPlayer) {
     console.info(chalk.yellow("AddPlayer"), "New Player Joining");
-    if (typeof newPlayer.discordID !== 'undefined' && newPlayer.discordID.length > 2)
+    if (typeof newPlayer.discordId !== 'undefined' && newPlayer.discordId.length > 2)
     {
-      var channel = await this.bot.getUserVoiceChannel(newPlayer.discordID);
+      var channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
       if (channel) {
-        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is in a voice channel:`, chalk.magentaBright(channel));
+        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in a voice channel:`, chalk.magentaBright(channel));
 
-        if(this.players[newPlayer.discordID] !== undefined) {
+        if(this.players[newPlayer.discordId] !== undefined) {
           // This player has already logged in!
-          const existingPlayer = this.players[newPlayer.discordID];
+          const existingPlayer = this.players[newPlayer.discordId];
           
           if(existingPlayer.isConnected === false) {
-            console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is reconnecting after socket disconnect`);
+            console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is reconnecting after socket disconnect`);
             // They DCd and we caught it just let them back in
             if(existingPlayer.sim === channel) {
               //They're still in the same place they were before. Everything is good with the world
@@ -56,7 +148,7 @@ export default class ROCManager {
               "loggedIn": true,
               "error": ""
             });
-            this.updatePlayerUI();
+            this.sendGameUpdateToPlayers();
             this.updatePlayerInfo(existingPlayer);
             return true;
           } else {
@@ -69,26 +161,26 @@ export default class ROCManager {
         }
 
         if (channel === this.channels.lobby) {
-          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is in lobby channel`);
+          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in lobby channel`);
           newPlayer.sim = "lobby";
-          this.players[newPlayer.discordID] = newPlayer;
-          // this.players[player.discordID].inCall = true;
+          this.players[newPlayer.discordId] = newPlayer;
+          // this.players[player.discordId].inCall = true;
           // console.info(this.players);
           this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
             "loggedIn": true,
             "error": ""
           });
-          this.updatePlayerUI();
+          this.sendGameUpdateToPlayers();
           this.updatePlayerInfo(newPlayer);
         } else {
-          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is not in the lobby.`);
+          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in the lobby.`);
           this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
             "loggedIn": false,
             "error": `You aren't in the lobby. Please join ${this.channels.lobby} to join the game.`
           });
         }
       } else {
-        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is not in a voice channel:`);
+        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in a voice channel:`);
         this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
           "loggedIn": false,
           "error": "You aren't in a voice chat.."
@@ -96,7 +188,7 @@ export default class ROCManager {
         return false;
       }
     } else {
-      console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordID} is not a discord username. What?`);
+      console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not a discord username. What?`);
       this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
         "loggedIn": false,
         "error": "That isn't a discord username."
@@ -107,7 +199,7 @@ export default class ROCManager {
   updatePlayerPanel(user, panel)
   {
     this.players[user].panel = panel;
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
   findPlayerBySocketId(socketId) {
@@ -127,15 +219,15 @@ export default class ROCManager {
       return false;
     }
     
-    const playerChannel = this.bot.getUserVoiceChannel(player.discordID);
+    const playerChannel = this.bot.getUserVoiceChannel(player.discordId);
     if(playerChannel === null) {
       //The player is not in voice then assume they've left and delete them.
       this.deletePlayer(socketId);
     } else {
-      console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordID ,chalk.white("has lost connection but is still in voice. Maintaining game state."));
+      console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId ,chalk.white("has lost connection but is still in voice. Maintaining game state."));
       //The player is still in voice then assume they're coming back and don't delete them but mark them away
       player.isConnected = false;
-      this.updatePlayerUI();
+      this.sendGameUpdateToPlayers();
     }
 
     
@@ -167,7 +259,7 @@ export default class ROCManager {
         }
       }
     }
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
   claimPanel(user, requestedSim, requestedPanel) {
@@ -193,7 +285,7 @@ export default class ROCManager {
     this.phones[panel.phone].player = user;
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
   releasePanel(user, requestedSim, requestedPanel) {
@@ -219,7 +311,7 @@ export default class ROCManager {
     this.phones[panel.phone].player = undefined;
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
 
@@ -277,14 +369,14 @@ export default class ROCManager {
     }
 
     if(sendingPlayer !== receivingPlayer) {
-      console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayer.discordID, chalk.magentaBright("Reciever:"), receivingPlayer.discordID);
-      receivingPlayer.callQueue[sendingPlayer.discordID] = {"senderId": senderPhoneId, "senderName": sendingPhone.displayName, "receiverId": receiverPhoneId, "receiverName": receivingPhone.displayName,"timePlaced": Date.now()};
-      console.log(chalk.yellow("Queue for"), receivingPlayer.discordID, receivingPlayer.callQueue);
+      console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayer.discordId, chalk.magentaBright("Reciever:"), receivingPlayer.discordId);
+      receivingPlayer.callQueue[sendingPlayer.discordId] = {"senderId": senderPhoneId, "senderName": sendingPhone.displayName, "receiverId": receiverPhoneId, "receiverName": receivingPhone.displayName,"timePlaced": Date.now()};
+      console.log(chalk.yellow("Queue for"), receivingPlayer.discordId, receivingPlayer.callQueue);
       receivingPlayer.socket.emit("newCallInQueue", receivingPlayer.callQueue);
       //this.players[data.user] = reciever; //???
-      this.updatePlayerUI();
+      this.sendGameUpdateToPlayers();
     } else {
-      console.log(chalk.yellow("A player ("), sendingPlayer.discordID, chalk.yellow(")tried to call themselves as was rejected."));
+      console.log(chalk.yellow("A player ("), sendingPlayer.discordId, chalk.yellow(")tried to call themselves as was rejected."));
       this.sockets.to(socketId).emit('rejectCall', {"success":false})
     }
   }
@@ -373,23 +465,23 @@ export default class ROCManager {
     delete this.players[receiverPlayerId].callQueue[senderPlayerId];
     this.sockets.to(this.players[senderPlayerId].socket.id).emit("rejectCall",{"success": false});
     this.sockets.to(this.players[receiverPlayerId].socket.id).emit('updateMyCalls', this.players[receiverPlayerId].callQueue);
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
   joinCall(sendingPlayer, receivingPlayer, channel)
   {
     var success = false;
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Incoming Data"), sendingPlayer.discordID, receivingPlayer.discordID, channel);
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("Join Call"), chalk.magenta("Incoming Data"), sendingPlayer.discordId, receivingPlayer.discordId, channel);
 
-    if(this.movePlayerToCall(sendingPlayer.discordID, channel)) {
-      if(this.movePlayerToCall(receivingPlayer.discordID, channel)) {
+    if(this.movePlayerToCall(sendingPlayer.discordId, channel)) {
+      if(this.movePlayerToCall(receivingPlayer.discordId, channel)) {
         //both players joined call
         this.sockets.to(sendingPlayer.socket.id).emit("joinedCall",{"success":true});
         this.sockets.to(receivingPlayer.socket.id).emit("joinedCall",{"success":true});
-        this.players[sendingPlayer.discordID].inCall = true;
-        this.players[receivingPlayer.discordID].inCall = true;
-        delete this.players[receivingPlayer.discordID].callQueue[sendingPlayer.discordID];
-        this.sockets.to(receivingPlayer.socket.id).emit('updateMyCalls', this.players[receivingPlayer.discordID].callQueue);
+        this.players[sendingPlayer.discordId].inCall = true;
+        this.players[receivingPlayer.discordId].inCall = true;
+        delete this.players[receivingPlayer.discordId].callQueue[sendingPlayer.discordId];
+        this.sockets.to(receivingPlayer.socket.id).emit('updateMyCalls', this.players[receivingPlayer.discordId].callQueue);
       } else {
         // could not move receiving player
         // TODO: Handle this error condition
@@ -398,7 +490,7 @@ export default class ROCManager {
       // could not move the sending player
       // TODO: Handle this error condition
     }
-    this.updatePlayerUI();
+    this.sendGameUpdateToPlayers();
   }
 
   leaveCall(data)
@@ -524,7 +616,7 @@ playerStartREC(playerId, panelId)
       var loc = this.getPlayerSim(value);
       const allPhones = this.getPlayerPhones(key);
       if (!locations[loc]){ locations[loc] = [];}
-      var player = {discordID: value.discordID, connected: value.isConnected, panel: value.panel, inCall: value.inCall, callQueue: value.callQueue, phones:allPhones};
+      var player = {discordId: value.discordId, connected: value.isConnected, panel: value.panel, inCall: value.inCall, callQueue: value.callQueue, phones:allPhones};
       if(!locations[loc][player])
       {
         locations[loc].push(player);
@@ -537,9 +629,9 @@ playerStartREC(playerId, panelId)
   // return their location
   getPlayerSim(player)
   {
-    const expectedSim = this.players[player.discordID].sim;
-    const playerChannel = this.bot.getUserVoiceChannel(player.discordID);
-    //return getKeyByValue(this.channels, this.bot.getUserVoiceChannel(player.discordID));
+    const expectedSim = this.players[player.discordId].sim;
+    const playerChannel = this.bot.getUserVoiceChannel(player.discordId);
+    //return getKeyByValue(this.channels, this.bot.getUserVoiceChannel(player.discordId));
     return expectedSim;
   }
 
@@ -582,14 +674,18 @@ playerStartREC(playerId, panelId)
   }
 
   // Just updates the player UI for all players
-  updatePlayerUI()
+  sendGameUpdateToPlayers()
   {
     this.sockets.emit("gameInfo", this.getGameState());
     this.updateAdminUI();
   }
 
+  sendGameUpdateToPlayer(player) {
+    player.socket.emit("gameInfo", this.getGameState());
+  }
+
   updatePlayerInfo(player) {
-    const phones = this.getPlayerPhones(player.discordID);
+    const phones = this.getPlayerPhones(player.discordId);
     const info = {};
     info.phones = phones;
     this.sockets.to(player.socket.id).emit("playerInfo", info);

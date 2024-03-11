@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import type { Session } from 'next-auth';
+import { Socket } from 'socket.io-client';
 
 const { getSession, status, data, signOut, signIn } = useAuth()
 const session:Session = await getSession();
-console.log(session);
+
+const props = defineProps({
+  socket: Socket
+})
+
+function logout() {
+  console.log("logging out...");
+  props.socket?.emit("playerQuit");
+  signOut({ callbackUrl: '/' })
+}
+
 </script>
 
 <template>
@@ -23,7 +34,7 @@ console.log(session);
           Not logged in
         </h1>
       </div>
-      <button v-if="status === 'authenticated'" class="flex items-center justify-center space-x-2 bg-red-500 text-white rounded-lg py-2 px-3 text-lg" @click="signOut({ callbackUrl: '/' })">
+      <button v-if="status === 'authenticated'" class="flex items-center justify-center space-x-2 bg-red-500 text-white rounded-lg py-2 px-3 text-lg" @click="logout()">
         <span>Logout</span>
       </button>
       <button v-else class="flex items-center justify-center space-x-2 bg-green-500 text-white rounded-lg py-2 px-3 text-lg" @click="signIn('discord',{ callbackUrl: '/' })">

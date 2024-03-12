@@ -1,21 +1,16 @@
-// Begin Better logger
-const chalk = require('chalk');
-require('better-logging')(console, {
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('ROCManager.js', chalk.blueBright)} ${ctx.msg}`
+import chalk from 'chalk';
+import betterLogging from 'better-logging';
+betterLogging(console,{
+  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('sockets.js', chalk.blueBright)} ${ctx.msg}`
 });
-// End Better Logger
 
+import Player from './player.js';
 
-
-const Player = require("./player");
-
-
-module.exports = function (socket, gameManager) {  
+export function rocSockets (socket, gameManager) {  
   // Working
   socket.on('newPlayer', function (msg) {
-    console.info(chalk.yellow("Event newPlayer", "New Player has joined"));
-    let p = new Player(msg.panel, socket, msg.discordID);
-    gameManager.addPlayer(p);
+    console.info(chalk.yellow("Event newPlayer", "New Player has joined the WebUI"));
+    gameManager.registerWebUI(socket, msg.discordId);
   });
 
   // Working
@@ -24,28 +19,48 @@ module.exports = function (socket, gameManager) {
   });
 
   // Working
+  socket.on('moveToLobby', function(msg){
+    gameManager.movePlayerToLobby(socket.id);
+  });
+
+      // Working
+  socket.on('markAFK', function(msg){
+    gameManager.markPlayerAFK(socket.id);
+  });
+
+  // Working
   socket.on('updatePlayerPanel', function(msg){
     gameManager.updatePlayerPanel(msg.user, msg.panel)
   });
 
   // Working
-  socket.on('movePlayerSim', function(msg){
-    gameManager.movePlayerToSim(msg.user, msg.sim);
+  socket.on('claimPanel', function(msg){
+    gameManager.claimPanel(msg.sender, msg.sim, msg.panel)
+  });
+
+  // Working
+  socket.on('releasePanel', function(msg){
+    gameManager.releasePanel(msg.sender, msg.sim, msg.panel)
+  });
+
+  // Working
+  socket.on('movePlayerVoiceChannel', function(msg){
+    gameManager.movePlayerToVoiceChannel(msg.user, msg.channel);
   });
 
   // Working
   socket.on("placeCall", function(msg){
-    gameManager.placeCall(msg);
+    gameManager.placeCall(socket.id, msg.receiver,msg.sender);
   });
 
   // Not Working
   socket.on("rejectCall", function(msg){
-    gameManager.rejectCall(msg);
+    gameManager.rejectCall(socket.id,msg.senderPhoneId,msg.receiverPhoneId);
   });
   
   // Working
   socket.on("acceptCall", function(msg){
-    gameManager.acceptCall(msg);
+    gameManager.acceptCall(socket.id,msg.sender, msg.receiver);
   });
 
   // Working
@@ -60,12 +75,12 @@ module.exports = function (socket, gameManager) {
 
   // Working
   socket.on("startREC", function(msg){
-    gameManager.playerStartREC(msg);
+    gameManager.playerStartREC(msg.user,msg.panel);
   });
 
   // Working
   socket.on('disconnect', function(msg){
-    gameManager.deletePlayer(socket.id);
-    console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id);
+    gameManager.checkDisconnectingPlayer(socket.id);
+    console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id, msg);
   });
 }

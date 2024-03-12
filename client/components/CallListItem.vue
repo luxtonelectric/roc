@@ -1,7 +1,7 @@
 <template>
   <div class="border-b-2 border-gray-400">
-    <a class="border border-green-600 bg-green-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block hover" @click="placeCall(callData.discordID)" href="#">{{callData.sim ? callData.sim : "Unknown Sim"}} - {{ callData.panel ? callData.panel : callData.discordID }}</a>
-    <a class="border border-red-600 bg-red-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold" @click="rejectCall(callData.discordID)">X</a>
+    <a class="border border-green-600 bg-green-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block hover" @click="acceptCall(callData.senderId, callData.receiverId)" href="#">{{ callData.senderName }} -> {{ callData.receiverName }}</a>
+    <a class="border border-red-600 bg-red-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold" @click="rejectCall(callData.senderId, callData.receiverId)">X</a>
     <p class="border border-gray-800 bg-gray-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block">{{new Date(callData.timePlaced).toLocaleString("en-GB", {hour: "numeric", minute: "numeric", second: "numeric"})}}</p>
   </div>
 </template>
@@ -11,17 +11,14 @@ export default {
   name: "CallListItem",
   props: ["socket", "username", "callData"],
   methods: {
-    placeCall(user) {
-      var other = user;
-      console.info(other);
-      var yes = {"users": [this.username, other], "sender": other, "user": this.username}
-      console.info(yes);
+    acceptCall(senderId, receiverId) {
+      const call = {"sender": senderId, "receiver": receiverId}
       this.$emit("acceptedCall");
-      this.socket.emit('acceptCall', yes);
+      this.socket.emit('acceptCall', call);
     },
-    rejectCall(user)
+    rejectCall(senderPhoneId,receiverPhoneId)
     {
-      this.socket.emit('rejectCall', {"users": [this.username, user], "sender": user, "user": this.username})
+      this.socket.emit('rejectCall', {"senderPhoneId": senderPhoneId, "receiverPhoneId": receiverPhoneId})
       this.$emit("acceptedCall");
     }
   }

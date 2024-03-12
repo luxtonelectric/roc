@@ -1,27 +1,34 @@
 <template>
   <div class="mx-auto align-middle">
     <div class="flex flex-col">
-      <div class="text-right"><input maxlength="25" class="border border-purple-600 rounded" placeholder="Panel Here" v-model="panel" v-on:keyup.enter="sendPanel">
-        <a class="link" @click="sendPanel">Set Panel</a></div>
+        <div class="text-right">
+      <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
+        <a class="link" @click="callNumber">Call Number</a>
+    </div>
     </div>
 <!--    <div class="flex flex-col">-->
 <!--      -->
 <!--    </div>-->
     <div class="grid grid-cols-4 divide-x divide-gray-500 flex">
       <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
-        <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username"
+        <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"
              :panel="panel" @movedSim="movedSim" @leaveCall="leaveCall" @placedCall="placedCall" class="mb-10" :playerSim="lastChannel"/>
       </div>
       <div class="flex-grow">
         <div class="py-5 mx-2">
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block"
-             @click="muteCall">Mute Ringer</a>
+          <select v-model="selectedPhone">
+              <option disabled value="">Please select one</option>
+              <option v-for="phone in playerData.phones" :value="phone.id">{{phone.displayName}}</option>
+          </select>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteCall">Mute Ringer</a>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
           <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
              @click="considerRECWindow">EMERGENCY CALL</a>
           <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
 
           <div class="mb-5">
-              <CallListItem v-for="player in myCalls" :key="player" :callData="player" :socket="socket" :username="username" @acceptedCall="muteCall"/>
+              <CallListItem v-for="call in myCalls" :key="call" :callData="call" :socket="socket" :username="username" @acceptedCall="muteCall"/>
           </div>
 <!--          <a class="rounded border border-red-900 bg-red-400 text-white p-5 ml-2 mr-2 mb-2 hover:bg-red-600 focus:bg-red-600 active:bg-red-600"-->
 <!--             @click="muteCall">Mute Ringer</a>-->
@@ -39,7 +46,7 @@
     <IncomingREC v-if="incomingRec" :callData="callData" :socket="socket" :username="username" :callChannel="callChannel" @joinREC="joinREC"/>
     <StartREC v-if="considerRec" :gameData="gameData" :socket="socket" :username="username" @cancelRec="cancelREC"
               @startREC="startREC"/>
-    <CallPlacedDialog v-if="hasPlacedCall" @hideCallDialog="hidePlacedCall" />
+    <CallPlacedDialog v-if="hasPlacedCall"  :callData="callData" :socket="socket" @hideCallDialog="hidePlacedCall" />
     <InCallDialog v-if="inCall" @leaveCall="leaveCall"/>
     <!--    <audio id="rejectedAudio" :src="require('@/assets/audio/rejected.mp3')" preload="auto"/>-->
 
@@ -51,7 +58,7 @@
 
 export default {
   name: "Main",
-  props: ["gameData", "socket", "username"],
+  props: ["gameData", "socket", "username", "playerData", "socket"],
   data() {
     return {
       panel: "No Panel Set",
@@ -63,10 +70,12 @@ export default {
       considerRec: false,
       incomingRec: false,
       lastChannel: "Lobby",
+      selectedPhone: "",
       callChannel: 0,
       myCalls: [],
       hasPlacedCall: false,
-      inCall: false
+      inCall: false,
+      phoneNumber: ""
     }
   },
   created() {
@@ -77,13 +86,6 @@ export default {
   },
   mounted() {
     var that = this;
-    this.socket.on("incomingCall", function (msg) {
-      that.callAudio.currentTime = 0;
-      that.incomingCall = true;
-      that.callChannel = msg.channel;
-      that.callData = msg;
-      that.callAudio.play();
-    });
     this.socket.on("rejectCall", function (msg) {
       that.incomingCall = false;
       that.hasPlacedCall = false;
@@ -101,6 +103,9 @@ export default {
     });
     this.socket.on('updateMyCalls', function (msg){
       that.myCalls = msg;
+      if(Object.keys(msg).length === 0) {
+        that.callAudio.pause();
+      }
     });
     this.socket.on('joinedCall', function (msg){
       that.hasPlacedCall = false;
@@ -112,8 +117,13 @@ export default {
     });
   },
   methods: {
-    sendPanel() {
-      this.socket.emit("updatePlayerPanel", {"user": this.username, "panel": this.panel});
+    callNumber(){
+      this.placeCall(this.phoneNumber);
+    },
+    placeCall(key)
+    {
+      this.placedCall({"receiver":key, "sender": this.selectedPhone})
+      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
     },
     acceptCall() {
       this.incomingCall = false;
@@ -155,13 +165,23 @@ export default {
     movedSim(sim) {
       this.lastChannel = sim;
     },
-    placedCall()
+    placedCall(callData)
     {
+      this.callData = callData;
       this.hasPlacedCall = true;
     },
     hidePlacedCall()
     {
+      //Event happens when you cancel a call.
       this.hasPlacedCall = false;
+    },
+    moveToLobby()
+    {
+      this.socket.emit("moveToLobby", {});
+    },
+    markAFK()
+    {
+      this.socket.emit("markAFK", {});
     }
   }
 }

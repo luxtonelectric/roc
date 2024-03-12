@@ -20,8 +20,9 @@
               <option disabled value="">Please select one</option>
               <option v-for="phone in playerData.phones" :value="phone.id">{{phone.displayName}}</option>
           </select>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block"
-             @click="muteCall">Mute Ringer</a>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteCall">Mute Ringer</a>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
+          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
           <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
              @click="considerRECWindow">EMERGENCY CALL</a>
           <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
@@ -173,6 +174,14 @@ export default {
     {
       //Event happens when you cancel a call.
       this.hasPlacedCall = false;
+    },
+    moveToLobby()
+    {
+      this.socket.emit("moveToLobby", {});
+    },
+    markAFK()
+    {
+      this.socket.emit("markAFK", {});
     }
   }
 }

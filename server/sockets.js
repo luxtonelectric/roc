@@ -19,6 +19,16 @@ export function rocSockets (socket, gameManager) {
   });
 
   // Working
+  socket.on('moveToLobby', function(msg){
+    gameManager.movePlayerToLobby(socket.id);
+  });
+
+      // Working
+  socket.on('markAFK', function(msg){
+    gameManager.markPlayerAFK(socket.id);
+  });
+
+  // Working
   socket.on('updatePlayerPanel', function(msg){
     gameManager.updatePlayerPanel(msg.user, msg.panel)
   });

@@ -34,17 +34,19 @@ export default class DiscordBot {
     });
 
     this.client.on('voiceStateUpdate', (oldState, newState) => {
-      console.log(oldState,newState);
+      //console.log(oldState,newState);
       if(oldState.channel === null && newState.channel !== null) {
         // This is a someone joining voice...
         console.info(chalk.blueBright("Discord.js"), "someone joined voice...",newState.id, newState.channelId);
         this.gameManager.registerDiscordVoice(newState.id, newState.channelId);
+        return true;
       }
 
       if(newState.channel === null && oldState.channel !== null) {
         // This is someone leaving voice...
         console.info(chalk.blueBright("Discord.js"), "someone left voice...", newState.id);
         this.gameManager.unregisterDiscordVoice(newState.id);
+        return true;
       }
     }); 
 
@@ -53,7 +55,6 @@ export default class DiscordBot {
   }
 
   async configureVoiceChannels() {
-    console.log(chalk.yellow('configureVoiceChannels'));
     const guild = await this.client.guilds.fetch(this.guildId);
     const channels = await guild.channels.fetch();
     const voiceChannels = channels.filter(x => x.isVoiceBased());
@@ -62,6 +63,16 @@ export default class DiscordBot {
     for (const vc of privateCallChannels.values()){
       this.gameManager.privateCalls[vc.id] = [];
     }
+
+    for(const channel of Object.keys(this.gameManager.channels)) {
+      const staticChannel = voiceChannels.filter(x => x.name === this.gameManager.channels[channel]).first();
+      if(staticChannel !== null && typeof staticChannel !== 'undefined') {
+        this.gameManager.channels[channel] = staticChannel.id;
+      } else {
+        console.warn(chalk.red("Static Channel"), channel, chalk.red("does not exist for this Guild"));
+      }
+    }
+    console.log(chalk.yellow('configureVoiceChannels'), this.gameManager.channels);
 
     for(const sim of Object.keys(this.gameManager.sims)) {
       if("channel" in this.gameManager.sims[sim]) {
@@ -93,7 +104,7 @@ export default class DiscordBot {
     {
       if(typeof member.voice !== 'undefined' && member.voice.channel !== null)
       {
-        return await member.voice.channel.name.toString();
+        return await member.voice.channel.id;
       }
       else
       {

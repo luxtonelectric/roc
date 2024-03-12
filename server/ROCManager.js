@@ -159,25 +159,14 @@ export default class ROCManager {
           //console.log("Brand New Player!");
         }
 
-        if (channel === this.channels.lobby) {
-          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in lobby channel`);
-          newPlayer.sim = "lobby";
-          this.players[newPlayer.discordId] = newPlayer;
-          // this.players[player.discordId].inCall = true;
-          // console.info(this.players);
-          this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
-            "loggedIn": true,
-            "error": ""
-          });
-          this.sendGameUpdateToPlayers();
-          this.updatePlayerInfo(newPlayer);
-        } else {
-          console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in the lobby.`);
-          this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
-            "loggedIn": false,
-            "error": `You aren't in the lobby. Please join ${this.channels.lobby} to join the game.`
-          });
-        }
+        this.players[newPlayer.discordId] = newPlayer;
+        this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
+          "loggedIn": true,
+          "error": ""
+        });
+        this.sendGameUpdateToPlayers();
+        this.updatePlayerInfo(newPlayer);
+
       } else {
         console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in a voice channel:`);
         this.sockets.to(newPlayer.socket.id).emit("loggedIn", {
@@ -633,16 +622,38 @@ playerStartREC(playerId, panelId)
     return expectedSim;
   }
 
+  async movePlayerToLobby(socketId) {
+    const player = this.findPlayerBySocketId(socketId);
+    const channelId = this.channels.lobby;
+    await this.movePlayerToVoiceChannel(player.discordId, channelId);
+  }
+
+  async markPlayerAFK(socketId) {
+    const player = this.findPlayerBySocketId(socketId);
+    //console.log(player);
+    if(player === null) {
+      console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
+      return false;
+    }
+    const channelId = this.channels.afk;
+    if(channelId === null || typeof channelId === 'undefined') {
+      console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
+      return false;
+    }
+    await this.movePlayerToVoiceChannel(player.discordId, channelId);
+  }
+
+
   //strings in
-  async movePlayerToVoiceChannel(player, channel)
+  async movePlayerToVoiceChannel(playerId, channelId)
   {
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), player, channel);
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), playerId, channelId);
     // if(!(channel in this.channels)) {
     //   console.log(chalk.blueBright("GameManager"), chalk.red("movePlayerToVoiceChannel channel is undefined"), player, channel);
     //   return false;
     // }
-    this.players[player].voiceChannelId = channel;
-    await this.bot.setUserVoiceChannel(player, channel);
+    this.players[playerId].voiceChannelId = channelId;
+    await this.bot.setUserVoiceChannel(playerId, channelId);
   }
 
   async movePlayerToCall(player, call)

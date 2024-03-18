@@ -7,7 +7,7 @@ const headers = useRequestHeaders(['cookie']) as HeadersInit
 const { data: token } = await useFetch('/api/token', { headers })
 
 useHead({
-    title: 'ROC',
+    title: 'Railway Operations Centre - On Our Lines',
     htmlAttrs: {
       lang: 'en'
     },

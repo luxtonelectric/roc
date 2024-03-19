@@ -2,7 +2,7 @@
 import chalk from 'chalk';
 import PhoneManager from './phonemanager.js';
 import DiscordBot from './bot.js';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import CallRequest from './model/callrequest.js';
 
 export default class CallManager {
@@ -130,12 +130,14 @@ export default class CallManager {
 
     callRequest.channel = channelId;
   
+    // @ts-expect-error
     if(!(callRequest.getReceivers().some(p => p.discordId === socket.discordId))) {
       console.log(chalk.yellow('acceptCall'), socket.id, 'The person answering is not on the call?', callId);
       socket.emit('rejectCall', {"success":false})
       return false;
     }
 
+    // @ts-expect-error
     await this.movePlayerToCall(socket.discordId,callRequest.channel)
     console.log('accpeted', callRequest);
     if(callRequest.status === CallRequest.STATUS.OFFERED) {

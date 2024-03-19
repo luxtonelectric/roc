@@ -1,42 +1,45 @@
 <template>
   <div class="mx-auto align-middle">
-    <div class="flex flex-col">
-        <div class="text-right">
-      <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
-        <a class="link" @click="callNumber">Call Number</a>
-    </div>
-    </div>
-<!--    <div class="flex flex-col">-->
-<!--      -->
-<!--    </div>-->
-    <SpeedDial :playerData="playerData" :selectedPhone="selectedPhone" @place-call="placeCall" />
-    <div class="grid grid-cols-4 divide-x divide-gray-500 flex">
-      <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
-        <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"
-             :panel="panel" @movedSim="movedSim" @leaveCall="leaveCall" @placedCall="placedCall" class="mb-10" :playerSim="lastChannel"/>
-      </div>
-      <div class="flex-grow">
-        <div class="py-5 mx-2">
-          <select v-model="selectedPhone">
-              <option disabled value="">Please select one</option>
-              <option v-for="phone in playerData.phones" :value="phone.id">{{phone.name}}</option>
-          </select>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteRinger">Mute Ringer</a>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
-          <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
-             @click="considerRECWindow">EMERGENCY CALL</a>
-          <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
-
-          <div class="mb-5">
-              <CallListItem v-for="call in myCalls" :key="call.id" :callData="call" @accept-call="acceptCall" @reject-call="rejectCall" />
-          </div>
-<!--          <a class="rounded border border-red-900 bg-red-400 text-white p-5 ml-2 mr-2 mb-2 hover:bg-red-600 focus:bg-red-600 active:bg-red-600"-->
-<!--             @click="muteRinger">Mute Ringer</a>-->
-
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" v-for="phone in playerData.phones" @click="selectPhone(phone.id)">{{phone.name}}</a>
+    <div class="grid grid-cols-4 divide-x divide-gray-500 flex bg-neutral-300">
+      <SpeedDial v-if="showTab === 'speedDial'" :playerData="playerData" :selectedPhone="selectedPhone" @place-call="placeCall" />
+      <template v-if="showTab === 'panelSelector'">
+        <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
+          <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"
+              :panel="panel" @movedSim="movedSim" @placedCall="placedCall" class="mb-10" :playerSim="lastChannel"/>
         </div>
+      </template>
+      <template v-if="showTab === 'dialPad'">
+        <div class="flex flex-col">
+          <div class="text-right">
+          <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
+            <a class="link" @click="callNumber">Call Number</a>
+          </div>
       </div>
+      </template>
+      <template v-if="showTab === 'incomingCall'">
+        <div class="flex-grow">
+          <div class="py-5 mx-2">
+            <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
+            
+            <div class="mb-5">
+              <CallListItem v-for="call in myCalls" :key="call.id" :callData="call" @accept-call="acceptCall" @reject-call="rejectCall" />
+            </div>
+          </div>
+        </div>
+      </template>
+
+
     </div>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('panelSelector')">Panel Selector</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('speedDial')">Speed Dial</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('dialPad')">Dial Pad</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('incomingCall')">Incoming</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteRinger">Mute Ringer</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
+    <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
+       @click="considerRECWindow">EMERGENCY CALL</a>
 
     <div class="text-center mt-4">
       <a tabindex="0" class="link py-1" href="https://bradshaw.onourlines.co.uk/wiki/Disruption_Management" target="_blank">Disruption Management</a>
@@ -49,7 +52,6 @@
               @startREC="startREC"/>
     <CallPlacedDialog v-if="hasPlacedCall"  :callData="callData" :socket="socket" @hideCallDialog="hidePlacedCall" />
     <InCallDialog v-if="inCall" @leaveCall="leaveCall" :callData="callData"/>
-    <!--    <audio id="rejectedAudio" :src="require('@/assets/audio/rejected.mp3')" preload="auto"/>-->
 
   </div>
 </template>
@@ -76,7 +78,8 @@ export default {
       myCalls: [],
       hasPlacedCall: false,
       inCall: false,
-      phoneNumber: ""
+      phoneNumber: "",
+      showTab: "panelSelector"
     }
   },
   created() {
@@ -94,17 +97,14 @@ export default {
     });
 
     this.socket.on('newCallInQueue', function (msg) {
-      //console.log('newCallInQueue',msg);
       if(msg.type === "p2p") {
         that.callAudio.currentTime = 0;
         that.callAudio.play();
-        that.myCalls.push(msg);        
+        that.myCalls.push(msg);      
       } else if (msg.type === "REC") {
-        //console.log('newCallinQueue REC', msg);
         that.callData = msg;
         that.incomingRec = true;
         that.recAudio.play();
-        //console.log(that.callData);
       }
     });
     this.socket.on('removeCallFromQueue', function (msg){
@@ -123,6 +123,12 @@ export default {
     });
   },
   methods: {
+    changeTab(tab) {
+      this.showTab = tab;
+    },
+    selectPhone(phoneId){
+      this.selectedPhone = phoneId;
+    },
     callNumber(){
       this.placeCall(this.phoneNumber);
     },
@@ -140,7 +146,8 @@ export default {
       this.incomingCall = false;
       this.muteRinger();
       const call = {id:callId}
-      //console.log('acceptCall', call);
+      this.callData = this.myCalls.find(c => c.id === callId);
+      this.myCalls = this.myCalls.filter(c => c.id !== callId);
       this.socket.emit('acceptCall', call);
 
     },

@@ -8,13 +8,15 @@
       <a tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
     </div>
     <div v-if="simData.panels" class="flex flex-wrap">
-      <div v-for="(panel) in simData.panels" class="w-1/3">
-        <h4>{{panel.name}}
-        </h4>
-        <a v-if="!panel.player" class="button inline-block" @click="claimPanel(simData.id, panel.id)">{{panel.name}}- [C]</a>
-        <a v-if="panel.player === username" class="button inline-block" @click="releasePanel(simData.id,panel.id)">{{ panel.name }} - [R]</a>
-      </div>
-
+      <table>
+       <tr v-for="(panel) in simData.panels">
+        <td>{{panel.name}}</td>
+        <td>
+          <a v-if="!panel.player" class="button inline-block" @click="claimPanel(simData.id, panel.id)">Claim</a>
+          <a v-if="panel.player === username" class="button inline-block" @click="releasePanel(simData.id,panel.id)">Release</a>
+        </td>
+       </tr> 
+      </table>
     </div>
 <!--    <hr class="mt-5"/>-->
   </div>
@@ -24,7 +26,7 @@
 <script>
 export default {
   name: "Sim",
-  props: ["simData", "socket", "username", "panel", "playerSim", "selectedPhone"],
+  props: ["simData", "socket", "username", "panel", "playerSim"],
   data() {
     return {
     }

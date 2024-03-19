@@ -12,7 +12,7 @@
     "id":"basingstoke",
     "name":"Basingstoke",
     "panels":[
-      {"id":"basingstoke", "name": "basingstoke", "neighbours":[{"simId":"salisbury", "panelId":"salisbury"},{"simId":"woking", "panelId":"woking"}]}
+      {"id":"basingstoke", "name": "Basingstoke", "neighbours":[{"simId":"salisbury", "panelId":"salisbury"},{"simId":"woking", "panelId":"woking"}]}
     ]
   },
   {
@@ -59,7 +59,7 @@
     "id":"carlisle",
     "name":"Carlisle",
     "panels":[
-      {"id":"panela", "name": "Panel A", "neighbours":[{"simId":"motherwell", "panelId":"taff"},{"simId":"carlisle", "panelId":"panelb"}]},
+      {"id":"panela", "name": "Panel A", "neighbours":[{"simId":"motherwell", "panelId":"wks6"},{"simId":"carlisle", "panelId":"panelb"}]},
       {"id":"panelb", "name": "Panel B", "neighbours":[{"simId":"carlisle", "panelId":"panela"},{"simId":"carlisle", "panelId":"panelc"}]},
       {"id":"panelc", "name": "Panel C", "neighbours":[{"simId":"carlisle", "panelId":"panelb"}]}
     ]
@@ -123,7 +123,7 @@
       {"id":"roskearjn", "name": "Roskear Jn", "neighbours":[{"simId":"cornwall", "panelId":"truro"}]},
       {"id":"truro", "name": "Truro", "neighbours":[{"simId":"cornwall", "panelId":"roskearjn"},{"simId":"cornwall", "panelId":"par"}]},
       {"id":"par", "name": "Par", "neighbours":[{"simId":"cornwall", "panelId":"truro"},{"simId":"cornwall", "panelId":"stblazey"},{"simId":"cornwall", "panelId":"lostwithiel"}]},
-      {"id":"stblazey", "name": "St. Blazey", "neighbours":[{"simId":"cornwall", "panelId":"par"},{"simId":"chester", "panelId":"goonbarrowjn"}]},
+      {"id":"stblazey", "name": "St. Blazey", "neighbours":[{"simId":"cornwall", "panelId":"par"},{"simId":"cornwall", "panelId":"goonbarrowjn"}]},
       {"id":"goonbarrowjn", "name": "Goonbarrow Jn", "neighbours":[{"simId":"cornwall", "panelId":"stblazey"}]},
       {"id":"lostwithiel", "name": "Lostwithiel", "neighbours":[{"simId":"cornwall", "panelId":"par"},{"simId":"cornwall", "panelId":"liskeard"}]},
       {"id":"liskeard", "name": "Liskeard", "neighbours":[{"simId":"cornwall", "panelId":"lostwithiel"},{"simId":"plymouth", "panelId":"west"}]}
@@ -142,12 +142,12 @@
     "panels":[
       {"id":"winsford", "name": "Winsford", "neighbours":[{"simId":"edgehill", "panelId":"haltonjn"},{"simId":"warringtonpsb", "panelId":"south"},{"simId":"cheshirelines", "panelId":"greenbank"},{"simId":"crewe", "panelId":"coalyard"}]},
       {"id":"coalyard", "name": "Coal Yard", "neighbours":[{"simId":"crewe", "panelId":"winsford"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"salopgoodsjn"}]},
-      {"id":"crewepsbnorth", "name": "Crewe PSB North", "neighbours":[{"simId":"crewe", "panelId":"coalyard"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"steelworks"},{"simId":"crewe", "panelId":"basfordhall"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"crewe", "panelId":"sortingsdgsnorth"},{"simId":"crewe", "panelId":"salopgoodsjn"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"}]},
+      {"id":"crewepsbnorth", "name": "Crewe PSB North", "neighbours":[{"simId":"crewe", "panelId":"coalyard"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"steelworks"},{"simId":"crewe", "panelId":"basfordhall"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"crewe", "panelId":"sortingsidingsnth"},{"simId":"crewe", "panelId":"salopgoodsjn"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"}]},
       {"id":"steelworks", "name": "Steel Works", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"chester", "panelId":"beestoncastle"}]},
       {"id":"crewepsbsouth", "name": "Crewe PSB South", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"coalyard"},{"simId":"crewe", "panelId":"steelworks"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"},{"simId":"crewe", "panelId":"basfordhall"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"staffordshire", "panelId":"stokenorth"}]},
-      {"id":"basfordhall", "name": "Basford Hall", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsdgsnorth"},{"simId":"staffordshire", "panelId":"stafford"}]},
-      {"id":"grestylane", "name": "Gresty Lane", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsdgsnorth"},{"simId":"crewe", "panelId":"salopgoodsjn"},{"simId":"shrewsbury", "panelId":"nantwich"}]},
-      {"id":"salopgoodsjn", "name": "Salop Goods Jn", "neighbours":[{"simId":"crewe", "panelId":"sortingsdgsnorth"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"crewe", "panelId":"coalyard"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"}]},
+      {"id":"basfordhall", "name": "Basford Hall", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsidingsnth"},{"simId":"staffordshire", "panelId":"stafford"}]},
+      {"id":"grestylane", "name": "Gresty Lane", "neighbours":[{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsidingsnth"},{"simId":"crewe", "panelId":"salopgoodsjn"},{"simId":"shrewsbury", "panelId":"nantwich"}]},
+      {"id":"salopgoodsjn", "name": "Salop Goods Jn", "neighbours":[{"simId":"crewe", "panelId":"sortingsidingsnth"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"crewe", "panelId":"coalyard"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"}]},
       {"id":"sortingsidingsnth", "name": "Sorting Sidings North", "neighbours":[{"simId":"crewe", "panelId":"basfordhall"},{"simId":"crewe", "panelId":"salopgoodsjn"},{"simId":"crewe", "panelId":"grestylane"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"manchestersouth", "panelId":"manchestersouthscc"}]}
     ]
   },
@@ -166,7 +166,7 @@
     "id":"doncasternorth",
     "name":"Doncaster North",
     "panels":[
-      {"id": "panel4", "name":"Panel 4", "neighbours":[{"simId":"doncasternorth", "panelId":"panel5"},{"simId":"doncasterstation", "panelId":"panel3"},{"simId":"leedsa", "panelId":"ardsley"},{"simId":"yorkns", "panelId":"south"},{"simId":"westyorkshire", "panelId":"ferrybridge"}]},
+      {"id": "panel4", "name":"Panel 4", "neighbours":[{"simId":"doncasternorth", "panelId":"panel5"},{"simId":"doncasterstation", "panelId":"panel3"},{"simId":"leedsa", "panelId":"leedsa"},{"simId":"yorkns", "panelId":"south"},{"simId":"westyorkshire", "panelId":"ferrybridge"}]},
       {"id": "panel5", "name":"Panel 5", "neighbours":[{"simId":"doncasterstation", "panelId":"panel2"},{"simId":"doncasterstation", "panelId":"panel3"},{"simId":"doncasternorth", "panelId":"panel4"}]}
     ]
   },
@@ -225,7 +225,7 @@
       {"id":"panel2", "name":"Panel 2", "neighbours":[{"simId":"edinburgh", "panelId":"panel1"},{"simId":"edinburgh", "panelId":"millerhill"},{"simId":"edinburgh","panelId":"panel4"},{"simId":"edinburgh","panelId":"panel3"}]},
       {"id":"panel3", "name":"Panel 3", "neighbours":[{"simId":"edinburgh", "panelId":"panel1"},{"simId":"edinburgh", "panelId":"panel2"},{"simId":"edinburgh","panelId":"panel4"},{"simId":"edinburgh","panelId":"panel5"}]},
       {"id":"panel4", "name":"Panel 4", "neighbours":[{"simId":"edinburgh", "panelId":"panel2"},{"simId":"edinburgh", "panelId":"panel3"},{"simId":"edinburgh","panelId":"panel5"},{"simId":"motherwell","panelId":"wks5"},{"simId":"motherwell","panelId":"wks6"},{"simId":"centralscotland","panelId":"dutyp"}]},
-      {"id":"panel5", "name":"Panel 5", "neighbours":[{"simId":"edinburgh", "panelId":"panel2"},{"simId":"edinburgh", "panelId":"panel3"},{"simId":"edinburgh","panelId":"panel4"},{"simId":"centralscotland","panelId":"dutysm1"},{"simId":"centralscotland","panelId":"dutysm2"}]},
+      {"id":"panel5", "name":"Panel 5", "neighbours":[{"simId":"edinburgh", "panelId":"panel2"},{"simId":"edinburgh", "panelId":"panel3"},{"simId":"edinburgh","panelId":"panel4"},{"simId":"edinburgh","panelId":"panel5"},{"simId":"centralscotland","panelId":"dutysm1"},{"simId":"centralscotland","panelId":"dutysm2"}]},
       {"id":"panel6", "name":"Panel 6", "neighbours":[{"simId":"edinburgh", "panelId":"panel5"},{"simId":"nescot", "panelId":"hiltonjn"},{"simId":"nescot","panelId":"cupar"}]},
       {"id":"millerhill", "name":"Millerhill", "neighbours":[{"simId":"edinburgh", "panelId":"panel1"},{"simId":"edinburgh", "panelId":"panel2"},{"simId":"edinburgh","panelId":"panel3"}]}
     ]
@@ -375,7 +375,7 @@
       {"id":"panel3", "name":"Panel 3", "neighbours":[{"simId":"londonbridge", "panelId":"panel1"},{"simId":"londonbridge", "panelId":"panel2"},{"simId":"londonbridge", "panelId":"panel9"},{"simId":"londonbridge", "panelId":"panel4"},{"simId":"londonbridge", "panelId":"panel8"}]},
       {"id":"panel4", "name":"Panel 4", "neighbours":[{"simId":"londonbridge", "panelId":"panel3"},{"simId":"londonbridge", "panelId":"panel2"},{"simId":"londonbridge", "panelId":"panel5"}]},
       {"id":"panel5", "name":"Panel 5", "neighbours":[{"simId":"londonbridge", "panelId":"panel4"},{"simId":"londonbridge", "panelId":"panel6"},{"simId":"victoriasoutheast", "panelId":"panel8"},{"simId":"northkent", "panelId":"northkent1"}]},
-      {"id":"panel6", "name":"Panel 6", "neighbours":[{"simId":"londonbridge", "panelId":"panel5"},{"simId":"londonbridge", "panelId":"panel7"},{"simId":"victoriasoutheast", "panelId":"panel9"},{"simId":"victoriasoutheast", "panelId":"panel2"}]},
+      {"id":"panel6", "name":"Panel 6", "neighbours":[{"simId":"londonbridge", "panelId":"panel5"},{"simId":"londonbridge", "panelId":"panel7"},{"simId":"victoriasoutheast", "panelId":"panel9"}]},
       {"id":"panel7", "name":"Panel 7", "neighbours":[{"simId":"londonbridge", "panelId":"panel6"},{"simId":"northkent", "panelId":"northkent1"},{"simId":"victoriasoutheast", "panelId":"panel9"}]},
       {"id":"panel8", "name":"Panel 8", "neighbours":[{"simId":"londonbridge", "panelId":"panel9"},{"simId":"victoriacentral", "panelId":"panel3"},{"simId":"victoriasoutheast", "panelId":"panel8"},{"simId":"threebridges", "panelId":"panel1a"}]},
       {"id":"panel9", "name":"Panel 9", "neighbours":[{"simId":"londonbridge", "panelId":"panel8"},{"simId":"londonbridge", "panelId":"panel3"}]}
@@ -440,7 +440,7 @@
     "id":"manchestersouth",
     "name":"Manchester South",
     "panels":[
-      {"id":"manchestersouthscc", "name":"Manchester South SCC", "neighbours":[{"simId":"manchestersouth", "panelId":"edgeley1"},{"simId":"manchestersouth", "panelId":"macclesfield"},{"simId":"manchesterpiccadilly", "panelId":"healdgreen"},{"simId":"cheshirelines", "panelId":"greenbank"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsdgsnorth"},{"simId":"crewe", "panelId":"salopgoodsjn"}]},
+      {"id":"manchestersouthscc", "name":"Manchester South SCC", "neighbours":[{"simId":"stockport", "panelId":"edgeley1"},{"simId":"manchestersouth", "panelId":"macclesfield"},{"simId":"manchesterpiccadilly", "panelId":"healdgreen"},{"simId":"cheshirelines", "panelId":"greenbank"},{"simId":"crewe", "panelId":"crewepsbnorth"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"crewe", "panelId":"sortingsidingsnth"},{"simId":"crewe", "panelId":"salopgoodsjn"}]},
       {"id":"macclesfield", "name":"Macclesfield", "neighbours":[{"simId":"manchestersouth", "panelId":"manchestersouthscc"},{"simId":"staffordshire", "panelId":"stokenorth"}]}
     ]
   },
@@ -481,7 +481,7 @@
     "id":"nescot",
     "name":"North East Scotland",
     "panels":[
-      {"id":"greenloaning", "name":"Greenloaning", "neighbours":[{"simId":"centralscotland", "panelId":"dunblane"},{"simId":"nescot", "panelId":"blackford"}]},
+      {"id":"greenloaning", "name":"Greenloaning", "neighbours":[{"simId":"centralscotland", "panelId":"dutydb"},{"simId":"nescot", "panelId":"blackford"}]},
       {"id":"blackford", "name":"Blackford", "neighbours":[{"simId":"nescot", "panelId":"greenloaning"},{"simId":"nescot", "panelId":"auchterarder"}]},
       {"id":"auchterarder", "name":"Auchterarder", "neighbours":[{"simId":"nescot", "panelId":"blackford"},{"simId":"nescot", "panelId":"hiltonjn"}]},
       {"id":"hiltonjn", "name":"Hilton Jn", "neighbours":[{"simId":"nescot", "panelId":"auchterarder"},{"simId":"nescot", "panelId":"perth"},{"simId":"edinburgh", "panelId":"panel6"}]},
@@ -503,7 +503,7 @@
       {"id":"laurencekirk", "name":"Laurencekirk", "neighbours":[{"simId":"nescot", "panelId":"craigo"},{"simId":"nescot", "panelId":"carmont"}]},
       {"id":"carmont", "name":"Carmont", "neighbours":[{"simId":"nescot", "panelId":"laurencekirk"},{"simId":"nescot", "panelId":"stonehaven"}]},
       {"id":"stonehaven", "name":"Stonehaven", "neighbours":[{"simId":"nescot", "panelId":"carmont"},{"simId":"nescot", "panelId":"newtonhill"}]},
-      {"id":"newtonhill", "name":"Newtonhill", "neighbours":[{"simId":"nescot", "panelId":"stonehaven"},{"simId":"nescot", "panelId":"newtonhill"}]},
+      {"id":"newtonhill", "name":"Newtonhill", "neighbours":[{"simId":"nescot", "panelId":"stonehaven"},{"simId":"nescot", "panelId":"aberdeen"}]},
       {"id":"aberdeen", "name":"Aberdeen", "neighbours":[{"simId":"nescot", "panelId":"newtonhill"}]}
     ]
   },
@@ -537,7 +537,7 @@
       {"id":"prestatyn", "name":"Prestatyn", "neighbours":[{"simId":"northwalescoast","panelId":"talacre"},{"simId":"northwalescoast","panelId":"rhyl"}]},
       {"id":"rhyl", "name":"Rhyl", "neighbours":[{"simId":"northwalescoast","panelId":"prestatyn"},{"simId":"northwalescoast","panelId":"abergele"}]},
       {"id":"abergele", "name":"Abergele", "neighbours":[{"simId":"northwalescoast","panelId":"rhyl"},{"simId":"northwalescoast","panelId":"llandudnojunction"}]},
-      {"id":"llandudnojunction", "name":"Llandudno Junction", "neighbours":[{"simId":"northwalescoast","panelId":"abergele"},{"simId":"northwalescoast","panelId":"llanrwst"},{"simId":"northwalescoast","panelId":"deganwy"},{"simId":"northwalescoast","panelId":"penmaenmawr"}]},
+      {"id":"llandudnojunction", "name":"Llandudno Junction", "neighbours":[{"simId":"northwalescoast","panelId":"abergele"},{"simId":"northwalescoast","panelId":"llanwrst"},{"simId":"northwalescoast","panelId":"deganwy"},{"simId":"northwalescoast","panelId":"penmaenmawr"}]},
       {"id":"llanwrst", "name":"Llanwrst", "neighbours":[{"simId":"northwalescoast","panelId":"llandudnojunction"}]},
       {"id":"deganwy", "name":"Deganwy", "neighbours":[{"simId":"northwalescoast","panelId":"llandudnojunction"},{"simId":"northwalescoast","panelId":"llandudno"}]},
       {"id":"llandudno", "name":"Llandudno", "neighbours":[{"simId":"northwalescoast","panelId":"deganwy"}]},
@@ -654,7 +654,7 @@
     "name":"Sheffield",
     "panels":[
       {"id":"sheffield", "name":"Sheffield", "neighbours":[{"simId":"sheffield", "panelId":"woodburnjn"},{"simId":"sheffield", "panelId":"rotherham1"},{"simId":"sheffield", "panelId":"barnsley"}]},
-      {"id":"rotherham1", "name":"Rotherham 1", "neighbours":[{"simId":"sheffield", "panelId":"rotherham2"},{"simId":"sheffield", "panelId":"woodburnjn"},{"simId":"doncasterstation", "panelId":"panel3"},{"simId":"ardsley", "panelId":"ardsley"}]},
+      {"id":"rotherham1", "name":"Rotherham 1", "neighbours":[{"simId":"sheffield", "panelId":"rotherham2"},{"simId":"sheffield", "panelId":"woodburnjn"},{"simId":"doncasterstation", "panelId":"panel3"},{"simId":"leedsa", "panelId":"ardsley"}]},
       {"id":"rotherham2", "name":"Rotherham 2", "neighbours":[{"simId":"sheffield", "panelId":"rotherham1"},{"simId":"sheffield", "panelId":"beightonstnjn"}]},
       {"id":"beightonstnjn", "name":"Beighton Station Junction", "neighbours":[{"simId":"sheffield", "panelId":"rotherham2"},{"simId":"sheffield", "panelId":"woodhousejn"}]},
       {"id":"woodhousejn", "name":"Woodhouse Junction", "neighbours":[{"simId":"sheffield", "panelId":"beightonstnjn"},{"simId":"sheffield", "panelId":"woodburnjn"}]},
@@ -737,7 +737,8 @@
       {"id":"panel3", "name":"Panel 3", "neighbours":[{"simId":"threebridges", "panelId":"panel2"},{"simId":"threebridges", "panelId":"panel4"},{"simId":"threebridges", "panelId":"reigate"}]},
       {"id":"panel4", "name":"Panel 4", "neighbours":[{"simId":"threebridges", "panelId":"panel3"},{"simId":"threebridges", "panelId":"panel5"},{"simId":"horsham", "panelId":"horsham"}]},
       {"id":"panel5", "name":"Panel 5", "neighbours":[{"simId":"threebridges", "panelId":"panel4"},{"simId":"threebridges", "panelId":"panel6"},{"simId":"eastcoastway", "panelId":"lewes"}]},
-      {"id":"panel6", "name":"Panel 6", "neighbours":[{"simId":"threebridges", "panelId":"panel5"},{"simId":"lancing", "panelId":"lancing"},{"simId":"eastcoastway", "panelId":"lewes"}]}
+      {"id":"panel6", "name":"Panel 6", "neighbours":[{"simId":"threebridges", "panelId":"panel5"},{"simId":"lancing", "panelId":"panel1"},{"simId":"eastcoastway", "panelId":"lewes"}]},
+      {"id":"reigate", "name":"Reigate SB", "neighbours":[{"simId":"threebridges", "panelId":"3"}]}
     ]
   },
   {
@@ -793,7 +794,7 @@
       {"id":"north", "name":"North", "neighbours":[{"simId":"huyton", "panelId":"sthelens"},{"simId":"wigan", "panelId":"wiganwallgate"},{"simId":"manchesterpiccadilly", "panelId":"crownest"},{"simId":"warringtonpsb", "panelId":"middle"}]},
       {"id":"middle", "name":"Middle", "neighbours":[{"simId":"warringtonpsb", "panelId":"north"},{"simId":"warringtonpsb", "panelId":"astley"},{"simId":"warringtonpsb", "panelId":"south"},{"simId":"huyton", "panelId":"mroc"}]},
       {"id":"south", "name":"South", "neighbours":[{"simId":"warringtonpsb", "panelId":"middle"},{"simId":"warringtonpsb", "panelId":"arpleyjunction"},{"simId":"chester", "panelId":"norton"},{"simId":"crewe", "panelId":"winsford"}]},
-      {"id":"arpleyjunction", "name":"Arpley Junction", "neighbours":[{"simId":"warringtonpsb", "panelId":"south"},{"simId":"edgehill", "panelId":"fiddlersferry"}]},
+      {"id":"arpleyjunction", "name":"Arpley Junction", "neighbours":[{"simId":"warringtonpsb", "panelId":"south"},{"simId":"edgehill", "panelId":"monkssidings"}]},
       {"id":"astley", "name":"Astley", "neighbours":[{"simId":"warringtonpsb", "panelId":"middle"},{"simId":"warringtonpsb", "panelId":"eccles"}]},
       {"id":"eccles", "name":"Eccles", "neighbours":[{"simId":"warringtonpsb", "panelId":"astley"},{"simId":"manchesterpiccadilly", "panelId":"windsor1"}]}
     ]
@@ -846,10 +847,10 @@
     "name":"West Yorkshire",
     "panels":[
       {"id":"horburyjn", "name":"Horbury Jn", "neighbours":[{"simId":"sheffield", "panelId":"woolleycoalsdgs"},{"simId":"westyorkshire", "panelId":"wakefieldkirkgate"}]},
-      {"id":"wakefieldkirkgate", "name":"Wakefield Kirkgate", "neighbours":[{"simId":"westyorkshire","panelId":"horburyjn"},{"simId":"westyorkshire", "panelId":"castleford"},{"simId":"westyorkshire", "panelId":"powcutsyke"},{"simId":"ardsley", "panelId":"ardsley"}]},
+      {"id":"wakefieldkirkgate", "name":"Wakefield Kirkgate", "neighbours":[{"simId":"westyorkshire","panelId":"horburyjn"},{"simId":"westyorkshire", "panelId":"castleford"},{"simId":"westyorkshire", "panelId":"powcutsyke"},{"simId":"leedsa", "panelId":"ardsley"}]},
       {"id":"castleford", "name":"Castleford", "neighbours":[{"simId":"westyorkshire", "panelId":"wakefieldkirkgate"},{"simId":"westyorkshire", "panelId":"powcutsyke"},{"simId":"westyorkshire", "panelId":"milford"},{"simId":"leedsew", "panelId":"west2"}]},
       {"id":"powcutsyke", "name":"Price of Wales & Cutsyke Boxes", "neighbours":[{"simId":"westyorkshire", "panelId":"castleford"},{"simId":"westyorkshire", "panelId":"wakefieldkirkgate"},{"simId":"westyorkshire", "panelId":"ferrybridge"}]},
-      {"id":"ferrybridge", "name":"Ferrybridge", "neighbours":[{"simId":"westyorkshire", "panelId":"powcutsyke"},{"simId":"westyorkshire", "panelId":"milford"},{"simId":"doncasternorth", "panelId":"panel4"},{"simId":"ardsley", "panelId":"ardsley"}]},
+      {"id":"ferrybridge", "name":"Ferrybridge", "neighbours":[{"simId":"westyorkshire", "panelId":"powcutsyke"},{"simId":"westyorkshire", "panelId":"milford"},{"simId":"doncasternorth", "panelId":"panel4"},{"simId":"leedsa", "panelId":"ardsley"}]},
       {"id":"milford", "name":"Milford", "neighbours":[{"simId":"westyorkshire", "panelId":"ferrybridge"},{"simId":"westyorkshire", "panelId":"castleford"},{"simId":"leedsew", "panelId":"east2"},{"simId":"yorkns", "panelId":"gascoignewood"},{"simId":"westyorkshire", "panelId":"milfordwest"}]},
       {"id":"milfordwest", "name":"Milford West", "neighbours":[{"simId":"westyorkshire", "panelId":"milford"}]}
     ]
@@ -870,7 +871,7 @@
       {"id":"wiganwallgate", "name":"Wigan Wallgate", "neighbours":[{"simId":"warringtonpsb", "panelId":"north"},{"simId":"wigan", "panelId":"rainfordjn"},{"simId":"wigan", "panelId":"parbold"}]},
       {"id":"rainfordjn", "name":"Rainford Jnc", "neighbours":[{"simId":"wigan","panelId":"wiganwallgate"}]},
       {"id":"parbold", "name":"Parbold", "neighbours":[{"simId":"wigan", "panelId":"wiganwallgate"},{"simId":"wigan", "panelId":"burscoughbridgejn"}]},
-      {"id":"burscoughbridgejn", "name":"Burscough Bridge Jnc", "neighbours":[{"simId":"wigan", "panelId":"parbold"},{"simId":"sandhills", "panelId":"wirral"}]}
+      {"id":"burscoughbridgejn", "name":"Burscough Bridge Jnc", "neighbours":[{"simId":"wigan", "panelId":"parbold"},{"simId":"sandhills", "panelId":"northern"}]}
     ]
   },
   {

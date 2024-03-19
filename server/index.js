@@ -18,7 +18,6 @@ import { adminSockets } from './adminSockets.js';
 import STOMPManager from './stomp.js';
 import PhoneManager from './phonemanager.js';
 import CallManager from './callManager.js';
-// End Better Logger
 
 let httpServer;
 
@@ -55,18 +54,11 @@ console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
 const phonemanager = new PhoneManager(io);
-config.sims.forEach(x => {
-  if(x.enabled === true) {
-    phonemanager.generatePhonesForSim(x);
-  }
-});
-const rocManager = new ROCManager(io, discordBot, phonemanager, config);
-const stompManager = new STOMPManager(rocManager);
+const stompManager = new STOMPManager();
 const callManager = new CallManager(phonemanager,discordBot,io);
+const rocManager = new ROCManager(io, discordBot, phonemanager, stompManager);
+rocManager.load(config);
 
-
-discordBot.setGameManager(rocManager);
-stompManager.load();
 //@ts-expect-error
 await discordBot.setUpBot().then(() => {
   console.log("Configuring voice channels");

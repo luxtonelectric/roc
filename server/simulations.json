@@ -104,7 +104,7 @@
     "id":"chester",
     "name":"Chester",
     "panels":[
-      {"id":"chester", "name": "Chester", "neighbours":[{"simId":"chester", "panelId":"hooton"},{"simId":"chester", "panelId":"mickletrafford"},{"simId":"chester", "panelId":"beestoncastle"},{"simId":"newales", "panelId":"croesnewydd"},{"simId":"northwalescoast", "panelId":"rockcliffehall"}]},
+      {"id":"chester", "name": "Chester", "neighbours":[{"simId":"chester", "panelId":"hooton"},{"simId":"chester", "panelId":"mickletrafford"},{"simId":"chester", "panelId":"beestoncastle"},{"simId":"newales", "panelId":"croesnewydd"},{"simId":"north_wales_coast", "panelId":"rockcliffehall"}]},
       {"id":"hooton", "name": "Hooton", "neighbours":[{"simId":"sandhills", "panelId":"wirral"},{"simId":"chester", "panelId":"chester"},{"simId":"chester", "panelId":"ellesmereport"}]},
       {"id":"ellesmereport", "name": "Ellesmere Port", "neighbours":[{"simId":"chester", "panelId":"hooton"},{"simId":"chester", "panelId":"helsby"}]},
       {"id":"beestoncastle", "name": "Beeston Castle", "neighbours":[{"simId":"chester", "panelId":"chester"},{"simId":"crewe", "panelId":"steelworks"}]},
@@ -527,25 +527,25 @@
     ]
   },
   {
-    "id":"northwalescoast",
+    "id":"north_wales_coast",
     "name":"North Wales Coast",
     "panels":[
-      {"id":"rockcliffehall", "name":"Rockcliffe Hall", "neighbours":[{"simId":"chester", "panelId":"chester"},{"simId":"northwalescoast", "panelId":"holywelljunction"}]},
-      {"id":"holywelljunction", "name":"Holywell Junction", "neighbours":[{"simId":"northwalescoast","panelId":"rockcliffehall"},{"simId":"northwalescoast","panelId":"mostyn"}]},
-      {"id":"mostyn", "name":"Mostyn", "neighbours":[{"simId":"northwalescoast","panelId":"holywelljunction"},{"simId":"northwalescoast","panelId":"talacre"}]},
-      {"id":"talacre", "name":"Talacre", "neighbours":[{"simId":"northwalescoast","panelId":"mostyn"},{"simId":"northwalescoast","panelId":"prestatyn"}]},
-      {"id":"prestatyn", "name":"Prestatyn", "neighbours":[{"simId":"northwalescoast","panelId":"talacre"},{"simId":"northwalescoast","panelId":"rhyl"}]},
-      {"id":"rhyl", "name":"Rhyl", "neighbours":[{"simId":"northwalescoast","panelId":"prestatyn"},{"simId":"northwalescoast","panelId":"abergele"}]},
-      {"id":"abergele", "name":"Abergele", "neighbours":[{"simId":"northwalescoast","panelId":"rhyl"},{"simId":"northwalescoast","panelId":"llandudnojunction"}]},
-      {"id":"llandudnojunction", "name":"Llandudno Junction", "neighbours":[{"simId":"northwalescoast","panelId":"abergele"},{"simId":"northwalescoast","panelId":"llanwrst"},{"simId":"northwalescoast","panelId":"deganwy"},{"simId":"northwalescoast","panelId":"penmaenmawr"}]},
-      {"id":"llanwrst", "name":"Llanwrst", "neighbours":[{"simId":"northwalescoast","panelId":"llandudnojunction"}]},
-      {"id":"deganwy", "name":"Deganwy", "neighbours":[{"simId":"northwalescoast","panelId":"llandudnojunction"},{"simId":"northwalescoast","panelId":"llandudno"}]},
-      {"id":"llandudno", "name":"Llandudno", "neighbours":[{"simId":"northwalescoast","panelId":"deganwy"}]},
-      {"id":"penmaenmawr", "name":"Penmaenmawr", "neighbours":[{"simId":"northwalescoast","panelId":"llandudnojunction"},{"simId":"northwalescoast","panelId":"bangor"}]},
-      {"id":"bangor", "name":"Bangor", "neighbours":[{"simId":"northwalescoast","panelId":"penmaenmawr"},{"simId":"northwalescoast","panelId":"gaerwen"}]},
-      {"id":"gaerwen", "name":"Gaerwen", "neighbours":[{"simId":"northwalescoast","panelId":"bangor"},{"simId":"northwalescoast","panelId":"valley"}]},
-      {"id":"valley", "name":"Valley", "neighbours":[{"simId":"northwalescoast","panelId":"gaerwen"},{"simId":"northwalescoast","panelId":"holyhead"}]},
-      {"id":"holyhead", "name":"Holyhead", "neighbours":[{"simId":"northwalescoast","panelId":"valley"}]}
+      {"id":"rockcliffehall", "name":"Rockcliffe Hall", "neighbours":[{"simId":"chester", "panelId":"chester"},{"simId":"north_wales_coast", "panelId":"holywelljunction"}]},
+      {"id":"holywelljunction", "name":"Holywell Junction", "neighbours":[{"simId":"north_wales_coast","panelId":"rockcliffehall"},{"simId":"north_wales_coast","panelId":"mostyn"}]},
+      {"id":"mostyn", "name":"Mostyn", "neighbours":[{"simId":"north_wales_coast","panelId":"holywelljunction"},{"simId":"north_wales_coast","panelId":"talacre"}]},
+      {"id":"talacre", "name":"Talacre", "neighbours":[{"simId":"north_wales_coast","panelId":"mostyn"},{"simId":"north_wales_coast","panelId":"prestatyn"}]},
+      {"id":"prestatyn", "name":"Prestatyn", "neighbours":[{"simId":"north_wales_coast","panelId":"talacre"},{"simId":"north_wales_coast","panelId":"rhyl"}]},
+      {"id":"rhyl", "name":"Rhyl", "neighbours":[{"simId":"north_wales_coast","panelId":"prestatyn"},{"simId":"north_wales_coast","panelId":"abergele"}]},
+      {"id":"abergele", "name":"Abergele", "neighbours":[{"simId":"north_wales_coast","panelId":"rhyl"},{"simId":"north_wales_coast","panelId":"llandudnojunction"}]},
+      {"id":"llandudnojunction", "name":"Llandudno Junction", "neighbours":[{"simId":"north_wales_coast","panelId":"abergele"},{"simId":"north_wales_coast","panelId":"llanwrst"},{"simId":"north_wales_coast","panelId":"deganwy"},{"simId":"north_wales_coast","panelId":"penmaenmawr"}]},
+      {"id":"llanwrst", "name":"Llanwrst", "neighbours":[{"simId":"north_wales_coast","panelId":"llandudnojunction"}]},
+      {"id":"deganwy", "name":"Deganwy", "neighbours":[{"simId":"north_wales_coast","panelId":"llandudnojunction"},{"simId":"north_wales_coast","panelId":"llandudno"}]},
+      {"id":"llandudno", "name":"Llandudno", "neighbours":[{"simId":"north_wales_coast","panelId":"deganwy"}]},
+      {"id":"penmaenmawr", "name":"Penmaenmawr", "neighbours":[{"simId":"north_wales_coast","panelId":"llandudnojunction"},{"simId":"north_wales_coast","panelId":"bangor"}]},
+      {"id":"bangor", "name":"Bangor", "neighbours":[{"simId":"north_wales_coast","panelId":"penmaenmawr"},{"simId":"north_wales_coast","panelId":"gaerwen"}]},
+      {"id":"gaerwen", "name":"Gaerwen", "neighbours":[{"simId":"north_wales_coast","panelId":"bangor"},{"simId":"north_wales_coast","panelId":"valley"}]},
+      {"id":"valley", "name":"Valley", "neighbours":[{"simId":"north_wales_coast","panelId":"gaerwen"},{"simId":"north_wales_coast","panelId":"holyhead"}]},
+      {"id":"holyhead", "name":"Holyhead", "neighbours":[{"simId":"north_wales_coast","panelId":"valley"}]}
     ]
   },
   {

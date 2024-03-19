@@ -1,38 +1,75 @@
-//@ts-check
+// @ts-check
 import chalk from 'chalk'
 import Player from './model/player.js';
-import DiscordBot from './bot.js';
-import PhoneManager from './phonemanager.js';
-import { Server, Socket } from 'socket.io';
+import { readFile } from "fs/promises";
 import Simulation from './model/simulation.js';
+/** @typedef {import("./bot.js").default} DiscordBot */
+/** @typedef {import("./phonemanager.js").default} PhoneManager */
+/** @typedef {import("socket.io").Server} Server */
+/** @typedef {import("socket.io").Socket} Socket */
+/** @typedef {import("./stomp.js").default} STOMPManager */
 
 export default class ROCManager {
   prospects = {};
   players = {};
   admins = {};
-/** @type {Simulation[]} */
+  /** @type {Simulation[]} */
   sims = [];
 
   /**
    * 
    * @param {Server} io 
    * @param {DiscordBot} bot 
-   * @param {PhoneManager} phoneManager 
-   * @param {*} config 
+   * @param {PhoneManager} phoneManager
+   * @param {STOMPManager} stompManager 
    */
-  constructor(io, bot, phoneManager, config) {
+  constructor(io, bot, phoneManager, stompManager) {
     this.io = io;
     this.bot = bot;
     this.phoneManager = phoneManager;
-    this.guild = config.guild;
-    this.channels = config.channels;
-    this.sims = config.sims;
-    this.config = config;
+    this.stompManager = stompManager;
     console.info(chalk.yellow("constructor"), `Welcome! Yum yum!`);
   }
-  
-  
-  // ============================= BEGIN PLAYER CODE =============================
+
+  /**
+   * 
+   * @param {*} config 
+   */
+  load(config) {
+    this.channels = config.channels;
+    this.config = config;
+    this.stompManager.setGameManager(this);
+    this.bot.setGameManager(this);
+
+    config.games.forEach(g => {this.activateGame(g)},this) 
+  }
+
+  /**
+   * 
+   * @param {string} simId 
+   * @returns {Promise<Simulation>}
+   */
+  async getSimData(simId) {
+    /** @type {Simulation[]} */
+    const simConfig = JSON.parse( await readFile('./simulations.json', 'utf8'));
+    return Simulation.fromSimData(simConfig.find(s => s.id == simId));
+  }
+
+  activateGame(game) {
+    this.stompManager.createClientForGame(game);
+    this.getSimData(game.sim).then(sim =>{
+      if(sim) {
+        console.log('LOADING PHONES FOR SIM', game.sim);
+        this.phoneManager.generatePhonesForSim(sim);
+        this.sims.push(sim);
+      } else {
+        console.error('Unable to find simulation for', game.sim);
+      }
+    });
+
+  }
+
+  // ============================ BEGIN PLAYER CODE ============================
 
   /**
    * 
@@ -41,22 +78,22 @@ export default class ROCManager {
    */
   async registerWebUI(socket, discordId) {
     console.log(chalk.yellow("registerWebUI"), discordId);
-    if(typeof this.prospects[discordId] === 'undefined') {
+    if (typeof this.prospects[discordId] === 'undefined') {
       // This is an unknown prospect are they a player already?
-      if(typeof this.players[discordId] === 'undefined') {
+      if (typeof this.players[discordId] === 'undefined') {
         // They're totally new.
         const p = new Player(socket, discordId, null);
 
         const vc = await this.bot.getUserVoiceChannel(discordId);
-        if(vc === null) {
+        if (vc === null) {
           console.log(chalk.yellow("registerWebUI"), discordId, "has no VC yet...");
           this.prospects[discordId] = p;
           socket.emit("loggedIn", {
             "loggedIn": false,
             "error": "You aren't in a voice chat.."
-          });  
+          });
         } else {
-          console.log(chalk.yellow("registerWebUI"), discordId,"adding player...");
+          console.log(chalk.yellow("registerWebUI"), discordId, "adding player...");
           p.voiceChannelId = vc;
           this.addPlayer(p);
         }
@@ -77,7 +114,7 @@ export default class ROCManager {
     } else {
       // They're a prospect already...
       console.log(chalk.yellow("registerWebUI"), discordId, "is already a prospect");
-      if(this.prospects[discordId].voiceChannelId !== null) {
+      if (this.prospects[discordId].voiceChannelId !== null) {
         // They're in a VC and we now have a socket, process the new player
         this.prospects[discordId].socket = socket;
         this.addPlayer(this.prospects[discordId]);
@@ -95,9 +132,9 @@ export default class ROCManager {
   }
 
   registerDiscordVoice(discordId, voiceChannelId) {
-    if(typeof this.prospects[discordId] === 'undefined') {
+    if (typeof this.prospects[discordId] === 'undefined') {
       // They're not a prospect... are they already a player?
-      if(typeof this.players[discordId] === 'undefined') {
+      if (typeof this.players[discordId] === 'undefined') {
         // Not a prospect, not a player...
         const p = new Player(null, discordId, voiceChannelId);
         this.prospects[discordId] = p;
@@ -112,7 +149,7 @@ export default class ROCManager {
       }
     } else {
       // They're a prospect already...
-      if(this.prospects[discordId].socket !== null && this.prospects[discordId].voiceChannelId === null) {
+      if (this.prospects[discordId].socket !== null && this.prospects[discordId].voiceChannelId === null) {
         this.prospects[discordId].voiceChannelId = voiceChannelId;
         this.addPlayer(this.prospects[discordId]);
       }
@@ -120,9 +157,9 @@ export default class ROCManager {
   }
 
   unregisterDiscordVoice(discordId) {
-    if(discordId in this.players) {
+    if (discordId in this.players) {
       this.players[discordId].voiceChannelId = null;
-      if(this.players[discordId].socket !== null) {
+      if (this.players[discordId].socket !== null) {
         this.io.to(discordId).emit("loggedIn", {
           "loggedIn": false,
           "error": "You aren't in a voice chat.."
@@ -131,25 +168,24 @@ export default class ROCManager {
     }
   }
 
-  
+
 
   //takes player object
   async addPlayer(newPlayer) {
     console.info(chalk.yellow("AddPlayer"), "New Player Joining");
-    if (typeof newPlayer.discordId !== 'undefined' && newPlayer.discordId.length > 2)
-    {
+    if (typeof newPlayer.discordId !== 'undefined' && newPlayer.discordId.length > 2) {
       var channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
       if (channel) {
         console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in a voice channel:`, chalk.magentaBright(channel));
 
-        if(this.players[newPlayer.discordId] !== undefined) {
+        if (this.players[newPlayer.discordId] !== undefined) {
           // This player has already logged in!
           const existingPlayer = this.players[newPlayer.discordId];
-          
-          if(existingPlayer.isConnected === false) {
+
+          if (existingPlayer.isConnected === false) {
             console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is reconnecting after socket disconnect`);
             // They DCd and we caught it just let them back in
-            if(existingPlayer.voiceChannelId === channel) {
+            if (existingPlayer.voiceChannelId === channel) {
               //They're still in the same place they were before. Everything is good with the world
             } else {
               //They're somehow changed rooms... guess we should update
@@ -170,8 +206,8 @@ export default class ROCManager {
           } else {
             // They're connecting twice for the same person?! This is sus. Follow normal login.
           }
-          
-        } else{
+
+        } else {
           // Brand new Player
           //console.log("Brand New Player!");
         }
@@ -203,17 +239,14 @@ export default class ROCManager {
     }
   }
 
-  updatePlayerPanel(user, panel)
-  {
+  updatePlayerPanel(user, panel) {
     this.players[user].panel = panel;
     this.sendGameUpdateToPlayers();
   }
 
   findPlayerBySocketId(socketId) {
-    for(var [key, value] of Object.entries(this.players))
-    {
-      if(value.socket.id === socketId)
-      {
+    for (var [key, value] of Object.entries(this.players)) {
+      if (value.socket.id === socketId) {
         return this.players[key];
       }
     }
@@ -222,42 +255,37 @@ export default class ROCManager {
 
   checkDisconnectingPlayer(socketId) {
     const player = this.findPlayerBySocketId(socketId);
-    if(player === null) {
+    if (player === null) {
       return false;
     }
-    
+
     const playerChannel = this.bot.getUserVoiceChannel(player.discordId);
-    if(playerChannel === null) {
+    if (playerChannel === null) {
       //The player is not in voice then assume they've left and delete them.
       this.deletePlayer(socketId);
     } else {
-      console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId ,chalk.white("has lost connection but is still in voice. Maintaining game state."));
+      console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId, chalk.white("has lost connection but is still in voice. Maintaining game state."));
       //The player is still in voice then assume they're coming back and don't delete them but mark them away
       player.isConnected = false;
       this.sendGameUpdateToPlayers();
     }
 
-    
+
   }
 
   //Takes in a SocketId
-  deletePlayer(socketId)
-  {
+  deletePlayer(socketId) {
     console.log("Player wishes to leave:", socketId);
     // Delete the player from the players list...
-    for(var [key, value] of Object.entries(this.players))
-    {
-      if(value.socket.id === socketId)
-      {
-        console.log(chalk.yellow("Delete Player"), key ,chalk.white("was deleted from the game"));
+    for (var [key, value] of Object.entries(this.players)) {
+      if (value.socket.id === socketId) {
+        console.log(chalk.yellow("Delete Player"), key, chalk.white("was deleted from the game"));
         delete this.players[key];
         // Unclaim any claimed panels
-        for(var skey of Object.keys(this.sims))
-        {
-          if(typeof this.sims[skey].panels !== "undefined") {
-            for(var pkey of Object.keys(this.sims[skey].panels))
-            {
-              if(this.sims[skey].panels[pkey].player === key) {
+        for (var skey of Object.keys(this.sims)) {
+          if (typeof this.sims[skey].panels !== "undefined") {
+            for (var pkey of Object.keys(this.sims[skey].panels)) {
+              if (this.sims[skey].panels[pkey].player === key) {
                 console.log(chalk.yellow("Delete Player"), key, chalk.white("was removed as controlling panel"), pkey);
                 this.sims[skey].panels[pkey].player = undefined;
               }
@@ -271,19 +299,19 @@ export default class ROCManager {
 
   claimPanel(user, requestedSim, requestedPanel) {
     const player = this.players[user];
-    if(typeof player === "undefined") {
+    if (typeof player === "undefined") {
       console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
     }
 
-    const sim = this.sims.find(s => s.id === requestedSim); 
-    if(typeof sim === "undefined") {
+    const sim = this.sims.find(s => s.id === requestedSim);
+    if (typeof sim === "undefined") {
       console.error(chalk.red("Claim panel called with undefined sim"), user, requestedSim, requestedPanel);
       return false;
     }
 
-    const panel = sim.panels.find(p => p.id === requestedPanel); 
-    if(typeof panel === "undefined") {
+    const panel = sim.panels.find(p => p.id === requestedPanel);
+    if (typeof panel === "undefined") {
       console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
@@ -298,19 +326,19 @@ export default class ROCManager {
 
   releasePanel(user, requestedSim, requestedPanel) {
     const player = this.players[user];
-    if(typeof player === "undefined") {
+    if (typeof player === "undefined") {
       console.error(chalk.red("Release panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
     }
 
     const sim = this.sims.find(s => s.id === requestedSim);
-    if(typeof sim === "undefined") {
+    if (typeof sim === "undefined") {
       console.error(chalk.red("Release panel called with undefined sim"), user, requestedSim, requestedPanel);
       return false;
     }
 
-    const panel = sim.panels.find(p => p.id === requestedPanel); 
-    if(typeof panel === "undefined") {
+    const panel = sim.panels.find(p => p.id === requestedPanel);
+    if (typeof panel === "undefined") {
       console.error(chalk.red("Release panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
@@ -326,13 +354,12 @@ export default class ROCManager {
 
   // ============================== END PLAYER CODE ==============================
 
-    async movePlayerToVoiceChannel(playerId, channelId)
-    {
-      console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), playerId, channelId);
-      this.players[playerId].voiceChannelId = channelId;
-      await this.bot.setUserVoiceChannel(playerId, channelId);
-    }
-    
+  async movePlayerToVoiceChannel(playerId, channelId) {
+    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), playerId, channelId);
+    this.players[playerId].voiceChannelId = channelId;
+    await this.bot.setUserVoiceChannel(playerId, channelId);
+  }
+
   async movePlayerToLobby(socketId) {
     const player = this.findPlayerBySocketId(socketId);
     const channelId = this.channels.lobby;
@@ -341,12 +368,12 @@ export default class ROCManager {
 
   async markPlayerAFK(socketId) {
     const player = this.findPlayerBySocketId(socketId);
-    if(player === null) {
+    if (player === null) {
       console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
       return false;
     }
     const channelId = this.channels.afk;
-    if(channelId === null || typeof channelId === 'undefined') {
+    if (channelId === null || typeof channelId === 'undefined') {
       console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
       return false;
     }
@@ -354,14 +381,13 @@ export default class ROCManager {
   }
 
 
-  getGameState()
-  {
+  getGameState() {
+    console.log(this.sims);
     return this.sims.filter(s => s.enabled);
   }
 
   // Just updates the player UI for all players
-  sendGameUpdateToPlayers()
-  {
+  sendGameUpdateToPlayers() {
     this.io.emit("gameInfo", this.getGameState());
     this.updateAdminUI();
   }
@@ -369,14 +395,14 @@ export default class ROCManager {
   sendGameUpdateToPlayer(player) {
     player.socket.emit("gameInfo", this.getGameState());
   }
-/**
- * 
- * @param {Player} player 
- */
+  /**
+   * 
+   * @param {Player} player 
+   */
   updatePlayerInfo(player) {
     const phones = this.phoneManager.getPhonesForDiscordId(player.discordId);
     const pm = this.phoneManager;
-    phones.forEach(p => {p.speedDial = pm.getSpeedDialForPhone(p); p.trainsAndMobiles = pm.getTrainsAndMobilesForPhone(p)});
+    phones.forEach(p => { p.speedDial = pm.getSpeedDialForPhone(p); p.trainsAndMobiles = pm.getTrainsAndMobilesForPhone(p) });
     const myPanels = [];
     this.sims.forEach(s => myPanels.concat(s.panels.filter(p => p.player === player.discordId)))
     const info = {};
@@ -388,21 +414,18 @@ export default class ROCManager {
 
   // ================================================= ADMIN STUFF ================================================= 
 
-  addAdminUser(data, socket)
-  {
+  addAdminUser(data, socket) {
     this.admins[socket.id] = socket;
     socket.join('admins');
-    socket.emit('authd', {"success":true});
+    socket.emit('authd', { "success": true });
     this.updateAdminUI();
   }
 
-  
-  updateAdminUI()
-  {
+
+  updateAdminUI() {
     this.io.to('admins').emit('adminStatus', this.adminGameStatus());
   }
-  adminGameStatus()
-  {
+  adminGameStatus() {
 
     return {
       gameState: this.getGameState()
@@ -411,7 +434,7 @@ export default class ROCManager {
 
 
   updateSimTime(clockMsg) {
-    if(clockMsg["area_id"] in this.sims) {
+    if (clockMsg["area_id"] in this.sims) {
       const sim = this.sims[clockMsg["area_id"]];
       delete clockMsg.area_id;
       sim.clock = clockMsg;
@@ -419,7 +442,7 @@ export default class ROCManager {
     }
   }
 
-  // ================================================= ADMIN STUFF ================================================= 
+  // ============================= ADMIN STUFF =================================== 
 }
 
 function getKeyByValue(object, value) {

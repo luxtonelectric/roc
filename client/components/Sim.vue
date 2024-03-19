@@ -11,9 +11,9 @@
       <table>
        <tr v-for="(panel) in simData.panels">
         <td>{{panel.name}}</td>
-        <td>
-          <a v-if="!panel.player" class="button inline-block" @click="claimPanel(simData.id, panel.id)">Claim</a>
-          <a v-if="panel.player === username" class="button inline-block" @click="releasePanel(simData.id,panel.id)">Release</a>
+        <td class="py-1">
+          <a v-if="!panel.player" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" @click="claimPanel(simData.id, panel.id)">Claim</a>
+          <a v-if="panel.player === username" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" @click="releasePanel(simData.id,panel.id)">Release</a>
         </td>
        </tr> 
       </table>

@@ -38,7 +38,7 @@
     <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteRinger">Mute Ringer</a>
     <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
     <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
-    <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
+    <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 cursor-pointer hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
        @click="considerRECWindow">EMERGENCY CALL</a>
 
     <div class="text-center mt-4">
@@ -139,6 +139,7 @@ export default {
       if(callId) {
         this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
       } else {
+        this.rejectedAudio.play();
         console.log('No call id. Something went wrong.');
       }
     },

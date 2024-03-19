@@ -55,9 +55,13 @@ export default class PhoneManager {
    * @returns {PhonebookEntry[]}
    */
   getSpeedDialForPhone(phone) {
-    const simPhones = this.phones.filter(x => x.location.simId === phone.location.simId && x.type === Phone.TYPES.FIXED && x.id !== phone.id).map(p => p.toSimple());
-    //const control = this.phones.filter(x => x.id === phone.location.simId+"_control");
-    return simPhones;
+    let phones = [];
+    const sim = this.sims.find(x => x.id === phone.location.simId);
+    const neighbourPanels = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.location.panelId));
+    const neighbourPhones = this.phones.filter(x => neighbourPanels.find(y => y.id === x.id));
+    phones = phones.concat(neighbourPhones);
+    const control = this.phones.filter(x => x.id === sim.id + "_control");
+    return phones.concat(control).map(p => p.toSimple());
   }
 
   /**
@@ -79,17 +83,12 @@ export default class PhoneManager {
    */
   getRECRecipientsForPhone(phone) {
     let phones = [];
-    console.log(chalk.magenta('getRECRecipientsForPhone'), phone, phones.length)
     const sim = this.sims.find(x => x.id === phone.location.simId);
-    console.log(chalk.magenta('getRECRecipientsForPhone'), sim, phones.length)
     const neighbourPanels = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.location.panelId));
-    console.log(chalk.magenta('getRECRecipientsForPhone'), neighbourPanels, phones.length)
     const neighbourPhones = this.phones.filter(x => x.discordId !== null && neighbourPanels.find(y => y.id === x.id));
     phones = phones.concat(neighbourPhones);
-    console.log(chalk.magenta('getRECRecipientsForPhone'), neighbourPhones, phones.length)
     const control = this.phones.filter(x => x.id === sim.id + "_control" && x.discordId !== null);
-    console.log(chalk.magenta('getRECRecipientsForPhone'), control, phones.length)
-    return phones.concat(control);
+    return phones.concat(control).map(p => p.toSimple());
   }
 
   /**

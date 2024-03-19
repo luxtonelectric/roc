@@ -10,11 +10,11 @@
           <p>
             <template v-for="(simData, simID) in gameData">
               <template v-for="(panelData, panelID) in simData.panels" :key="panelID">
-                <a v-if="panelData.player === username" class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block" :simData="simData" :socket="socket" @click="startRec(simData.id+'.'+panelID)">{{panelData.name}}</a>
+                <a v-if="panelData.player === username" class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 cursor-pointer focus:bg-red-900 active:bg-red-900 inline-block" :simData="simData" :socket="socket" @click="startRec(simData.id+'.'+panelID)">{{panelData.name}}</a>
               </template>
             </template>
           </p>
-          <p class="my-4 pt-10"><a class="rounded-2xl mx-4 border border-gray-600 bg-gray-500 py-5 px-10 text-white text-2xl font-semibold hover:bg-gray-800 focus:bg-gray-800 active:bg-gray-800" @click="cancelRec()">Cancel</a></p>
+          <p class="my-4 pt-10"><a class="rounded-2xl mx-4 border border-gray-600 bg-gray-500 py-5 px-10 text-white text-2xl font-semibold hover:bg-gray-800 cursor-pointer focus:bg-gray-800 active:bg-gray-800" @click="cancelRec()">Cancel</a></p>
         </div>
         <div  class="flex-grow py-1"></div>
       </div>

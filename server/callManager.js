@@ -162,6 +162,7 @@ export default class CallManager {
 
     call.status = CallRequest.STATUS.REJECTED;
     this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
+    this.bot.releasePrivateCallChannelReservation(call.channel)
     this.io.to(call.sender.discordId).emit("rejectCall",{"success": false});
     if(call.type === CallRequest.TYPES.P2P) {
       this.io.to(call.getReceiver().discordId).emit('removeCallFromQueue', call);

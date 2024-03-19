@@ -43,7 +43,11 @@ export default class DiscordBot {
     });
 
     this.client.on('voiceStateUpdate', (oldState, newState) => {
-      //console.log(oldState,newState);
+      
+      if(typeof this.gameManager.players[newState.id] === 'undefined') {
+        //Only handle voiceStateUpdates for player.
+        return;
+      }
       if(oldState.channel === null && newState.channel !== null) {
         // This is a someone joining voice...
         console.info(chalk.blueBright("Discord.js"), "someone joined voice...",newState.id, newState.channelId);
@@ -52,13 +56,33 @@ export default class DiscordBot {
         // This is someone leaving voice...
         console.info(chalk.blueBright("Discord.js"), "someone left voice...", newState.id);
         this.gameManager.unregisterDiscordVoice(newState.id);
-      } else if(this.privateCallChannels.some(c => c.id === newState.channelId) && !(this.privateCallChannels.some(c => c.id === oldState.channelId))) {
-        // New Channel is private call, old is not.
-        // This means they've left a chat and should go back to that when they leave a private call.
-        this.gameManager.players[newState.id].voiceChannelId = oldState.channelId;
-      }
-    }); 
+      } else{
+        const oldStatePrivateCall = this.privateCallChannels.find(c => c.id === oldState.channelId);
+        const newStatePrivateCall = this.privateCallChannels.find(c => c.id === newState.channelId);
+        
+        if(newStatePrivateCall) {
+          newStatePrivateCall.inUse = true;
 
+          if(!(oldStatePrivateCall)) {
+            // New Channel is private call, old is not.
+            // This means they've left a chat and should go back to that when they leave a private call.
+            this.gameManager.players[newState.id].voiceChannelId = oldState.channelId;
+          }
+
+          console.info(chalk.magenta('voiceStateUpdate PCC'), this.privateCallChannels);
+        }
+        
+        if(oldStatePrivateCall) {
+          // Someone has left a privateCallChannel
+          if(oldState.channel.members.size === 0) {
+            oldStatePrivateCall.reserved = false;
+            oldStatePrivateCall.inUse = false;
+            console.info(chalk.magenta('voiceStateUpdate PCC'), this.privateCallChannels);
+          }
+        }
+      } 
+
+    }); 
 
     await this.client.login(this.token).then((v) =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
   }
@@ -187,6 +211,7 @@ export default class DiscordBot {
       return null;
     }
     channel.reserved = true;
+    console.info(chalk.magenta('getAvailableCallChannel PCC'), this.privateCallChannels);
     return channel.id;
   }
 
@@ -195,5 +220,6 @@ export default class DiscordBot {
     if(typeof channel !== 'undefined') {
       channel.reserved = false;
     }
+    console.info(chalk.magenta('releasePrivateCallChannelReservation PCC'), this.privateCallChannels);
   }
 }

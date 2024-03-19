@@ -2,7 +2,7 @@
 import chalk from 'chalk';
 
 import {Client, GatewayIntentBits} from 'discord.js';
-import ROCManager from './ROCManager.js';
+/** @typedef {import("./ROCManager.js").default} ROCManager */
 
 
 export default class DiscordBot {
@@ -84,7 +84,7 @@ export default class DiscordBot {
 
     }); 
 
-    await this.client.login(this.token).then((v) =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
+    await this.client.login(this.token).then(() =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
   }
 
   async configureVoiceChannels() {
@@ -155,7 +155,7 @@ export default class DiscordBot {
     }
   }
 
-/**
+  /**
  * 
  * @param {string} channel 
  * @returns {import('discord.js').GuildBasedChannel}
@@ -188,7 +188,7 @@ export default class DiscordBot {
       if(channelId === null) {
         channelId = this.gameManager.players[discordId].voiceChannelId;
       }
-      const mem = await member.voice.setChannel(channelId).catch((error)=>{
+      await member.voice.setChannel(channelId).catch((error)=>{
         console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", discordId),error);
         return false;
       });

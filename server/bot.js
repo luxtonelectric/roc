@@ -1,12 +1,17 @@
+// @ts-check
 import chalk from 'chalk';
-import betterLogging from 'better-logging';
-betterLogging(console,{
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('bot.js', chalk.blueBright)} ${ctx.msg}`
-});
+
 import {Client, GatewayIntentBits} from 'discord.js';
+import ROCManager from './ROCManager.js';
 
 
 export default class DiscordBot {
+  /** @type {ROCManager} */
+  gameManager;
+
+  /** @type {Array} */
+  privateCallChannels = [];
+
   constructor (token, prefix, guildId)
   {
     this.client = new Client({intents:[GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences]});
@@ -15,7 +20,11 @@ export default class DiscordBot {
     this.guildId = guildId;
     this.gameManager = null;
   }
-
+  
+  /**
+   * 
+   * @param {ROCManager} gameManager 
+   */
   setGameManager(gameManager)
   {
     this.gameManager = gameManager;
@@ -39,14 +48,14 @@ export default class DiscordBot {
         // This is a someone joining voice...
         console.info(chalk.blueBright("Discord.js"), "someone joined voice...",newState.id, newState.channelId);
         this.gameManager.registerDiscordVoice(newState.id, newState.channelId);
-        return true;
-      }
-
-      if(newState.channel === null && oldState.channel !== null) {
+      } else if(newState.channel === null && oldState.channel !== null) {
         // This is someone leaving voice...
         console.info(chalk.blueBright("Discord.js"), "someone left voice...", newState.id);
         this.gameManager.unregisterDiscordVoice(newState.id);
-        return true;
+      } else if(this.privateCallChannels.some(c => c.id === newState.channelId) && !(this.privateCallChannels.some(c => c.id === oldState.channelId))) {
+        // New Channel is private call, old is not.
+        // This means they've left a chat and should go back to that when they leave a private call.
+        this.gameManager.players[newState.id].voiceChannelId = oldState.channelId;
       }
     }); 
 
@@ -61,7 +70,7 @@ export default class DiscordBot {
 
     const privateCallChannels = voiceChannels.filter(x => x.name.startsWith(this.prefix));
     for (const vc of privateCallChannels.values()){
-      this.gameManager.privateCalls[vc.id] = [];
+      this.privateCallChannels.push({id:vc.id, reserved:false, inUse:false});
     }
 
     for(const channel of Object.keys(this.gameManager.channels)) {
@@ -80,17 +89,22 @@ export default class DiscordBot {
         if(simChannel !== null && typeof simChannel !== 'undefined') {
           this.gameManager.sims[sim].channel = simChannel.id;
         } else {
-          console.warn(chalk.red("Channel"), this.gameManager.sims[sim].channel, chalk.red("for sim"), key, chalk.red("does not exist for this Guild"));
+          console.warn(chalk.red("Channel"), this.gameManager.sims[sim].channel, chalk.red("for sim"), sim, chalk.red("does not exist for this Guild"));
         }
       }
     }
 
   }
 
-  async getMember(userId)
+  /**
+   * 
+   * @param {string} discordId 
+   * @returns 
+   */
+  async getMember(discordId)
   {
     const guild = await this.client.guilds.fetch(this.guildId);
-    const member = await guild.members.fetch(userId);
+    const member = await guild.members.fetch(discordId);
     return member;
   }
 
@@ -117,12 +131,15 @@ export default class DiscordBot {
     }
   }
 
-  //string in 
-  //vc out
+/**
+ * 
+ * @param {string} channel 
+ * @returns {import('discord.js').GuildBasedChannel}
+ */
   getVoiceChannelByName(channel)
   {
-    let guild = this.client.guilds.cache.get(this.guildId);
-    let vc = guild.channels.cache.find(chan => chan.name === channel);
+    const guild = this.client.guilds.cache.get(this.guildId);
+    const vc = guild.channels.cache.find(chan => chan.name === channel);
     return vc;
   }
 
@@ -134,21 +151,49 @@ export default class DiscordBot {
   }
 
 
-  //strings in
-  async setUserVoiceChannel(user, channelId)
+  /**
+   * 
+   * @param {string} discordId 
+   * @param {string | null} channelId 
+   * @returns 
+   */
+  async setUserVoiceChannel(discordId, channelId = null)
   {
-    const member = await this.getMember(user);
+    const member = await this.getMember(discordId);
     try {
+      if(channelId === null) {
+        channelId = this.gameManager.players[discordId].voiceChannelId;
+      }
       const mem = await member.voice.setChannel(channelId).catch((error)=>{
-        console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", user),error);
+        console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", discordId),error);
         return false;
       });
 
       return true;
     } catch (error) {
-      console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", user),JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", discordId),JSON.stringify(error, Object.getOwnPropertyNames(error)));
       return false;
     }
     
+  }
+  /**
+   * 
+   * @returns {string} channelId;
+   */
+  getAvailableCallChannel() {
+    const channel = this.privateCallChannels.find(c => c.reserved === false && c.inUse === false);
+    if (typeof channel === 'undefined') {
+      console.error(chalk.red("No available private call rooms:"),this.privateCallChannels);
+      return null;
+    }
+    channel.reserved = true;
+    return channel.id;
+  }
+
+  releasePrivateCallChannelReservation(channelId) {
+    const channel = this.privateCallChannels.find(c => c.id === channelId && c.reserved === true);
+    if(typeof channel !== 'undefined') {
+      channel.reserved = false;
+    }
   }
 }

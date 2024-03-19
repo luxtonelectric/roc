@@ -1,8 +1,8 @@
+//@ts-check
 import betterLogging from 'better-logging';
 betterLogging(console,{
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('index.js', chalk.blueBright)} ${ctx.msg}`
+  format: ctx => `${ctx.date}${ctx.time}${ctx.type}${ctx.STAMP('ROC', chalk.blueBright)} ${ctx.msg}`
 });
-
 import { readFileSync } from "fs";
 import { createServer as createSecureServer} from "https";
 import { createServer } from "http";
@@ -10,10 +10,14 @@ import { Server } from "socket.io";
 import chalk from 'chalk';
 import ROCManager from "./ROCManager.js";
 import DiscordBot from "./bot.js";
+// @ts-ignore
 import config from "./config.json" with { type: "json" };
 
 import { rocSockets } from './sockets.js';
 import { adminSockets } from './adminSockets.js';
+import STOMPManager from './stomp.js';
+import PhoneManager from './phonemanager.js';
+import CallManager from './callManager.js';
 // End Better Logger
 
 let httpServer;
@@ -50,9 +54,20 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
-const rocManager = new ROCManager(io, discordBot, config);
+const phonemanager = new PhoneManager(io);
+config.sims.forEach(x => {
+  if(x.enabled === true) {
+    phonemanager.generatePhonesForSim(x);
+  }
+});
+const rocManager = new ROCManager(io, discordBot, phonemanager, config);
+const stompManager = new STOMPManager(rocManager);
+const callManager = new CallManager(phonemanager,discordBot,io);
+
 
 discordBot.setGameManager(rocManager);
+stompManager.load();
+//@ts-expect-error
 await discordBot.setUpBot().then(() => {
   console.log("Configuring voice channels");
   discordBot.configureVoiceChannels()
@@ -60,6 +75,6 @@ await discordBot.setUpBot().then(() => {
 
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
-  rocSockets(socket, rocManager);
+  rocSockets(socket, rocManager,callManager);
   adminSockets(socket, rocManager, config);
 });

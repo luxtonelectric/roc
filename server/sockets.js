@@ -1,12 +1,18 @@
+// @ts-check
 import chalk from 'chalk';
-import betterLogging from 'better-logging';
-betterLogging(console,{
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('sockets.js', chalk.blueBright)} ${ctx.msg}`
-});
 
-import Player from './player.js';
+import Player from './model/player.js';
+import ROCManager from './ROCManager.js';
+import { Socket } from 'socket.io';
+import CallManager from './callManager.js';
 
-export function rocSockets (socket, gameManager) {  
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {ROCManager} gameManager
+ * @param {CallManager} callManager 
+ */
+export function rocSockets (socket, gameManager, callManager) {  
   // Working
   socket.on('newPlayer', function (msg) {
     console.info(chalk.yellow("Event newPlayer", "New Player has joined the WebUI"));
@@ -49,33 +55,29 @@ export function rocSockets (socket, gameManager) {
   });
 
   // Working
-  socket.on("placeCall", function(msg){
-    gameManager.placeCall(socket.id, msg.receiver,msg.sender);
+  socket.on("placeCall", function(msg,callback){
+    const response = callManager.placeCall(socket.id, msg.type, msg.sender, msg.receiver);
+    callback(response);
   });
 
   // Not Working
   socket.on("rejectCall", function(msg){
-    gameManager.rejectCall(socket.id,msg.senderPhoneId,msg.receiverPhoneId);
+    callManager.rejectCall(socket.id,msg.id);
   });
   
   // Working
   socket.on("acceptCall", function(msg){
-    gameManager.acceptCall(socket.id,msg.sender, msg.receiver);
+    callManager.acceptCall(socket,msg.id);
   });
 
   // Working
   socket.on("leaveCall", function(msg){
-    gameManager.leaveCall(msg);
+    callManager.leaveCall(socket.id, msg.id);
   });
 
   // Working
   socket.on("joinREC", function(msg){
-    gameManager.playerJoinREC(msg.user, msg.channel);
-  });
-
-  // Working
-  socket.on("startREC", function(msg){
-    gameManager.playerStartREC(msg.user,msg.panel);
+    callManager.playerJoinREC(msg.user, msg.channel);
   });
 
   // Working

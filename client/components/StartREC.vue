@@ -36,7 +36,6 @@ name: "StartREC",
     },
     startRec(panel)
     {
-      this.socket.emit("startREC", {user:this.username, panel:panel});
       this.$emit("startREC", false);
     }
   }

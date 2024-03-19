@@ -11,6 +11,7 @@ let error =  ref("");
 const gameData =  ref({});
 const username = ref("");
 const playerData =  ref({phones:{}})
+const phoneData = ref({});
 const app = useNuxtApp();
 let socket: Socket | undefined
 const connected = ref(false)
@@ -38,11 +39,16 @@ onMounted(() =>{
     });
 
     socket.on("playerInfo", function (msg){
+      //console.log(msg);
       playerData.value = msg;
     });
 
+    socket.on("phoneInfo", function (msg){
+      phoneData.value = msg;
+    });
+
     socket.on('disconnect', function (reason){
-      console.log(reason);
+      //console.log(reason);
       error.value = `You have been disconnected from ROC. (${reason})`;
       connected.value = false;
     });
@@ -87,7 +93,7 @@ function joinUser() {
 
 
     <div v-if="loggedIn">
-      <Main :gameData="gameData" :username=username :playerData="playerData" :socket="socket" />
+      <Main :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
     </div>
     <div v-else>
       <p>Awaiting connection...</p>

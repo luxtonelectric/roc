@@ -4,18 +4,15 @@
       <div class="flex-grow">
         <h1 class="text-3xl font-semibold ">{{ simData.name }} ({{simData.id}})</h1>
       </div>
-      <a v-if="simData.name.includes('Private Call')" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400" @click="leaveCall">Leave Call</a>
-      <a v-else tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
+      <span v-if="simData.clock" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400">{{secondsToTime(simData.clock.clock)}}</span>
+      <a tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
     </div>
     <div v-if="simData.panels" class="flex flex-wrap">
-      <div v-for="(panel, key) in simData.panels" class="w-1/3">
+      <div v-for="(panel) in simData.panels" class="w-1/3">
         <h4>{{panel.name}}
-          <a v-if="!panel.player" class="" :key="key" @click="claimPanel(simData.id,key)"> - [C]</a>
-          <a v-if="panel.player === username" class="" :key="key" @click="releasePanel(simData.id,key)"> - [R]</a>
         </h4>
-        <a class="button inline-block" :key="key" @click="placeCall(panel.phone)">Call</a>
-        
-        
+        <a v-if="!panel.player" class="button inline-block" @click="claimPanel(simData.id, panel.id)">{{panel.name}}- [C]</a>
+        <a v-if="panel.player === username" class="button inline-block" @click="releasePanel(simData.id,panel.id)">{{ panel.name }} - [R]</a>
       </div>
 
     </div>
@@ -46,22 +43,21 @@ export default {
       this.socket.emit("movePlayerVoiceChannel", {"user": this.username, "channel": this.simData.channel});
       this.$emit("movedSim", this.simData.name);
     },
-    claimPanel(sim, key)
+    claimPanel(sim, panel)
     {
-      this.socket.emit("claimPanel", {"sim": sim, "panel":key, "sender": this.username});
+      this.socket.emit("claimPanel", {"sim": sim, "panel":panel, "sender": this.username});
     },
-    releasePanel(sim, key)
+    releasePanel(sim, panel)
     {
-      this.socket.emit("releasePanel", {"sim": sim, "panel":key, "sender": this.username});
+      this.socket.emit("releasePanel", {"sim": sim, "panel":panel, "sender": this.username});
     },
-    placeCall(key)
-    {
-      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
-      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
-    },
-    leaveCall()
-    {
-      this.$emit('leaveCall');
+    secondsToTime(givenSeconds){
+      const dateObj = new Date(givenSeconds * 1000);
+      const hours = dateObj.getUTCHours();
+      const minutes = dateObj.getUTCMinutes();
+      const seconds = dateObj.getSeconds();
+      const timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+      return timeString;
     }
   }
 }

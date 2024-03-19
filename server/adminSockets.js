@@ -1,8 +1,4 @@
 import chalk from 'chalk';
-import betterLogging from 'better-logging';
-betterLogging(console,{
-  format: ctx => `${ctx.date}${ctx.time24}${ctx.type}${ctx.STAMP('adminSockets.js', chalk.blueBright)} ${ctx.msg}`
-});
 
 export function adminSockets(socket, gameManager, config) {  
   socket.on("adminLogin", function(msg){

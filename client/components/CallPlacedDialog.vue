@@ -51,7 +51,7 @@ export default {
     },
     hangUp()
     {
-      this.socket.emit('rejectCall', {"senderPhoneId": this.callData.sender, "receiverPhoneId": this.callData.receiver})
+      this.socket.emit('rejectCall', {"id": this.callData.id})
       this.$emit('hideCallDialog');
     }
   }

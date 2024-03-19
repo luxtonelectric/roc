@@ -280,6 +280,10 @@ export default class ROCManager {
     for (var [key, value] of Object.entries(this.players)) {
       if (value.socket.id === socketId) {
         console.log(chalk.yellow("Delete Player"), key, chalk.white("was deleted from the game"));
+        const discordId = this.players[key].discordId;
+        // Remove all assigned phones.
+        this.phoneManager.unassignPhonesForDiscordId(discordId)
+
         delete this.players[key];
         // Unclaim any claimed panels
         for (var skey of Object.keys(this.sims)) {

@@ -120,6 +120,11 @@ export default class PhoneManager {
     return true;
   }
 
+  unassignPhonesForDiscordId(discordId) {
+    const phones = this.getPhonesForDiscordId(discordId);
+    phones.forEach(p => p.discordId = null);
+  }
+
   getPhonesForDiscordId(discordId) {
     const phones = this.phones.filter(x => x.discordId === discordId);
     return phones;

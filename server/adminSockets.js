@@ -12,10 +12,8 @@ import chalk from 'chalk';
  */
 export function adminSockets(socket, gameManager, phoneManager, config) {  
   socket.on("adminLogin", function(msg){
-    console.info(msg);
     if(config.superUsers.some(u => u === msg.discordId))
     {
-      console.info("Admin user works");
       gameManager.addAdminUser(msg, socket);
     }
     else
@@ -26,6 +24,11 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
 
   socket.on("createPhone", function(msg){
     phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden);
+  });
+
+  socket.on("enableInterfaceGateway", function(msg){
+    console.log(chalk.yellow('enableInterfaceGateway'), msg)
+    gameManager.enableInterfaceGateway(msg.simId);
   });
 
   // kick the user from the call handler thingey socket yum

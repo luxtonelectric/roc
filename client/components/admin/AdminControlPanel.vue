@@ -4,6 +4,26 @@
       <h1 class="text-6xl">ROC Administration Centre</h1>
     </div>
     <div class="divide-y">
+      <div class="my-1">
+      <h1 class="text-3xl font-bold">Hosts</h1>
+      <template v-if="gameState.hostState">
+        <div>
+          <table>
+            <tr v-for=" host in gameState.hostState">
+              <td>{{ host.sim }}</td>
+              <td>{{ host.host }}</td>
+              <td>{{ host.channel }}</td>
+              <td>{{ host.enabled }}</td>
+              <td>{{ host.interfaceGateway.port }}</td>
+              <td>
+                <button v-if="host.interfaceGateway.enabled" class="btn">Disable IG</button>
+                <button v-else class="btn" @click="enableIG(host.sim)">Enable IG</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </template>
+    </div>
     <div class="my-1">
       <h1 class="text-3xl font-bold">Games</h1>
       <template v-if="gameState.gameState">
@@ -55,6 +75,10 @@ export default {
     kickUserFromCall(user)
     {
       this.socket.emit("adminKickFromCall", {"user": user});
+    },
+    enableIG(simId) {
+      console.log('enableIG', simId)
+      this.socket.emit("enableInterfaceGateway", {"simId": simId});
     }
   }
 }

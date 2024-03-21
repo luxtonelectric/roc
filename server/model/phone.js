@@ -11,18 +11,32 @@ export default class Phone {
   location;
   /** @type {string|null} */
   discordId;
+  /** @type {boolean} */
+  hidden;
 
   speedDial;
   trainsAndMobiles;
-
-  constructor(id, name, type, location = null) {
+  /**
+ * 
+ * @param {string} id 
+ * @param {string} name 
+ * @param {string} type 
+ * @param {Location | null} location 
+ * @param {boolean} hidden 
+ */
+  constructor(id, name, type, location = null, hidden = false) {
     this.id = id;
     this.name = name;
     this.type = type;
     this.location = location;
     this.discordId = null;
+    this.hidden = hidden;
   }
 
+  /**
+   * 
+   * @returns {PhonebookEntry}
+   */
   toSimple() {
     return new PhonebookEntry(this.id, this.name);
   }

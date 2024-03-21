@@ -45,8 +45,10 @@ export default class PhoneManager {
     this.phones.push(new Phone(train, train, Phone.TYPES.TRAIN, train));
   }
 
-  generatePhoneForPerson(number, name, location) {
-    this.phones.push(new Phone(number, name, Phone.TYPES.MOBILE, location));
+  generatePhoneForPerson(number, name, type=Phone.TYPES.MOBILE, location = null, hidden=false) {
+    if(!this.phones.some(p => p.id === number)) {
+      this.phones.push(new Phone(number, name, type, location, hidden));
+    }
   }
 
   /**

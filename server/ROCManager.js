@@ -40,8 +40,9 @@ export default class ROCManager {
     this.config = config;
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
+    config.games.forEach(g => { this.activateGame(g) }, this);
 
-    config.games.forEach(g => {this.activateGame(g)},this) 
+
   }
 
   /**
@@ -51,14 +52,14 @@ export default class ROCManager {
    */
   async getSimData(simId) {
     /** @type {Simulation[]} */
-    const simConfig = JSON.parse( await readFile('./simulations.json', 'utf8'));
+    const simConfig = JSON.parse(await readFile('./simulations.json', 'utf8'));
     return Simulation.fromSimData(simConfig.find(s => s.id == simId));
   }
 
   activateGame(game) {
     this.stompManager.createClientForGame(game);
-    this.getSimData(game.sim).then(sim =>{
-      if(sim) {
+    this.getSimData(game.sim).then(sim => {
+      if (sim) {
         console.log('LOADING PHONES FOR SIM', game.sim);
         this.phoneManager.generatePhonesForSim(sim);
         this.sims.push(sim);
@@ -90,7 +91,7 @@ export default class ROCManager {
           this.prospects[discordId] = p;
           socket.emit("loggedIn", {
             "loggedIn": false,
-            "error": "You aren't in a voice chat.."
+            "error": "ROC_VC_DISCONNECTED"
           });
         } else {
           console.log(chalk.yellow("registerWebUI"), discordId, "adding player...");
@@ -125,7 +126,7 @@ export default class ROCManager {
 
         socket.emit("loggedIn", {
           "loggedIn": false,
-          "error": "You aren't in a voice chat.."
+          "error": "ROC_VC_DISCONNECTED"
         });
       }
     }
@@ -159,11 +160,13 @@ export default class ROCManager {
   unregisterDiscordVoice(discordId) {
     if (discordId in this.players) {
       this.players[discordId].voiceChannelId = null;
-      if (this.players[discordId].socket !== null) {
+      if (!this.players[discordId].socket.disconnected) {
         this.io.to(discordId).emit("loggedIn", {
           "loggedIn": false,
-          "error": "You aren't in a voice chat.."
+          "error": "ROC_VC_DISCONNECTED"
         });
+      } else {
+        this.checkDisconnectingPlayer(this.players[discordId])
       }
     }
   }
@@ -226,7 +229,7 @@ export default class ROCManager {
         console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in a voice channel:`);
         newPlayer.socket.emit("loggedIn", {
           "loggedIn": false,
-          "error": "You aren't in a voice chat.."
+          "error": "ROC_VC_DISCONNECTED"
         });
         return false;
       }
@@ -253,51 +256,56 @@ export default class ROCManager {
     return null;
   }
 
-  checkDisconnectingPlayer(socketId) {
-    const player = this.findPlayerBySocketId(socketId);
-    if (player === null) {
+  /**
+   * 
+   * @param {Player} player 
+   * @returns 
+   */
+  checkDisconnectingPlayer(player) {
+    if (!player) {
       return false;
     }
 
-    const playerChannel = this.bot.getUserVoiceChannel(player.discordId);
-    if (playerChannel === null) {
-      //The player is not in voice then assume they've left and delete them.
-      this.deletePlayer(socketId);
-    } else {
-      console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId, chalk.white("has lost connection but is still in voice. Maintaining game state."));
-      //The player is still in voice then assume they're coming back and don't delete them but mark them away
-      player.isConnected = false;
-      this.sendGameUpdateToPlayers();
+    this.bot.getUserVoiceChannel(player.discordId).then((playerChannel) => {
+      if (playerChannel === null && player.socket.disconnected) {
+        //The player is not in voice then assume they've left and delete them.
+        this.deletePlayer(player);
+      } else {
+        console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId, chalk.white("has lost connection but is still in voice. Maintaining game state."));
+        //The player is still in voice then assume they're coming back and don't delete them but mark them away
+        player.isConnected = false;
+        this.sendGameUpdateToPlayers();
+      }
     }
+
+    );
 
 
   }
 
-  //Takes in a SocketId
-  deletePlayer(socketId) {
-    console.log("Player wishes to leave:", socketId);
+  /**
+   * 
+   * @param {Player} player 
+   */
+  deletePlayer(player) {
+    console.log("Player wishes to leave:", player.discordId);
     // Delete the player from the players list...
-    for (var [key, value] of Object.entries(this.players)) {
-      if (value.socket.id === socketId) {
-        console.log(chalk.yellow("Delete Player"), key, chalk.white("was deleted from the game"));
-        const discordId = this.players[key].discordId;
-        // Remove all assigned phones.
-        this.phoneManager.unassignPhonesForDiscordId(discordId)
 
-        delete this.players[key];
-        // Unclaim any claimed panels
-        for (var skey of Object.keys(this.sims)) {
-          if (typeof this.sims[skey].panels !== "undefined") {
-            for (var pkey of Object.keys(this.sims[skey].panels)) {
-              if (this.sims[skey].panels[pkey].player === key) {
-                console.log(chalk.yellow("Delete Player"), key, chalk.white("was removed as controlling panel"), pkey);
-                this.sims[skey].panels[pkey].player = undefined;
-              }
-            }
+    this.phoneManager.unassignPhonesForDiscordId(player.discordId)
+
+    // Unclaim any claimed panels
+    for (var skey of Object.keys(this.sims)) {
+      if (typeof this.sims[skey].panels !== "undefined") {
+        for (var pkey of Object.keys(this.sims[skey].panels)) {
+          if (this.sims[skey].panels[pkey].player === player.discordId) {
+            console.log(chalk.yellow("Delete Player"), player.discordId, chalk.white("was removed as controlling panel"), pkey);
+            this.sims[skey].panels[pkey].player = undefined;
           }
         }
       }
     }
+    delete this.players[player.discordId];
+
     this.sendGameUpdateToPlayers();
   }
 
@@ -386,7 +394,7 @@ export default class ROCManager {
 
 
   getGameState() {
-    console.log(this.sims);
+    //console.log(this.sims);
     return this.sims.filter(s => s.enabled);
   }
 

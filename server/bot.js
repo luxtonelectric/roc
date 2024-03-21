@@ -44,7 +44,7 @@ export default class DiscordBot {
 
     this.client.on('voiceStateUpdate', (oldState, newState) => {
       
-      if(typeof this.gameManager.players[newState.id] === 'undefined') {
+      if(typeof this.gameManager.players[newState.id] === 'undefined' && typeof this.gameManager.prospects[newState.id] === 'undefined') {
         //Only handle voiceStateUpdates for player.
         return;
       }

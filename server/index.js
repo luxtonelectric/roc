@@ -68,5 +68,11 @@ await discordBot.setUpBot().then(() => {
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
   rocSockets(socket, rocManager,callManager);
-  adminSockets(socket, rocManager, config);
+  adminSockets(socket, rocManager, phonemanager,config);
 });
+
+
+process.on('SIGINT', signal => {
+  console.log(`Process ${process.pid} has been interrupted with`, signal)
+  process.exit(0)
+})

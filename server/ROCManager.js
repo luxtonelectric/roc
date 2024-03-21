@@ -41,8 +41,6 @@ export default class ROCManager {
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
     config.games.forEach(g => { this.activateGame(g) }, this);
-
-
   }
 
   /**
@@ -68,6 +66,10 @@ export default class ROCManager {
       }
     });
 
+  }
+
+  enableInterfaceGateway(simId) {
+    this.stompManager.activateClientForGame(simId);
   }
 
   // ============================ BEGIN PLAYER CODE ============================
@@ -398,8 +400,13 @@ export default class ROCManager {
     return this.sims.filter(s => s.enabled);
   }
 
+  getHostState() {
+    return this.config.games;
+  }
+
   // Just updates the player UI for all players
   sendGameUpdateToPlayers() {
+    console.log('sendingGameUpdate');
     this.io.emit("gameInfo", this.getGameState());
     this.updateAdminUI();
   }
@@ -427,6 +434,7 @@ export default class ROCManager {
   // ================================================= ADMIN STUFF ================================================= 
 
   addAdminUser(data, socket) {
+    console.info(chalk.yellow('Adding Admin User'), data);
     this.admins[socket.id] = socket;
     socket.join('admins');
     socket.emit('authd', { "success": true });
@@ -440,14 +448,15 @@ export default class ROCManager {
   adminGameStatus() {
 
     return {
+      hostState: this.getHostState(),
       gameState: this.getGameState()
     }
   }
 
 
   updateSimTime(clockMsg) {
-    if (clockMsg["area_id"] in this.sims) {
-      const sim = this.sims[clockMsg["area_id"]];
+    const sim = this.sims.find(s => s.id = clockMsg["area_id"]);
+    if (sim) {
       delete clockMsg.area_id;
       sim.clock = clockMsg;
       this.sendGameUpdateToPlayers();
@@ -455,8 +464,4 @@ export default class ROCManager {
   }
 
   // ============================= ADMIN STUFF =================================== 
-}
-
-function getKeyByValue(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
 }

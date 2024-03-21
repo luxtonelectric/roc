@@ -5,13 +5,22 @@
     </div>
     <div class="divide-y">
     <div class="my-1">
-      <h1 class="text-3xl font-bold">Current Players</h1>
-      <div v-if="gameState.gameState">
-        <div v-for="(sim, key) in gameState.gameState" :key="key" class="my-1">
-          <h2 class="text-xl">{{sim.name}}</h2>
-          <a class="button inline-block" v-for="(player, key) in sim.players" :key="key">{{player.panel}} ({{player.discordId}})</a>
+      <h1 class="text-3xl font-bold">Games</h1>
+      <template v-if="gameState.gameState">
+        <div v-for=" game in gameState.gameState">
+          <h2 class="text-2xl font-bold">{{ game.name }}</h2>
+          <table>
+            <tr v-for="panel in game.panels">
+              <td>{{ panel.name }}</td>
+              <td>
+                <template v-if="panel.player">
+                  {{panel.player}}
+                </template>
+              </td>
+            </tr>
+          </table>
         </div>
-      </div>
+      </template>
     </div>
     <div class="my-4">
       <h1 class="text-3xl font-bold">Voice Calls</h1>

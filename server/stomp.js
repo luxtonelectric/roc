@@ -1,6 +1,6 @@
 // @ts-check
 import chalk from 'chalk';
-import { Client } from '@stomp/stompjs';
+import { Client, StompHeaders } from '@stomp/stompjs';
 import { TCPWrapper } from '@stomp/tcp-wrapper';
 import GameStompClient from './model/gameStompClient.js';
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
@@ -33,7 +33,15 @@ export default class STOMPManager {
         return false;
       }
 
+      let clientConnectHeaders = new StompHeaders();
+      if(game.interfaceGateway.login) {
+        console.log(chalk.green('Using credential to login'), game.interfaceGateway.login)
+        clientConnectHeaders.login = game.interfaceGateway.login;
+        clientConnectHeaders.passcode = game.interfaceGateway.password;
+      }
+
       const client = new Client({
+        connectHeaders: clientConnectHeaders,
         webSocketFactory: () => new TCPWrapper(game.host, game.interfaceGateway.port),
         onConnect: (iFrame) => {
           console.log("STOMP Connect");
@@ -59,7 +67,7 @@ export default class STOMPManager {
           );
         },
         onStompError: (frame) => {
-          console.log("STOMP StompError", frame);
+          console.log("STOMP StompError", frame.body);
         },
         onWebSocketError: (event) => {
           console.log("STOMP WebSocketError", event);

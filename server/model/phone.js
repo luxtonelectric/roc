@@ -3,9 +3,11 @@ import PhonebookEntry from "./phonebookentry.js";
 
 export default class Phone {
   static TYPES = { "FIXED": "fixed", "TRAIN": "train", "MOBILE": "Mobile" }
+  /** @type {string} */
   id;
   /** @type {string} */
   name;
+  /** @type {string} */
   type;
   /** @type {Location|null} */
   location;
@@ -38,6 +40,6 @@ export default class Phone {
    * @returns {PhonebookEntry}
    */
   toSimple() {
-    return new PhonebookEntry(this.id, this.name);
+    return new PhonebookEntry(this.id, this.name, this.type);
   }
 }

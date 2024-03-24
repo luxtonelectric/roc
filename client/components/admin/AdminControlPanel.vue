@@ -9,6 +9,19 @@
       <template v-if="gameState.hostState">
         <div>
           <table>
+            <tr>
+              <td colspan="4">Host</td>
+              <td colspan="3">Interface Gateway</td>
+            </tr>
+            <tr>
+              <td>Simulation</td>
+              <td>URL/IP</td>
+              <td>Voice Chat Channel</td>
+              <td>Sim Enabled</td>
+              <td>Port</td>
+              <td>Connected</td>
+              <td>Enabled/Disable</td>
+            </tr>
             <tr v-for=" host in gameState.hostState">
               <td>{{ host.sim }}</td>
               <td>{{ host.host }}</td>
@@ -51,7 +64,7 @@
         <option value="fixed">Fixed</option>
       </select>
       <input type="checkbox">
-      <button>Create Phone</button>
+      <button @click="createPhone">Create Phone</button>
     </div>
     <div class="my-4">
       <h1 class="text-3xl font-bold">Voice Calls</h1>
@@ -96,7 +109,10 @@ export default {
       this.socket.emit("disableInterfaceGateway", {"simId": simId});
     },
     createPhone(number, name, type, location = null, hidden = false) {
-      this.socket.emit("createPhone", {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden});
+      console.log('createPhone')
+      //const phone = {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden};
+      const phone = {'number': '99999', 'name': 'TEST PHONE', 'type': 'mobile', 'location':null, 'hidden':false};
+      this.socket.emit("createPhone", phone);
     }
   }
 }

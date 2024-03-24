@@ -23,7 +23,11 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
   });
 
   socket.on("createPhone", function(msg){
-    phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden);
+    console.log(chalk.yellow('createPhone'), msg)
+    if(phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden))
+    {
+      gameManager.sendGameUpdateToPlayers();
+    }
   });
 
   socket.on("enableInterfaceGateway", function(msg){

@@ -28,7 +28,7 @@ export default class PhoneManager {
   generatePhonesForSim(sim) {
     //Create a phone for each panel in the sim.
     sim.panels.forEach((panel) => {
-      this.phones.push(new Phone(panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id)));
+      this.phones.push(new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id)));
     })
 
     //Create a phone for Control
@@ -46,8 +46,14 @@ export default class PhoneManager {
   }
 
   generatePhoneForPerson(number, name, type=Phone.TYPES.MOBILE, location = null, hidden=false) {
+    console.log(chalk.yellow('generatePhoneForPerson'), arguments)
     if(!this.phones.some(p => p.id === number)) {
+      console.log('created phone')
       this.phones.push(new Phone(number, name, type, location, hidden));
+      return true;
+    }else {
+      console.error('Attempting to create phone that already exists.')
+      return false;
     }
   }
 
@@ -100,6 +106,10 @@ export default class PhoneManager {
    */
   getPhone(phoneId) {
     return this.phones.find(x => x.id === phoneId);
+  }
+
+  getAllPhones() {
+    return this.phones.map(p => p.toSimple());
   }
 
   assignPhone(phoneId, discordId) {

@@ -451,14 +451,14 @@ export default class ROCManager {
   updateAdminUI() {
     this.io.to('admins').emit('adminStatus', this.adminGameStatus());
   }
-  adminGameStatus() {
 
+  adminGameStatus() {
     return {
       hostState: this.getHostState(),
-      gameState: this.getGameState()
+      gameState: this.getGameState(),
+      phones: this.phoneManager.getAllPhones()
     }
   }
-
 
   updateSimTime(clockMsg) {
     const sim = this.sims.find(s => s.id = clockMsg["area_id"]);

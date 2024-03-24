@@ -1,13 +1,14 @@
-// @ts-check
 export default class PhonebookEntry {
-    id;
-    /** @type {string} */
-    name;
-    type;
+  /** @type {string} */
+  id;
+  /** @type {string} */
+  name;
+  /** @type {string} */
+  type;
 
-    constructor(id,name,type) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-    }
+  constructor(id,name,type) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+  }
 }

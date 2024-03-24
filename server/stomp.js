@@ -35,9 +35,10 @@ export default class STOMPManager {
 
       const client = new Client({
         webSocketFactory: () => new TCPWrapper(game.host, game.interfaceGateway.port),
-        onConnect: () => {
+        onConnect: (iFrame) => {
           console.log("STOMP Connect");
-          game.interfaceGateway.enabled = true;
+          console.log(iFrame);
+          game.interfaceGateway.connected = true;
           this.gameManager.updateAdminUI();
           client.subscribe('/topic/SimSig', (message) => {
             const clockMessage = JSON.parse(message.body);
@@ -62,6 +63,8 @@ export default class STOMPManager {
         },
         onWebSocketError: (event) => {
           console.log("STOMP WebSocketError", event);
+          game.interfaceGateway.connected = false;
+          this.gameManager.updateAdminUI()
         },
       });
       // client.debug = function (str) {
@@ -76,7 +79,7 @@ export default class STOMPManager {
         console.info(chalk.yellow('createClientForGame'), game.host, chalk.white("Interface Gateway"), chalk.red('DISABLED'));
       }
 
-      this.clients.push(new GameStompClient(game.sim, client));
+      this.clients.push(new GameStompClient(game.sim, game, client));
 
     } else {
       console.info(chalk.yellow('createClientForGame'), chalk.red("No Interface Gateway configuration for", game.host));
@@ -87,6 +90,17 @@ export default class STOMPManager {
     const gameClient = this.clients.find(c => c.id === simId)
     if (gameClient) {
       gameClient.client.activate();
+      gameClient.game.interfaceGateway.enabled = true;
+      return true;
+    }
+    return false;
+  }
+
+  deactivateClientForGame(simId) {
+    const gameClient = this.clients.find(c => c.id === simId)
+    if (gameClient) {
+      gameClient.client.deactivate();
+      gameClient.game.interfaceGateway.enabled = false;
     }
   }
 }

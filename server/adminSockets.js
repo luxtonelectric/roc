@@ -30,6 +30,10 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     console.log(chalk.yellow('enableInterfaceGateway'), msg)
     gameManager.enableInterfaceGateway(msg.simId);
   });
+  socket.on("disableInterfaceGateway", function(msg){
+    console.log(chalk.yellow('disableInterfaceGateway'), msg)
+    gameManager.disableInterfaceGateway(msg.simId);
+  });
 
   // kick the user from the call handler thingey socket yum
   socket.on("adminKickFromCall", function(msg){

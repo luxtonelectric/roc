@@ -15,8 +15,9 @@
               <td>{{ host.channel }}</td>
               <td>{{ host.enabled }}</td>
               <td>{{ host.interfaceGateway.port }}</td>
+              <td>{{ host.interfaceGateway.connected }}</td>
               <td>
-                <button v-if="host.interfaceGateway.enabled" class="btn">Disable IG</button>
+                <button v-if="host.interfaceGateway.enabled" class="btn" @click="disableIG(host.sim)">Disable IG</button>
                 <button v-else class="btn" @click="enableIG(host.sim)">Enable IG</button>
               </td>
             </tr>
@@ -41,6 +42,16 @@
           </table>
         </div>
       </template>
+    </div>
+    <div class="my-1">
+      <input type="text" pattern="[0-9]+">
+      <input type="text">
+      <select>
+        <option value="mobile">Mobile</option>
+        <option value="fixed">Fixed</option>
+      </select>
+      <input type="checkbox">
+      <button>Create Phone</button>
     </div>
     <div class="my-4">
       <h1 class="text-3xl font-bold">Voice Calls</h1>
@@ -79,6 +90,13 @@ export default {
     enableIG(simId) {
       console.log('enableIG', simId)
       this.socket.emit("enableInterfaceGateway", {"simId": simId});
+    },
+    disableIG(simId) {
+      console.log('disableIG', simId)
+      this.socket.emit("disableInterfaceGateway", {"simId": simId});
+    },
+    createPhone(number, name, type, location = null, hidden = false) {
+      this.socket.emit("createPhone", {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden});
     }
   }
 }

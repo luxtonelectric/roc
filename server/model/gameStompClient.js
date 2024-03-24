@@ -9,13 +9,17 @@ export default class GameStompClient{
   /** @type {Client} */
   client;
 
+  game;
+
   /**
    * 
    * @param {string} id 
-   * @param {Client} client 
+   * @param {Client} client
+   * @param {*} game  
    */
-  constructor(id, client) {
+  constructor(id, game, client) {
     this.id = id;
+    this.game = game;
     this.client = client
   }
 }

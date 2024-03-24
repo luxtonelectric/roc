@@ -70,6 +70,12 @@ export default class ROCManager {
 
   enableInterfaceGateway(simId) {
     this.stompManager.activateClientForGame(simId);
+    this.updateAdminUI();
+  }
+
+  disableInterfaceGateway(simId) {
+    this.stompManager.deactivateClientForGame(simId);
+    this.updateAdminUI();
   }
 
   // ============================ BEGIN PLAYER CODE ============================

@@ -7,6 +7,7 @@ import Location from './model/location.js';
 /** @typedef {import("./model/simulation.js").default} Simulation */
 /** @typedef {import("./model/phonebookentry.js").default} PhonebookEntry */
 /** @typedef {import("./model/train.js").default} Train */
+/** @typedef {import("./model/player.js").default} Player */
 
 export default class PhoneManager {
   /** @type {Phone[]} */
@@ -49,7 +50,6 @@ export default class PhoneManager {
    * @returns {Phone}
    */
   generatePhoneForTrain(train) {
-    //TODO: This needs a lot of work!
     const phone = new Phone(train.getSUID(), train.getHeadcode(), Phone.TYPES.TRAIN)
     phone.setCarrier(train);
     this.phones.push(phone);
@@ -89,8 +89,8 @@ export default class PhoneManager {
    * @returns {PhonebookEntry[]}
    */
   getTrainsAndMobilesForPhone(phone) {
-    const trainPhones = this.phones.filter(p => p.getLocation().simId === phone.getLocation().simId && p.isType(Phone.TYPES.TRAIN)).map(p => p.toSimple());
-    const mobilePhones = this.phones.filter(p => p.getLocation().simId === phone.getLocation().simId && p.isType(Phone.TYPES.MOBILE)).map(p => p.toSimple());
+    const trainPhones = this.phones.filter(p => p.isInSameSim(phone) && p.isType(Phone.TYPES.TRAIN)).map(p => p.toSimple());
+    const mobilePhones = this.phones.filter(p => p.isInSameSim(phone) && p.isType(Phone.TYPES.MOBILE)).map(p => p.toSimple());
     const allPhones = trainPhones.concat(mobilePhones);
     return allPhones;
   }
@@ -120,22 +120,22 @@ export default class PhoneManager {
   }
 
   getAllPhones() {
-    return this.phones.map(p => p.toSimple());
+    return this.phones.map(p => p.toAdminView());
   }
 
   /**
    * 
    * @param {Phone} phone 
-   * @param {string} discordId 
+   * @param {Player} player 
    * @returns 
    */
-  assignPhone(phone, discordId) {
+  assignPhone(phone, player) {
     if (typeof phone === 'undefined') {
-      console.log(chalk.yellow('assignPhone'), 'Phone is undefined', discordId);
+      console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
-    phone.setDiscordId(discordId);
-    this.sendPhonebookUpdateToPlayer(discordId);
+    phone.setPlayer(player);
+    this.sendPhonebookUpdateToPlayer(player);
     return true;
   }
 
@@ -149,14 +149,14 @@ export default class PhoneManager {
       console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
-    this.sendPhonebookUpdateToPlayer(phone.getDiscordId());
-    phone.setDiscordId(null);
+    this.sendPhonebookUpdateToPlayer(phone.getPlayer());
+    phone.setPlayer(null);
     return true;
   }
 
   unassignPhonesForDiscordId(discordId) {
     const phones = this.getPhonesForDiscordId(discordId);
-    phones.forEach(p => p.setDiscordId(null));
+    phones.forEach(p => p.setPlayer(null));
     this.sendPhonebookUpdateToPlayer(discordId);
   }
 
@@ -165,9 +165,13 @@ export default class PhoneManager {
     return phones;
   }
 
-  sendPhonebookUpdateToPlayer(discordId) {
-    const phones = this.getPhonesForDiscordId(discordId);
+  /**
+   * 
+   * @param {Player} player 
+   */
+  sendPhonebookUpdateToPlayer(player) {
+    const phones = this.getPhonesForDiscordId(player);
     phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
-    this.io.to(discordId).emit('phonebookUpdate', phones.map(p => p.getPhoneBook()));
+    player.socket.emit('phonebookUpdate', phones.map(p => p.getPhoneBook()));
   }
 }

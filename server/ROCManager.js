@@ -360,7 +360,7 @@ export default class ROCManager {
     }
     //Assign the player to the panel
     panel.player = user;
-    this.phoneManager.assignPhone(panel.phone, player.discordId)
+    this.phoneManager.assignPhone(panel.phone, player)
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();

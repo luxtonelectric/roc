@@ -1,5 +1,6 @@
 import iLocatable from "./iLocatable.js";
 import PhonebookEntry from "./phonebookentry.js";
+/** @typedef {import("./player.js").default} Player */
 /** @typedef {import("./location.js").default} Location */
 /** @typedef {import("./iLocatable.js").default} iLocatable */
 
@@ -12,8 +13,9 @@ export default class Phone extends iLocatable {
   /** @type {string} */
   #type;
 
-  /** @type {string|null} */
-  #discordId;
+  /** @type {Player} */
+  #player
+
   /** @type {boolean} */
   #hidden;
 
@@ -32,7 +34,7 @@ export default class Phone extends iLocatable {
     this.#id = id;
     this.#name = name;
     this.#type = type;
-    this.#discordId = null;
+    this.#player = null;
     this.#hidden = hidden;
   }
 
@@ -44,12 +46,32 @@ export default class Phone extends iLocatable {
     return this.#type === typeString;
   }
 
+  /**
+   * Helper function to return the assigned players discordID
+   * @returns {string | null}
+   */
   getDiscordId() {
-    return this.#discordId;
+    if(this.#player) {
+      return this.#player.discordId;
+    } else {
+      return null;
+    }
   }
 
-  setDiscordId(discordId) {
-    this.#discordId = discordId;
+  /**
+   * 
+   * @returns {Player}
+   */
+  getPlayer() {
+    return this.#player;
+  }
+
+  /**
+   * 
+   * @param {Player} player 
+   */
+  setPlayer(player) {
+    this.#player = player
   }
 
   getName() {
@@ -82,6 +104,11 @@ export default class Phone extends iLocatable {
    */
   toSimple() {
     return new PhonebookEntry(this.#id, this.#name, this.#type);
+  }
+
+  toAdminView() {
+    const playerData = this.#player ? this.#player.toSimple() : undefined;
+    return {'id': this.#id, 'name':this.#name, 'type': this.#type, 'location': super.getLocation(), 'player': playerData}
   }
 
   getPhoneBook() {

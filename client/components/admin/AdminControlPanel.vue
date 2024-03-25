@@ -57,6 +57,23 @@
       </template>
     </div>
     <div class="my-1">
+      <template v-if="gameState.phones">
+        <div>
+          <h2 class="text-2xl font-bold">Phones</h2>
+          <table>
+            <tr v-for="phone in gameState.phones">
+              <td><template v-if="phone.location">{{ phone.location.simId }}</template></td>
+              <td>{{ phone.name }}</td>
+              <td>{{ phone.type }}</td>
+              <td><template v-if="phone.type === 'mobile'">{{ phone.id }}</template></td>
+              <td><template v-if="phone.player">
+                <img class="w-12 h-12 rounded-full" :src="phone.player.avatarURL" :title="phone.player.displayName" :alt="phone.player.displayName"></template></td>
+              <td><button v-if="!phone.player">Claim</button></td>
+              <td><button>Call</button></td>
+            </tr>
+          </table>
+        </div>
+      </template>
       <input type="text" pattern="[0-9]+">
       <input type="text">
       <select>
@@ -113,7 +130,18 @@ export default {
       //const phone = {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden};
       const phone = {'number': '99999', 'name': 'TEST PHONE', 'type': 'mobile', 'location':null, 'hidden':false};
       this.socket.emit("createPhone", phone);
-    }
+    },
+    async placeCall(receiver,type="p2p",level="normal")
+    {
+      const soc = this.socket;
+      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});
+      if(callId) {
+        this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
+      } else {
+        this.rejectedAudio.play();
+        console.log('No call id. Something went wrong.');
+      }
+    },
   }
 }
 </script>

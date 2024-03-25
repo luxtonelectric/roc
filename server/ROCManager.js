@@ -213,6 +213,7 @@ export default class ROCManager {
             });
             this.sendGameUpdateToPlayers();
             this.updatePlayerInfo(existingPlayer);
+            this.phoneManager.sendPhonebookUpdateToPlayer(existingPlayer.discordId);
             return true;
           } else {
             // They're connecting twice for the same person?! This is sus. Follow normal login.

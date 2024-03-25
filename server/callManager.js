@@ -46,7 +46,7 @@ export default class CallManager {
       return false;
     }
 
-    if (this.phoneManager.getPhone(receiverPhoneId).discordId === null) {
+    if (this.phoneManager.getPhone(receiverPhoneId).getDiscordId() === null) {
       console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
@@ -58,22 +58,20 @@ export default class CallManager {
       return false;
     }
 
-    if (this.phoneManager.getPhone(senderPhoneId).discordId === null) {
+    if (this.phoneManager.getPhone(senderPhoneId).getDiscordId() === null) {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
 
     const sendingPhone = this.phoneManager.getPhone(senderPhoneId);
-    const sendingPlayerId = sendingPhone.discordId;
-    //const sendingPlayer = this.players[sendingPlayerId];
+    const sendingPlayerId = sendingPhone.getDiscordId();
 
     let callRequest;
 
     if (callType === CallRequest.TYPES.P2P) {
       const receivingPhone = this.phoneManager.getPhone(receiverPhoneId);
-      const receivingPlayerId = receivingPhone.discordId;
-      //const receivingPlayer = this.players[receivingPlayerId];
+      const receivingPlayerId = receivingPhone.getDiscordId();
 
       if (sendingPlayerId !== receivingPlayerId) {
         //console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayerId, chalk.magentaBright("Reciever:"), receivingPlayerId);
@@ -98,7 +96,7 @@ export default class CallManager {
     console.log(chalk.yellow("Placing call"), callRequest);
     const localIO = this.io;
     callRequest.getReceivers().forEach(p => {
-      localIO.to(p.discordId).emit("newCallInQueue", callRequest);
+      localIO.to(p.getDiscordId()).emit("newCallInQueue", callRequest);
     })
     //console.log('newCallinQueue', callRequest);
     return callRequest.id;
@@ -141,7 +139,7 @@ export default class CallManager {
     console.log('accpeted', callRequest);
     if (callRequest.status === CallRequest.STATUS.OFFERED) {
       console.log(chalk.yellow('acceptCall'), 'Moving sender to call...', callId);
-      await this.movePlayerToCall(callRequest.sender.discordId, callRequest.channel);
+      await this.movePlayerToCall(callRequest.sender.getDiscordId(), callRequest.channel);
     }
 
     if (callRequest.status === CallRequest.STATUS.OFFERED) {
@@ -161,9 +159,9 @@ export default class CallManager {
     call.status = CallRequest.STATUS.REJECTED;
     this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
     this.bot.releasePrivateCallChannelReservation(call.channel)
-    this.io.to(call.sender.discordId).emit("rejectCall", { "success": false });
+    this.io.to(call.sender.getDiscordId()).emit("rejectCall", { "success": false });
     if (call.type === CallRequest.TYPES.P2P) {
-      this.io.to(call.getReceiver().discordId).emit('removeCallFromQueue', call);
+      this.io.to(call.getReceiver().getDiscordId()).emit('removeCallFromQueue', call);
     }
   }
 
@@ -189,13 +187,13 @@ export default class CallManager {
         const leaversDiscordId = this.io.sockets.sockets.get(socketId).discordId
 
 
-        await this.bot.setUserVoiceChannel(call.sender.discordId);
-        await this.bot.setUserVoiceChannel(call.getReceiver().discordId);
+        await this.bot.setUserVoiceChannel(call.sender.getDiscordId());
+        await this.bot.setUserVoiceChannel(call.getReceiver().getDiscordId());
 
-        if (leaversDiscordId === call.sender.discordId) {
-          this.io.to(call.getReceiver().discordId).emit("kickedFromCall", { "success": true });
+        if (leaversDiscordId === call.sender.getDiscordId()) {
+          this.io.to(call.getReceiver().getDiscordId()).emit("kickedFromCall", { "success": true });
         } else {
-          this.io.to(call.sender.discordId).emit("kickedFromCall", { "success": true });
+          this.io.to(call.sender.getDiscordId()).emit("kickedFromCall", { "success": true });
         }
 
         call.status = CallRequest.STATUS.ENDED;
@@ -218,85 +216,7 @@ export default class CallManager {
     this.io.to(playerId).emit("joinedCall", { "success": true });
   }
 
-  // playerStartREC(playerId, phoneId) {
-  //     console.log(chalk.yellow("playerStartREC"), chalk.magenta("REC started for"), panelId, chalk.magenta("by"), playerId);
-
-  //     const phone = this.phoneManager.getPhone(phoneId);
-
-  //     const panelParts = panelId.split(".");
-  //       if(panelParts.length !== 2 || typeof this.sims[panelParts[0]] === "undefined" || typeof this.sims[panelParts[0]].panels[panelParts[1]] === "undefined") {
-  //         console.log("REC Started for invalid panelId", panelId);
-  //         return false;
-  //       }
-
-  //     const available = this.bot.getAvailableCallChannel();
-  //     if(available !== null) {     
-  //       //First get the list of players to call... 
-  //       // const playersToCall = [];
-  //       // const panel = this.sims[panelParts[0]].panels[panelParts[1]];
-
-  //       // if(typeof panel.neighbours !== 'undefined') {
-  //       //   for (let index = 0; index < panel.neighbours.length; index++) {
-  //       //     const neighbourPanelId = panel.neighbours[index];
-  //       //     const neighbourPanelParts = neighbourPanelId.split(".");
-  //       //     if(neighbourPanelParts.length == 1) {
-  //       //       neighbourPanelParts.unshift(panelParts[0]);
-  //       //     }
-  //       //     const neighbourPanel = this.sims[neighbourPanelParts[0]].panels[neighbourPanelParts[1]];
-  //       //     if(typeof neighbourPanel.player !== 'undefined') {
-  //       //       playersToCall.push(neighbourPanel.player);
-  //       //     }
-  //       //   }  
-  //       // }
-
-  //       // const uniquePlayersToCall = [...new Set(playersToCall)];
-  //       // if(uniquePlayersToCall.indexOf(playerId) >-1 ) {
-  //       //   uniquePlayersToCall.splice(uniquePlayersToCall.indexOf(playerId),1)
-  //       // }
-
-  //       const recPhones = this.phoneManager.getRECRecipientsForPhone();
-
-
-  //       //Actually call people
-  //       this.privateCalls[available].push(playerId);
-  //       this.playerJoinREC(playerId,available);
-
-  //       uniquePlayersToCall.forEach(playerIdToCall => {
-  //         console.log(chalk.blueBright("playerStartREC"), chalk.yellow("Calling players..."), chalk.white(), playerIdToCall);
-  //         var player = this.players[playerIdToCall];
-  //         this.privateCalls[available].push(playerIdToCall);
-  //         this.io.to(player.socket.id).emit('incomingREC',{"initiator":panelId ,"channel":available});
-  //       })
-  //     } else {
-  //       console.log(chalk.red("REC Failed due to no available call channels"))
-  //     }
-
-  //   }
-
   kickUserFromCall(discordId) {
     console.log(discordId);
-    // console.info(chalk.yellow("Admin kicking user"), chalk.green(discordId), chalk.yellow("from a private call"));
-    // var user = this.players[data.user];
-    // if(user)
-    // {
-    //   this.io.in(discordId).emit("kickedFromCall", {"success": true});
-    // }
-    // else
-    // {
-    //   for(var call in this.privateCalls)
-    //   {
-    //     if(this.privateCalls[call] != null || this.privateCalls[call] != [])
-    //     {
-    //       if(this.privateCalls[call].indexOf(discordId)>-1)
-    //       {
-    //         //console.log(this.privateCalls[call]);
-    //         var index = this.privateCalls[call].indexOf(discordId);
-    //         if (index !== -1) {
-    //           this.privateCalls[call].splice(index, 1);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
   }
 }

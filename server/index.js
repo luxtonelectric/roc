@@ -18,6 +18,7 @@ import { adminSockets } from './adminSockets.js';
 import STOMPManager from './stomp.js';
 import PhoneManager from './phonemanager.js';
 import CallManager from './callManager.js';
+import TrainManager from './trainManager.js';
 
 let httpServer;
 
@@ -53,10 +54,13 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
-const phonemanager = new PhoneManager(io);
+const phoneManager = new PhoneManager(io);
+const trainManager = new TrainManager();
+trainManager.setPhoneManager(phoneManager);
 const stompManager = new STOMPManager();
-const callManager = new CallManager(phonemanager,discordBot,io);
-const rocManager = new ROCManager(io, discordBot, phonemanager, stompManager);
+stompManager.setTrainManager (trainManager);
+const callManager = new CallManager(phoneManager,discordBot,io);
+const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager);
 rocManager.load(config);
 
 //@ts-expect-error
@@ -68,7 +72,7 @@ await discordBot.setUpBot().then(() => {
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
   rocSockets(socket, rocManager,callManager);
-  adminSockets(socket, rocManager, phonemanager,config);
+  adminSockets(socket, rocManager, phoneManager,config);
 });
 
 

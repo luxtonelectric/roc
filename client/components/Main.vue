@@ -1,8 +1,8 @@
 <template>
   <div class="mx-auto align-middle">
-    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" v-for="phone in playerData.phones" @click="selectPhone(phone.id)">{{phone.name}}</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" v-for="phone in phoneData" @click="selectPhone(phone.id)">{{phone.name}}</a>
     <div class="grid grid-cols-4 divide-x divide-gray-500 flex bg-neutral-300">
-      <SpeedDial v-if="showTab === 'speedDial'" :playerData="playerData" :selectedPhone="selectedPhone" @place-call="placeCall" />
+      <SpeedDial v-if="showTab === 'speedDial'" :phoneData="phoneData" :selectedPhone="selectedPhone" @place-call="placeCall" />
       <template v-if="showTab === 'panelSelector'">
         <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
           <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"

@@ -310,7 +310,7 @@
     ]
   },
   {
-    "id":"kingscross",
+    "id":"kingsx",
     "name":"Kings Cross",
     "panels":[
       {"id":"cross", "name":"Cross", "neighbours":[{"simId":"kingscross", "panelId":"finsbury"},{"simId":"kingscross", "panelId":"palace"}]},

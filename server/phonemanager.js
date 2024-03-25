@@ -6,6 +6,7 @@ import Location from './model/location.js';
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("./model/simulation.js").default} Simulation */
 /** @typedef {import("./model/phonebookentry.js").default} PhonebookEntry */
+/** @typedef {import("./model/train.js").default} Train */
 
 export default class PhoneManager {
   /** @type {Phone[]} */
@@ -28,7 +29,9 @@ export default class PhoneManager {
   generatePhonesForSim(sim) {
     //Create a phone for each panel in the sim.
     sim.panels.forEach((panel) => {
-      this.phones.push(new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id)));
+      const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
+      panel.phone = phone;
+      this.phones.push(phone);
     })
 
     //Create a phone for Control
@@ -40,14 +43,22 @@ export default class PhoneManager {
     //console.log(chalk.yellow('generatePhonesForSim'), this.phones);
   }
 
+  /**
+   * 
+   * @param {Train} train 
+   * @returns {Phone}
+   */
   generatePhoneForTrain(train) {
     //TODO: This needs a lot of work!
-    this.phones.push(new Phone(train, train, Phone.TYPES.TRAIN, train));
+    const phone = new Phone(train.getSUID(), train.getHeadcode(), Phone.TYPES.TRAIN)
+    phone.setCarrier(train);
+    this.phones.push(phone);
+    return phone;
   }
 
   generatePhoneForPerson(number, name, type=Phone.TYPES.MOBILE, location = null, hidden=false) {
     console.log(chalk.yellow('generatePhoneForPerson'), arguments)
-    if(!this.phones.some(p => p.id === number)) {
+    if(!this.phones.some(p => p.getId() === number)) {
       console.log('created phone')
       this.phones.push(new Phone(number, name, type, location, hidden));
       return true;
@@ -64,11 +75,11 @@ export default class PhoneManager {
    */
   getSpeedDialForPhone(phone) {
     let phones = [];
-    const sim = this.sims.find(x => x.id === phone.location.simId);
-    const neighbourPanels = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.location.panelId));
-    const neighbourPhones = this.phones.filter(x => neighbourPanels.find(y => y.id === x.id));
+    const sim = this.sims.find(x => x.id === phone.getLocation().simId);
+    const neighbourPhones = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.getLocation().panelId)).map(p => p.phone);
+    //const neighbourPhones = this.phones.filter(x => neighbourPanels.find(y => y.id === x.getId()));
     phones = phones.concat(neighbourPhones);
-    const control = this.phones.filter(x => x.id === sim.id + "_control");
+    const control = this.phones.filter(x => x.getId() === sim.id + "_control");
     return phones.concat(control).map(p => p.toSimple());
   }
 
@@ -78,8 +89,8 @@ export default class PhoneManager {
    * @returns {PhonebookEntry[]}
    */
   getTrainsAndMobilesForPhone(phone) {
-    const trainPhones = this.phones.filter(x => x.location.simId === phone.location.simId && x.type === Phone.TYPES.TRAIN).map(p => p.toSimple());
-    const mobilePhones = this.phones.filter(x => x.location.simId === phone.location.simId && x.type === Phone.TYPES.MOBILE).map(p => p.toSimple());
+    const trainPhones = this.phones.filter(p => p.getLocation().simId === phone.getLocation().simId && p.isType(Phone.TYPES.TRAIN)).map(p => p.toSimple());
+    const mobilePhones = this.phones.filter(p => p.getLocation().simId === phone.getLocation().simId && p.isType(Phone.TYPES.MOBILE)).map(p => p.toSimple());
     const allPhones = trainPhones.concat(mobilePhones);
     return allPhones;
   }
@@ -91,11 +102,11 @@ export default class PhoneManager {
    */
   getRECRecipientsForPhone(phone) {
     let phones = [];
-    const sim = this.sims.find(x => x.id === phone.location.simId);
-    const neighbourPanels = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.location.panelId));
-    const neighbourPhones = this.phones.filter(x => x.discordId !== null && neighbourPanels.find(y => y.id === x.id));
+    const sim = this.sims.find(s => s.id === phone.getLocation().simId);
+    const neighbourPanels = sim.panels.filter(p => p.neighbours.some(n => n.panelId === phone.getLocation().panelId));
+    const neighbourPhones = this.phones.filter(p => p.getDiscordId() !== null && neighbourPanels.find(n => n.id === p.getId()));
     phones = phones.concat(neighbourPhones);
-    const control = this.phones.filter(x => x.id === sim.id + "_control" && x.discordId !== null);
+    const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getDiscordId() !== null);
     return phones.concat(control).map(p => p.toSimple());
   }
 
@@ -105,40 +116,58 @@ export default class PhoneManager {
    * @returns {(Phone | undefined)}
    */
   getPhone(phoneId) {
-    return this.phones.find(x => x.id === phoneId);
+    return this.phones.find(p => p.getId() === phoneId);
   }
 
   getAllPhones() {
     return this.phones.map(p => p.toSimple());
   }
 
-  assignPhone(phoneId, discordId) {
-    const phone = this.phones.find(x => x.id === phoneId);
+  /**
+   * 
+   * @param {Phone} phone 
+   * @param {string} discordId 
+   * @returns 
+   */
+  assignPhone(phone, discordId) {
     if (typeof phone === 'undefined') {
-      console.log(chalk.yellow('assignPhone'), 'Phone is undefined', phoneId, discordId);
+      console.log(chalk.yellow('assignPhone'), 'Phone is undefined', discordId);
       return false;
     }
-    phone.discordId = discordId;
+    phone.setDiscordId(discordId);
+    this.sendPhonebookUpdateToPlayer(discordId);
     return true;
   }
 
-  unassignPhone(phoneId) {
-    const phone = this.phones.find(x => x.id === phoneId);
+  /**
+   * 
+   * @param {Phone} phone 
+   * @returns 
+   */
+  unassignPhone(phone) {
     if (typeof phone === 'undefined') {
-      console.log(chalk.yellow('assignPhone'), 'Phone is undefined', phoneId);
+      console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
-    phone.discordId = null;
+    this.sendPhonebookUpdateToPlayer(phone.getDiscordId());
+    phone.setDiscordId(null);
     return true;
   }
 
   unassignPhonesForDiscordId(discordId) {
     const phones = this.getPhonesForDiscordId(discordId);
-    phones.forEach(p => p.discordId = null);
+    phones.forEach(p => p.setDiscordId(null));
+    this.sendPhonebookUpdateToPlayer(discordId);
   }
 
   getPhonesForDiscordId(discordId) {
-    const phones = this.phones.filter(x => x.discordId === discordId);
+    const phones = this.phones.filter(x => x.getDiscordId() === discordId);
     return phones;
+  }
+
+  sendPhonebookUpdateToPlayer(discordId) {
+    const phones = this.getPhonesForDiscordId(discordId);
+    phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
+    this.io.to(discordId).emit('phonebookUpdate', phones.map(p => p.getPhoneBook()));
   }
 }

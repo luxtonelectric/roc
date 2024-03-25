@@ -1,3 +1,4 @@
+/** @typedef {import("./phone.js").default} Phone */
 /** @typedef {import("./location.js").default} Location */
 export default class Panel {
   id;
@@ -5,6 +6,8 @@ export default class Panel {
   player;
   /** @type {Location[]} */
   neighbours = [];
+
+  /**@type {Phone} */
   phone;
 
   static fromSimData(panelData) {

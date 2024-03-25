@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 const props = defineProps({
-    playerData: Object,
+    phoneData: Object,
     selectedPhone: String
 })
 
@@ -12,7 +12,7 @@ const emits = defineEmits({
 const selectedSpeedDial = ref({});
 
 watch(() => props.selectedPhone, async (newPhone) => {
-    const phone = props.playerData?.phones.find(p => p.id === newPhone);
+    const phone = props.phoneData?.find(p => p.id === newPhone);
     selectedSpeedDial.value = phone.speedDial;
 },{immediate: true})
 

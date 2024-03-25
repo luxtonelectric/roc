@@ -188,11 +188,11 @@ export default class ROCManager {
       var channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
       if (channel) {
         console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in a voice channel:`, chalk.magentaBright(channel));
-
+        
         if (this.players[newPlayer.discordId] !== undefined) {
           // This player has already logged in!
           const existingPlayer = this.players[newPlayer.discordId];
-
+          
           if (existingPlayer.isConnected === false) {
             console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is reconnecting after socket disconnect`);
             // They DCd and we caught it just let them back in
@@ -202,7 +202,7 @@ export default class ROCManager {
               //They're somehow changed rooms... guess we should update
               existingPlayer.voiceChannelId = channel;
             }
-
+            
             existingPlayer.socket = newPlayer.socket;
             existingPlayer.socket.join(existingPlayer.discordId);
             existingPlayer.socket.discordId = existingPlayer.discordId;
@@ -217,12 +217,17 @@ export default class ROCManager {
           } else {
             // They're connecting twice for the same person?! This is sus. Follow normal login.
           }
-
+          
         } else {
           // Brand new Player
           //console.log("Brand New Player!");
         }
+        const member = await this.bot.getMember(newPlayer.discordId);
+        const avatarURL = member.displayAvatarURL();
 
+        newPlayer.avatarURL = avatarURL;
+        newPlayer.displayName = member.displayName;
+        
         this.players[newPlayer.discordId] = newPlayer;
         newPlayer.socket.join(newPlayer.discordId);
         newPlayer.socket.discordId = newPlayer.discordId;
@@ -263,6 +268,23 @@ export default class ROCManager {
     }
     return null;
   }
+
+  isPlayer(discordId) {
+    if(this.players[discordId]) {
+      return true;
+    }
+
+    return false;
+  }
+
+  isProspect(discordId) {
+    if(this.prospects[discordId]) {
+      return true;
+    }
+
+    return false;
+  }
+
 
   /**
    * 
@@ -337,7 +359,7 @@ export default class ROCManager {
     }
     //Assign the player to the panel
     panel.player = user;
-    this.phoneManager.assignPhone(panel.id, player.discordId)
+    this.phoneManager.assignPhone(panel.phone, player.discordId)
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();
@@ -364,7 +386,7 @@ export default class ROCManager {
     }
     //Assign the player to the panel
     panel.player = undefined;
-    this.phoneManager.unassignPhone(panel.id);
+    this.phoneManager.unassignPhone(panel.phone);
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();
@@ -427,7 +449,7 @@ export default class ROCManager {
   updatePlayerInfo(player) {
     const phones = this.phoneManager.getPhonesForDiscordId(player.discordId);
     const pm = this.phoneManager;
-    phones.forEach(p => { p.speedDial = pm.getSpeedDialForPhone(p); p.trainsAndMobiles = pm.getTrainsAndMobilesForPhone(p) });
+    phones.forEach(p => { p.setSpeedDial(pm.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(pm.getTrainsAndMobilesForPhone(p)) });
     const myPanels = [];
     this.sims.forEach(s => myPanels.concat(s.panels.filter(p => p.player === player.discordId)))
     const info = {};
@@ -453,19 +475,24 @@ export default class ROCManager {
   }
 
   adminGameStatus() {
+
+
     return {
       hostState: this.getHostState(),
       gameState: this.getGameState(),
-      phones: this.phoneManager.getAllPhones()
+      phones: this.phoneManager.getAllPhones(),
+      //playerState: this.players.map(p => p.toSimple())
     }
   }
 
   updateSimTime(clockMsg) {
-    const sim = this.sims.find(s => s.id = clockMsg["area_id"]);
+    const sim = this.sims.find(s => s.id === clockMsg["area_id"]);
     if (sim) {
       delete clockMsg.area_id;
       sim.clock = clockMsg;
       this.sendGameUpdateToPlayers();
+    } else {
+      console.error(chalk.red('CLOCK UPDATE RECEIVED BUT NO MATCHING SIM ENABLED'), clockMsg["area_id"]);
     }
   }
 

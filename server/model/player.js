@@ -1,9 +1,8 @@
-// @ts-check
-
-import { Socket } from "socket.io";
-
+/** @typedef {import("socket.io").Socket} Socket */
 
 export default class Player {
+  avatarURL = "";
+  displayName = "";
   /**
    * 
    * @param {Socket} socket 
@@ -25,5 +24,9 @@ export default class Player {
   setPanel(panel)
   {
     this.panel = panel;
+  }
+
+  toSimple() {
+    return {'discordId': this.discordId, 'displayName': this.displayName, 'avatarURL': this.avatarURL}
   }
 }

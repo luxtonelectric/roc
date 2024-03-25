@@ -1,23 +1,24 @@
+import iLocatable from "./iLocatable.js";
 import PhonebookEntry from "./phonebookentry.js";
 /** @typedef {import("./location.js").default} Location */
+/** @typedef {import("./iLocatable.js").default} iLocatable */
 
-export default class Phone {
+export default class Phone extends iLocatable {
   static TYPES = { "FIXED": "fixed", "TRAIN": "train", "MOBILE": "Mobile" }
   /** @type {string} */
-  id;
+  #id;
   /** @type {string} */
-  name;
+  #name;
   /** @type {string} */
-  type;
-  /** @type {Location|null} */
-  location;
-  /** @type {string|null} */
-  discordId;
-  /** @type {boolean} */
-  hidden;
+  #type;
 
-  speedDial;
-  trainsAndMobiles;
+  /** @type {string|null} */
+  #discordId;
+  /** @type {boolean} */
+  #hidden;
+
+  #speedDial = {};
+  #trainsAndMobiles = {};
   /**
  * 
  * @param {string} id 
@@ -27,12 +28,52 @@ export default class Phone {
  * @param {boolean} hidden 
  */
   constructor(id, name, type, location = null, hidden = false) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.location = location;
-    this.discordId = null;
-    this.hidden = hidden;
+    super(location)
+    this.#id = id;
+    this.#name = name;
+    this.#type = type;
+    this.#discordId = null;
+    this.#hidden = hidden;
+  }
+
+  getId() {
+    return this.#id
+  }
+
+  isType(typeString) {
+    return this.#type === typeString;
+  }
+
+  getDiscordId() {
+    return this.#discordId;
+  }
+
+  setDiscordId(discordId) {
+    this.#discordId = discordId;
+  }
+
+  getName() {
+    return this.#name;
+  }
+
+  setName(name) {
+    this.#name = name;
+  }
+
+  /**
+   * 
+   * @param {PhonebookEntry[]} phones 
+   */
+  setTrainsAndMobiles(phones) {
+    this.#trainsAndMobiles = phones;
+  }
+
+  /**
+   * 
+   * @param {PhonebookEntry[]} phones 
+   */
+  setSpeedDial(phones) {
+    this.#speedDial = phones
   }
 
   /**
@@ -40,6 +81,13 @@ export default class Phone {
    * @returns {PhonebookEntry}
    */
   toSimple() {
-    return new PhonebookEntry(this.id, this.name, this.type);
+    return new PhonebookEntry(this.#id, this.#name, this.#type);
+  }
+
+  getPhoneBook() {
+    const phone = this.toSimple();
+    phone.speedDial = this.#speedDial;
+    phone.trainsAndMobiles = this.#trainsAndMobiles
+    return phone;
   }
 }

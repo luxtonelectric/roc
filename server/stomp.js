@@ -3,6 +3,8 @@ import chalk from 'chalk';
 import { Client, StompHeaders } from '@stomp/stompjs';
 import { TCPWrapper } from '@stomp/tcp-wrapper';
 import GameStompClient from './model/gameStompClient.js';
+import TrainLocationMessage from './model/trainLocationMessage.js';
+/** @typedef {import("./trainManager.js").default} TrainManager */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
 /** @typedef {import("./ROCManager.js").default} ROCManager */
 
@@ -13,6 +15,8 @@ export default class STOMPManager {
   phoneManager;
   /** @type {GameStompClient[]} */
   clients = []
+  /** @type {TrainManager} */
+  trainManager
 
   constructor() {
     this.clients = [];
@@ -26,6 +30,14 @@ export default class STOMPManager {
     this.gameManager = gameManager;
   }
 
+  /**
+   * 
+   * @param {TrainManager} trainManager 
+   */
+  setTrainManager(trainManager) {
+    this.trainManager = trainManager;
+  }
+
   createClientForGame(game) {
     if ("interfaceGateway" in game) {
       if (!("host" in game) || !("port" in game.interfaceGateway)) {
@@ -34,6 +46,7 @@ export default class STOMPManager {
       }
 
       let clientConnectHeaders = new StompHeaders();
+      clientConnectHeaders.ack = 'auto';
       if(game.interfaceGateway.login) {
         console.log(chalk.green('Using credential to login'), game.interfaceGateway.login)
         clientConnectHeaders.login = game.interfaceGateway.login;
@@ -55,15 +68,20 @@ export default class STOMPManager {
                 this.gameManager.updateSimTime(clockMessage["clock_msg"]);
               }
             }
-          });
+          },{ack: 'auto'});
           client.subscribe('/topic/TRAIN_MVT_ALL_TOC', (rawMessage) => {
             const message = JSON.parse(rawMessage.body);
             if(message.train_location) {
-              console.log(`TRAIN_MVT_ALL_TOC:`, message)
+              //console.log(`TRAIN_MVT_ALL_TOC:`, rawMessage.headers, message)
+              try {
+                this.trainManager.handleTrainLocationMessage(game.sim,new TrainLocationMessage(game.sim,message))
+              } catch (error) {
+                console.error(chalk.redBright('TRAIN_MVT_ALL_TOC'), JSON.stringify(error, Object.getOwnPropertyNames(error)))
+              }
             } else {
               //console.log('Ignoring train delay message');
             }
-          }
+          },{ack: 'auto'}
           );
         },
         onStompError: (frame) => {

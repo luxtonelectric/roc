@@ -43,7 +43,7 @@ onMounted(() =>{
       playerData.value = msg;
     });
 
-    socket.on("phoneInfo", function (msg){
+    socket.on("phonebookUpdate", function (msg){
       phoneData.value = msg;
     });
 

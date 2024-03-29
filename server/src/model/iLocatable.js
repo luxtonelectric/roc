@@ -26,9 +26,9 @@ export default class iLocatable {
    */ 
   setLocation(location) {
     if(this.#carrier) {
-      return false;
+      throw new Error('Attempting to set location of phone that has a carrier')
     } else {
-      this.location = location;
+      this.#location = location;
     }
   }
 

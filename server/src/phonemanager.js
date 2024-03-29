@@ -56,15 +56,24 @@ export default class PhoneManager {
     return phone;
   }
 
+  /**
+   * 
+   * @param {string} number 
+   * @param {string} name 
+   * @param {string} type 
+   * @param {Location} location 
+   * @param {boolean} hidden 
+   * @returns {Phone | undefined}
+   */
   generatePhoneForPerson(number, name, type=Phone.TYPES.MOBILE, location = null, hidden=false) {
     console.log(chalk.yellow('generatePhoneForPerson'), arguments)
-    if(!this.phones.some(p => p.getId() === number)) {
+    if(number && !this.phones.some(p => p.getId() === number)) {
       console.log('created phone')
-      this.phones.push(new Phone(number, name, type, location, hidden));
-      return true;
+      const phone = new Phone(number, name, type, location, hidden)
+      this.phones.push(phone);
+      return phone;
     }else {
-      console.error('Attempting to create phone that already exists.')
-      return false;
+      throw new Error('Invalid number or number already exists');
     }
   }
 

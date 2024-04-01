@@ -9,19 +9,17 @@ import Location from './model/location.js';
 /** @typedef {import("./model/train.js").default} Train */
 /** @typedef {import("./model/player.js").default} Player */
 
-export default class PhoneManager {
+export default class PhoneManager {  
   /** @type {Phone[]} */
   phones = [];
 
   /** @type {Simulation[]} */
-  sims = []
+  sims = [];
 
   /**
    * 
-   * @param {Server} io 
    */
-  constructor(io) {
-    this.io = io;
+  constructor() {
   }
   /**
    * 

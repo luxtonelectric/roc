@@ -54,7 +54,7 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
-const phoneManager = new PhoneManager(io);
+const phoneManager = new PhoneManager();
 const trainManager = new TrainManager();
 trainManager.setPhoneManager(phoneManager);
 const stompManager = new STOMPManager();
@@ -63,7 +63,6 @@ const callManager = new CallManager(phoneManager,discordBot,io);
 const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager);
 rocManager.load(config);
 
-//@ts-expect-error
 await discordBot.setUpBot().then(() => {
   console.log("Configuring voice channels");
   discordBot.configureVoiceChannels()

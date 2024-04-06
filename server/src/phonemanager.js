@@ -167,8 +167,13 @@ export default class PhoneManager {
     this.sendPhonebookUpdateToPlayer(discordId);
   }
 
+  /**
+   * 
+   * @param {string} discordId 
+   * @returns 
+   */
   getPhonesForDiscordId(discordId) {
-    const phones = this.phones.filter(x => x.getDiscordId() === discordId);
+    const phones = this.phones.filter(p => p.getDiscordId() === discordId);
     return phones;
   }
 
@@ -177,8 +182,13 @@ export default class PhoneManager {
    * @param {Player} player 
    */
   sendPhonebookUpdateToPlayer(player) {
-    const phones = this.getPhonesForDiscordId(player);
+    const phones = this.getPhonesForDiscordId(player.discordId);
     phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
-    player.socket.emit('phonebookUpdate', phones.map(p => p.getPhoneBook()));
+    const book = phones.map(p => p.getPhoneBook());
+    if(player.socket) {
+      player.socket.emit('phonebookUpdate', book);
+    } else {
+      console.log(chalk.magenta('sendPhonebookUpdateToPlayer'), 'No socket for player', player.discordId)
+    }
   }
 }

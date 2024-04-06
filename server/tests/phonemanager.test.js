@@ -4,10 +4,12 @@ import Train from "../src/model/train";
 import Location from "../src/model/location";
 import PhonebookEntry from "../src/model/phonebookentry";
 import Phone from "../src/model/phone";
+import Player from "../src/model/player";
 
 
 const simId1 = 'kingsx';
 const panelId1 = "hitchin";
+const panelId2 = "palace";
 
 const simData = {
   "id":simId1,
@@ -15,7 +17,7 @@ const simData = {
   "panels":[
     {"id":"cross", "name":"Cross", "neighbours":[{"simId":"kingscross", "panelId":"finsbury"},{"simId":"kingscross", "panelId":"palace"}]},
     {"id":"finsbury", "name":"Finsbury", "neighbours":[{"simId":"kingscross", "panelId":"cross"},{"simId":"kingscross", "panelId":"palace"}]},
-    {"id":"palace", "name":"Palace", "neighbours":[{"simId":"kingscross", "panelId":"finsbury"},{"simId":"kingscross", "panelId":"cross"},{"simId":"kingscross", "panelId":"welwyn"}]},
+    {"id": panelId2, "name":"Palace", "neighbours":[{"simId":"kingscross", "panelId":"finsbury"},{"simId":"kingscross", "panelId":"cross"},{"simId":"kingscross", "panelId":"welwyn"}]},
     {"id":"welwyn", "name":"Welwyn", "neighbours":[{"simId":"kingscross", "panelId":"palace"},{"simId":"kingscross", "panelId":panelId1}]},
     {"id": panelId1, "name":"Hitchin", "neighbours":[{"simId":"kingscross", "panelId":"welwyn"},{"simId":"peterborough", "panelId":"hitchintempsford"},{"simId":"royston", "panelId":"royston"}]}
   ]
@@ -67,4 +69,20 @@ test('Get speed dial for phone', () => {
 
   expect(speedDial).toHaveLength(2);
 
+})
+
+test('Get phones for a given DiscordId', () => {
+  const discordID = 'DISCORDID';
+  const phoneManager = new PhoneManager();
+  const sim = Simulation.fromSimData(simData);
+  phoneManager.generatePhonesForSim(sim);
+  const phone = phoneManager.getPhone(simId1 + '_' + panelId1);
+  const player = new Player(null,discordID,'VC')
+  phoneManager.assignPhone(phone,player)
+  expect(phone.getDiscordId()).toBe(discordID);
+  expect(phoneManager.getPhonesForDiscordId(discordID).length).toBe(1);
+
+  const phone2 = phoneManager.getPhone(simId1 + '_' + panelId2);
+  phoneManager.assignPhone(phone2,player)
+  expect(phoneManager.getPhonesForDiscordId(discordID).length).toBe(2);
 })

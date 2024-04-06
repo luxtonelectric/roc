@@ -39,11 +39,12 @@ onMounted(() =>{
     });
 
     socket.on("playerInfo", function (msg){
-      //console.log(msg);
+      console.log(msg);
       playerData.value = msg;
     });
 
     socket.on("phonebookUpdate", function (msg){
+      console.log('phonebookUpdate', msg);
       phoneData.value = msg;
     });
 

@@ -454,7 +454,7 @@ export default class ROCManager {
     const myPanels = [];
     this.sims.forEach(s => myPanels.concat(s.panels.filter(p => p.player === player.discordId)))
     const info = {};
-    info.phones = phones;
+    info.phones = phones.map(p => p.getPhoneBook());
     info.panels = myPanels;
     player.socket.emit("playerInfo", info);
     //console.log(chalk.yellow("updatePlayerInfo"), info);

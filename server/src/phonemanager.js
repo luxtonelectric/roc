@@ -30,8 +30,20 @@ export default class PhoneManager {
     sim.panels.forEach((panel) => {
       const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
       console.log(chalk.yellow('generatePhonesForSim Adding phone: '), phone.toAdminView());
+
       panel.phone = phone;
       this.phones.push(phone);
+
+      // We need to handle neighbour panels too
+      panel.neighbours.forEach((neighbour) => {
+        if(neighbour.simId !== sim.id) {
+          const px = this.getPhone(neighbour.simId + '_' + neighbour.panelId);
+          if(!px) {
+            const neighbourPhone = new Phone(neighbour.simId +'_' + neighbour.panelId, neighbour.panelId, Phone.TYPES.FIXED, new Location(neighbour.simId, neighbour.panelId))
+            this.phones.push(neighbourPhone);
+          }
+        }
+      });
     })
 
     //Create a phone for Control
@@ -84,8 +96,8 @@ export default class PhoneManager {
   getSpeedDialForPhone(phone) {
     let phones = [];
     const sim = this.sims.find(x => x.id === phone.getLocation().simId);
-    const neighbourPhones = sim.panels.filter(x => x.neighbours.some(n => n.panelId === phone.getLocation().panelId)).map(p => p.phone);
-    //const neighbourPhones = this.phones.filter(x => neighbourPanels.find(y => y.id === x.getId()));
+    const panel = sim.getPanel(phone.getLocation().panelId);
+    const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
     phones = phones.concat(neighbourPhones);
     const control = this.phones.filter(x => x.getId() === sim.id + "_control");
     return phones.concat(control).map(p => p.toSimple());

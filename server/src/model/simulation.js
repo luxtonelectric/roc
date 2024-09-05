@@ -25,4 +25,13 @@ export default class Simulation {
     simData.panels.forEach(p => sim.panels.push(Panel.fromSimData(p)));
     return sim;
   }
+
+  /**
+   * 
+   * @param {string} panelId 
+   * @returns {Panel} 
+   */
+  getPanel(panelId) {
+    return this.panels.find((p) => {return p.id === panelId});
+  }
 }

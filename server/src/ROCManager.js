@@ -60,6 +60,7 @@ export default class ROCManager {
       if (sim) {
         console.log('LOADING PHONES FOR SIM', game.sim);
         this.phoneManager.generatePhonesForSim(sim);
+        sim.channel = game.channel;
         this.sims.push(sim);
       } else {
         console.error('Unable to find simulation for', game.sim);

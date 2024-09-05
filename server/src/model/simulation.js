@@ -10,6 +10,8 @@ export default class Simulation {
   clock = 0;
   /** @type {string} */
   name;
+  /** @type {string} */
+  channel;
 
   /**
    * 

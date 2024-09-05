@@ -98,13 +98,15 @@ export default class PhoneManager {
 
     if(phone.getLocation() !== null) {
       const sim = this.sims.find(x => x.id === phone.getLocation().simId);
-      const panel = sim.getPanel(phone.getLocation().panelId);
-      if(panel) {
-        const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
-        phones = phones.concat(neighbourPhones);
+      if(sim) {
+        const panel = sim.getPanel(phone.getLocation().panelId);
+        if(panel) {
+          const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
+          phones = phones.concat(neighbourPhones);
+        }
+        const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getId() !== phone.getId());
+        phones = phones.concat(control);
       }
-      const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getId() !== phone.getId());
-      phones = phones.concat(control);
 
     } else {
       console.log("Phone has no location");

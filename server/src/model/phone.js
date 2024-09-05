@@ -51,7 +51,7 @@ export default class Phone extends iLocatable {
    * @returns {string | null}
    */
   getDiscordId() {
-    if(this.#player) {
+    if (this.#player) {
       return this.#player.discordId;
     } else {
       return null;
@@ -108,7 +108,7 @@ export default class Phone extends iLocatable {
 
   toAdminView() {
     const playerData = this.#player ? this.#player.toSimple() : undefined;
-    return {'id': this.#id, 'name':this.#name, 'type': this.#type, 'location': super.getLocation(), 'player': playerData}
+    return { 'id': this.#id, 'name': this.#name, 'type': this.#type, 'location': super.getLocation(), 'player': playerData }
   }
 
   getPhoneBook() {

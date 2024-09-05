@@ -134,12 +134,24 @@ export default class PhoneManager {
    */
   getRECRecipientsForPhone(phone) {
     let phones = [];
+    
+    // Find the location of the phone
     const sim = this.sims.find(s => s.id === phone.getLocation().simId);
-    const neighbourPanels = sim.panels.filter(p => p.neighbours.some(n => n.panelId === phone.getLocation().panelId));
-    const neighbourPhones = this.phones.filter(p => p.getDiscordId() !== null && neighbourPanels.find(n => n.id === p.getId()));
+    const panel = sim.getPanel(phone.getLocation().panelId);
+
+    const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
+
     phones = phones.concat(neighbourPhones);
-    const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getDiscordId() !== null);
-    return phones.concat(control).map(p => p.toSimple());
+    console.log(chalk.redBright('REC neighbourphones'), neighbourPhones.length, neighbourPhones);
+    
+    // Include control
+    const control = this.phones.find(x => x.getId() === sim.id + "_control" && x.getDiscordId() !== null);
+    if(control) {
+      phones = phones.concat(control)
+      console.log(chalk.redBright('REC phones'), control.toSimple());
+    }
+    
+    return phones;
   }
 
   /**

@@ -40,37 +40,37 @@ export default class CallManager {
    * @returns 
    */
   placeCall(socketId, callType, senderPhoneId, receiverPhoneId = null) {
-    if (typeof this.phoneManager.getPhone(receiverPhoneId) === 'undefined') {
-      console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId);
-      //this.io.to(socketId).emit('rejectCall', {"success":false})
-      return false;
-    }
-
-    if (this.phoneManager.getPhone(receiverPhoneId).getDiscordId() === null) {
-      console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
-      //this.io.to(socketId).emit('rejectCall', {"success":false})
-      return false;
-    }
-
+    
     if (typeof this.phoneManager.getPhone(senderPhoneId) === 'undefined') {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
-
+    
     if (this.phoneManager.getPhone(senderPhoneId).getDiscordId() === null) {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
-
+    
     const sendingPhone = this.phoneManager.getPhone(senderPhoneId);
-
+    
     const sendingPlayerId = sendingPhone.getDiscordId();
-
+    
     let callRequest;
-
+    
     if (callType === CallRequest.TYPES.P2P) {
+      if (typeof this.phoneManager.getPhone(receiverPhoneId) === 'undefined') {
+        console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId);
+        //this.io.to(socketId).emit('rejectCall', {"success":false})
+        return false;
+      }
+  
+      if (this.phoneManager.getPhone(receiverPhoneId).getDiscordId() === null) {
+        console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
+        //this.io.to(socketId).emit('rejectCall', {"success":false})
+        return false;
+      }
       const receivingPhone = this.phoneManager.getPhone(receiverPhoneId);
       const receivingPlayerId = receivingPhone.getDiscordId();
 

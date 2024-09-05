@@ -29,6 +29,7 @@ export default class PhoneManager {
     //Create a phone for each panel in the sim.
     sim.panels.forEach((panel) => {
       const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
+      console.log(chalk.yellow('generatePhonesForSim Adding phone: '), phone.toAdminView());
       panel.phone = phone;
       this.phones.push(phone);
     })

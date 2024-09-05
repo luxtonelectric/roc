@@ -65,6 +65,7 @@ export default class CallManager {
     }
 
     const sendingPhone = this.phoneManager.getPhone(senderPhoneId);
+
     const sendingPlayerId = sendingPhone.getDiscordId();
 
     let callRequest;
@@ -93,10 +94,10 @@ export default class CallManager {
     }
 
     this.requestedCalls.push(callRequest);
-    console.log(chalk.yellow("Placing call"), callRequest);
+    console.log(chalk.yellow("Placing call"), callRequest.toEmittable());
     const localIO = this.io;
     callRequest.getReceivers().forEach(p => {
-      localIO.to(p.getDiscordId()).emit("newCallInQueue", callRequest);
+      localIO.to(p.getDiscordId()).emit("newCallInQueue", callRequest.toEmittable());
     })
     //console.log('newCallinQueue', callRequest);
     return callRequest.id;
@@ -128,7 +129,7 @@ export default class CallManager {
     callRequest.channel = channelId;
 
     // @ts-expect-error
-    if (!(callRequest.getReceivers().some(p => p.discordId === socket.discordId))) {
+    if (!(callRequest.getReceivers().some(p => p.getDiscordId() === socket.discordId))) {
       console.log(chalk.yellow('acceptCall'), socket.id, 'The person answering is not on the call?', callId);
       socket.emit('rejectCall', { "success": false })
       return false;

@@ -10,41 +10,51 @@ import chalk from 'chalk';
  * @param {PhoneManager} phoneManager 
  * @param {*} config 
  */
-export function adminSockets(socket, gameManager, phoneManager, config) {  
-  socket.on("adminLogin", function(msg){
-    if(config.superUsers.some(u => u === msg.discordId))
-    {
+export function adminSockets(socket, gameManager, phoneManager, config) {
+  socket.on("adminLogin", function (msg) {
+    if (config.superUsers.some(u => u === msg.discordId)) {
       gameManager.addAdminUser(msg, socket);
     }
-    else
-    {
+    else {
       console.info(chalk.redBright("ACCESS DENIED. User is not Admin."));
     }
   });
 
-  socket.on("createPhone", function(msg){
+  socket.on("createPhone", function (msg) {
     console.log(chalk.yellow('createPhone'), msg)
-    if(phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden))
-    {
+    try {
+      phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden)
       gameManager.sendGameUpdateToPlayers();
+    } catch (error) {
+      console.log(chalk.red('ERROR creating phone.'));
     }
   });
 
-  socket.on('claimPhone', function(msg){
+  socket.on('claimPhone', function (msg) {
     console.log('adminSockets claimPhone', msg.phoneId)
+    const phone = phoneManager.getPhone(msg.phoneId);
+    const player = gameManager.findPlayerBySocketId(socket.id);
+    if(phone && player) {
+      console.log(phone.toAdminView(), player.toSimple());
+      phoneManager.assignPhone(phone,player);
+      gameManager.sendGameUpdateToPlayers();
+      gameManager.updateAdminUI();
+    } else {
+      console.log('ADMIN SOCKET claimPhone error');
+    }
   })
 
-  socket.on("enableInterfaceGateway", function(msg){
+  socket.on("enableInterfaceGateway", function (msg) {
     console.log(chalk.yellow('enableInterfaceGateway'), msg)
     gameManager.enableInterfaceGateway(msg.simId);
   });
-  socket.on("disableInterfaceGateway", function(msg){
+  socket.on("disableInterfaceGateway", function (msg) {
     console.log(chalk.yellow('disableInterfaceGateway'), msg)
     gameManager.disableInterfaceGateway(msg.simId);
   });
 
   // kick the user from the call handler thingey socket yum
-  socket.on("adminKickFromCall", function(msg){
+  socket.on("adminKickFromCall", function (msg) {
     gameManager.kickUserFromCall(msg);
   });
 }

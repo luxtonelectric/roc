@@ -262,6 +262,11 @@ export default class ROCManager {
     this.sendGameUpdateToPlayers();
   }
 
+  /**
+   * 
+   * @param {string} socketId 
+   * @returns {Player}
+   */
   findPlayerBySocketId(socketId) {
     for (var [key, value] of Object.entries(this.players)) {
       if (value.socket.id === socketId) {
@@ -463,9 +468,23 @@ export default class ROCManager {
 
   // ================================================= ADMIN STUFF ================================================= 
 
-  addAdminUser(data, socket) {
+  async addAdminUser(data, socket) {
     console.info(chalk.yellow('Adding Admin User'), data);
     this.admins[socket.id] = socket;
+
+    if(!this.isPlayer(data.discordId)) {
+      this.players[data.discordId] = new Player(socket,data.discordId,null);
+
+      const member = await this.bot.getMember(this.players[data.discordId].discordId);
+      const avatarURL = member.displayAvatarURL();
+
+      this.players[data.discordId].avatarURL = avatarURL;
+      this.players[data.discordId].displayName = member.displayName;
+
+    } else {
+      this.players[data.discordId].socket = socket;
+    }
+
     socket.join('admins');
     socket.emit('authd', { "success": true });
     this.updateAdminUI();

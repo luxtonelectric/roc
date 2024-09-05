@@ -7,7 +7,7 @@ import Phone from "../src/model/phone";
 import Player from "../src/model/player";
 
 
-const simId1 = 'kingsx';
+const simId1 = 'kingscross';
 const panelId1 = "hitchin";
 const panelId2 = "palace";
 
@@ -27,7 +27,7 @@ test('Generating panel phones plus Control', () => {
   const phoneManager = new PhoneManager();
   const sim = Simulation.fromSimData(simData);
   phoneManager.generatePhonesForSim(sim)
-  expect(phoneManager.phones.length).toBe(6);
+  expect(phoneManager.phones.length).toBe(8);
 })
 
 test('Generate phone for train', () => {
@@ -67,7 +67,7 @@ test('Get speed dial for phone', () => {
   expect(phone.getId()).toBe(simId1 + '_' + panelId1);
   const speedDial = phoneManager.getSpeedDialForPhone(phone);
 
-  expect(speedDial).toHaveLength(2);
+  expect(speedDial).toHaveLength(4);
 
 })
 

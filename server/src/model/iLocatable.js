@@ -12,6 +12,10 @@ export default class iLocatable {
     this.#location = location;
   }
 
+  /**
+   * 
+   * @returns {Location | null}
+   */
   getLocation() {
     if(this.#carrier) {
       return this.#carrier.getLocation();
@@ -39,7 +43,7 @@ export default class iLocatable {
    */
   isInSameSim(loc) {
     const myLoc = this.getLocation();
-    if (!loc || !myLoc)  {
+    if (!loc  || !loc.getLocation() || !myLoc)  {
       return false;
     }
     return myLoc.simId === loc.getLocation().simId;
@@ -52,7 +56,7 @@ export default class iLocatable {
    */
   isInSamePanel(loc) {
     const myLoc = this.getLocation();
-    if (!loc || !myLoc)  {
+    if (!loc || !loc.getLocation() || !myLoc)  {
       return false;
     }
     return myLoc.simId === loc.getLocation().simId && myLoc.panelId === loc.getLocation().panelId;

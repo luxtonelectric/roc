@@ -68,20 +68,23 @@
               <td><template v-if="phone.type === 'mobile'">{{ phone.id }}</template></td>
               <td><template v-if="phone.player">
                 <img class="w-12 h-12 rounded-full" :src="phone.player.avatarURL" :title="phone.player.displayName" :alt="phone.player.displayName"></template></td>
-              <td><button v-if="!phone.player">Claim</button></td>
+              <td><button v-if="!phone.player" @click="claimPhone(phone.id)">Claim</button></td>
               <td><button>Call</button></td>
             </tr>
           </table>
         </div>
       </template>
-      <input type="text" pattern="[0-9]+">
-      <input type="text">
-      <select>
-        <option value="mobile">Mobile</option>
-        <option value="fixed">Fixed</option>
-      </select>
-      <input type="checkbox">
-      <button @click="createPhone">Create Phone</button>
+
+      <form @submit.prevent="createPhone">
+        <input v-model="newPhone.name" id="newphone_name" type="text" placeholder="Name">
+        <input v-model="newPhone.number" id="newphone_number" type="text" title="" pattern="[0-9]+" placeholder="Number">
+        <select v-model="newPhone.type" id="newphone_type">
+          <option value="mobile">Mobile</option>
+          <option value="fixed">Fixed</option>
+        </select>
+        <!--input type="checkbox" -->
+        <button type="submit">Create Phone</button>
+      </form>
     </div>
     <div class="my-4">
       <h1 class="text-3xl font-bold">Voice Calls</h1>
@@ -94,6 +97,7 @@
     </div>
       </div>
   </div>
+  <div class="my-20">zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz </div>
 </template>
 
 <script>
@@ -109,7 +113,12 @@ export default {
   },
   data() {
     return{
-      gameState: {}
+      gameState: {},
+      newPhone: {
+        name: "",
+        number: "",
+        type: "mobile",
+      }
     }
   },
   methods: {
@@ -128,8 +137,14 @@ export default {
     createPhone(number, name, type, location = null, hidden = false) {
       console.log('createPhone')
       //const phone = {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden};
-      const phone = {'number': '99999', 'name': 'TEST PHONE', 'type': 'mobile', 'location':null, 'hidden':false};
+      //const phone = {'number': '99999', 'name': 'TEST PHONE', 'type': 'mobile', 'location':null, 'hidden':false};
+      const phone = this.newPhone;
+      phone.location = null;
+      phone.hidden = false;
       this.socket.emit("createPhone", phone);
+    },
+    claimPhone(phoneId) {
+      this.socket.emit("claimPhone", {phoneId:phoneId});
     },
     async placeCall(receiver,type="p2p",level="normal")
     {

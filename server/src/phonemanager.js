@@ -95,12 +95,22 @@ export default class PhoneManager {
    */
   getSpeedDialForPhone(phone) {
     let phones = [];
-    const sim = this.sims.find(x => x.id === phone.getLocation().simId);
-    const panel = sim.getPanel(phone.getLocation().panelId);
-    const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
-    phones = phones.concat(neighbourPhones);
-    const control = this.phones.filter(x => x.getId() === sim.id + "_control");
-    return phones.concat(control).map(p => p.toSimple());
+
+    if(phone.getLocation() !== null) {
+      const sim = this.sims.find(x => x.id === phone.getLocation().simId);
+      const panel = sim.getPanel(phone.getLocation().panelId);
+      if(panel) {
+        const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
+        phones = phones.concat(neighbourPhones);
+      }
+      const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getId() !== phone.getId());
+      phones = phones.concat(control);
+
+    } else {
+      console.log("Phone has no location");
+    }
+
+    return phones.map(p => p.toSimple());
   }
 
   /**

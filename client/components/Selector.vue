@@ -13,12 +13,11 @@
         <div class="bg-neutral-200">
           <div class="text-center text-xl uppercase w-full">
             <h3 class="border-b border-black p-2"><span class="text-zinc-800 text-base normal-case">Aston //</span> Alrewas</h3>
-            <h3 class="border-b border-black p-2">AN Lichfield Trent Valley</h3>
-            <h3 class="border-b border-black p-2">AN Aston</h3>
-            <h3 class="border-b border-black p-2">NS North</h3>
-            <h3 class="border-b border-black p-2">NS Centre</h3>
-            <h3 class="border-b border-black p-2">NS South 1</h3>
-            <h3 class="border-b border-black p-2">NS South 2</h3>
+            <template v-for="sim in gameData">
+              <template v-for="panel in sim.panels">
+                <h3 v-if="!panel.player" class="border-b border-black p-2" @click="claimPanel(sim.id, panel.id)">{{ sim.name }} {{panel.name}}</h3>
+              </template>
+            </template>
           </div>
         </div>
       </div>
@@ -28,11 +27,11 @@
         </div>
         <div class="bg-neutral-200">
           <div class="text-center text-lg w-full">
-            <h3 class="border-b border-black p-2">SY South Top</h3>
-            <h3 class="border-b border-black p-2">SY South Bottom</h3>
-            <h3 class="border-b border-black p-2">SY Stratford-upon-Avon</h3>
-            <h3 class="border-b border-black p-2">SY Centre</h3>
-            <h3 class="border-b border-black p-2">SY North</h3>
+            <template v-for="sim in gameData">
+              <template v-for="panel in sim.panels">
+                <h3 v-if="panel.player === username" class="border-b border-black p-2" @click="releasePanel(sim.id, panel.id)">{{ sim.name }} {{panel.name}}</h3>
+              </template>
+            </template>
           </div>
         </div>
       </div>
@@ -109,6 +108,24 @@ export default {
     changeTab(tab) {
       this.showTab = tab;
     },
+
+
+    claimPanel(sim, panel)
+    {
+      this.socket.emit("claimPanel", {"sim": sim, "panel":panel, "sender": this.username});
+    },
+    releasePanel(sim, panel)
+    {
+      this.socket.emit("releasePanel", {"sim": sim, "panel":panel, "sender": this.username});
+    },
+
+
+
+
+
+
+
+
     selectPhone(phoneId){
       this.selectedPhone = phoneId;
     },

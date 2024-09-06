@@ -34,12 +34,12 @@ onMounted(() =>{
     });
 
     socket.on("gameInfo", function (msg){
-      console.log(msg);
+      console.log('gameInfo', msg);
       gameData.value = msg;
     });
 
     socket.on("playerInfo", function (msg){
-      console.log(msg);
+      console.log('playerInfo', msg);
       playerData.value = msg;
     });
 

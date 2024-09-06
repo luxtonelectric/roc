@@ -68,7 +68,7 @@ function joinUser() {
 
 <template>
   <div class="flex flex-col pb-0 px-4 bg-neutral-200 text-lg h-screen max-h-screen">
-    <StatusBar />
+    <StatusBar :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" :error="error"/>
 
     <div class="flex flex-row pt-2 h-5/6">
       <div v-if="error" class="mr-2 w-5/6 border-4 border-zinc-400 bg-red-100 h-full text-center">

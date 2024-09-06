@@ -1,5 +1,5 @@
 <template>
-  <span v-if="simData.clock" class="text-2xl font-bold text-gray-800">
+  <span v-if='simData' class="text-2xl font-bold text-gray-800">
     {{ secondsToTime(simData.clock.clock) }}
   </span>
   <span v-else class="text-2xl font-bold text-gray-800">

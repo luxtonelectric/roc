@@ -6,61 +6,13 @@ const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
 const runtimeConfig: any = useRuntimeConfig()
 
-const loggedIn = ref(false);
-let error =  ref("");
-const gameData =  ref({});
-const username = ref("");
-const playerData =  ref({phones:{}})
-const phoneData = ref({});
-let socket: Socket | undefined
-const connected = ref(false)
+const props = defineProps(['gameData','username', 'playerData', 'phoneData', 'socket', 'error'])
 
 onMounted(() =>{
-    socket = io(runtimeConfig.public.socketServer)
-    socket.on('connect', () => {
-      connected.value = true;
-      joinUser();
-    });
-    
-    socket.on("loggedIn", (msg:any) => {
-      console.log(msg);
-      loggedIn.value = msg.loggedIn;
-      error.value = msg.error;
-    });
-
-    socket.on("playerLocationUpdate", function (msg){
-      console.log(msg);
-    });
-
-    socket.on("gameInfo", function (msg){
-      console.log(msg);
-      gameData.value = msg;
-    });
-
-    socket.on("playerInfo", function (msg){
-      //console.log(msg);
-      playerData.value = msg;
-    });
-
-    socket.on("phoneInfo", function (msg){
-      phoneData.value = msg;
-    });
-
-    socket.on('disconnect', function (reason){
-      //console.log(reason);
-      error.value = `You have been disconnected from ROC. (${reason})`;
-      connected.value = false;
-    });
   })
 
   onUnmounted(() => {
-  socket?.disconnect()
 })
-
-function joinUser() {
-  username.value = session.sub;
-  socket?.emit("newPlayer", {discordId: session?.sub});
-}
 </script>
 
 
@@ -87,7 +39,8 @@ function joinUser() {
         <p class="text-right"><span class="font-bold">ROC:</span> OK</p>
       </div>
       <div class="col-span-2 border-zinc-400 border-r-2 p-2 text-center">
-        <Clock v-for="simData in gameData" :simData="simData" :phoneData="phoneData"/>
+        <!-- TODO: Pull in the time for the currently selected panel-->
+        <Clock :simData="null"/>
       </div>
     </div>
   </div>

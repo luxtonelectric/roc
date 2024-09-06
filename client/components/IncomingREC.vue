@@ -8,7 +8,7 @@
 <!--          style="color: #e53e3e"-->
           <h1 class="text-6xl p-5 font-bold text-red-600">Railway Emergency Call</h1>
           <p class="text-4xl font-semibold">Joining in:</p><p class="text-4xl pb-10 mb-10"><b>{{countdown}}</b> seconds</p>
-          <a class="rounded-2xl mx-4 border border-green-600 bg-green-500 py-5 px-20 text-white text-2xl font-semibold hover:bg-green-800 focus:bg-green-800 active:bg-green-800" @click="joinREC()">Accept</a>
+          <a class="rounded-2xl mx-4 border border-green-600 bg-green-500 py-5 px-20 text-white text-2xl font-semibold hover:bg-green-800 focus:bg-green-800 active:bg-green-800" @click="joinREC(callData.id)">Accept</a>
         </div>
         <div  class="flex-grow py-1"></div>
       </div>
@@ -20,7 +20,7 @@
 export default {
   name: "IncomingREC",
 
-  props: ['username', 'socket', 'callChannel'],
+  props: ['callData'],
 
   data() {
     return {
@@ -39,14 +39,16 @@ export default {
           this.countDownTimer();
         }, 1000);
       }
-      else
+      else if(this.countdown === 0)
       {
         this.joinREC();
       }
     },
     joinREC()
     {
-      this.$emit("joinREC", {"channel": this.callChannel});
+      this.countdown = -1;
+      console.log('joinREC', this.callData.id);
+      this.$emit("joinREC", this.callData.id);
     }
   }
 

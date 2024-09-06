@@ -28,9 +28,10 @@
           </div>
 <!--          <a class="rounded border border-red-900 bg-red-400 text-white p-5 ml-2 mr-2 mb-2 hover:bg-red-600 focus:bg-red-600 active:bg-red-600"-->
 <!--             @click="muteCall">Mute Ringer</a>-->
-
         </div>
-      </div>
+      </template>
+
+
     </div>
     <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('panelSelector')">Panel Selector</a>
     <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('speedDial')">Speed Dial</a>
@@ -46,18 +47,17 @@
     <StartREC v-if="considerRec" :gameData="gameData" :socket="socket" :username="username" @cancelRec="cancelREC"
               @startREC="startREC"/>
     <CallPlacedDialog v-if="hasPlacedCall"  :callData="callData" :socket="socket" @hideCallDialog="hidePlacedCall" />
-    <InCallDialog v-if="inCall" @leaveCall="leaveCall"/>
-    <!--    <audio id="rejectedAudio" :src="require('@/assets/audio/rejected.mp3')" preload="auto"/>-->
+    <InCallDialog v-if="inCall" @leaveCall="leaveCall" :callData="callData"/>
 
   </div>
 </template>
 
 <script>
-// import '../components/CallListItem';
+import SpeedDial from './SpeedDial.vue';
 
 export default {
   name: "Main",
-  props: ["gameData", "socket", "username", "playerData", "socket"],
+  props: ["gameData", "socket", "username", "playerData", "socket", "phoneData"],
   data() {
     return {
       panel: "No Panel Set",
@@ -74,7 +74,8 @@ export default {
       myCalls: [],
       hasPlacedCall: false,
       inCall: false,
-      phoneNumber: ""
+      phoneNumber: "",
+      showTab: "panelSelector"
     }
   },
   created() {
@@ -90,18 +91,20 @@ export default {
       that.hasPlacedCall = false;
       that.rejectedAudio.play();
     });
-    this.socket.on("incomingREC", function (msg) {
-      that.incomingRec = true;
-      that.callChannel = msg.channel;
-      that.recAudio.play();
-    });
+
     this.socket.on('newCallInQueue', function (msg) {
-      that.callAudio.currentTime = 0;
-      that.callAudio.play();
-      that.myCalls = msg;
+      if(msg.type === "p2p") {
+        that.callAudio.currentTime = 0;
+        that.callAudio.play();
+        that.myCalls.push(msg);      
+      } else if (msg.type === "REC") {
+        that.callData = msg;
+        that.incomingRec = true;
+        that.recAudio.play();
+      }
     });
-    this.socket.on('updateMyCalls', function (msg){
-      that.myCalls = msg;
+    this.socket.on('removeCallFromQueue', function (msg){
+      that.myCalls = that.myCalls.filter(x => x.id !== msg.id);
       if(Object.keys(msg).length === 0) {
         that.callAudio.pause();
       }
@@ -116,33 +119,48 @@ export default {
     });
   },
   methods: {
+    changeTab(tab) {
+      this.showTab = tab;
+    },
+    selectPhone(phoneId){
+      this.selectedPhone = phoneId;
+    },
     callNumber(){
       this.placeCall(this.phoneNumber);
     },
-    placeCall(key)
+    async placeCall(receiver,type="p2p",level="normal")
     {
-      this.placedCall({"receiver":key, "sender": this.selectedPhone})
-      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
+      const soc = this.socket;
+      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});
+      if(callId) {
+        this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
+      } else {
+        this.rejectedAudio.play();
+        console.log('No call id. Something went wrong.');
+      }
     },
-    acceptCall() {
+    acceptCall(callId) {
       this.incomingCall = false;
-      this.callAudio.pause();
-      this.callAudio.currentTime = 0;
+      this.muteRinger();
+      const call = {id:callId}
+      this.callData = this.myCalls.find(c => c.id === callId);
+      this.myCalls = this.myCalls.filter(c => c.id !== callId);
+      this.socket.emit('acceptCall', call);
+
     },
-    muteCall() {
-      console.info("Mute Call");
+    muteRinger() {
+      //console.info("Mute Ringer");
       this.callAudio.pause();
       // this.callAudio.stop();
       this.callAudio.currentTime = 0;
     },
-    rejectCall() {
+    rejectCall(callId) {
       this.incomingCall = false;
-      this.callAudio.pause();
-      // this.callAudio.stop();
-      this.callAudio.currentTime = 0;
+      this.muteRinger();
+      this.socket.emit('rejectCall', {id:callId})
     },
-    leaveCall() {
-      this.socket.emit("leaveCall", {"user": this.username, "sim": this.lastChannel});
+    leaveCall(callId) {
+      this.socket.emit("leaveCall", {id:callId});
       this.inCall = false;
     },
     considerRECWindow() {
@@ -150,16 +168,17 @@ export default {
     },
     startREC() {
       this.considerRec = false;
+      this.placeCall(this.selectedPhone,"REC","emergency")
     },
     cancelREC() {
       this.considerRec = false;
     },
-    joinREC(msg) {
+    joinREC(callId) {
       // this.lastChannel = this.panel;
       this.incomingRec = false;
       this.recAudio.pause();
       this.recAudio.currentTime = 0;
-      this.socket.emit("joinREC", {"user": this.username,"channel": msg.channel});
+      this.acceptCall(callId);
     },
     movedSim(sim) {
       this.lastChannel = sim;

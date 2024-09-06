@@ -193,8 +193,9 @@ export default class PhoneManager {
       console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
-    this.sendPhonebookUpdateToPlayer(phone.getPlayer());
+    const player = phone.getPlayer();
     phone.setPlayer(null);
+    this.sendPhonebookUpdateToPlayer(player);
     return true;
   }
 
@@ -223,6 +224,7 @@ export default class PhoneManager {
     phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
     const book = phones.map(p => p.getPhoneBook());
     if(player.socket) {
+      console.log('Sending phonebook update', book);
       player.socket.emit('phonebookUpdate', book);
     } else {
       console.log(chalk.magenta('sendPhonebookUpdateToPlayer'), 'No socket for player', player.discordId)

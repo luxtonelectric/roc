@@ -15,6 +15,7 @@ const phoneData = ref({});
 const app = useNuxtApp();
 let socket: Socket | undefined
 const connected = ref(false)
+const hasPhones = ref(false)
 
 onMounted(() =>{
     socket = io(runtimeConfig.public.socketServer)
@@ -46,6 +47,17 @@ onMounted(() =>{
     socket.on("phonebookUpdate", function (msg){
       console.log('phonebookUpdate', msg);
       phoneData.value = msg;
+      if(msg.length > 0) {
+        console.log(msg.length);
+        hasPhones.value = true;
+      } else {
+        hasPhones.value = false;
+      }
+    });
+
+    socket.on("callQueueUpdate", function (msg){
+      console.log('callQueueUpdate', msg);
+      //playerData.value = msg;
     });
 
     socket.on('disconnect', function (reason){
@@ -90,17 +102,17 @@ function joinUser() {
             <AuthenticationButton />
         </div>
         <div class="">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Phone Book</a>
           </button>
         </div>
         <div class="">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button  v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Dial Pad</a>
           </button>
         </div>
         <div class="row-start-5">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button  v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Incoming Calls</a>
           </button>
         </div>
@@ -132,7 +144,7 @@ function joinUser() {
         </div>
       </div>
       <div class="grid pt-2 w-1/6 pl-0.5">
-        <button class="w-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+        <button v-if="hasPhones" class="w-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
             <a>Place Call</a>
           </button>
       </div>

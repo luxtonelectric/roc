@@ -1,5 +1,5 @@
 <template>
-  <div class="container container mx-auto align-middle">
+  <div class="container mx-auto align-middle">
     <div class="flex-grow py-1 text-center">
       <h1 class="text-6xl">ROC Administration Centre</h1>
     </div>

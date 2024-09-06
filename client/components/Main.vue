@@ -1,34 +1,30 @@
 <template>
   <div class="mx-auto align-middle">
-    <div class="flex flex-col">
-        <div class="text-right">
-      <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
-        <a class="link" @click="callNumber">Call Number</a>
-    </div>
-    </div>
-<!--    <div class="flex flex-col">-->
-<!--      -->
-<!--    </div>-->
-    <div class="grid grid-cols-4 divide-x divide-gray-500 flex">
-      <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
-        <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"
-             :panel="panel" @movedSim="movedSim" @leaveCall="leaveCall" @placedCall="placedCall" class="mb-10" :playerSim="lastChannel"/>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" v-for="phone in phoneData" @click="selectPhone(phone.id)">{{phone.name}}</a>
+    <div class="grid grid-cols-4 divide-x divide-gray-500 bg-neutral-300">
+      <SpeedDial v-if="showTab === 'speedDial'" :phoneData="phoneData" :selectedPhone="selectedPhone" @place-call="placeCall" />
+      <template v-if="showTab === 'panelSelector'">
+        <div class="flex flex-col flex-grow col-span-3 mx-2 divide-y divide-gray-500">
+          <Sim v-for="simData in gameData" :simData="simData" :socket="socket" :username="username" :selectedPhone="selectedPhone"
+              :panel="panel" @movedSim="movedSim" @placedCall="placedCall" class="mb-10" :playerSim="lastChannel"/>
+        </div>
+      </template>
+      <template v-if="showTab === 'dialPad'">
+        <div class="flex flex-col">
+          <div class="text-right">
+          <input maxlength="10" class="border border-purple-600 rounded" placeholder="Phone Number" v-model="phoneNumber" v-on:keyup.enter="callNumber">
+            <a class="link" @click="callNumber">Call Number</a>
+          </div>
       </div>
-      <div class="flex-grow">
-        <div class="py-5 mx-2">
-          <select v-model="selectedPhone">
-              <option disabled value="">Please select one</option>
-              <option v-for="phone in playerData.phones" :value="phone.id">{{phone.displayName}}</option>
-          </select>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="muteCall">Mute Ringer</a>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
-          <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
-          <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
-             @click="considerRECWindow">EMERGENCY CALL</a>
-          <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
-
-          <div class="mb-5">
-              <CallListItem v-for="call in myCalls" :key="call" :callData="call" :socket="socket" :username="username" @acceptedCall="muteCall"/>
+      </template>
+      <template v-if="showTab === 'incomingCall'">
+        <div class="flex-grow">
+          <div class="py-5 mx-2">
+            <h1 class="flex-grow text-3xl font-semibold ">Incoming Calls</h1>
+            
+            <div class="mb-5">
+              <CallListItem v-for="call in myCalls" :key="call.id" :callData="call" @accept-call="acceptCall" @reject-call="rejectCall" />
+            </div>
           </div>
 <!--          <a class="rounded border border-red-900 bg-red-400 text-white p-5 ml-2 mr-2 mb-2 hover:bg-red-600 focus:bg-red-600 active:bg-red-600"-->
 <!--             @click="muteCall">Mute Ringer</a>-->
@@ -36,14 +32,17 @@
         </div>
       </div>
     </div>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('panelSelector')">Panel Selector</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('speedDial')">Speed Dial</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('dialPad')">Dial Pad</a>
+    <a v-if="selectedPhone" class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="changeTab('incomingCall')">Incoming</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="moveToLobby()">Join Lobby</a>
+    <a class="button p-5 ml-2 mr-2 mb-2 inline-block" @click="markAFK()">AFK</a>
+    <a class="rounded border border-red-900 bg-red-600 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 cursor-pointer hover:bg-red-900 focus:bg-red-900 active:bg-red-900 inline-block"
+       @click="considerRECWindow">EMERGENCY CALL</a>
 
-    <div class="text-center mt-4">
-      <a tabindex="0" class="link py-1" href="https://bradshaw.onourlines.co.uk/wiki/Disruption_Management" target="_blank">Disruption Management</a>
-      | <a tabindex="0" class="link py-1" href="https://simsig.org" target="_blank">SimSig</a>
-      | <a tabindex="0" class="link py-1" href="https://bradshaw.onourlines.co.uk/wiki/SimSig:Railway_Operating_Centre" target="_blank">ROC User Manual</a>
-    </div>
-    <CallWindow v-if="incomingCall" :callData="callData" :socket="socket" :username="username" @rejectCall="rejectCall" :callChannel="callChannel" @acceptCall="acceptCall"/>
-    <IncomingREC v-if="incomingRec" :callData="callData" :socket="socket" :username="username" :callChannel="callChannel" @joinREC="joinREC"/>
+    <CallWindow v-if="incomingCall" :callData="callData" @rejectCall="rejectCall" :callChannel="callChannel" @acceptCall="acceptCall"/>
+    <IncomingREC v-if="incomingRec" :callData="callData" @joinREC="joinREC"/>
     <StartREC v-if="considerRec" :gameData="gameData" :socket="socket" :username="username" @cancelRec="cancelREC"
               @startREC="startREC"/>
     <CallPlacedDialog v-if="hasPlacedCall"  :callData="callData" :socket="socket" @hideCallDialog="hidePlacedCall" />

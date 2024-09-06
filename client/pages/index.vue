@@ -52,48 +52,83 @@ onMounted(() =>{
   socket?.disconnect()
 })
 
+
 function joinUser() {
   username.value = session.sub;
   socket?.emit("newPlayer", {discordId: session?.sub});
 }
 </script>
 
-<style>
-.link{
-  @apply text-purple-600 cursor-pointer;
-}
-.link:hover, .link:focus, .link:active{
-  @apply text-purple-800
-}
-
-.button {
-  @apply text-purple-600 cursor-pointer border border-purple-600 rounded p-5 ml-2 mr-2 mb-2
-}
-.button:hover, .button:focus, .button:active {
-  @apply text-purple-800 border-purple-800
-}
-</style>
-
 <template>
-  <div>
-    <div v-if="error" class="py-3 px-10">
-      <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-        ERROR
+  <div class="flex flex-col pb-0 px-4 bg-neutral-200 text-lg h-screen max-h-screen">
+    <StatusBar />
+
+    <div class="flex flex-row pt-2 h-5/6">
+      <div v-if="error" class="mr-2 w-5/6 border-4 border-zinc-400 bg-red-100 h-full text-center">
+        <div class="px-4 py-3 text-red-700">
+          <p class="font-bold text-xl">An error occurred:</p>
+          <p>{{ error }}</p>
+        </div>
       </div>
-      <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-        <p>{{ error }}</p>
+      <div v-else-if="loggedIn" class="mr-0 w-5/6 border-4 border-zinc-400 bg-zinc-300 overflow-scroll overscroll-contain h">
+        <Selector :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+      </div>
+      <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6">
+        <div class="">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Panel Selection</a>
+          </button>
+        </div>
+        <div class="">
+            <AuthenticationButton />
+        </div>
+        <div class="">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Phone Book</a>
+          </button>
+        </div>
+        <div class="">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Dial Pad</a>
+          </button>
+        </div>
+        <div class="row-start-5">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Incoming Calls</a>
+          </button>
+        </div>
+        <div class="row-start-5">
+          <MuteButton />
+        </div>
+        <div class="row-start-6">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Join Lobby</a>
+          </button>
+        </div>
+        <div class="row-start-6">
+          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>Mark AFK</a>
+          </button>
+        </div>
       </div>
     </div>
-
-
-    <div v-if="loggedIn">
-      <Main :gameData="gameData" :username=username :playerData="playerData" :socket="socket" />
-    </div>
-    <div v-else>
-      <p>Awaiting connection...</p>
+    <div class="flex flex-row">
+      <div class="grid grid-cols-3 gap-2 pt-2 w-5/6 pr-2.5">
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+          
+        </div>
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+          
+        </div>
+        <div class="w-full h-full bg-cyan-500 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+          Connecting...
+        </div>
+      </div>
+      <div class="grid pt-2 w-1/6 pl-0.5">
+        <button class="w-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+            <a>Place Call</a>
+          </button>
+      </div>
     </div>
   </div>
-  <div class="fixed bottom-0 w-full">
-            <AuthenticationStatus :socket="socket" />
-        </div>
 </template>

@@ -39,8 +39,8 @@ export default class CallManager {
    * @returns {CallRequest[]}
    */
   getCallQueueForPhone(phone) {
-    const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone));
-    const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone));
+    const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
+    const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
 
     return requestedCalls.concat(ongoingCalls); 
   }

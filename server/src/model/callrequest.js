@@ -59,7 +59,16 @@ export default class CallRequest {
    * @returns 
    */
   isForPhone(phone) {
-    return this.receivers.find((r)=> r.getId() === phone.getId());
+    return this.receivers.find((r) => r.getId() === phone.getId());
+  }
+
+  /**
+ * 
+ * @param {Phone} phone 
+ * @returns 
+ */
+  isFromPhone(phone) {
+    return this.sender.getId() === phone.getId();
   }
 
   toEmittable() {

@@ -486,6 +486,8 @@ export default class ROCManager {
     }
 
     socket.join('admins');
+    socket.join(data.discordId);
+    socket.discordId = data.discordId;
     socket.emit('authd', { "success": true });
     this.updateAdminUI();
   }

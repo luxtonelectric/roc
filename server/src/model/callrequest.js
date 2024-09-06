@@ -53,6 +53,15 @@ export default class CallRequest {
     this.receivers = new Array(receiver);
   }
 
+  /**
+   * 
+   * @param {Phone} phone 
+   * @returns 
+   */
+  isForPhone(phone) {
+    return this.receivers.find((r)=> r.getId() === phone.getId());
+  }
+
   toEmittable() {
     return {
       "id": this.id,

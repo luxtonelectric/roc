@@ -72,7 +72,7 @@ function adminLogin() {
 
 <template>
   <div>
-    <AdminControlPanel v-if="loggedIn" :socket="socket" />
+    <AdminControlPanel v-if="loggedIn" :socket="socket" :discordId="session?.sub" />
     <AdminLogin v-else @adminLogin="adminLogin" />
   </div>
   <div class="fixed bottom-0 w-full">

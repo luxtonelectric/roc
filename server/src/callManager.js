@@ -1,6 +1,7 @@
 //@ts-check
 import chalk from 'chalk';
 import CallRequest from './model/callrequest.js';
+/** @typedef {import("./model/phone.js").default} Phone */
 /** @typedef {import("./bot.js").default} DiscordBot */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
 /** @typedef {import("socket.io").Server} Server */
@@ -30,6 +31,20 @@ export default class CallManager {
     this.bot = bot;
     this.io = io;
   }
+
+
+  /**
+   * 
+   * @param {Phone} phone 
+   * @returns {CallRequest[]}
+   */
+  getCallQueueForPhone(phone) {
+    const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone));
+    const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone));
+
+    return requestedCalls.concat(ongoingCalls); 
+  }
+
 
   /**
    * 
@@ -94,14 +109,32 @@ export default class CallManager {
     }
 
     this.requestedCalls.push(callRequest);
+
     console.log(chalk.yellow("Placing call"), callRequest.toEmittable());
     const localIO = this.io;
+
+    this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
+    this.sendCallQueueUpdateToPhones([callRequest.sender]);
+
     callRequest.getReceivers().forEach(p => {
       localIO.to(p.getDiscordId()).emit("newCallInQueue", callRequest.toEmittable());
+
     })
     //console.log('newCallinQueue', callRequest);
     return callRequest.id;
 
+  }
+
+  /**
+   * 
+   * @param {Phone[]} receivers 
+   */
+  sendCallQueueUpdateToPhones(receivers){
+    receivers.forEach((phone) => {
+      const queue = this.getCallQueueForPhone(phone);
+      const emittableQueue = queue.map((r) => r.toEmittable());
+      this.io.to(phone.getDiscordId()).emit('callQueueUpdate', {'phoneId': phone.getId(), 'queue': emittableQueue});
+    });
   }
 
   /**
@@ -147,9 +180,17 @@ export default class CallManager {
       this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
       callRequest.status = CallRequest.STATUS.ACCEPTED;
       this.ongoingCalls.push(callRequest);
+      this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
+      this.sendCallQueueUpdateToPhones([callRequest.sender]);
     }
   }
 
+  /**
+   * 
+   * @param {string} socketId 
+   * @param {string} callId 
+   * @returns 
+   */
   rejectCall(socketId, callId) {
 
     const call = this.requestedCalls.find(c => c.id === callId);
@@ -163,9 +204,18 @@ export default class CallManager {
     this.io.to(call.sender.getDiscordId()).emit("rejectCall", { "success": false });
     if (call.type === CallRequest.TYPES.P2P) {
       this.io.to(call.getReceiver().getDiscordId()).emit('removeCallFromQueue', call);
+      
+      this.sendCallQueueUpdateToPhones(call.getReceivers());
+      this.sendCallQueueUpdateToPhones([call.sender]);
     }
   }
 
+  /**
+   * 
+   * @param {string} discordId 
+   * @param {string} call 
+   * @returns 
+   */
   async movePlayerToCall(discordId, call) {
     console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToCall"), discordId, call);
     const result = await this.bot.setUserVoiceChannel(discordId, call);
@@ -177,13 +227,16 @@ export default class CallManager {
     return result;
   }
 
+  /**
+   * 
+   * @param {string} socketId 
+   * @param {string} callId 
+   */
   async leaveCall(socketId, callId) {
     console.log('leaving', callId);
     const call = this.ongoingCalls.find(c => c.id === callId);
     if (typeof call !== 'undefined') {
       if (call.type === CallRequest.TYPES.P2P) {
-        console.log()
-
         //@ts-expect-error
         const leaversDiscordId = this.io.sockets.sockets.get(socketId).discordId
 
@@ -198,8 +251,10 @@ export default class CallManager {
         }
 
         call.status = CallRequest.STATUS.ENDED;
-        this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
+        this.ongoingCalls = this.ongoingCalls.filter(c => c.id !== callId);
         this.pastCalls.push(call);
+        this.sendCallQueueUpdateToPhones(call.getReceivers());
+        this.sendCallQueueUpdateToPhones([call.sender]);
       }
 
     } else {

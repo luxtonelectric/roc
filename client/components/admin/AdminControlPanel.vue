@@ -73,7 +73,7 @@
                 </td>
                 <td><button v-if="!phone.player" @click="claimPhone(phone.id)">Claim</button></td>
                 <td>
-                  <select>
+                  <select v-model="selectedPhone[phone.id]">
                     <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{key}}</option>
                   </select>  
                   <button @click="placeCall(phone.id)">Call</button>
@@ -152,6 +152,7 @@ export default {
     return {
       gameState: {},
       myPhones: {},
+      selectedPhone: {},
       newPhone: {
         name: "",
         number: "",
@@ -186,7 +187,7 @@ export default {
     },
     async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;
-      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receiver": receiver, "sender": this.selectedPhone, "type": type, "level": level }, response => resolve(response)) });
+      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receiver": receiver, "sender": this.selectedPhone[receiver], "type": type, "level": level }, response => resolve(response)) });
       // if (callId) {
       //   this.placedCall({ "receiver": receiver, "sender": this.selectedPhone, "id": callId })
       // } else {

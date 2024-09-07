@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import io from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
+import DialPad from '~/components/DialPad.vue';
+import IncomingCalls from '~/components/IncomingCalls.vue';
+import PhoneBook from '~/components/PhoneBook.vue';
 
 const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
@@ -16,6 +19,7 @@ const app = useNuxtApp();
 let socket: Socket | undefined
 const connected = ref(false)
 const hasPhones = ref(false)
+const showTab = ref("panelSelector");
 
 onMounted(() =>{
     socket = io(runtimeConfig.public.socketServer)
@@ -76,6 +80,12 @@ function joinUser() {
   username.value = session.sub;
   socket?.emit("newPlayer", {discordId: session?.sub});
 }
+
+function changeTab(tab: string) {
+  console.log('change tab', tab);
+      showTab.value = tab;
+    }
+
 </script>
 
 <template>
@@ -90,11 +100,14 @@ function joinUser() {
         </div>
       </div>
       <div v-else-if="loggedIn" class="mr-0 w-5/6 border-4 border-zinc-400 bg-zinc-300 overflow-scroll overscroll-contain h">
-        <Selector :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+        <Selector v-if="showTab === 'panelSelector'" :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+        <DialPad v-if="showTab === 'dialPad'" :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+        <PhoneBook v-if="showTab === 'phoneBook'" :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+        <IncomingCalls v-if="showTab === 'incomingCalls'" :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" />
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6">
         <div class="">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button @click="changeTab('panelSelector')" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Panel Selection</a>
           </button>
         </div>
@@ -102,17 +115,17 @@ function joinUser() {
             <AuthenticationButton />
         </div>
         <div class="">
-          <button v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" @click="changeTab('phoneBook')" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Phone Book</a>
           </button>
         </div>
         <div class="">
-          <button  v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button  v-if="hasPhones" @click="changeTab('dialPad')" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Dial Pad</a>
           </button>
         </div>
         <div class="row-start-5">
-          <button  v-if="hasPhones" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button  v-if="hasPhones" @click="changeTab('incomingCalls')" class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Incoming Calls</a>
           </button>
         </div>

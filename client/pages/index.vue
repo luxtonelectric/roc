@@ -46,6 +46,15 @@ onMounted(() =>{
     socket.on("playerInfo", function (msg){
       console.log('playerInfo', msg);
       playerData.value = msg;
+      if(typeof msg.phones !== 'undefined') {
+        phoneData.value = msg.phones;
+        if(msg.phones.length > 0) {
+        console.log(msg.phones.length);
+        hasPhones.value = true;
+      } else {
+        hasPhones.value = false;
+      }
+      }
     });
 
     socket.on("phonebookUpdate", function (msg){

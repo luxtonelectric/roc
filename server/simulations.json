@@ -19,7 +19,7 @@
     "id":"newstreet",
     "name":"Birmingham New Street",
     "panels":[
-      {"id":"north", "name": "North", "neighbours":[{"simId":"stourbridgejn", "panelId":"stourbridgejn"},{"simId":"wolverhampton", "panelId":"wolverhampton"},{"simId":"newstreet", "panelId":"centre"},{"simId":"newstreet", "panelId":"south2"}]},
+      {"id":"north", "name": "North", "neighbours":[{"simId":"stourbridgejn", "panelId":"stourbridgejn"},{"simId":"wolverhampton", "panelId":"wolverhampton"},{"simId":"newstreet", "panelId":"centre"},{"simId":"newstreet", "panelId":"south2"},{"simId":"walsall", "panelId":"walsall2006"},{"simId":"walsall", "panelId":"bescot"}]},
       {"id":"centre", "name": "Centre", "neighbours":[{"simId":"newstreet", "panelId":"north"},{"simId":"newstreet", "panelId":"south1"},{"simId":"saltley", "panelId":"southtop"}]},
       {"id":"south1", "name": "South 1", "neighbours":[{"simId":"newstreet", "panelId":"centre"},{"simId":"newstreet", "panelId":"south2"},{"simId":"saltley", "panelId":"centre"}]},
       {"id":"south2", "name": "South 2", "neighbours":[{"simId":"newstreet", "panelId":"north"},{"simId":"newstreet", "panelId":"south1"},{"simId":"coventry", "panelId":"coventry"}]}
@@ -634,7 +634,7 @@
     "id":"saltley",
     "name":"Saltley",
     "panels":[
-      {"id":"north", "name":"North", "neighbours":[{"simId":"derby", "panelId":"west"},{"simId":"saltley", "panelId":"centre"},{"simId":"rugbycentre", "panelId":"nuneaton"}]},
+      {"id":"north", "name":"North", "neighbours":[{"simId":"derby", "panelId":"west"},{"simId":"saltley", "panelId":"centre"},{"simId":"rugbycentre", "panelId":"nuneaton"},{"simId":"walsall", "panelId":"walsall2006"}]},
       {"id":"centre", "name":"Centre", "neighbours":[{"simId":"saltley", "panelId":"north"},{"simId":"saltley", "panelId":"southtop"},{"simId":"saltley", "panelId":"southbottom"},{"simId":"newstreet", "panelId":"south1"}]},
       {"id":"southtop", "name":"South Top", "neighbours":[{"simId":"saltley", "panelId":"centre"},{"simId":"newstreet", "panelId":"centre"}]},
       {"id":"southbottom", "name":"South Bottom", "neighbours":[{"simId":"saltley", "panelId":"centre"},{"simId":"stourbridgejn", "panelId":"stourbridgejn"},{"simId":"saltley", "panelId":"stratforduponavon"},{"simId":"leamington", "panelId":"leamington"}]},
@@ -688,7 +688,7 @@
       {"id":"stokenorth", "name":"Stoke North", "neighbours":[{"simId":"staffordshire", "panelId":"derbyline"},{"simId":"manchestersouth", "panelId":"macclesfield"},{"simId":"crewe", "panelId":"crewepsbsouth"},{"simId":"staffordshire", "panelId":"stokesouth"}]},
       {"id":"stokesouth", "name":"Stoke South", "neighbours":[{"simId":"staffordshire", "panelId":"stokenorth"},{"simId":"staffordshire", "panelId":"colwich"},{"simId":"staffordshire", "panelId":"stafford"}]},
       {"id":"stafford", "name":"Stafford", "neighbours":[{"simId":"staffordshire", "panelId":"stokesouth"},{"simId":"crewe", "panelId":"basfordhall"},{"simId":"staffordshire", "panelId":"colwich"},{"simId":"wolverhampton", "panelId":"wolverhampton"}]},
-      {"id":"colwich", "name":"Colwich", "neighbours":[{"simId":"staffordshire", "panelId":"stafford"},{"simId":"staffordshire", "panelId":"stokesouth"},{"simId":"rugbynorth", "panelId":"trentvalley"}]}
+      {"id":"colwich", "name":"Colwich", "neighbours":[{"simId":"staffordshire", "panelId":"stafford"},{"simId":"staffordshire", "panelId":"stokesouth"},{"simId":"rugbynorth", "panelId":"trentvalley"},{"simId":"walsall", "panelId":"walsall2019"}]}
     ]
   },
   {
@@ -785,6 +785,32 @@
       {"id":"panel9", "name":"Panel 9", "neighbours":[{"simId":"victoriasoutheast", "panelId":"panel6"},{"simId":"victoriasoutheast", "panelId":"panel7"},{"simId":"victoriasoutheast", "panelId":"panel10a"},{"simId":"victoriacentral", "panelId":"panel3"},{"simId":"londonbridge", "panelId":"panel6"}]},
       {"id":"panel10a", "name":"Panel 10A", "neighbours":[{"simId":"victoriasoutheast", "panelId":"panel8"},{"simId":"victoriasoutheast", "panelId":"panel9"},{"simId":"victoriasoutheast", "panelId":"panel10b"}]},
       {"id":"panel10b", "name":"Panel 10B", "neighbours":[{"simId":"victoriasoutheast", "panelId":"panel10a"},{"simId":"maidstoneeast", "panelId":"maidstoneeast"}]}
+    ]
+  },
+  {
+    "id":"walsall",
+    "name":"Walsall PSB",
+    "panels":[
+      {"id":"walsall2006", "name":"Walsall (2006)", "neighbours":[
+        {"simId":"saltley", "panelId":"north"},
+        {"simId":"newstreet", "panelId":"north"},
+        {"simId":"wolverhampton", "panelId":"wolverhampton"},
+        {"simId":"walsall", "panelId":"bloxwich"}]},
+      {"id":"bloxwich", "name":"Bloxwich SB", "neighbours":[
+        {"simId":"walsall", "panelId":"walsall2006"},
+        {"simId":"walsall", "panelId":"hednesford"}]},
+      {"id":"hednesford", "name":"Hednesford SB", "neighbours":[
+        {"simId":"walsall", "panelId":"bloxwich"},
+        {"simId":"walsall", "panelId":"brereton"}]},
+      {"id":"brereton", "name":"Brereton Sidings SB", "neighbours":[
+        {"simId":"walsall", "panelId":"hednesford"}]},
+      {"id":"walsall2019", "name":"Walsall (2019)", "neighbours":[
+        {"simId":"walsall", "panelId":"bescot"},
+        {"simId":"staffordshire", "panelId":"colwich"}]},
+      {"id":"bescot", "name":"Bescot", "neighbours":[
+        {"simId":"walsall", "panelId":"walsall2019"},
+        {"simId":"newstreet", "panelId":"north"},
+        {"simId":"wolverhampton", "panelId":"wolverhampton"}]}
     ]
   },
   {
@@ -898,7 +924,7 @@
     "id":"wolverhampton",
     "name":"Wolverhampton",
     "panels":[
-      {"id":"wolverhampton", "name":"Wolverhampton", "neighbours":[{"simId":"newstreet", "panelId":"north"},{"simId":"telfordoxley", "panelId":"oxley"},{"simId":"staffordshire", "panelId":"stafford"}]}
+      {"id":"wolverhampton", "name":"Wolverhampton", "neighbours":[{"simId":"newstreet", "panelId":"north"},{"simId":"telfordoxley", "panelId":"oxley"},{"simId":"staffordshire", "panelId":"stafford"},{"simId":"walsall", "panelId":"walsall2006"},{"simId":"walsall", "panelId":"bescot"}]}
     ]
   },
   {

@@ -1,4 +1,4 @@
-/** @typedef {import("./model/phone.js").default} Phone */
+/** @typedef {import("./phone.js").default} Phone */
 
 import iLocatable from "./iLocatable.js";
 

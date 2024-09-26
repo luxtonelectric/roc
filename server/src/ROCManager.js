@@ -60,6 +60,13 @@ export default class ROCManager {
     return Simulation.fromSimData(simId, simConfig);
   }
 
+  /**
+   * @param {string} simId
+   */
+  getSimById(simId) {
+    return this.sims.find(sim => sim.id === simId);
+  }
+
   activateGame(game) {
     this.stompManager.createClientForGame(game);
     this.getSimData(game.sim).then(sim => {

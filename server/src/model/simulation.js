@@ -12,6 +12,8 @@ export default class Simulation {
   name;
   /** @type {string} */
   channel;
+  /** @type {Map<string, string>} */
+  locationToPanelMap = new Map()
 
   /**
    * @param {string} simId
@@ -22,7 +24,12 @@ export default class Simulation {
     const sim = new Simulation();
     sim.id = simId;
     sim.name = simData.name;
-    simData.panels.forEach(p => sim.panels.push(Panel.fromSimData(p)));
+    simData.panels.forEach(panelData => {
+      sim.panels.push(Panel.fromSimData(panelData));
+      for (const loc of panelData.reportingLocations ?? []) {
+        sim.locationToPanelMap.set(loc, panelData.id)
+      }
+    });
     return sim;
   }
 
@@ -33,5 +40,14 @@ export default class Simulation {
    */
   getPanel(panelId) {
     return this.panels.find((p) => {return p.id === panelId});
+  }
+
+  /**
+   * 
+   * @param {string} location
+   * @returns {string|undefined}
+   */
+  getPanelByLocation(location) {
+    return this.locationToPanelMap.get(location)
   }
 }

@@ -1,0 +1,77 @@
+{
+	"name": "Leeds East/West",
+	"panels": [
+		{
+			"id": "west1",
+			"name": "West 2",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "east1"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "west2"
+				},
+				{
+					"simId": "leedsa",
+					"panelId": "ardsley"
+				},
+				{
+					"simId": "leedsnw",
+					"panelId": "leedsnw"
+				}
+			]
+		},
+		{
+			"id": "west2",
+			"name": "West 2",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "west1"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "castleford"
+				}
+			]
+		},
+		{
+			"id": "east1",
+			"name": "East 1",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "west1"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "east2"
+				}
+			]
+		},
+		{
+			"id": "east2",
+			"name": "East 2",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "east1"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "south"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "gascoignewood"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "milford"
+				}
+			]
+		}
+	]
+}

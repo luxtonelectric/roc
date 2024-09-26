@@ -1,0 +1,15 @@
+{
+	"name": "Maidstone East",
+	"panels": [
+		{
+			"id": "maidstoneeast",
+			"name": "Maidstone East",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel10b"
+				}
+			]
+		}
+	]
+}

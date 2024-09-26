@@ -1,0 +1,79 @@
+{
+	"name": "North East Wales",
+	"panels": [
+		{
+			"id": "deemarshjn",
+			"name": "Dee Marsh Junction",
+			"neighbours": [
+				{
+					"simId": "sandhills",
+					"panelId": "wirral"
+				},
+				{
+					"simId": "newales",
+					"panelId": "shotwickgf"
+				},
+				{
+					"simId": "newales",
+					"panelId": "penyfford"
+				}
+			]
+		},
+		{
+			"id": "shotwickgf",
+			"name": "Shotwick Ground Frame",
+			"neighbours": [
+				{
+					"simId": "newales",
+					"panelId": "deemarshjn"
+				}
+			]
+		},
+		{
+			"id": "penyfford",
+			"name": "Penyfford",
+			"neighbours": [
+				{
+					"simId": "newales",
+					"panelId": "deemarshjn"
+				},
+				{
+					"simId": "newales",
+					"panelId": "croesnewydd"
+				}
+			]
+		},
+		{
+			"id": "croesnewydd",
+			"name": "Croes Newydd North Fork",
+			"neighbours": [
+				{
+					"simId": "newales",
+					"panelId": "penyfford"
+				},
+				{
+					"simId": "newales",
+					"panelId": "gobowennorth"
+				},
+				{
+					"simId": "chester",
+					"panelId": "chester"
+				}
+			]
+		},
+		{
+			"id": "gobowennorth",
+			"name": "Gobowen North",
+			"neighbours": [
+				{
+					"simId": "newales",
+					"panelId": "croesnewydd"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewejunction"
+				}
+			]
+		}
+	]
+}

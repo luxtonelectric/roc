@@ -1,0 +1,75 @@
+{
+	"name": "Peterborough",
+	"panels": [
+		{
+			"id": "hitchintempsford",
+			"name": "Hitchin-Tempsford",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "hitchin"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "barfordstilton"
+				}
+			]
+		},
+		{
+			"id": "barfordstilton",
+			"name": "Little Barford-Stilton",
+			"neighbours": [
+				{
+					"simId": "peterborough",
+					"panelId": "hitchintempsford"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "peterborough"
+				}
+			]
+		},
+		{
+			"id": "peterborough",
+			"name": "Peterborough",
+			"neighbours": [
+				{
+					"simId": "peterborough",
+					"panelId": "barfordstilton"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "newengland"
+				}
+			]
+		},
+		{
+			"id": "newengland",
+			"name": "New England",
+			"neighbours": [
+				{
+					"simId": "peterborough",
+					"panelId": "peterborough"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "helpstonstoke"
+				}
+			]
+		},
+		{
+			"id": "helpstonstoke",
+			"name": "Helpston-Stoke",
+			"neighbours": [
+				{
+					"simId": "peterborough",
+					"panelId": "newengland"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				}
+			]
+		}
+	]
+}

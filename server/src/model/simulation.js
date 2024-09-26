@@ -14,13 +14,13 @@ export default class Simulation {
   channel;
 
   /**
-   * 
+   * @param {string} simId
    * @param {*} simData 
    * @returns {Simulation} 
    */
-  static fromSimData(simData) {
+  static fromSimData(simId, simData) {
     const sim = new Simulation();
-    sim.id = simData.id;
+    sim.id = simId;
     sim.name = simData.name;
     simData.panels.forEach(p => sim.panels.push(Panel.fromSimData(p)));
     return sim;

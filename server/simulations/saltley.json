@@ -1,0 +1,95 @@
+{
+	"name": "Saltley",
+	"panels": [
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "west"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "centre"
+				},
+				{
+					"simId": "rugbycentre",
+					"panelId": "nuneaton"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "walsall2006"
+				}
+			]
+		},
+		{
+			"id": "centre",
+			"name": "Centre",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "north"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "southtop"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "southbottom"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "south1"
+				}
+			]
+		},
+		{
+			"id": "southtop",
+			"name": "South Top",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "centre"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "centre"
+				}
+			]
+		},
+		{
+			"id": "southbottom",
+			"name": "South Bottom",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "centre"
+				},
+				{
+					"simId": "stourbridgejn",
+					"panelId": "stourbridgejn"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "stratforduponavon"
+				},
+				{
+					"simId": "leamington",
+					"panelId": "leamington"
+				}
+			]
+		},
+		{
+			"id": "stratforduponavon",
+			"name": "Stratford-Upon-Avon",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "southbottom"
+				}
+			]
+		}
+	]
+}

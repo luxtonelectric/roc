@@ -1,0 +1,65 @@
+{
+	"name": "Wembley Mainline",
+	"panels": [
+		{
+			"id": "wembley",
+			"name": "Wembley",
+			"neighbours": [
+				{
+					"simId": "watfordjn",
+					"panelId": "watfordjn"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "willesden"
+				}
+			]
+		},
+		{
+			"id": "willesden",
+			"name": "Willesden",
+			"neighbours": [
+				{
+					"simId": "wembleymainline",
+					"panelId": "wembley"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "camden"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2a"
+				}
+			]
+		},
+		{
+			"id": "camden",
+			"name": "Camden",
+			"neighbours": [
+				{
+					"simId": "wembleymainline",
+					"panelId": "willesden"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "euston"
+				},
+				{
+					"simId": "wembleysub",
+					"panelId": "wembleysub"
+				}
+			]
+		},
+		{
+			"id": "euston",
+			"name": "Euston",
+			"neighbours": [
+				{
+					"simId": "wembleymainline",
+					"panelId": "camden"
+				}
+			]
+		}
+	]
+}

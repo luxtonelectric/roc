@@ -1,0 +1,47 @@
+{
+	"name": "Cardiff Vale of Glamorgan",
+	"panels": [
+		{
+			"id": "barry",
+			"name": "Barry",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "taff"
+				},
+				{
+					"simId": "cardiffvog",
+					"panelId": "aberthaw"
+				}
+			]
+		},
+		{
+			"id": "aberthaw",
+			"name": "Aberthaw",
+			"neighbours": [
+				{
+					"simId": "cardiffvog",
+					"panelId": "barry"
+				},
+				{
+					"simId": "cardiffvog",
+					"panelId": "cowbridgeroad"
+				}
+			]
+		},
+		{
+			"id": "cowbridgeroad",
+			"name": "Cowbridge Road",
+			"neighbours": [
+				{
+					"simId": "cardiffvog",
+					"panelId": "aberthaw"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panela"
+				}
+			]
+		}
+	]
+}

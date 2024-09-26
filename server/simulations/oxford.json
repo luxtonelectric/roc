@@ -1,0 +1,23 @@
+{
+	"name": "Oxford",
+	"panels": [
+		{
+			"id": "oxford",
+			"name": "Oxford",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "north"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "banbury"
+				},
+				{
+					"simId": "swindonab",
+					"panelId": "wks3"
+				}
+			]
+		}
+	]
+}

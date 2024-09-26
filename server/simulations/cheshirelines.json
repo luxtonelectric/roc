@@ -1,0 +1,83 @@
+{
+	"name": "Cheshire Lines",
+	"panels": [
+		{
+			"id": "greenbank",
+			"name": "Greenbank",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "mickletrafford"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "winsford"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "plumleywest"
+				}
+			]
+		},
+		{
+			"id": "plumleywest",
+			"name": "Plumley West",
+			"neighbours": [
+				{
+					"simId": "cheshirelines",
+					"panelId": "greenbank"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "mobberley"
+				}
+			]
+		},
+		{
+			"id": "mobberley",
+			"name": "Mobberley",
+			"neighbours": [
+				{
+					"simId": "cheshirelines",
+					"panelId": "plumleywest"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "deansgatejn"
+				}
+			]
+		},
+		{
+			"id": "deansgatejn",
+			"name": "Deansgate Jn",
+			"neighbours": [
+				{
+					"simId": "cheshirelines",
+					"panelId": "mobberley"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "northendenjn"
+				}
+			]
+		},
+		{
+			"id": "northendenjn",
+			"name": "Northenden Jn",
+			"neighbours": [
+				{
+					"simId": "cheshirelines",
+					"panelId": "deansgatejn"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "edgeley1"
+				}
+			]
+		}
+	]
+}

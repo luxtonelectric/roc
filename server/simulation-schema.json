@@ -1,0 +1,28 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"name": { "type": "string", "description": "Simulation user-facing name" },
+		"panels": {
+			"type": "array",
+			"description": "List of panels",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string" ,"description": "Panel internal identifier"},
+					"name": { "type": "string", "description": "Panel user-facing name" },
+					"neighbours": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"simId": { "type": "string" },
+								"panelId": { "type": "string" }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

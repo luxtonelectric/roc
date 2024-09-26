@@ -1,0 +1,49 @@
+{
+	"name": "Doncaster North",
+	"panels": [
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "leedsa",
+					"panelId": "leedsa"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "south"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "ferrybridge"
+				}
+			]
+		},
+		{
+			"id": "panel5",
+			"name": "Panel 5",
+			"neighbours": [
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel4"
+				}
+			]
+		}
+	]
+}

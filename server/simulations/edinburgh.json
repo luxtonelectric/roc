@@ -1,0 +1,163 @@
+{
+	"name": "Edinburgh",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "millerhill"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "millerhill"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks5"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks6"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyp"
+				}
+			]
+		},
+		{
+			"id": "panel5",
+			"name": "Panel 5",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm1"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm2"
+				}
+			]
+		},
+		{
+			"id": "panel6",
+			"name": "Panel 6",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "hiltonjn"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "cupar"
+				}
+			]
+		},
+		{
+			"id": "millerhill",
+			"name": "Millerhill",
+			"neighbours": [
+				{
+					"simId": "edinburgh",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel3"
+				}
+			]
+		}
+	]
+}

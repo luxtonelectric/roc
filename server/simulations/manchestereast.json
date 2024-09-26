@@ -1,0 +1,145 @@
+{
+	"name": "Manchester East",
+	"panels": [
+		{
+			"id": "dinting",
+			"name": "Dinting",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "guidebridge"
+				}
+			]
+		},
+		{
+			"id": "guidebridge",
+			"name": "Guide Bridge",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "dinting"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "stalybridge"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "romileyjn"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "ashburys"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "denton"
+				}
+			]
+		},
+		{
+			"id": "stalybridge",
+			"name": "Stalybridge",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "guidebridge"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "ashtonmossnorth"
+				},
+				{
+					"simId": "huddersfield",
+					"panelId": "digglejn"
+				}
+			]
+		},
+		{
+			"id": "romileyjn",
+			"name": "Romiley Junction",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "guidebridge"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "ashburys"
+				}
+			]
+		},
+		{
+			"id": "ashtonmossnorth",
+			"name": "Ashton Moss North",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "stalybridge"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "denton"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "baguleyfoldjn"
+				}
+			]
+		},
+		{
+			"id": "baguleyfoldjn",
+			"name": "Baguley Fold Junction",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "ashtonmossnorth"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "denton",
+			"name": "Denton",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "ashtonmossnorth"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "guidebridge"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "heatonnorrisjn"
+				}
+			]
+		},
+		{
+			"id": "ashburys",
+			"name": "Ashburys",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "guidebridge"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "romileyjn"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "east"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "piccadilly"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,10 @@
+{
+	"json.schemas": [
+		{
+			"fileMatch": [
+				"server/simulations/*.json",
+			],
+			"url": "./server/simulation-schema.json"
+		}
+	]
+}

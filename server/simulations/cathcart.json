@@ -1,0 +1,15 @@
+{
+	"name": "Cathcart",
+	"panels": [
+		{
+			"id": "cathcart",
+			"name": "Cathcart",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks1"
+				}
+			]
+		}
+	]
+}

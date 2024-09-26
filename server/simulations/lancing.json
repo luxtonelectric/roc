@@ -1,0 +1,15 @@
+{
+	"name": "Lancing",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel6"
+				}
+			]
+		}
+	]
+}

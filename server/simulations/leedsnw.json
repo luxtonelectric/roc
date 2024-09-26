@@ -1,0 +1,15 @@
+{
+	"name": "Leeds Northwest",
+	"panels": [
+		{
+			"id": "leedsnw",
+			"name": "Leeds Northwest",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "west2"
+				}
+			]
+		}
+	]
+}

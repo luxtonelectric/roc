@@ -1,0 +1,145 @@
+{
+	"name": "Chester",
+	"panels": [
+		{
+			"id": "chester",
+			"name": "Chester",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "hooton"
+				},
+				{
+					"simId": "chester",
+					"panelId": "mickletrafford"
+				},
+				{
+					"simId": "chester",
+					"panelId": "beestoncastle"
+				},
+				{
+					"simId": "newales",
+					"panelId": "croesnewydd"
+				},
+				{
+					"simId": "north_wales_coast",
+					"panelId": "rockcliffehall"
+				}
+			]
+		},
+		{
+			"id": "hooton",
+			"name": "Hooton",
+			"neighbours": [
+				{
+					"simId": "sandhills",
+					"panelId": "wirral"
+				},
+				{
+					"simId": "chester",
+					"panelId": "chester"
+				},
+				{
+					"simId": "chester",
+					"panelId": "ellesmereport"
+				}
+			]
+		},
+		{
+			"id": "ellesmereport",
+			"name": "Ellesmere Port",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "hooton"
+				},
+				{
+					"simId": "chester",
+					"panelId": "helsby"
+				}
+			]
+		},
+		{
+			"id": "beestoncastle",
+			"name": "Beeston Castle",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "chester"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "steelworks"
+				}
+			]
+		},
+		{
+			"id": "mickletrafford",
+			"name": "Mickle Trafford",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "chester"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "greenbank"
+				},
+				{
+					"simId": "chester",
+					"panelId": "helsby"
+				}
+			]
+		},
+		{
+			"id": "helsby",
+			"name": "Helsby",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "ellesmereport"
+				},
+				{
+					"simId": "chester",
+					"panelId": "mickletrafford"
+				},
+				{
+					"simId": "chester",
+					"panelId": "frodsham"
+				}
+			]
+		},
+		{
+			"id": "frodsham",
+			"name": "Frodsham",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "helsby"
+				},
+				{
+					"simId": "chester",
+					"panelId": "norton"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "haltonjn"
+				}
+			]
+		},
+		{
+			"id": "norton",
+			"name": "Norton",
+			"neighbours": [
+				{
+					"simId": "chester",
+					"panelId": "frodsham"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "south"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,29 @@
+{
+	"name": "Liverpool Street",
+	"panels": [
+		{
+			"id": "wa",
+			"name": "West Anglia",
+			"neighbours": [
+				{
+					"simId": "liverpoolstreet",
+					"panelId": "ge"
+				},
+				{
+					"simId": "warm",
+					"panelId": "hackney"
+				}
+			]
+		},
+		{
+			"id": "ge",
+			"name": "Great Eastern",
+			"neighbours": [
+				{
+					"simId": "liverpoolstreet",
+					"panelId": "wa"
+				}
+			]
+		}
+	]
+}

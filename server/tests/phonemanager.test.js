@@ -12,7 +12,6 @@ const panelId1 = "hitchin";
 const panelId2 = "palace";
 
 const simData = {
-  "id":simId1,
   "name":"Kings Cross",
   "panels":[
     {"id":"cross", "name":"Cross", "neighbours":[{"simId":"kingscross", "panelId":"finsbury"},{"simId":"kingscross", "panelId":"palace"}]},
@@ -25,7 +24,7 @@ const simData = {
 
 test('Generating panel phones plus Control', () => {
   const phoneManager = new PhoneManager();
-  const sim = Simulation.fromSimData(simData);
+  const sim = Simulation.fromSimData(simId1, simData);
   phoneManager.generatePhonesForSim(sim)
   expect(phoneManager.phones.length).toBe(8);
 })
@@ -61,7 +60,7 @@ test('Generate phone for person', () => {
 
 test('Get speed dial for phone', () => {
   const phoneManager = new PhoneManager();
-  const sim = Simulation.fromSimData(simData);
+  const sim = Simulation.fromSimData(simId1, simData);
   phoneManager.generatePhonesForSim(sim)
   const phone = phoneManager.getPhone(simId1 + '_' + panelId1)
   expect(phone.getId()).toBe(simId1 + '_' + panelId1);
@@ -74,7 +73,7 @@ test('Get speed dial for phone', () => {
 test('Get phones for a given DiscordId', () => {
   const discordID = 'DISCORDID';
   const phoneManager = new PhoneManager();
-  const sim = Simulation.fromSimData(simData);
+  const sim = Simulation.fromSimData(simId1, simData);
   phoneManager.generatePhonesForSim(sim);
   const phone = phoneManager.getPhone(simId1 + '_' + panelId1);
   const player = new Player(null,discordID,'VC')

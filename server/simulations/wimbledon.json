@@ -1,0 +1,115 @@
+{
+	"name": "Wimbledon",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "claphamyd"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "claphamyd"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "barnes"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2a"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "woking",
+					"panelId": "surbiton"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "strawberryhill"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "horsham",
+					"panelId": "dorking"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "claphamyd",
+			"name": "Clapham Yard Panel",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,57 @@
+{
+	"name": "Manchester South",
+	"panels": [
+		{
+			"id": "manchestersouthscc",
+			"name": "Manchester South SCC",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "edgeley1"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "macclesfield"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "healdgreen"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "greenbank"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "sortingsidingsnth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "salopgoodsjn"
+				}
+			]
+		},
+		{
+			"id": "macclesfield",
+			"name": "Macclesfield",
+			"neighbours": [
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stokenorth"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,83 @@
+{
+	"name": "Kings Cross",
+	"panels": [
+		{
+			"id": "cross",
+			"name": "Cross",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "finsbury"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "palace"
+				}
+			]
+		},
+		{
+			"id": "finsbury",
+			"name": "Finsbury",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "cross"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "palace"
+				}
+			]
+		},
+		{
+			"id": "palace",
+			"name": "Palace",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "finsbury"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "cross"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "welwyn"
+				}
+			]
+		},
+		{
+			"id": "welwyn",
+			"name": "Welwyn",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "palace"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "hitchin"
+				}
+			]
+		},
+		{
+			"id": "hitchin",
+			"name": "Hitchin",
+			"neighbours": [
+				{
+					"simId": "kingsx",
+					"panelId": "welwyn"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "hitchintempsford"
+				},
+				{
+					"simId": "royston",
+					"panelId": "royston"
+				}
+			]
+		}
+	]
+}

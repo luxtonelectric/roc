@@ -1,0 +1,45 @@
+{
+	"name": "Doncaster Station",
+	"panels": [
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham1"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1n"
+				}
+			]
+		}
+	]
+}

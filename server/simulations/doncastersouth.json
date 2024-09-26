@@ -1,0 +1,47 @@
+{
+	"name": "Doncaster South",
+	"panels": [
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1n"
+				}
+			]
+		},
+		{
+			"id": "panel1n",
+			"name": "Panel 1N",
+			"neighbours": [
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				}
+			]
+		},
+		{
+			"id": "panel1s",
+			"name": "Panel 1S",
+			"neighbours": [
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1n"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "helpstonstoke"
+				}
+			]
+		}
+	]
+}

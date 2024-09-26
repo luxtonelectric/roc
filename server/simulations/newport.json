@@ -1,0 +1,75 @@
+{
+	"name": "Newport",
+	"panels": [
+		{
+			"id": "severntunnel",
+			"name": "Severn Tunnel",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "magor"
+				}
+			]
+		},
+		{
+			"id": "magor",
+			"name": "Magor",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "severntunnel"
+				},
+				{
+					"simId": "newport",
+					"panelId": "eastusk"
+				},
+				{
+					"simId": "newport",
+					"panelId": "station"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "littlemilljn"
+				}
+			]
+		},
+		{
+			"id": "station",
+			"name": "Station",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "magor"
+				},
+				{
+					"simId": "newport",
+					"panelId": "parkjunction"
+				},
+				{
+					"simId": "cardiff",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "parkjunction",
+			"name": "Park Junction",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "station"
+				}
+			]
+		},
+		{
+			"id": "eastusk",
+			"name": "East Usk",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "magor"
+				}
+			]
+		}
+	]
+}

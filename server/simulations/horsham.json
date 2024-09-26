@@ -1,0 +1,33 @@
+{
+	"name": "Horsham",
+	"panels": [
+		{
+			"id": "horsham",
+			"name": "Horsham",
+			"neighbours": [
+				{
+					"simId": "horsham",
+					"panelId": "dorking"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "dorking",
+			"name": "Dorking",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "horsham",
+					"panelId": "horsham"
+				}
+			]
+		}
+	]
+}

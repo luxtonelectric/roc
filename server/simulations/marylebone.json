@@ -1,0 +1,73 @@
+{
+	"name": "Marylebone",
+	"panels": [
+		{
+			"id": "south",
+			"name": "South",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "north"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "lul"
+				}
+			]
+		},
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "south"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "lul"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "banbury"
+				},
+				{
+					"simId": "oxford",
+					"panelId": "oxford"
+				}
+			]
+		},
+		{
+			"id": "lul",
+			"name": "London Underground Metropolitan line",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "south"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "north"
+				}
+			]
+		},
+		{
+			"id": "banbury",
+			"name": "Banbury",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "north"
+				},
+				{
+					"simId": "leamington",
+					"panelId": "leamington"
+				},
+				{
+					"simId": "oxford",
+					"panelId": "oxford"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,37 @@
+{
+	"name": "Rugby SCC Centre",
+	"panels": [
+		{
+			"id": "rugby",
+			"name": "Rugby",
+			"neighbours": [
+				{
+					"simId": "rugbynorth",
+					"panelId": "nuneaton"
+				},
+				{
+					"simId": "coventry",
+					"panelId": "coventry"
+				},
+				{
+					"simId": "rugbycentre",
+					"panelId": "northampton"
+				}
+			]
+		},
+		{
+			"id": "northampton",
+			"name": "Northampton",
+			"neighbours": [
+				{
+					"simId": "rugbycentre",
+					"panelId": "rugby"
+				},
+				{
+					"simId": "rugbysouth",
+					"panelId": "bletchley"
+				}
+			]
+		}
+	]
+}

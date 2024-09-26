@@ -1,0 +1,97 @@
+{
+	"name": "Walsall PSB",
+	"panels": [
+		{
+			"id": "walsall2006",
+			"name": "Walsall (2006)",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "north"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				},
+				{
+					"simId": "wolverhampton",
+					"panelId": "wolverhampton"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "bloxwich"
+				}
+			]
+		},
+		{
+			"id": "bloxwich",
+			"name": "Bloxwich SB",
+			"neighbours": [
+				{
+					"simId": "walsall",
+					"panelId": "walsall2006"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "hednesford"
+				}
+			]
+		},
+		{
+			"id": "hednesford",
+			"name": "Hednesford SB",
+			"neighbours": [
+				{
+					"simId": "walsall",
+					"panelId": "bloxwich"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "brereton"
+				}
+			]
+		},
+		{
+			"id": "brereton",
+			"name": "Brereton Sidings SB",
+			"neighbours": [
+				{
+					"simId": "walsall",
+					"panelId": "hednesford"
+				}
+			]
+		},
+		{
+			"id": "walsall2019",
+			"name": "Walsall (2019)",
+			"neighbours": [
+				{
+					"simId": "walsall",
+					"panelId": "bescot"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "colwich"
+				}
+			]
+		},
+		{
+			"id": "bescot",
+			"name": "Bescot",
+			"neighbours": [
+				{
+					"simId": "walsall",
+					"panelId": "walsall2019"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				},
+				{
+					"simId": "wolverhampton",
+					"panelId": "wolverhampton"
+				}
+			]
+		}
+	]
+}

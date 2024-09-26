@@ -1,0 +1,205 @@
+{
+	"name": "Hereford",
+	"panels": [
+		{
+			"id": "dorrington",
+			"name": "Dorrington",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "suttonbridgejn"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "marshbrook"
+				}
+			]
+		},
+		{
+			"id": "marshbrook",
+			"name": "Marsh Brook",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "dorrington"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "cravenarms"
+				}
+			]
+		},
+		{
+			"id": "cravenarms",
+			"name": "Craven Arms",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "marshbrook"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "onibury"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "pantyffynnon"
+				}
+			]
+		},
+		{
+			"id": "onibury",
+			"name": "Onibury",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "cravenarms"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "bromfield"
+				}
+			]
+		},
+		{
+			"id": "bromfield",
+			"name": "Bromfield",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "onibury"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "woofferton"
+				}
+			]
+		},
+		{
+			"id": "woofferton",
+			"name": "Woofferton",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "bromfield"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "leominster"
+				}
+			]
+		},
+		{
+			"id": "leominster",
+			"name": "Leominster",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "woofferton"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "moretononlugg"
+				}
+			]
+		},
+		{
+			"id": "moretononlugg",
+			"name": "Moreton on Lugg",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "leominster"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "hereford"
+				}
+			]
+		},
+		{
+			"id": "hereford",
+			"name": "Hereford",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "moretononlugg"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "traminn"
+				}
+			]
+		},
+		{
+			"id": "traminn",
+			"name": "Tram Inn",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "hereford"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "pontrilias"
+				}
+			]
+		},
+		{
+			"id": "pontrilias",
+			"name": "Pontrilias",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "traminn"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "abergavenny"
+				}
+			]
+		},
+		{
+			"id": "abergavenny",
+			"name": "Abergavenny",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "pontrilias"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "littlemilljn"
+				}
+			]
+		},
+		{
+			"id": "littlemilljn",
+			"name": "Little Mill Junction",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "abergavenny"
+				},
+				{
+					"simId": "newport",
+					"panelId": "magor"
+				}
+			]
+		},
+		{
+			"id": "pantyffynnon",
+			"name": "Pantyffynnon",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "cravenarms"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,79 @@
+{
+	"name": "Derby",
+	"panels": [
+		{
+			"id": "west",
+			"name": "West",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "north"
+				},
+				{
+					"simId": "aston",
+					"panelId": "alrewas"
+				},
+				{
+					"simId": "derby",
+					"panelId": "centre"
+				},
+				{
+					"simId": "derby",
+					"panelId": "moirawest"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "derbyline"
+				}
+			]
+		},
+		{
+			"id": "centre",
+			"name": "Centre",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "west"
+				},
+				{
+					"simId": "derby",
+					"panelId": "north"
+				}
+			]
+		},
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "centre"
+				}
+			]
+		},
+		{
+			"id": "moirawest",
+			"name": "Moira West",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "west"
+				},
+				{
+					"simId": "derby",
+					"panelId": "mantlelane"
+				}
+			]
+		},
+		{
+			"id": "mantlelane",
+			"name": "Mantle Lane",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "moirawest"
+				}
+			]
+		}
+	]
+}

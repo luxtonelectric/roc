@@ -1,0 +1,19 @@
+{
+	"name": "Wembley Suburban",
+	"panels": [
+		{
+			"id": "wembleysub",
+			"name": "Wembley Suburban",
+			"neighbours": [
+				{
+					"simId": "watfordjn",
+					"panelId": "watfordjn"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "camden"
+				}
+			]
+		}
+	]
+}

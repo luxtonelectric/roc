@@ -1,0 +1,23 @@
+{
+	"name": "Watford Junction",
+	"panels": [
+		{
+			"id": "watfordjn",
+			"name": "Watford Junction",
+			"neighbours": [
+				{
+					"simId": "rugbysouth",
+					"panelId": "tring"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "wembley"
+				},
+				{
+					"simId": "wembleysub",
+					"panelId": "wembleysub"
+				}
+			]
+		}
+	]
+}

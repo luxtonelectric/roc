@@ -1,0 +1,139 @@
+{
+	"name": "West Yorkshire",
+	"panels": [
+		{
+			"id": "horburyjn",
+			"name": "Horbury Jn",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "woolleycoalsdgs"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "wakefieldkirkgate"
+				}
+			]
+		},
+		{
+			"id": "wakefieldkirkgate",
+			"name": "Wakefield Kirkgate",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "horburyjn"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "castleford"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "powcutsyke"
+				},
+				{
+					"simId": "leedsa",
+					"panelId": "ardsley"
+				}
+			]
+		},
+		{
+			"id": "castleford",
+			"name": "Castleford",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "wakefieldkirkgate"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "powcutsyke"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "milford"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "west2"
+				}
+			]
+		},
+		{
+			"id": "powcutsyke",
+			"name": "Price of Wales & Cutsyke Boxes",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "castleford"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "wakefieldkirkgate"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "ferrybridge"
+				}
+			]
+		},
+		{
+			"id": "ferrybridge",
+			"name": "Ferrybridge",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "powcutsyke"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "milford"
+				},
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "leedsa",
+					"panelId": "ardsley"
+				}
+			]
+		},
+		{
+			"id": "milford",
+			"name": "Milford",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "ferrybridge"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "castleford"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "east2"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "gascoignewood"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "milfordwest"
+				}
+			]
+		},
+		{
+			"id": "milfordwest",
+			"name": "Milford West",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "milford"
+				}
+			]
+		}
+	]
+}

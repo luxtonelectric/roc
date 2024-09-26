@@ -62,6 +62,16 @@
           <div>
             <h2 class="text-2xl font-bold">Phones</h2>
             <table>
+              <tr>
+                <td>Sim ID</td>
+                <td>Panel ID</td>
+                <td>Name</td>
+                <td>Type</td>
+                <td>Number</td>
+                <td>Assigned</td>
+                <td>Claim</td>
+                <td>Place call</td>
+              </tr>
               <tr v-for="phone in gameState.phones">
                 <td><template v-if="phone.location">{{ phone.location.simId }}</template></td>
                 <td><template v-if="phone.location">{{ phone.location.panelId }}</template></td>

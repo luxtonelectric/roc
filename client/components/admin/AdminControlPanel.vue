@@ -64,6 +64,7 @@
             <table>
               <tr v-for="phone in gameState.phones">
                 <td><template v-if="phone.location">{{ phone.location.simId }}</template></td>
+                <td><template v-if="phone.location">{{ phone.location.panelId }}</template></td>
                 <td>{{ phone.name }}</td>
                 <td>{{ phone.type }}</td>
                 <td><template v-if="phone.type === 'mobile'">{{ phone.id }}</template></td>

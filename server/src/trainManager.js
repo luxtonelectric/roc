@@ -36,7 +36,11 @@ export default class TrainManager{
    * @param {string} location
    */
   getPanelFromLocation(simId, location) {
-    return this.#gameManager.getSimById(simId).getPanelByLocation(location)
+    const sim = this.#gameManager.getSimById(simId);
+    if (sim.panels.length === 1) {
+      return sim.panels[0].id
+    }
+    return sim.getPanelByLocation(location)
   }
 
   /**

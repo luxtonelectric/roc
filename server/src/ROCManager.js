@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import Player from './model/player.js';
 import { readFile } from "fs/promises";
 import Simulation from './model/simulation.js';
+import ClockData from './model/clockData.js';
 /** @typedef {import("./bot.js").default} DiscordBot */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
 /** @typedef {import("socket.io").Server} Server */
@@ -524,8 +525,7 @@ export default class ROCManager {
   updateSimTime(clockMsg) {
     const sim = this.sims.find(s => s.id === clockMsg["area_id"]);
     if (sim) {
-      delete clockMsg.area_id;
-      sim.clock = clockMsg;
+      sim.time = ClockData.fromSimMessage(clockMsg);
       this.sendGameUpdateToPlayers();
     } else {
       console.error(chalk.red('CLOCK UPDATE RECEIVED BUT NO MATCHING SIM ENABLED'), clockMsg["area_id"]);

@@ -4,7 +4,9 @@
       <div class="flex-grow">
         <h1 class="text-3xl font-semibold ">{{ simData.name }} ({{simData.id}})</h1>
       </div>
-      <span v-if="simData.clock" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400">{{secondsToTime(simData.clock.clock)}}</span>
+      <span v-if="simData.time" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400">
+        <Clock :clockData="simData.time"/>
+      </span>
       <a tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
     </div>
     <div v-if="simData.panels" class="flex flex-wrap">
@@ -52,14 +54,6 @@ export default {
     releasePanel(sim, panel)
     {
       this.socket.emit("releasePanel", {"sim": sim, "panel":panel, "sender": this.username});
-    },
-    secondsToTime(givenSeconds){
-      const dateObj = new Date(givenSeconds * 1000);
-      const hours = dateObj.getUTCHours();
-      const minutes = dateObj.getUTCMinutes();
-      const seconds = dateObj.getSeconds();
-      const timeString = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-      return timeString;
     }
   }
 }

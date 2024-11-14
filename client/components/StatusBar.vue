@@ -39,8 +39,10 @@ onMounted(() =>{
         <p class="text-right"><span class="font-bold">ROC:</span> OK</p>
       </div>
       <div class="col-span-2 border-zinc-400 border-r-2 p-2 text-center">
-        <!-- TODO: Pull in the time for the currently selected panel-->
-        <Clock :simData="null"/>
+        <span class="text-2xl font-bold text-gray-800">
+          <!-- TODO: Pull in the time for the currently selected panel-->
+          <Clock :clockData="gameData[0]?.time"/>
+        </span>
       </div>
     </div>
   </div>

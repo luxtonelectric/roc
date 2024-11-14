@@ -1,0 +1,59 @@
+{
+	"name": "York North/South",
+	"panels": [
+		{
+			"id": "south",
+			"name": "South",
+			"neighbours": [
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "east2"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "north"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "gascoignewood"
+				}
+			]
+		},
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "yorkns",
+					"panelId": "south"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "darlington"
+				}
+			]
+		},
+		{
+			"id": "gascoignewood",
+			"name": "Gascoigne Wood",
+			"neighbours": [
+				{
+					"simId": "yorkns",
+					"panelId": "south"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "east2"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "milford"
+				}
+			]
+		}
+	]
+}

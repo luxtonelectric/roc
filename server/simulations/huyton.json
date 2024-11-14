@@ -1,0 +1,37 @@
+{
+	"name": "Huyton & St Helens",
+	"panels": [
+		{
+			"id": "mroc",
+			"name": "MROC",
+			"neighbours": [
+				{
+					"simId": "huyton",
+					"panelId": "sthelens"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "edgehill"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "middle"
+				}
+			]
+		},
+		{
+			"id": "sthelens",
+			"name": "St Helens",
+			"neighbours": [
+				{
+					"simId": "huyton",
+					"panelId": "mroc"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "north"
+				}
+			]
+		}
+	]
+}

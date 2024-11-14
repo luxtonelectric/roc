@@ -1,0 +1,103 @@
+{
+	"name": "Staffordshire",
+	"panels": [
+		{
+			"id": "derbyline",
+			"name": "Derby Line",
+			"neighbours": [
+				{
+					"simId": "derby",
+					"panelId": "west"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stokenorth"
+				}
+			]
+		},
+		{
+			"id": "stokenorth",
+			"name": "Stoke North",
+			"neighbours": [
+				{
+					"simId": "staffordshire",
+					"panelId": "derbyline"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "macclesfield"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stokesouth"
+				}
+			]
+		},
+		{
+			"id": "stokesouth",
+			"name": "Stoke South",
+			"neighbours": [
+				{
+					"simId": "staffordshire",
+					"panelId": "stokenorth"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "colwich"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stafford"
+				}
+			]
+		},
+		{
+			"id": "stafford",
+			"name": "Stafford",
+			"neighbours": [
+				{
+					"simId": "staffordshire",
+					"panelId": "stokesouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "basfordhall"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "colwich"
+				},
+				{
+					"simId": "wolverhampton",
+					"panelId": "wolverhampton"
+				}
+			]
+		},
+		{
+			"id": "colwich",
+			"name": "Colwich",
+			"neighbours": [
+				{
+					"simId": "staffordshire",
+					"panelId": "stafford"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stokesouth"
+				},
+				{
+					"simId": "rugbynorth",
+					"panelId": "trentvalley"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "walsall2019"
+				}
+			]
+		}
+	]
+}

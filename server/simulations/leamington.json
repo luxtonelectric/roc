@@ -1,0 +1,23 @@
+{
+	"name": "Leamington",
+	"panels": [
+		{
+			"id": "leamington",
+			"name": "Leamington",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "southbottom"
+				},
+				{
+					"simId": "coventry",
+					"panelId": "coventry"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "banbury"
+				}
+			]
+		}
+	]
+}

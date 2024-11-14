@@ -1,0 +1,61 @@
+{
+	"name": "LTS",
+	"panels": [
+		{
+			"id": "london",
+			"name": "London",
+			"neighbours": [
+				{
+					"simId": "lts",
+					"panelId": "tilbury"
+				},
+				{
+					"simId": "lts",
+					"panelId": "southend"
+				}
+			]
+		},
+		{
+			"id": "tilbury",
+			"name": "Tilbury",
+			"neighbours": [
+				{
+					"simId": "lts",
+					"panelId": "london"
+				},
+				{
+					"simId": "lts",
+					"panelId": "southend"
+				},
+				{
+					"simId": "lts",
+					"panelId": "crossings"
+				}
+			]
+		},
+		{
+			"id": "southend",
+			"name": "Southend",
+			"neighbours": [
+				{
+					"simId": "lts",
+					"panelId": "london"
+				},
+				{
+					"simId": "lts",
+					"panelId": "tilbury"
+				}
+			]
+		},
+		{
+			"id": "crossings",
+			"name": "Crossings",
+			"neighbours": [
+				{
+					"simId": "lts",
+					"panelId": "tilbury"
+				}
+			]
+		}
+	]
+}

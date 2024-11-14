@@ -1,0 +1,69 @@
+{
+	"name": "Victoria line",
+	"panels": [
+		{
+			"id": "north",
+			"name": "North Signals",
+			"neighbours": [
+				{
+					"simId": "victorialul",
+					"panelId": "centre"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "control"
+				}
+			]
+		},
+		{
+			"id": "centre",
+			"name": "Centre Signals",
+			"neighbours": [
+				{
+					"simId": "victorialul",
+					"panelId": "north"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "south"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "control"
+				}
+			]
+		},
+		{
+			"id": "south",
+			"name": "South Signals",
+			"neighbours": [
+				{
+					"simId": "victorialul",
+					"panelId": "centre"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "control"
+				}
+			]
+		},
+		{
+			"id": "control",
+			"name": "Line Controller",
+			"neighbours": [
+				{
+					"simId": "victorialul",
+					"panelId": "north"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "centre"
+				},
+				{
+					"simId": "victorialul",
+					"panelId": "south"
+				}
+			]
+		}
+	]
+}

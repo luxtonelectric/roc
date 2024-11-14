@@ -28,6 +28,7 @@ export default class STOMPManager {
    */
   setGameManager(gameManager) {
     this.gameManager = gameManager;
+    this.trainManager.setGameManager(gameManager);
   }
 
   /**
@@ -74,7 +75,7 @@ export default class STOMPManager {
             if(message.train_location) {
               //console.log(`TRAIN_MVT_ALL_TOC:`, rawMessage.headers, message)
               try {
-                this.trainManager.handleTrainLocationMessage(game.sim,new TrainLocationMessage(game.sim,message))
+                this.trainManager.handleTrainLocationMessage(new TrainLocationMessage(game.sim,message))
               } catch (error) {
                 console.error(chalk.redBright('TRAIN_MVT_ALL_TOC'), JSON.stringify(error, Object.getOwnPropertyNames(error)))
               }

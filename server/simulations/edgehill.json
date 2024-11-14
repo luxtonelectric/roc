@@ -1,0 +1,147 @@
+{
+	"name": "Edge Hill",
+	"panels": [
+		{
+			"id": "haltonjn",
+			"name": "Halton Jn",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "winsford"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "runcorn"
+				},
+				{
+					"simId": "chester",
+					"panelId": "frodsham"
+				}
+			]
+		},
+		{
+			"id": "runcorn",
+			"name": "Runcorn",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "haltonjn"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "ditton"
+				}
+			]
+		},
+		{
+			"id": "monkssidings",
+			"name": "Monks Sidings",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "fiddlersferry"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "arpleyjunction"
+				}
+			]
+		},
+		{
+			"id": "fiddlersferry",
+			"name": "Fiddlers Ferry",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "monkssidings"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "ditton"
+				}
+			]
+		},
+		{
+			"id": "ditton",
+			"name": "Ditton",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "fiddlersferry"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "runcorn"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "spekejn"
+				}
+			]
+		},
+		{
+			"id": "spekejn",
+			"name": "Speke Jn",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "ditton"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "allerton"
+				}
+			]
+		},
+		{
+			"id": "allerton",
+			"name": "Allerton",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "spekejn"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "edgehill"
+				},
+				{
+					"simId": "huntscross",
+					"panelId": "huntscross"
+				}
+			]
+		},
+		{
+			"id": "edgehill",
+			"name": "Edge Hill",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "allerton"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "limestreet"
+				},
+				{
+					"simId": "huyton",
+					"panelId": "mroc"
+				},
+				{
+					"simId": "sandhills",
+					"panelId": "northern"
+				}
+			]
+		},
+		{
+			"id": "limestreet",
+			"name": "Lime Street",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "edgehill"
+				}
+			]
+		}
+	]
+}

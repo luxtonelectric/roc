@@ -1,0 +1,45 @@
+{
+	"name": "Sandhills",
+	"panels": [
+		{
+			"id": "wirral",
+			"name": "Wirral",
+			"neighbours": [
+				{
+					"simId": "sandhills",
+					"panelId": "northern"
+				},
+				{
+					"simId": "newales",
+					"panelId": "deemarshjn"
+				},
+				{
+					"simId": "chester",
+					"panelId": "hooton"
+				}
+			]
+		},
+		{
+			"id": "northern",
+			"name": "Northern",
+			"neighbours": [
+				{
+					"simId": "sandhills",
+					"panelId": "wirral"
+				},
+				{
+					"simId": "huntscross",
+					"panelId": "huntscross"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "edgehill"
+				},
+				{
+					"simId": "wigan",
+					"panelId": "burscoughbridgejn"
+				}
+			]
+		}
+	]
+}

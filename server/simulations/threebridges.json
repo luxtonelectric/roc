@@ -1,0 +1,167 @@
+{
+	"name": "Three Bridges ASC",
+	"panels": [
+		{
+			"id": "panel1a",
+			"name": "Panel 1A",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1b"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1c"
+				}
+			]
+		},
+		{
+			"id": "panel1b",
+			"name": "Panel 1B",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel1a"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1c"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "oxted",
+					"panelId": "oxted"
+				}
+			]
+		},
+		{
+			"id": "panel1c",
+			"name": "Panel 1C",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel1a"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1b"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2b"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel1b"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "reigate"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "horsham",
+					"panelId": "horsham"
+				}
+			]
+		},
+		{
+			"id": "panel5",
+			"name": "Panel 5",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "lewes"
+				}
+			]
+		},
+		{
+			"id": "panel6",
+			"name": "Panel 6",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "lancing",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "lewes"
+				}
+			]
+		},
+		{
+			"id": "reigate",
+			"name": "Reigate SB",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "3"
+				}
+			]
+		}
+	]
+}

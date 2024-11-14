@@ -1,0 +1,175 @@
+{
+	"name": "Shrewsbury",
+	"panels": [
+		{
+			"id": "suttonbridgejn",
+			"name": "Sutton Bridge Junction",
+			"neighbours": [
+				{
+					"simId": "hereford",
+					"panelId": "dorrington"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "severnbridgejn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewejunction"
+				}
+			]
+		},
+		{
+			"id": "severnbridgejn",
+			"name": "Severn Bridge Junction",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "abbeyforegate"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewejunction"
+				}
+			]
+		},
+		{
+			"id": "abbeyforegate",
+			"name": "Abbey Foregate",
+			"neighbours": [
+				{
+					"simId": "telfordoxley",
+					"panelId": "madeleyjn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "severnbridgejn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewejunction"
+				}
+			]
+		},
+		{
+			"id": "crewejunction",
+			"name": "Crewe Junction",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "severnbridgejn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewebank"
+				},
+				{
+					"simId": "newales",
+					"panelId": "gobowennorth"
+				}
+			]
+		},
+		{
+			"id": "crewebank",
+			"name": "Crewe Bank",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewejunction"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "severnbridgejn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "harlescottcrossing"
+				}
+			]
+		},
+		{
+			"id": "harlescottcrossing",
+			"name": "Harlescott Crossing",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "crewebank"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "wem"
+				}
+			]
+		},
+		{
+			"id": "wem",
+			"name": "Wem",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "harlescottcrossing"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "prees"
+				}
+			]
+		},
+		{
+			"id": "prees",
+			"name": "Prees",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "wem"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "whitchurch"
+				}
+			]
+		},
+		{
+			"id": "whitchurch",
+			"name": "Whitchurch",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "prees"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "wrenbury"
+				}
+			]
+		},
+		{
+			"id": "wrenbury",
+			"name": "Wrenbury",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "whitchurch"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "nantwich"
+				}
+			]
+		},
+		{
+			"id": "nantwich",
+			"name": "Nantwich",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "wrenbury"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "grestylane"
+				}
+			]
+		}
+	]
+}

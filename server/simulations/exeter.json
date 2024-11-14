@@ -1,0 +1,89 @@
+{
+	"name": "Exeter",
+	"panels": [
+		{
+			"id": "panela",
+			"name": "Panel A",
+			"neighbours": [
+				{
+					"simId": "plymouth",
+					"panelId": "east"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "paignton"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "paignton",
+			"name": "Paignton",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "panelb",
+			"name": "Panel B",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panela"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "exmouthjn"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "crediton"
+				}
+			]
+		},
+		{
+			"id": "exmouthjn",
+			"name": "Exmouth Jn",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "panelc",
+			"name": "Panel C",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panelb"
+				},
+				{
+					"simId": "westbury",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "crediton",
+			"name": "Crediton",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

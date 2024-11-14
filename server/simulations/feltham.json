@@ -1,0 +1,133 @@
+{
+	"name": "Feltham",
+	"panels": [
+		{
+			"id": "reading",
+			"name": "Reading",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "wokingham"
+				}
+			]
+		},
+		{
+			"id": "wokingham",
+			"name": "Wokingham",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "reading"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "ascot"
+				}
+			]
+		},
+		{
+			"id": "ascot",
+			"name": "Ascot",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "wokingham"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "staines"
+				},
+				{
+					"simId": "woking",
+					"panelId": "surbiton"
+				},
+				{
+					"simId": "woking",
+					"panelId": "aldershot"
+				}
+			]
+		},
+		{
+			"id": "staines",
+			"name": "Staines",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "ascot"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "hounslow"
+				}
+			]
+		},
+		{
+			"id": "hounslow",
+			"name": "Hounslow",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "staines"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "barnes"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "twickenham"
+				}
+			]
+		},
+		{
+			"id": "twickenham",
+			"name": "Twickenham",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "hounslow"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "strawberryhill"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "barnes"
+				}
+			]
+		},
+		{
+			"id": "strawberryhill",
+			"name": "Strawberry Hill",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "twickenham"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "barnes",
+			"name": "Barnes",
+			"neighbours": [
+				{
+					"simId": "feltham",
+					"panelId": "twickenham"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "hounslow"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				}
+			]
+		}
+	]
+}

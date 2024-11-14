@@ -1,0 +1,61 @@
+{
+	"name": "Wigan",
+	"panels": [
+		{
+			"id": "wiganwallgate",
+			"name": "Wigan Wallgate",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "north"
+				},
+				{
+					"simId": "wigan",
+					"panelId": "rainfordjn"
+				},
+				{
+					"simId": "wigan",
+					"panelId": "parbold"
+				}
+			]
+		},
+		{
+			"id": "rainfordjn",
+			"name": "Rainford Jnc",
+			"neighbours": [
+				{
+					"simId": "wigan",
+					"panelId": "wiganwallgate"
+				}
+			]
+		},
+		{
+			"id": "parbold",
+			"name": "Parbold",
+			"neighbours": [
+				{
+					"simId": "wigan",
+					"panelId": "wiganwallgate"
+				},
+				{
+					"simId": "wigan",
+					"panelId": "burscoughbridgejn"
+				}
+			]
+		},
+		{
+			"id": "burscoughbridgejn",
+			"name": "Burscough Bridge Jnc",
+			"neighbours": [
+				{
+					"simId": "wigan",
+					"panelId": "parbold"
+				},
+				{
+					"simId": "sandhills",
+					"panelId": "northern"
+				}
+			]
+		}
+	]
+}

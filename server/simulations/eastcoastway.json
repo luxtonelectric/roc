@@ -1,0 +1,131 @@
+{
+	"name": "East Coastway",
+	"panels": [
+		{
+			"id": "lewes",
+			"name": "Lewes",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "newhaventown"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "berwick"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel5"
+				}
+			]
+		},
+		{
+			"id": "newhaventown",
+			"name": "Newhaven Town",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "lewes"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "newhavenharbour"
+				}
+			]
+		},
+		{
+			"id": "newhavenharbour",
+			"name": "Newhaven Harbour",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "newhaventown"
+				}
+			]
+		},
+		{
+			"id": "berwick",
+			"name": "Berwick",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "lewes"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "polegate"
+				}
+			]
+		},
+		{
+			"id": "polegate",
+			"name": "Polegate",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "berwick"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "hampdenpark"
+				}
+			]
+		},
+		{
+			"id": "hampdenpark",
+			"name": "Hampden Park",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "polegate"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "eastbourne"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "pevenseywestham"
+				}
+			]
+		},
+		{
+			"id": "eastbourne",
+			"name": "Eastbourne",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "hampdenpark"
+				}
+			]
+		},
+		{
+			"id": "pevenseywestham",
+			"name": "Pevensey & Westham",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "hampdenpark"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "bexhill"
+				}
+			]
+		},
+		{
+			"id": "bexhill",
+			"name": "Bexhill",
+			"neighbours": [
+				{
+					"simId": "eastcoastway",
+					"panelId": "pevenseywestham"
+				}
+			]
+		}
+	]
+}

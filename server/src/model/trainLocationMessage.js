@@ -1,3 +1,4 @@
+/** @typedef {import("../stomp").TrainLocationUpdate} TrainLocationUpdate */
 export default class TrainLocationMessage {
   #simId;
   #headcode;
@@ -9,6 +10,10 @@ export default class TrainLocationMessage {
   #aspPass;
   #aspAppr;
 
+  /**
+   * @param {string} simId
+   * @param {{train_location: TrainLocationUpdate}} msg 
+   */
   constructor(simId,msg) {
     this.#simId = simId;
     this.#headcode = msg.train_location.headcode;

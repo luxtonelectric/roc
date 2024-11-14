@@ -1,0 +1,45 @@
+{
+	"name": "Rugby SCC North",
+	"panels": [
+		{
+			"id": "nuneaton",
+			"name": "Nuneaton",
+			"neighbours": [
+				{
+					"simId": "coventry",
+					"panelId": "coventry"
+				},
+				{
+					"simId": "rugbycentre",
+					"panelId": "rugby"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "north"
+				},
+				{
+					"simId": "rugbynorth",
+					"panelId": "trentvalley"
+				}
+			]
+		},
+		{
+			"id": "trentvalley",
+			"name": "Trent Valley",
+			"neighbours": [
+				{
+					"simId": "rugbynorth",
+					"panelId": "nuneaton"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "colwich"
+				},
+				{
+					"simId": "aston",
+					"panelId": "lichfieldtv"
+				}
+			]
+		}
+	]
+}

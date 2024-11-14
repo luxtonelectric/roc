@@ -50,9 +50,22 @@ export default class ROCManager {
    * @returns {Promise<Simulation>}
    */
   async getSimData(simId) {
-    /** @type {Simulation[]} */
-    const simConfig = JSON.parse(await readFile('./../simulations.json', 'utf8'));
-    return Simulation.fromSimData(simConfig.find(s => s.id == simId));
+    const filePath = new URL(`../simulations/${simId}.json`, import.meta.url)
+    let simConfig;
+    try {
+      /** @type {Simulation} */
+      simConfig = JSON.parse(await readFile(filePath, 'utf8'));
+    } catch (e) {
+      console.error(`Couldn't read sim config for ${simId}:`, e);
+    }
+    return Simulation.fromSimData(simId, simConfig);
+  }
+
+  /**
+   * @param {string} simId
+   */
+  getSimById(simId) {
+    return this.sims.find(sim => sim.id === simId);
   }
 
   activateGame(game) {

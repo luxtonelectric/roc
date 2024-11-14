@@ -1,0 +1,117 @@
+{
+	"name": "Motherwell",
+	"panels": [
+		{
+			"id": "wks1",
+			"name": "Workstation 1",
+			"neighbours": [
+				{
+					"simId": "cathcart",
+					"panelId": "cathcart"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks3"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks4"
+				}
+			]
+		},
+		{
+			"id": "wks2",
+			"name": "Workstation 2",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "duty2"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks3"
+				}
+			]
+		},
+		{
+			"id": "wks3",
+			"name": "Workstation 3",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks4"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks5"
+				}
+			]
+		},
+		{
+			"id": "wks4",
+			"name": "Workstation 4",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks3"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks5"
+				}
+			]
+		},
+		{
+			"id": "wks5",
+			"name": "Workstation 5",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks3"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks4"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks6"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "wks6",
+			"name": "Workstation 6",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks5"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panela"
+				}
+			]
+		}
+	]
+}

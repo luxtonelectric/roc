@@ -1,0 +1,19 @@
+{
+	"name": "Basingstoke",
+	"panels": [
+		{
+			"id": "basingstoke",
+			"name": "Basingstoke",
+			"neighbours": [
+				{
+					"simId": "salisbury",
+					"panelId": "salisbury"
+				},
+				{
+					"simId": "woking",
+					"panelId": "woking"
+				}
+			]
+		}
+	]
+}

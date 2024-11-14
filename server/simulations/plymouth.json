@@ -1,0 +1,33 @@
+{
+	"name": "Plymouth",
+	"panels": [
+		{
+			"id": "west",
+			"name": "West Workstation",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "liskeard"
+				},
+				{
+					"simId": "plymouth",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "east",
+			"name": "East Workstation",
+			"neighbours": [
+				{
+					"simId": "plymouth",
+					"panelId": "west"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "panela"
+				}
+			]
+		}
+	]
+}

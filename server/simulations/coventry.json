@@ -1,0 +1,27 @@
+{
+	"name": "Coventry",
+	"panels": [
+		{
+			"id": "coventry",
+			"name": "Coventry",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "south2"
+				},
+				{
+					"simId": "leamington",
+					"panelId": "leamington"
+				},
+				{
+					"simId": "rugbycentre",
+					"panelId": "rugby"
+				},
+				{
+					"simId": "rugbynorth",
+					"panelId": "nuneaton"
+				}
+			]
+		}
+	]
+}

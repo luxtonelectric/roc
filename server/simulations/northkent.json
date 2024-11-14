@@ -1,0 +1,33 @@
+{
+	"name": "North Kent",
+	"panels": [
+		{
+			"id": "northkent1",
+			"name": "North Kent 1",
+			"neighbours": [
+				{
+					"simId": "northkent",
+					"panelId": "northkent2"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel7"
+				}
+			]
+		},
+		{
+			"id": "northkent2",
+			"name": "North Kent 2",
+			"neighbours": [
+				{
+					"simId": "northkent",
+					"panelId": "northkent1"
+				}
+			]
+		}
+	]
+}

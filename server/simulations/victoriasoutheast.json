@@ -1,0 +1,155 @@
+{
+	"name": "Victoria South Eastern",
+	"panels": [
+		{
+			"id": "panel5",
+			"name": "Panel 5",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				}
+			]
+		},
+		{
+			"id": "panel6",
+			"name": "Panel 6",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel1"
+				}
+			]
+		},
+		{
+			"id": "panel7",
+			"name": "Panel 7",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2a"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				}
+			]
+		},
+		{
+			"id": "panel8",
+			"name": "Panel 8",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel10a"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel8"
+				}
+			]
+		},
+		{
+			"id": "panel9",
+			"name": "Panel 9",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel10a"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel6"
+				}
+			]
+		},
+		{
+			"id": "panel10a",
+			"name": "Panel 10A",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel10b"
+				}
+			]
+		},
+		{
+			"id": "panel10b",
+			"name": "Panel 10B",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel10a"
+				},
+				{
+					"simId": "maidstoneeast",
+					"panelId": "maidstoneeast"
+				}
+			]
+		}
+	]
+}

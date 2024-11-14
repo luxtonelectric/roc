@@ -1,0 +1,57 @@
+{
+	"name": "West Hampstead",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel2"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "westhampstead",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "westhampstead",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "westhampstead",
+					"panelId": "panel3"
+				}
+			]
+		}
+	]
+}

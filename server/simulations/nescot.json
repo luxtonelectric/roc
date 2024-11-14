@@ -1,0 +1,345 @@
+{
+	"name": "North East Scotland",
+	"panels": [
+		{
+			"id": "greenloaning",
+			"name": "Greenloaning",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutydb"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "blackford"
+				}
+			]
+		},
+		{
+			"id": "blackford",
+			"name": "Blackford",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "greenloaning"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "auchterarder"
+				}
+			]
+		},
+		{
+			"id": "auchterarder",
+			"name": "Auchterarder",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "blackford"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "hiltonjn"
+				}
+			]
+		},
+		{
+			"id": "hiltonjn",
+			"name": "Hilton Jn",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "auchterarder"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "perth"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel6"
+				}
+			]
+		},
+		{
+			"id": "perth",
+			"name": "Perth",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "hiltonjn"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "barnhill"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "stanleyjn"
+				}
+			]
+		},
+		{
+			"id": "barnhill",
+			"name": "Barnhill",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "perth"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "errol"
+				}
+			]
+		},
+		{
+			"id": "errol",
+			"name": "Errol",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "barnhill"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "longforgan"
+				}
+			]
+		},
+		{
+			"id": "longforgan",
+			"name": "Longforgan",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "errol"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "dundee"
+				}
+			]
+		},
+		{
+			"id": "dundee",
+			"name": "Dundee",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "longforgan"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "taybridgesouth"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "carnoustie"
+				}
+			]
+		},
+		{
+			"id": "taybridgesouth",
+			"name": "Tay Bridge South",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "dundee"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "leuchars"
+				}
+			]
+		},
+		{
+			"id": "leuchars",
+			"name": "Leuchars",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "taybridgesouth"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "cupar"
+				}
+			]
+		},
+		{
+			"id": "cupar",
+			"name": "Cupar",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "leuchars"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel6"
+				}
+			]
+		},
+		{
+			"id": "stanleyjn",
+			"name": "Stanley Jn",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "perth"
+				}
+			]
+		},
+		{
+			"id": "carnoustie",
+			"name": "Carnoustie",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "dundee"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "arbroath"
+				}
+			]
+		},
+		{
+			"id": "arbroath",
+			"name": "Arbroath",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "carnoustie"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "inverkeilor"
+				}
+			]
+		},
+		{
+			"id": "inverkeilor",
+			"name": "Inerkeilor",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "arbroath"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "usan"
+				}
+			]
+		},
+		{
+			"id": "usan",
+			"name": "Usan",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "inverkeilor"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "montrosenorth"
+				}
+			]
+		},
+		{
+			"id": "montrosenorth",
+			"name": "Montrose North",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "usan"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "craigo"
+				}
+			]
+		},
+		{
+			"id": "craigo",
+			"name": "Craigo",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "montrosenorth"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "laurencekirk"
+				}
+			]
+		},
+		{
+			"id": "laurencekirk",
+			"name": "Laurencekirk",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "craigo"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "carmont"
+				}
+			]
+		},
+		{
+			"id": "carmont",
+			"name": "Carmont",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "laurencekirk"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "stonehaven"
+				}
+			]
+		},
+		{
+			"id": "stonehaven",
+			"name": "Stonehaven",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "carmont"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "newtonhill"
+				}
+			]
+		},
+		{
+			"id": "newtonhill",
+			"name": "Newtonhill",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "stonehaven"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "aberdeen"
+				}
+			]
+		},
+		{
+			"id": "aberdeen",
+			"name": "Aberdeen",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "newtonhill"
+				}
+			]
+		}
+	]
+}

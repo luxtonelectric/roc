@@ -1,0 +1,175 @@
+{
+	"name": "London Bridge ASC",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel6"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel8"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel5"
+				}
+			]
+		},
+		{
+			"id": "panel5",
+			"name": "Panel 5",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "northkent",
+					"panelId": "northkent1"
+				}
+			]
+		},
+		{
+			"id": "panel6",
+			"name": "Panel 6",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel7"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				}
+			]
+		},
+		{
+			"id": "panel7",
+			"name": "Panel 7",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel6"
+				},
+				{
+					"simId": "northkent",
+					"panelId": "northkent1"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				}
+			]
+		},
+		{
+			"id": "panel8",
+			"name": "Panel 8",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1a"
+				}
+			]
+		},
+		{
+			"id": "panel9",
+			"name": "Panel 9",
+			"neighbours": [
+				{
+					"simId": "londonbridge",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel3"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,67 @@
+{
+	"name": "Cardiff Valleys",
+	"panels": [
+		{
+			"id": "radyr",
+			"name": "Radyr",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "taff"
+				},
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "abercynon"
+				}
+			]
+		},
+		{
+			"id": "abercynon",
+			"name": "Abercynon",
+			"neighbours": [
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "radyr"
+				}
+			]
+		},
+		{
+			"id": "heathjunction",
+			"name": "Heath Junction",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "taff"
+				},
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "ystradmynachsouth"
+				}
+			]
+		},
+		{
+			"id": "ystradmynachsouth",
+			"name": "Ystrad Mynach South",
+			"neighbours": [
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "heathjunction"
+				},
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "bargoed"
+				}
+			]
+		},
+		{
+			"id": "bargoed",
+			"name": "Bargoed",
+			"neighbours": [
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "ystradmynachsouth"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,52 @@
+{
+	"name": "Oxted",
+	"panels": [
+		{
+			"id": "oxted",
+			"name": "Oxted",
+			"neighbours": [
+				{
+					"simId": "threebridges",
+					"panelId": "panel1b"
+				}
+			],
+			"reportingLocations": [
+				"ST535",
+				"ASHUJN",
+				"ASHURST",
+				"BLCMJN",
+				"BXTD",
+				"CBGH",
+				"CBGHES",
+				"CBGHGF",
+				"COWDEN",
+				"DORMANS",
+				"EDNT",
+				"EGRNSID",
+				"EGRNSTD",
+				"ERIDGE",
+				"GRNHJN",
+				"HEVER",
+				"HRST312",
+				"HRSTGRN",
+				"HRSTJN",
+				"LINGFLD",
+				"LINGFLGF",
+				"OXTDDK",
+				"OXTE301",
+				"OXTE301N",
+				"OXTE306",
+				"OXTED",
+				"OXTEDBY",
+				"OXTEUSD",
+				"RDLSDWN",
+				"REV321SIG",
+				"SCROYDN",
+				"SDSD",
+				"UCKFILD",
+				"UWRLNGH",
+				"WLDNGHM"
+			]
+		}
+	]
+}

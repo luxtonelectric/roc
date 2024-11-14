@@ -1,0 +1,51 @@
+{
+	"name": "Hunts Cross",
+	"panels": [
+		{
+			"id": "huntscross",
+			"name": "Hunts Cross",
+			"neighbours": [
+				{
+					"simId": "sandhills",
+					"panelId": "northern"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "allerton"
+				},
+				{
+					"simId": "huntscross",
+					"panelId": "warringtoncentral"
+				}
+			]
+		},
+		{
+			"id": "warringtoncentral",
+			"name": "Warrington Central",
+			"neighbours": [
+				{
+					"simId": "huntscross",
+					"panelId": "huntscross"
+				},
+				{
+					"simId": "huntscross",
+					"panelId": "glazebrookeastjn"
+				}
+			]
+		},
+		{
+			"id": "glazebrookeastjn",
+			"name": "Glazebrook East Jn",
+			"neighbours": [
+				{
+					"simId": "huntscross",
+					"panelId": "warringtoncentral"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "oxfordroad"
+				}
+			]
+		}
+	]
+}

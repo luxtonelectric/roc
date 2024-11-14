@@ -1,4 +1,5 @@
 // @ts-check
+import ClockData from "./clockData.js";
 import Panel from "./panel.js";
 
 export default class Simulation {
@@ -7,11 +8,12 @@ export default class Simulation {
   panels = [];
   /** @type {boolean} */
   enabled = true;
-  clock = 0;
   /** @type {string} */
   name;
   /** @type {string} */
   channel;
+  /** @type {ClockData} */
+  time;
 
   /**
    * 

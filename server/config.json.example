@@ -1,0 +1,25 @@
+{
+    "superUsers": ["your discord user ID"]
+    "server": {
+        "port": 8080
+    },
+    "corsOrigin": "https://localhost:3000",
+    "games": [
+        {
+            "sim": "saltley",
+            "channel": "[bot VC channel prefix] 1",
+            "host": "localhost",
+            "interfaceGateway": {
+                "port": 51515,
+                "enabled": true
+            }
+        }
+    ],
+    "token": "discord bot token",
+    "prefix": "[bot VC channel prefix]",
+    "guild": "guild snowflake",
+    "channels": {
+        "afk": "AFK VC name",
+        "lobby": "General VC name"
+    }
+}

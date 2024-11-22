@@ -1,5 +1,5 @@
 <template>
-  {{ time }} {{ clockData.isPaused ? 'PAUSED':'' }}
+  {{simTime ? '': 'R' }} {{ time }} {{ clockData?.isPaused ? 'PAUSED':'' }}
 </template>
 
 <script>
@@ -25,6 +25,7 @@ export default {
         const minutes = dateObj.getUTCMinutes();
         const seconds = dateObj.getSeconds();
         this.time = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        this.simTime = true;
       } else {
         // Concise way to format time according to system locale.
         // In my case this returns "3:48:00 am"
@@ -33,6 +34,7 @@ export default {
           minute: 'numeric',
           second: 'numeric'
         }).format();
+        this.simTime = false;
       }
     },
     bindInterval () {

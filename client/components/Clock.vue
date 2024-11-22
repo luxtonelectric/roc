@@ -1,5 +1,5 @@
 <template>
-  {{ time }}
+  {{ time }} {{ clockData.isPaused ? 'PAUSED':'' }}
 </template>
 
 <script>

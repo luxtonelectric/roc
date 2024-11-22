@@ -6,7 +6,7 @@ const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
 const runtimeConfig: any = useRuntimeConfig()
 
-const props = defineProps(['gameData','username', 'playerData', 'phoneData', 'socket', 'error'])
+const props = defineProps(['gameData','username', 'playerData', 'phoneData', 'socket', 'error', 'callData'])
 
 onMounted(() =>{
   })
@@ -23,11 +23,10 @@ onMounted(() =>{
         <AuthenticationStatus :socket="socket" />
       </div>
       <div class="flex flex-col col-span-2 border-zinc-400 border-r-2 px-2 text-sm truncate justify-center">
-        <p>control</p>
-        <p>Fran Franklin (21869)</p>
+        <p>{{playerData.phones[0]?.name || '-'}}</p>
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
-        Stack: 0
+        Stack: {{ callData.length || 0}}
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
         Text: 0

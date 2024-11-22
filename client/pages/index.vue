@@ -15,6 +15,7 @@ const gameData =  ref({});
 const username = ref("");
 const playerData =  ref({phones:{}})
 const phoneData = ref({});
+const callData = reactive(new Map<string,any>());
 const app = useNuxtApp();
 let socket: Socket | undefined
 const connected = ref(false)
@@ -71,6 +72,9 @@ onMounted(() =>{
     socket.on("callQueueUpdate", function (msg){
       console.log('callQueueUpdate', msg);
       //playerData.value = msg;
+      const phoneId: string = msg.phoneId;
+      callData[phoneId as keyof any] = msg;
+
     });
 
     socket.on('disconnect', function (reason){
@@ -99,7 +103,7 @@ function changeTab(tab: string) {
 
 <template>
   <div class="flex flex-col pb-0 px-4 bg-neutral-200 text-lg h-screen max-h-screen">
-    <StatusBar :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" :error="error"/>
+    <StatusBar :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket" :error="error" :callData="callData"/>
 
     <div class="flex flex-row pt-2 h-5/6">
       <div v-if="error" class="mr-2 w-5/6 border-4 border-zinc-400 bg-red-100 h-full text-center">

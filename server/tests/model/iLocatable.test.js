@@ -1,6 +1,5 @@
-import iLocatable from "../../src/model/iLocatable"
-import Location from "../../src/model/location"
-
+import Location from "../../src/model/location";
+import iLocatable from "../../src/model/iLocatable";
 
 test('Do Sim locations match?', () => {
   const location11 = new Location('SIM1','PANEL1');

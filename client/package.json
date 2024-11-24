@@ -20,7 +20,7 @@
     "@nuxtjs/tailwindcss": "^6.11.4",
     "@sidebase/nuxt-auth": "^0.6.7",
     "next-auth": "4.21.1",
-    "nuxt": "^3.10.3",
+    "nuxt": "^3.14.1592",
     "vue": "^3.4.21"
   }
 }

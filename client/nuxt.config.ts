@@ -20,12 +20,14 @@ export default defineNuxtConfig({
     //  }
     //}]
   ],
+
   runtimeConfig: {
     public: {
       socketServer: '',
     }
     //socketServer: 'http://roc.onourlines.co.uk:3001'
   },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     // extend(config, ctx) {
@@ -38,6 +40,7 @@ export default defineNuxtConfig({
     //   })
     // }
   },
+
   auth: {
     isEnabled: true,
     baseUrl: process.env.AUTH_ORIGIN,
@@ -46,10 +49,14 @@ export default defineNuxtConfig({
     },
     globalAppMiddleware: true,
 },
-devServer: {
-  https: {
-    key: 'localhost-key.pem',
-    cert: 'localhost.pem'
-  }
-},ssr:false,
+
+  devServer: {
+    https: {
+      key: 'localhost-key.pem',
+      cert: 'localhost.pem'
+    }
+  },
+
+  ssr:false,
+  compatibilityDate: '2024-11-24',
 })

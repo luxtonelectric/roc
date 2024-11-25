@@ -6,7 +6,7 @@
   </div>
   <div class="grid grid-cols-6 pt-2">
     <div class="grid col-start-3 col-span-2 w-full h-12 p-2 bg-zinc-100 border-2 border-zinc-400">
-     1X01
+     {{ phoneNumber }}
     </div>
   </div>
   <div class="flex p-2">
@@ -18,44 +18,44 @@
         <div class="p-2">
           <div class="flex flex-cols">
             <div class="w-1/3">
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('1')">
                 <a>1</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('4')">
                 <a>4</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('7')">
                 <a>7</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('clear')">
                 <a>Clear</a>
               </button>
             </div>
             <div class="w-1/3">
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('2')">
                 <a>2</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('5')">
                 <a>5</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('8')">
                 <a>8</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('0')">
                 <a>0</a>
               </button>
             </div>
             <div class="w-1/3">
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('3')">
                 <a>3</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('6')">
                 <a>6</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('9')">
                 <a>9</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button class="w-20 h-16 bg-zinc-300 text-black text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300" @click="buttonPress('del')">
                 <a>Del</a>
               </button>
             </div>
@@ -119,6 +119,33 @@ export default {
     callNumber(){
       this.placeCall(this.phoneNumber);
     },
+
+    buttonPress(val) {
+      console.log(val);
+      switch (val) {
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '0':
+          this.phoneNumber += val;
+          break;
+        case 'del':
+          this.phoneNumber = this.phoneNumber.slice(0,-1);
+          break;
+        case 'clear':
+          this.phoneNumber = "";
+          break;
+        default:
+          break;
+      }
+    },
+
     async placeCall(receiver,type="p2p",level="normal")
     {
       const soc = this.socket;

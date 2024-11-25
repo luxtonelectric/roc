@@ -68,6 +68,10 @@ export function rocSockets (socket, gameManager, callManager) {
     callManager.playerJoinREC(msg.user, msg.channel);
   });
 
+  socket.on("requestGameUpdate", () => {
+    gameManager.sendGameUpdateToSocket(socket);
+  });
+
   socket.on('disconnect', function(msg){
     gameManager.checkDisconnectingPlayer(gameManager.findPlayerBySocketId(socket.id));
     console.log(chalk.yellow("Disconnect"), chalk.white("A socket has disconnected"), socket.id, msg);

@@ -10,8 +10,8 @@ export default class Simulation {
   enabled = true;
   /** @type {string} */
   name;
-  /** @type {string} */
-  channel;
+  /** @type {{channel: string; host: string; port: number; interfaceGateway: { connected: boolean; enabled: boolean; }}} */
+  config;
   
   /** @type {Map<string, string>} */
   locationToPanelMap = new Map()

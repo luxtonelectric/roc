@@ -24,7 +24,7 @@ onMounted(() =>{
         <AuthenticationStatus :socket="socket" />
       </div>
       <div class="flex flex-col col-span-2 border-zinc-400 border-r-2 px-2 text-sm truncate justify-center">
-        <p>{{(playerData.phones as Array<any>).map(x => x.name).join(" | ") || "-"}}</p>
+        <p>{{playerData.phones.length ? (playerData.phones as Array<any>).map(x => x.name).join(" | ") || "-": "-"}}</p>
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
         Stack: {{ callData.length || 0}}

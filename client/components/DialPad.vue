@@ -71,6 +71,9 @@
         <div class="w-full border-2 border-zinc-400 bg-zinc-300 p-2 text-center">
           Headcode
         </div>
+        <button @click="callNumber()" class="w-full border-2 border-zinc-400 bg-zinc-300 p-2 text-center">
+          Call
+        </button>
       </div>
     </div>
   </div>
@@ -149,7 +152,7 @@ export default {
     async placeCall(receiver,type="p2p",level="normal")
     {
       const soc = this.socket;
-      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});
+      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.playerData.phones[0].id, "type":type,"level": level}, response => resolve(response))});
       if(callId) {
         this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
       } else {

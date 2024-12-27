@@ -42,7 +42,7 @@ export default class CallManager {
     const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
     const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
 
-    return requestedCalls.concat(ongoingCalls); 
+    return requestedCalls.concat(ongoingCalls);
   }
 
 
@@ -55,32 +55,32 @@ export default class CallManager {
    * @returns 
    */
   placeCall(socketId, callType, senderPhoneId, receiverPhoneId = null) {
-    
+
     if (typeof this.phoneManager.getPhone(senderPhoneId) === 'undefined') {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
-    
+
     if (this.phoneManager.getPhone(senderPhoneId).getDiscordId() === null) {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
-    
+
     const sendingPhone = this.phoneManager.getPhone(senderPhoneId);
-    
+
     const sendingPlayerId = sendingPhone.getDiscordId();
-    
+
     let callRequest;
-    
+
     if (callType === CallRequest.TYPES.P2P) {
       if (typeof this.phoneManager.getPhone(receiverPhoneId) === 'undefined') {
         console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId);
         //this.io.to(socketId).emit('rejectCall', {"success":false})
         return false;
       }
-  
+
       if (this.phoneManager.getPhone(receiverPhoneId).getDiscordId() === null) {
         console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
         //this.io.to(socketId).emit('rejectCall', {"success":false})
@@ -111,16 +111,10 @@ export default class CallManager {
     this.requestedCalls.push(callRequest);
 
     console.log(chalk.yellow("Placing call"), callRequest.toEmittable());
-    const localIO = this.io;
 
     this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
     this.sendCallQueueUpdateToPhones([callRequest.sender]);
 
-    callRequest.getReceivers().forEach(p => {
-      localIO.to(p.getDiscordId()).emit("newCallInQueue", callRequest.toEmittable());
-
-    })
-    //console.log('newCallinQueue', callRequest);
     return callRequest.id;
 
   }
@@ -129,11 +123,11 @@ export default class CallManager {
    * 
    * @param {Phone[]} receivers 
    */
-  sendCallQueueUpdateToPhones(receivers){
+  sendCallQueueUpdateToPhones(receivers) {
     receivers.forEach((phone) => {
       const queue = this.getCallQueueForPhone(phone);
       const emittableQueue = queue.map((r) => r.toEmittable());
-      this.io.to(phone.getDiscordId()).emit('callQueueUpdate', {'phoneId': phone.getId(), 'queue': emittableQueue});
+      this.io.to(phone.getDiscordId()).emit('callQueueUpdate', { 'phoneId': phone.getId(), 'queue': emittableQueue });
     });
   }
 
@@ -204,7 +198,7 @@ export default class CallManager {
     this.io.to(call.sender.getDiscordId()).emit("rejectCall", { "success": false });
     if (call.type === CallRequest.TYPES.P2P) {
       this.io.to(call.getReceiver().getDiscordId()).emit('removeCallFromQueue', call);
-      
+
       this.sendCallQueueUpdateToPhones(call.getReceivers());
       this.sendCallQueueUpdateToPhones([call.sender]);
     }

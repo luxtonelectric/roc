@@ -12,40 +12,51 @@
         </div>
         <div class="p-2">
           <div class="flex flex-cols-2">
-            <div>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+            <!-- TODO: Make these buttons do something-->
+            <!-- div>
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>1</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>3</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>5</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>7</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>9</a>
               </button>
             </div>
             <div>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>2</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>4</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>6</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>8</a>
               </button>
-              <button class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
+              <button
+                class="w-20 h-16 bg-zinc-300 text-black py-1 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
                 <a>0</a>
               </button>
-            </div>
+            </div -->
           </div>
         </div>
       </div>
@@ -59,105 +70,121 @@
               <thead class="border-b border-zinc-400 p-2 bg-zinc-300 text-xl">
                 <tr>
                   <th class="border-r border-zinc-400">Contact</th>
-                  <th>Number</th>
+                  <th>From</th>
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b border-zinc-300">
-                  <td class="border-r border-zinc-300 p-4">Finsbury</td>
-                  <td>12345</td>
-                </tr>
-                <tr class="border-b border-zinc-300 bg-cyan-500">
-                  <td class="border-r border-zinc-300 p-4">King's Cross Control</td>
-                  <td>23000</td>
-                </tr>
+                <template v-for="phone in phoneData">
+                  <template v-for="speedDial in phone.speedDial">
+                    <tr v-if="!phoneData.some((p) => p.id === speedDial.id)"
+                      :class="[selectedReceiver === speedDial.id && selectedPhone === phone.id ? 'bg-cyan-500' : '']"
+                      class="border-b border-zinc-300">
+                      <td class="border-r border-zinc-300 p-4" @click="prepareCall(phone.id, speedDial.id)">{{
+                        speedDial.name }}</td>
+                      <td>{{ phone.name }}</td>
+                    </tr>
+                  </template>
+                </template>
               </tbody>
             </table>
           </div>
         </div>
       </div>
       <div class="w-40">
-        <button class="w-full bg-zinc-300 text-black py-1 px-3 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+        <!-- TODO: Make these buttons do something-->
+        <!--button
+          class="w-full bg-zinc-300 text-black py-1 px-3 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
           <a>Search</a>
         </button>
-        <button class="w-full bg-zinc-300 text-black py-1 px-3 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+        <button
+          class="w-full bg-zinc-300 text-black py-1 px-3 mb-2 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
           <a>Add</a>
         </button>
-        <button class="w-full bg-zinc-300 text-black py-1 px-3 mb-2  text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+        <button
+          class="w-full bg-zinc-300 text-black py-1 px-3 mb-2  text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
           <a>Edit</a>
         </button>
-        <button class="w-full bg-zinc-300 text-black py-1 px-3 mb-2  text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+        <button
+          class="w-full bg-zinc-300 text-black py-1 px-3 mb-2  text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
           <a>Delete</a>
-        </button>
+        </button -->
       </div>
     </div>
   </div>
   <div class="flex px-2 h-1/6">
     <div class="pr-2">
-        <button class="w-36 bg-zinc-300 text-black py-1 px-3 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 h-16">
-          <a>Global</a>
-        </button>
-      </div>
-      <div>
-        <button class="w-36 bg-zinc-300 text-black py-1 px-3 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 h-16">
-          <a>Local</a>
-        </button>
-      </div>
-      <div class="px-2">
-        <p>2 items in global phone book</p>
-      </div>
+      <button
+        class="w-36 bg-zinc-300 text-black py-1 px-3 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 h-16">
+        <a>Global</a>
+      </button>
+    </div>
+    <div>
+      <button
+        class="w-36 bg-zinc-300 text-black py-1 px-3 text-lg border-2 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 h-16">
+        <a>Local</a>
+      </button>
+    </div>
+    <div class="px-2">
+      <!-- TODO: This number is not accurate as it includes all the phones even if they're assigned to you. -->
+      <p>{{ phoneData.reduce((p, c, i) => { return p + c.speedDial.length }, 0) }} items in global phone book</p>
+    </div>
   </div>
 </template>
 
 <script>
+import { Socket } from 'socket.io-client';
+
 
 export default {
   name: "Phone Book",
-  props: ["gameData", "socket", "username", "playerData", "socket", "phoneData",],
+  props: { gameData: Object, socket: Socket, username: String, playerData: Object, phoneData: Array, selectedPhone: String, selectedReceiver: String },
   data() {
     return {
       panel: "No Panel Set",
       incomingCall: false,
-      callData: {user: "test", panel: "test panel", sim: "test sim"},
+      callData: { user: "test", panel: "test panel", sim: "test sim" },
       rejectedAudio: null,
-      callAudio: null,
       recAudio: null,
       considerRec: false,
       incomingRec: false,
       lastChannel: "Lobby",
-      selectedPhone: "",
       callChannel: 0,
       myCalls: [],
       hasPlacedCall: false,
       inCall: false,
       phoneNumber: "",
-      showTab: "panelSelector"
+      showTab: "panelSelector",
     }
   },
   created() {
-    this.rejectedAudio = new Audio('/audio/rejected.mp3');
-    this.callAudio = new Audio('/audio/telephone-ring.mp3');
-    this.recAudio = new Audio('/audio/rec.mp3');
-    this.callAudio.loop = true;
   },
   mounted() {
     var that = this;
 
   },
+  emits: ["prepareCall"],
   methods: {
     changeTab(tab) {
       this.showTab = tab;
     },
 
-    callNumber(){
+    prepareCall(sender, receiver) {
+      //console.log(receiver);
+      if (this.selectedReceiver !== receiver && this.selectedPhone !== sender) {
+        this.$emit("prepareCall", sender, receiver);
+      } else {
+        this.$emit("prepareCall", "", "");
+      }
+    },
+
+    callNumber() {
       this.placeCall(this.phoneNumber);
     },
-    async placeCall(receiver,type="p2p",level="normal")
-    {
+    async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;
-      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});
-      if(callId) {
-        this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
+      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receiver": receiver, "sender": this.selectedPhone, "type": type, "level": level }, response => resolve(response)) });
+      if (callId) {
+        this.placedCall({ "receiver": receiver, "sender": this.selectedPhone, "id": callId })
       } else {
         this.rejectedAudio.play();
         console.log('No call id. Something went wrong.');
@@ -167,6 +194,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

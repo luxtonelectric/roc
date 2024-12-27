@@ -21,6 +21,8 @@ let socket: Socket | undefined
 const connected = ref(false)
 const hasPhones = ref(false)
 const showTab = ref("panelSelector");
+const selectedReceiver = ref("");
+const selectedPhone = ref("");
 
 onMounted(() => {
   socket = io(runtimeConfig.public.socketServer)
@@ -54,6 +56,7 @@ onMounted(() => {
       if (msg.phones.length > 0) {
         console.log(msg.phones.length);
         hasPhones.value = true;
+        selectedPhone.value = msg.phones[0].id;
       } else {
         hasPhones.value = false;
       }
@@ -72,10 +75,26 @@ onMounted(() => {
   });
 
   socket.on("callQueueUpdate", function (msg) {
+
+    //
+
     console.log('callQueueUpdate', msg);
     //playerData.value = msg;
     const phoneId: string = msg.phoneId;
-    callData[phoneId as keyof any] = msg;
+    callData[phoneId as keyof any] = msg.queue;
+
+
+
+    // if(msg.type === "p2p") {
+    //     that.callAudio.currentTime = 0;
+    //     that.callAudio.play();
+    //     that.myCalls.push(msg);      
+    //   } else if (msg.type === "REC") {
+    //     that.callData = msg;
+    //     that.incomingRec = true;
+    //     that.recAudio.play();
+    //   }
+
 
   });
 
@@ -105,6 +124,22 @@ function changeTab(tab: string) {
   showTab.value = tab;
 }
 
+function prepareCall(sender: string, receiver: string) {
+  selectedPhone.value = sender;
+  selectedReceiver.value = receiver;
+}
+
+function placeCall(receiver: string,type="p2p",level="normal") {
+  socket?.emit("placeCall", {"receiver":receiver, "sender": selectedPhone.value, "type":type,"level": level}, (response) => {console.log(response)});
+      // const callId = await new Promise(resolve => {socket?.emit("placeCall", {"receiver":receiver, "sender": selectedPhone, "type":type,"level": level}, response => resolve(response))});
+      // if(callId) {
+      //   //this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
+      // } else {
+      //   //this.rejectedAudio.play();
+      //   console.log('No call id. Something went wrong.');
+      //}
+    }
+
 </script>
 
 <template>
@@ -125,10 +160,10 @@ function changeTab(tab: string) {
           :phoneData="phoneData" :socket="socket" />
         <DialPad v-if="showTab === 'dialPad'" :gameData="gameData" :username=username :playerData="playerData"
           :phoneData="phoneData" :socket="socket" />
-        <PhoneBook v-if="showTab === 'phoneBook'" :gameData="gameData" :username=username :playerData="playerData"
-          :phoneData="phoneData" :socket="socket" />
+        <PhoneBook v-if="showTab === 'phoneBook'" @prepare-call="prepareCall" :gameData="gameData" :username=username :playerData="playerData" :selectedReceiver="selectedReceiver"
+          :phoneData="phoneData" :socket="socket" :selectedPhone="selectedPhone" />
         <IncomingCalls v-if="showTab === 'incomingCalls'" :gameData="gameData" :username=username
-          :playerData="playerData" :phoneData="phoneData" :socket="socket" />
+          :playerData="playerData" :phoneData="phoneData" :callData="callData" :socket="socket" />
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6">
         <div class="">
@@ -190,9 +225,9 @@ function changeTab(tab: string) {
         </div-->
       </div>
       <div class="grid pt-2 w-1/6 pl-0.5">
-        <button v-if="hasPhones"
+        <button v-if="hasPhones" @click="placeCall(selectedReceiver)"
           class="w-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300">
-          <a>Place Call</a>
+          <a>Place Call {{selectedPhone}} -> {{ selectedReceiver }}</a>
         </button>
       </div>
     </div>

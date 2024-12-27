@@ -5,6 +5,16 @@
     </div>
   </div>
   <div class="grid">
+    <template v-for="phone in callData">
+      <template v-for="call in phone.calls">
+        <div class="grid grid-cols-4 bg-red-600 text-white w-full text-center text-xl py-4 border-y border-zinc-400">
+          <div>Emergency</div>
+          <div>{{call.number}}</div>
+          <div>{{call.name}}</div>
+          <div>{{call.time}}</div>
+        </div>
+    </template>
+    </template>
     <div class="grid grid-cols-4 bg-red-600 text-white w-full text-center text-xl py-4 border-y border-zinc-400">
       <div>Emergency</div>
       <div>23172</div>
@@ -42,7 +52,7 @@
 
 export default {
   name: "Incoming Calls",
-  props: ["gameData", "socket", "username", "playerData", "socket", "phoneData",],
+  props: ["gameData", "socket", "username", "playerData", "socket", "phoneData", "callData"],
   data() {
     return {
       panel: "No Panel Set",

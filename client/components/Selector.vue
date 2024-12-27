@@ -46,11 +46,7 @@ export default {
   data() {
     return {
       panel: "No Panel Set",
-      incomingCall: false,
       callData: {user: "test", panel: "test panel", sim: "test sim"},
-      rejectedAudio: null,
-      callAudio: null,
-      recAudio: null,
       considerRec: false,
       incomingRec: false,
       lastChannel: "Lobby",
@@ -64,10 +60,6 @@ export default {
     }
   },
   created() {
-    this.rejectedAudio = new Audio('/audio/rejected.mp3');
-    this.callAudio = new Audio('/audio/telephone-ring.mp3');
-    this.recAudio = new Audio('/audio/rec.mp3');
-    this.callAudio.loop = true;
   },
   mounted() {
     var that = this;
@@ -77,7 +69,7 @@ export default {
       that.rejectedAudio.play();
     });
 
-    this.socket.on('newCallInQueue', function (msg) {
+    this.socket.on('newCallInQueueXXX', function (msg) {
       if(msg.type === "p2p") {
         that.callAudio.currentTime = 0;
         that.callAudio.play();

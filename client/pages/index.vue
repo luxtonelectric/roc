@@ -181,9 +181,13 @@ function changeTab(tab: string) {
         <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
 
         </div>
-        <div class="w-full h-full bg-cyan-500 text-black py-2 px-3 text-lg border-4 border-zinc-400">
-          Connecting...
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+
         </div>
+        <!-- TODO: Do we need this connecting message here?-->
+        <!--div class="w-full h-full bg-cyan-500 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+          Connecting...
+        </div-->
       </div>
       <div class="grid pt-2 w-1/6 pl-0.5">
         <button v-if="hasPhones"

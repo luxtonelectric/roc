@@ -30,7 +30,8 @@ onMounted(() =>{
         Stack: {{ callData.length || 0}}
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
-        Text: 0
+        <!-- TODO: Add text messages here. -->
+        <!-- Text: 0 -->
       </div>
       <div v-if="error" class="flex flex-col col-start-10 col-end-11 border-zinc-400 border-x-2 px-2 bg-red-500 text-white text-sm justify-center">
         <p class="text-right font-bold"><span class="font-bold">ROC:</span> ERROR</p>

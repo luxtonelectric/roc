@@ -3,6 +3,8 @@ import chalk from 'chalk'
 
 import Phone from "./model/phone.js";
 import Location from './model/location.js';
+import Panel from './model/panel.js';
+import ROCManager from './ROCManager.js';
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("./model/simulation.js").default} Simulation */
 /** @typedef {import("./model/phonebookentry.js").default} PhonebookEntry */
@@ -28,22 +30,9 @@ export default class PhoneManager {
   generatePhonesForSim(sim) {
     //Create a phone for each panel in the sim.
     sim.panels.forEach((panel) => {
-      const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
-      console.log(chalk.yellow('generatePhonesForSim Adding phone: '), phone.toAdminView());
-
+      const phone = this.generatePhoneForPanel(sim, panel)
+      console.log(chalk.yellow('generatePhonesForSim Added phone: '), phone.toAdminView());
       panel.phone = phone;
-      this.phones.push(phone);
-
-      // We need to handle neighbour panels too
-      panel.neighbours.forEach((neighbour) => {
-        if(neighbour.simId !== sim.id) {
-          const px = this.getPhone(neighbour.simId + '_' + neighbour.panelId);
-          if(!px) {
-            const neighbourPhone = new Phone(neighbour.simId +'_' + neighbour.panelId, neighbour.panelId, Phone.TYPES.FIXED, new Location(neighbour.simId, neighbour.panelId))
-            this.phones.push(neighbourPhone);
-          }
-        }
-      });
     })
 
     //Create a phone for Control
@@ -63,6 +52,18 @@ export default class PhoneManager {
   generatePhoneForTrain(train) {
     const phone = new Phone(train.getSUID(), train.getHeadcode(), Phone.TYPES.TRAIN)
     phone.setCarrier(train);
+    this.phones.push(phone);
+    return phone;
+  }
+
+  /**
+   * 
+   * @param {Simulation} sim
+   * @param {Panel} panel 
+   * @returns {Phone}
+   */
+  generatePhoneForPanel(sim, panel) {
+    const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
     this.phones.push(phone);
     return phone;
   }
@@ -90,12 +91,32 @@ export default class PhoneManager {
 
   /**
    * 
+   * @param {ROCManager} rocManager 
+   */
+  generateMissingNeighbourPhones(rocManager) {
+    console.log(this)
+
+    this.sims.forEach((sim) => sim.panels.forEach((p) => p.neighbours.forEach((neighbour) => {
+      // Assume phones within the same sim are always generated together
+      if (neighbour.simId !== sim.id) {
+        const px = this.getPhone(neighbour.simId + "_" + neighbour.panelId);
+        if (!px) {
+          const neighbourSim = rocManager.getSimData(neighbour.simId);
+          this.generatePhoneForPanel(neighbourSim, neighbourSim.getPanel(neighbour.panelId));
+        }
+      }
+    })));
+    console.log("Generated neighbour phones")
+  }
+
+  /**
+   * 
    * @param {Phone} phone 
    * @returns {PhonebookEntry[]}
    */
   getSpeedDialForPhone(phone) {
     let phones = [];
-
+    
     if(phone.getLocation() !== null) {
       const sim = this.sims.find(x => x.id === phone.getLocation().simId);
       if(sim) {

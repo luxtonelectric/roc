@@ -42,6 +42,7 @@ export default class ROCManager {
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
     config.games.forEach(g => { this.activateGame(g) }, this);
+    this.phoneManager.generateMissingNeighbourPhones(this);
   }
 
   /**
@@ -72,14 +73,14 @@ export default class ROCManager {
   activateGame(game) {
     this.stompManager.createClientForGame(game);
     const sim = this.getSimData(game.sim)
-      if (sim) {
-        console.log('LOADING PHONES FOR SIM', game.sim);
-        this.phoneManager.generatePhonesForSim(sim);
-        sim.channel = game.channel;
-        this.sims.push(sim);
-      } else {
-        console.error('Unable to find simulation for', game.sim);
-      }
+    if (sim) {
+      console.log('LOADING PHONES FOR SIM', game.sim);
+      this.phoneManager.generatePhonesForSim(sim);
+      sim.channel = game.channel;
+      this.sims.push(sim);
+    } else {
+      console.error('Unable to find simulation for', game.sim);
+    }
   }
 
   enableInterfaceGateway(simId) {

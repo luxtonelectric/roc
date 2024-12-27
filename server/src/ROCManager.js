@@ -1,7 +1,7 @@
 // @ts-check
 import chalk from 'chalk'
+import fs from 'fs';
 import Player from './model/player.js';
-import { readFile } from "fs/promises";
 import Simulation from './model/simulation.js';
 import ClockData from './model/clockData.js';
 /** @typedef {import("./bot.js").default} DiscordBot */
@@ -42,21 +42,23 @@ export default class ROCManager {
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
     config.games.forEach(g => { this.activateGame(g) }, this);
+    this.phoneManager.generateMissingNeighbourPhones(this);
   }
 
   /**
    * 
    * @param {string} simId 
-   * @returns {Promise<Simulation>}
+   * @returns {Simulation}
    */
-  async getSimData(simId) {
+  getSimData(simId) {
     const filePath = new URL(`../simulations/${simId}.json`, import.meta.url)
     let simConfig;
     try {
       /** @type {Simulation} */
-      simConfig = JSON.parse(await readFile(filePath, 'utf8'));
+      simConfig = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     } catch (e) {
       console.error(`Couldn't read sim config for ${simId}:`, e);
+      return;
     }
     return Simulation.fromSimData(simId, simConfig);
   }
@@ -70,17 +72,15 @@ export default class ROCManager {
 
   activateGame(game) {
     this.stompManager.createClientForGame(game);
-    this.getSimData(game.sim).then(sim => {
-      if (sim) {
-        console.log('LOADING PHONES FOR SIM', game.sim);
-        this.phoneManager.generatePhonesForSim(sim);
-        sim.channel = game.channel;
-        this.sims.push(sim);
-      } else {
-        console.error('Unable to find simulation for', game.sim);
-      }
-    });
-
+    const sim = this.getSimData(game.sim)
+    if (sim) {
+      console.log('LOADING PHONES FOR SIM', game.sim);
+      this.phoneManager.generatePhonesForSim(sim);
+      sim.channel = game.channel;
+      this.sims.push(sim);
+    } else {
+      console.error('Unable to find simulation for', game.sim);
+    }
   }
 
   enableInterfaceGateway(simId) {

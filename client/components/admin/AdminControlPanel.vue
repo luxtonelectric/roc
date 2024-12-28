@@ -27,7 +27,7 @@
                 <td>{{ host.host }}</td>
                 <td>{{ host.channel }}</td>
                 <td>{{ host.enabled }}</td>
-                <td>{{ host.interfaceGateway.port }}</td>
+                <td>{{ host.interfaceGatewayPort }}</td>
                 <td>{{ host.interfaceGateway.connected }}</td>
                 <td>
                   <button v-if="host.interfaceGateway.enabled" class="btn" @click="disableIG(host.sim)">Disable

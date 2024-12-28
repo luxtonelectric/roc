@@ -71,12 +71,24 @@ export default class ROCManager {
   }
 
   activateGame(game) {
-    this.stompManager.createClientForGame(game);
+    const gatewayInfo = game.interfaceGateway;
+    game.interfaceGatewayPort = gatewayInfo.port;
+    // remove from interfaceGateway object so that it's not passed to clients
+    delete gatewayInfo.port;
+
+    this.stompManager.createClientForGame(game, game.interfaceGatewayPort);
     const sim = this.getSimData(game.sim)
     if (sim) {
       console.log('LOADING PHONES FOR SIM', game.sim);
       this.phoneManager.generatePhonesForSim(sim);
-      sim.config = game;
+
+
+      sim.config = {
+        channel: game.channel,
+        host: game.host,
+        port: game.port,
+        interfaceGateway: gatewayInfo,
+      };
       this.sims.push(sim);
     } else {
       console.error('Unable to find simulation for', game.sim);

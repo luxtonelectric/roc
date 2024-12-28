@@ -47,6 +47,10 @@ export function rocSockets (socket, gameManager, callManager) {
     gameManager.movePlayerToVoiceChannel(msg.user, msg.channel);
   });
 
+  socket.on("requestPhoneQueueUpdate", function(msg){
+    callManager.requestPhoneQueueUpdate(msg.id);
+  });
+
   socket.on("placeCall", function(msg,callback){
     const response = callManager.placeCall(socket.id, msg.type, msg.sender, msg.receiver);
     callback(response);

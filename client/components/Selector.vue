@@ -63,37 +63,6 @@ export default {
   },
   mounted() {
     var that = this;
-    this.socket.on("rejectCall", function (msg) {
-      that.incomingCall = false;
-      that.hasPlacedCall = false;
-      that.rejectedAudio.play();
-    });
-
-    this.socket.on('newCallInQueueXXX', function (msg) {
-      if(msg.type === "p2p") {
-        that.callAudio.currentTime = 0;
-        that.callAudio.play();
-        that.myCalls.push(msg);      
-      } else if (msg.type === "REC") {
-        that.callData = msg;
-        that.incomingRec = true;
-        that.recAudio.play();
-      }
-    });
-    this.socket.on('removeCallFromQueue', function (msg){
-      that.myCalls = that.myCalls.filter(x => x.id !== msg.id);
-      if(Object.keys(msg).length === 0) {
-        that.callAudio.pause();
-      }
-    });
-    this.socket.on('joinedCall', function (msg){
-      that.hasPlacedCall = false;
-      that.inCall = true;
-      that.callAudio.pause();
-    });
-    this.socket.on('kickedFromCall', function (msg){
-      that.leaveCall();
-    });
   },
   methods: {
     changeTab(tab) {
@@ -109,93 +78,6 @@ export default {
     {
       this.socket.emit("releasePanel", {"sim": sim, "panel":panel, "sender": this.username});
     },
-
-
-
-
-
-
-
-
-    selectPhone(phoneId){
-      this.selectedPhone = phoneId;
-    },
-    callNumber(){
-      this.placeCall(this.phoneNumber);
-    },
-    async placeCall(receiver,type="p2p",level="normal")
-    {
-      const soc = this.socket;
-      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});
-      if(callId) {
-        this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
-      } else {
-        this.rejectedAudio.play();
-        console.log('No call id. Something went wrong.');
-      }
-    },
-    acceptCall(callId) {
-      this.incomingCall = false;
-      this.muteRinger();
-      const call = {id:callId}
-      this.callData = this.myCalls.find(c => c.id === callId);
-      this.myCalls = this.myCalls.filter(c => c.id !== callId);
-      this.socket.emit('acceptCall', call);
-
-    },
-    muteRinger() {
-      //console.info("Mute Ringer");
-      this.callAudio.pause();
-      // this.callAudio.stop();
-      this.callAudio.currentTime = 0;
-    },
-    rejectCall(callId) {
-      this.incomingCall = false;
-      this.muteRinger();
-      this.socket.emit('rejectCall', {id:callId})
-    },
-    leaveCall(callId) {
-      this.socket.emit("leaveCall", {id:callId});
-      this.inCall = false;
-    },
-    considerRECWindow() {
-      this.considerRec = true;
-    },
-    startREC() {
-      this.considerRec = false;
-      this.placeCall(this.selectedPhone,"REC","emergency")
-    },
-    cancelREC() {
-      this.considerRec = false;
-    },
-    joinREC(callId) {
-      // this.lastChannel = this.panel;
-      this.incomingRec = false;
-      this.recAudio.pause();
-      this.recAudio.currentTime = 0;
-      this.acceptCall(callId);
-    },
-    movedSim(sim) {
-      this.lastChannel = sim;
-    },
-    placedCall(callData)
-    {
-      this.callData = callData;
-      this.hasPlacedCall = true;
-    },
-    hidePlacedCall()
-    {
-      //Event happens when you cancel a call.
-      this.hasPlacedCall = false;
-    },
-    moveToLobby()
-    {
-      this.socket.emit("moveToLobby", {});
-    },
-    markAFK()
-    {
-      this.socket.emit("markAFK", {});
-    }
   }
 }
 </script>

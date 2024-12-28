@@ -169,25 +169,10 @@ export default {
     },
 
     prepareCall(sender, receiver) {
-      //console.log(receiver);
-      if (this.selectedReceiver !== receiver && this.selectedPhone !== sender) {
+      if (this.selectedReceiver !== receiver || this.selectedPhone !== sender) {
         this.$emit("prepareCall", sender, receiver);
       } else {
         this.$emit("prepareCall", "", "");
-      }
-    },
-
-    callNumber() {
-      this.placeCall(this.phoneNumber);
-    },
-    async placeCall(receiver, type = "p2p", level = "normal") {
-      const soc = this.socket;
-      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receiver": receiver, "sender": this.selectedPhone, "type": type, "level": level }, response => resolve(response)) });
-      if (callId) {
-        this.placedCall({ "receiver": receiver, "sender": this.selectedPhone, "id": callId })
-      } else {
-        this.rejectedAudio.play();
-        console.log('No call id. Something went wrong.');
       }
     },
   }

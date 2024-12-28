@@ -41,8 +41,16 @@ export default class CallManager {
   getCallQueueForPhone(phone) {
     const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
     const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
+    const pastCalls = this.pastCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
+    const toNowCalls = requestedCalls.concat(ongoingCalls)
 
-    return requestedCalls.concat(ongoingCalls);
+    const lastCall = pastCalls.pop();
+
+    if (typeof lastCall !== 'undefined') {
+      toNowCalls.push(lastCall);
+    }
+
+    return toNowCalls;
   }
 
 
@@ -55,7 +63,6 @@ export default class CallManager {
    * @returns 
    */
   placeCall(socketId, callType, senderPhoneId, receiverPhoneId = null) {
-
     if (typeof this.phoneManager.getPhone(senderPhoneId) === 'undefined') {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
@@ -106,6 +113,9 @@ export default class CallManager {
         console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to REC but there were no receivers."));
         return false
       }
+    } else {
+      console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to place an invalid call type."), callType);
+      return false;
     }
 
     this.requestedCalls.push(callRequest);
@@ -118,6 +128,16 @@ export default class CallManager {
     return callRequest.id;
 
   }
+
+  requestPhoneQueueUpdate(phoneId) {
+    const phone = this.phoneManager.getPhone(phoneId);
+    if (typeof phone === 'undefined') {
+      console.warn(chalk.yellow('requestPhoneQueueUpdate'), 'Phone not found', phoneId);
+      return false;
+    }
+    this.sendCallQueueUpdateToPhones([phone]);
+  }
+
 
   /**
    * 
@@ -189,16 +209,16 @@ export default class CallManager {
 
     const call = this.requestedCalls.find(c => c.id === callId);
     if (typeof call === 'undefined') {
+      console.log(chalk.yellow('rejectCall'), socketId, 'attempting to reject undefined call', callId);
       return false;
     }
 
     call.status = CallRequest.STATUS.REJECTED;
     this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
+    this.pastCalls.push(call);
     this.bot.releasePrivateCallChannelReservation(call.channel)
     this.io.to(call.sender.getDiscordId()).emit("rejectCall", { "success": false });
     if (call.type === CallRequest.TYPES.P2P) {
-      this.io.to(call.getReceiver().getDiscordId()).emit('removeCallFromQueue', call);
-
       this.sendCallQueueUpdateToPhones(call.getReceivers());
       this.sendCallQueueUpdateToPhones([call.sender]);
     }

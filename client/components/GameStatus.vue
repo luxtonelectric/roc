@@ -53,7 +53,7 @@ onUnmounted(() => {
 
 <template>
 	<div class="flex-row text-xl text-center font-bold">
-		Next Session: 23 November 2024, 1800 UTC<br />East Coast Mainline
+		Next Session: 29 December 2024, 1600 UTC<br />North Wales and Borders
 	</div>
 	<div class="flex-row text-center">
 		{{ socketStatus }}

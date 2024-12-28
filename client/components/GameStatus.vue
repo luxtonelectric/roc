@@ -17,6 +17,7 @@ interface Panel {
 export interface Simulation {
 	panels: Panel[];
 	enabled: boolean;
+	connectionsOpen: boolean;
 	name: string;
 	channel: string;
 	locationToPanelMap: Map<string, string>;

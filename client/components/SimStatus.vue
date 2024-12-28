@@ -6,6 +6,7 @@ const freePanels = computed(() => simData.panels.filter(p => !p.player).length);
 const totalPanels = computed(() => simData.panels.length);
 const gatewayConnected = computed(() => simData.config.interfaceGateway.connected);
 const gatewayEnabled = computed(() => simData.config.interfaceGateway.enabled);
+const connectionsOpen = computed(() => simData.connectionsOpen);
 </script>
 
 <template>
@@ -25,11 +26,12 @@ const gatewayEnabled = computed(() => simData.config.interfaceGateway.enabled);
 				<span class="text-green-500">&bull;</span> Connected
 			</div>
 		</div>
-		<div class="text-base pt-2 text-center">Connections open</div>
-		<div class="grid grid-cols-2 auto-cols-auto">
+		<div v-if="connectionsOpen" class="text-base pt-2 text-center">Connections open</div>
+		<div v-if="connectionsOpen" class="grid grid-cols-2 auto-cols-auto">
 			<div class="text-sm">{{ simData.config.host }}</div>
 			<div class="text-sm text-right">:{{ simData.config.port }}</div>
 		</div>
+		<div v-else class="text-base pt-2 text-center">Connections closed</div>
 	</div>
 </template>
 

@@ -93,6 +93,16 @@ export default class ROCManager {
     this.updateAdminUI();
   }
 
+  enableConnections(simId) {
+    this.getSimById(simId).connectionsOpen = true;
+    this.updateAdminUI();
+  }
+
+  disableConnections(simId) {
+    this.getSimById(simId).connectionsOpen = false;
+    this.updateAdminUI();
+  }
+
   // ============================ BEGIN PLAYER CODE ============================
 
   /**

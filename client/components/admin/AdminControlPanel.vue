@@ -44,6 +44,11 @@
         <template v-if="gameState.gameState">
           <div v-for=" game in gameState.gameState">
             <h2 class="text-2xl font-bold">{{ game.name }}</h2>
+            <p>Connections open: {{ game.connectionsOpen }}</p>
+            <p>
+              <button v-if="game.connectionsOpen" class="btn" @click="disableConnections(game.id)">Toggle connections</button>
+              <button v-else class="btn" @click="enableConnections(game.id)">Toggle connections</button>
+            </p>
             <table>
               <tr v-for="panel in game.panels">
                 <td>{{ panel.name }}</td>
@@ -86,7 +91,7 @@
                 <td>
                   <select v-model="selectedPhone[phone.id]">
                     <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{key}}</option>
-                  </select>  
+                  </select>
                   <button @click="placeCall(phone.id)">Call</button>
                 </td>
               </tr>
@@ -182,6 +187,14 @@ export default {
     disableIG(simId) {
       console.log('disableIG', simId)
       this.socket.emit("disableInterfaceGateway", { "simId": simId });
+    },
+    enableConnections(simId) {
+      console.log('enableIG', simId)
+      this.socket.emit("enableConnections", { "simId": simId });
+    },
+    disableConnections(simId) {
+      console.log('disableIG', simId)
+      this.socket.emit("disableConnections", { "simId": simId });
     },
     createPhone(number, name, type, location = null, hidden = false) {
       console.log('createPhone')

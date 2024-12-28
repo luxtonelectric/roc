@@ -8,6 +8,8 @@ export default class Simulation {
   panels = [];
   /** @type {boolean} */
   enabled = true;
+  /** @type {boolean} */
+  connectionsOpen = true;
   /** @type {string} */
   name;
   /** @type {{channel: string; host: string; port: number; interfaceGateway: { connected: boolean; enabled: boolean; }}} */

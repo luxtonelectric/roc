@@ -16,6 +16,10 @@
 				{
 					"simId": "newales",
 					"panelId": "penyfford"
+				},
+				{
+					"simId": "chester",
+					"panelId": "chester"
 				}
 			]
 		},

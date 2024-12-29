@@ -132,28 +132,16 @@
 </template>
 
 <script>
-import { Socket } from 'socket.io-client';
+import { PreparedCall } from '~/models/PreparedCall';
 
 
 export default {
   name: "Phone Book",
-  props: { gameData: Object, socket: Socket, username: String, playerData: Object, phoneData: Array, selectedPhone: String, selectedReceiver: String },
+  props: { phoneData: Array, preparedCall: PreparedCall | null },
   data() {
     return {
-      panel: "No Panel Set",
-      incomingCall: false,
-      callData: { user: "test", panel: "test panel", sim: "test sim" },
-      rejectedAudio: null,
-      recAudio: null,
-      considerRec: false,
-      incomingRec: false,
-      lastChannel: "Lobby",
-      callChannel: 0,
-      myCalls: [],
-      hasPlacedCall: false,
-      inCall: false,
-      phoneNumber: "",
-      showTab: "panelSelector",
+      selectedPhone: String, 
+      selectedReceiver: String
     }
   },
   created() {
@@ -163,16 +151,29 @@ export default {
 
   },
   emits: ["prepareCall"],
+  watch: {
+    preparedCall: function () {
+        if (this.preparedCall === null) {
+          this.selectedPhone = "";
+          this.selectedReceiver = "";
+        }
+    }
+  },
   methods: {
     changeTab(tab) {
       this.showTab = tab;
     },
 
-    prepareCall(sender, receiver) {
-      if (this.selectedReceiver !== receiver || this.selectedPhone !== sender) {
-        this.$emit("prepareCall", sender, receiver);
+    prepareCall(senderId, receiverId) {
+      if (this.selectedReceiver !== receiverId || this.selectedPhone !== senderId) {
+        const sender = this.phoneData.find((p) => p.id === senderId);
+        const receiver = sender.speedDial.find((sd) => sd.id === receiverId);
+        const call = new PreparedCall(sender, [receiver]);
+        this.selectedPhone = senderId;
+        this.selectedReceiver = receiverId;
+        this.$emit("prepareCall", call);
       } else {
-        this.$emit("prepareCall", "", "");
+        this.$emit("prepareCall", null);
       }
     },
   }

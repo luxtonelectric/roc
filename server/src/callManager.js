@@ -58,19 +58,20 @@ export default class CallManager {
    * 
    * @param {string} socketId 
    * @param {string} callType 
+   * @param {string} callLevel
    * @param {string} senderPhoneId 
-   * @param {string|null} receiverPhoneId 
+   * @param {object[]|null} receiverPhones 
    * @returns 
    */
-  placeCall(socketId, callType, senderPhoneId, receiverPhoneId = null) {
+  placeCall(socketId, callType, callLevel, senderPhoneId, receiverPhones = null) {
     if (typeof this.phoneManager.getPhone(senderPhoneId) === 'undefined') {
-      console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), receiverPhoneId, senderPhoneId);
+      console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
 
     if (this.phoneManager.getPhone(senderPhoneId).getDiscordId() === null) {
-      console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
+      console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), senderPhoneId);
       //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
@@ -82,6 +83,13 @@ export default class CallManager {
     let callRequest;
 
     if (callType === CallRequest.TYPES.P2P) {
+      let receiverPhoneId
+      if(typeof receiverPhones === "object") {
+        receiverPhoneId = receiverPhones[0].id;
+      } else {
+        receiverPhoneId = receiverPhones;
+      }
+
       if (typeof this.phoneManager.getPhone(receiverPhoneId) === 'undefined') {
         console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId);
         //this.io.to(socketId).emit('rejectCall', {"success":false})
@@ -184,7 +192,7 @@ export default class CallManager {
 
     // @ts-expect-error
     await this.movePlayerToCall(socket.discordId, callRequest.channel)
-    console.log('accpeted', callRequest);
+    console.log('accepted', callRequest);
     if (callRequest.status === CallRequest.STATUS.OFFERED) {
       console.log(chalk.yellow('acceptCall'), 'Moving sender to call...', callId);
       await this.movePlayerToCall(callRequest.sender.getDiscordId(), callRequest.channel);
@@ -197,6 +205,8 @@ export default class CallManager {
       this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
       this.sendCallQueueUpdateToPhones([callRequest.sender]);
     }
+
+    return true;
   }
 
   /**

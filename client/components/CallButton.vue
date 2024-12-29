@@ -6,14 +6,14 @@
     <a> {{ line2 }} </a>
     <a> {{ line3 }}</a>
   </button>
-  inC:{{ isInCall }} hasIC:{{ hasIncomingCall }} isCP:{{ isCallPrepared }}
+  <!-- current:{{ currentCall !== null }} next:{{ nextCall !== null }} prep:{{ preparedCall !== null }} -->
 </template>
 
 <script>
 export default {
   name: "Call Button",
-  emits: ["acceptCall", "changeTab", "placeCall","leaveCall", "rejectCall"],
-  props: ["callData", "phoneData", "hasIncomingCall", "isInCall", "selectedPhone", "selectedReceiver", "currentCallId", "isCallPrepared", "incomingCallId"],
+  emits: ["acceptCall", "changeTab", "placeCall", "leaveCall", "rejectCall"],
+  props: ["callData", "phoneData", "nextCall", "selectedPhone", "selectedReceiver", "preparedCall", "currentCall"],
   data() {
     return {
       title: "Call",
@@ -24,19 +24,39 @@ export default {
   },
   methods: {
     takeAction() {
-      const currentCall = this.callData.get(this.currentCallId);
-      console.log(currentCall);
-      if (this.hasIncomingCall && !this.isInCall) {
-        this.$emit("acceptCall", this.currentCallId);
-      } else if (this.isInCall && currentCall.status === 'offered' && this.phoneData.some((p) => p.id === currentCall.sender.id)) {
-        this.$emit("rejectCall", this.currentCallId);
-      } else if (this.isInCall) {
-        this.$emit("leaveCall", this.currentCallId);
-      } else if (this.isCallPrepared) {
-        this.$emit("placeCall", this.selectedReceiver);
+      if (this.nextCall && !this.currentCall) {
+        this.$emit("acceptCall", this.nextCall.id);
+      } else if (this.currentCall && this.currentCall.status === 'offered' && this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
+        this.$emit("rejectCall", this.currentCall.id);
+      } else if (this.currentCall && this.currentCall.status === 'accepted') {
+        this.$emit("leaveCall", this.currentCall.Id);
+      } else if (this.preparedCall) {
+        this.$emit("placeCall", this.preparedCall);
       } else {
         this.$emit("changeTab", "phoneBook");
-        // this.$emit("placeCall", selectedPhone, selectedReceiver);
+      }
+    },
+    changeScreen() {
+      if (this.currentCall) {
+        this.title = "End Call";
+        this.line1 = "From: " + this.currentCall.sender.name;
+        this.line2 = " -> ";
+        this.line3 = "To: " + this.currentCall.receivers[0].name;
+      } else if (this.nextCall) {
+        this.title = "Answer Call";
+        this.line1 = "From: " + this.nextCall.sender.name;
+        this.line2 = " -> ";
+        this.line3 = "To: " + this.nextCall.receivers[0].name;
+      } else if (this.preparedCall) {
+        this.title = "Place Call";
+        this.line1 = "From: " + this.preparedCall.sender.name;
+        this.line2 = " -> ";
+        this.line3 = "To: " + this.preparedCall.receivers[0].name;
+      } else {
+        this.title = "Call";
+        this.line1 = "";
+        this.line2 = "";
+        this.line3 = "";
       }
     },
   },
@@ -44,37 +64,14 @@ export default {
 
   },
   watch: {
-    hasIncomingCall: function () {
-      console.log("hasIncomingCall changed");
-      if (this.hasIncomingCall && !this.isInCall) {
-        if(this.callData) {
-          const incomingCall = this.callData.get(this.incomingCallId);
-          this.title = "Answer Call";
-          this.line1 = "From: " + incomingCall.sender.name;
-          this.line2 = " -> ";
-          this.line3 = "To: " + incomingCall.receivers[0].name;
-        }
-      }
+    nextCall: function () {
+      this.changeScreen();
     },
-    isInCall: function () {
-      console.log("isInCall changed");
-      if (this.isInCall) {
-        this.title = "End Call";
-      } else if (!this.hasIncomingCall && !this.isInCall && !this.isCallPrepared) {
-        this.title = "Call";
-        this.line1 = "";
-        this.line2 = "";
-        this.line3 = " ";
-      }
+    currentCall: function () {
+      this.changeScreen();
     },
-    isCallPrepared: function () {
-      console.log("isCallPrepared changed");
-      if (this.isCallPrepared && !this.isInCall && !this.hasIncomingCall) {
-        this.title = "Place Call";
-        this.line1 = "From: " + this.selectedPhone;
-        this.line2 = " -> ";
-        this.line3 = "To: " + this.selectedReceiver;
-      }
+    preparedCall: function () {
+      this.changeScreen();
     },
   },
   beforeUnmount() {

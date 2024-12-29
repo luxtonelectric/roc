@@ -5,13 +5,13 @@
     </div>
   </div>
   <div class="grid">
-    <template v-for="[key, call] in callData">
+    <template v-for="call in callData">
       <template v-if="call.status === 'incoming'">
         <div class="grid grid-cols-4 bg-zinc-200 text-white w-full text-center text-xl py-4 border-y border-zinc-400">
           <div>{{call.type}}</div>
           <div>{{call.sender.name}}</div>
           <div>{{call.receivers[0].name}}</div>
-          <div><button @click="rejectCall(key)">Reject</button></div>
+          <div><button @click="rejectCall(call.id)">Reject</button></div>
         </div>
       </template>
     </template>

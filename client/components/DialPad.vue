@@ -80,27 +80,16 @@
 </template>
 
 <script>
+import { PreparedCall } from '~/models/PreparedCall';
+
 
 export default {
   name: "Dial Pad",
-  props: ["gameData", "socket", "username", "playerData", "socket", "phoneData",],
+  props: ["phoneData",],
+  emits: ["placeCall", "prepareCall"],
   data() {
     return {
-      panel: "No Panel Set",
-      incomingCall: false,
-      callData: {user: "test", panel: "test panel", sim: "test sim"},
-      rejectedAudio: null,
-      recAudio: null,
-      considerRec: false,
-      incomingRec: false,
-      lastChannel: "Lobby",
-      selectedPhone: "",
-      callChannel: 0,
-      myCalls: [],
-      hasPlacedCall: false,
-      inCall: false,
       phoneNumber: "",
-      showTab: "panelSelector"
     }
   },
   created() {
@@ -115,7 +104,9 @@ export default {
     },
 
     callNumber(){
-      this.placeCall(this.phoneNumber);
+      const preparedCall = new PreparedCall(this.phoneData[0],[{id:this.phoneNumber, name:this.phoneNumber}]);
+      this.$emit("prepareCall", preparedCall);
+      this.$emit("placeCall", preparedCall);
     },
 
     buttonPress(val) {
@@ -141,18 +132,6 @@ export default {
           break;
         default:
           break;
-      }
-    },
-
-    async placeCall(receiver,type="p2p",level="normal")
-    {
-      const soc = this.socket;
-      const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.playerData.phones[0].id, "type":type,"level": level}, response => resolve(response))});
-      if(callId) {
-        this.placedCall({"receiver":receiver, "sender": this.selectedPhone, "id": callId})
-      } else {
-        this.rejectedAudio.play();
-        console.log('No call id. Something went wrong.');
       }
     },
   }

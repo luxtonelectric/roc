@@ -52,7 +52,8 @@ export function rocSockets (socket, gameManager, callManager) {
   });
 
   socket.on("placeCall", function(msg,callback){
-    const response = callManager.placeCall(socket.id, msg.type, msg.sender, msg.receiver);
+    //TODO: This needs to be updated to handle multiple receivers
+    const response = callManager.placeCall(socket.id, msg.type, msg.level, msg.sender.id, msg.receivers);
     callback(response);
   });
 
@@ -60,8 +61,9 @@ export function rocSockets (socket, gameManager, callManager) {
     callManager.rejectCall(socket.id,msg.id);
   });
   
-  socket.on("acceptCall", function(msg){
-    callManager.acceptCall(socket,msg.id);
+  socket.on("acceptCall", function(msg, callback){
+    const response = callManager.acceptCall(socket,msg.id);
+    callback(response);
   });
 
   socket.on("leaveCall", function(msg){

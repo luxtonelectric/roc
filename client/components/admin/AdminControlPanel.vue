@@ -82,7 +82,7 @@
                     <img class="w-12 h-12 rounded-full" :src="phone.player.avatarURL" :title="phone.player.displayName"
                       :alt="phone.player.displayName"></template>
                 </td>
-                <td><button v-if="!phone.player" @click="claimPhone(phone.id)">Claim</button></td>
+                <td><button @click="claimPhone(phone.id)">Claim</button></td>
                 <td>
                   <select v-model="selectedPhone[phone.id]">
                     <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{key}}</option>

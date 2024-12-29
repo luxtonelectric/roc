@@ -78,8 +78,8 @@
                   <template v-for="speedDial in phone.speedDial">
                     <tr v-if="!phoneData.some((p) => p.id === speedDial.id)"
                       :class="[selectedReceiver === speedDial.id && selectedPhone === phone.id ? 'bg-cyan-500' : '']"
-                      class="border-b border-zinc-300">
-                      <td class="border-r border-zinc-300 p-4" @click="prepareCall(phone.id, speedDial.id)">{{
+                      class="border-b border-zinc-300" @click="prepareCall(phone.id, speedDial.id)">
+                      <td class="border-r border-zinc-300 p-4">{{
                         speedDial.name }}</td>
                       <td>{{ phone.name }}</td>
                     </tr>

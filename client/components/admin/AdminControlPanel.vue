@@ -198,7 +198,13 @@ export default {
     },
     async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;
-      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receiver": receiver, "sender": this.selectedPhone[receiver], "type": type, "level": level }, response => resolve(response)) });
+      console.log('placeCall', receiver, type, level);
+      console.log('this.selectedPhone', this.selectedPhone[receiver.id]);
+
+      const receiverPhone = this.gameState.phones.find(p => p.id === receiver);
+      const senderPhone = this.gameState.phones.find(p => p.id === this.selectedPhone[receiver]);
+
+      const callId = await new Promise(resolve => { soc.emit("placeCall", { "receivers": [receiverPhone], "sender": senderPhone, "type": type, "level": level }, response => resolve(response)) });
       // if (callId) {
       //   this.placedCall({ "receiver": receiver, "sender": this.selectedPhone, "id": callId })
       // } else {
@@ -212,7 +218,10 @@ export default {
       const call = {id:callId}
       //this.callData = this.myCalls.find(c => c.id === callId);
       //this.myCalls = this.myCalls.filter(c => c.id !== callId);
-      this.socket.emit('acceptCall', call);
+      this.socket.emit('acceptCall', call, response => {
+        console.log('acceptCall response', response);
+      });
+      
 
     },
     rejectCall(callId) {

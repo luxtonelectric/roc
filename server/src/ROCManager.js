@@ -71,12 +71,24 @@ export default class ROCManager {
   }
 
   activateGame(game) {
-    this.stompManager.createClientForGame(game);
+    const gatewayInfo = game.interfaceGateway;
+    game.interfaceGatewayPort = gatewayInfo.port;
+    // remove from interfaceGateway object so that it's not passed to clients
+    delete gatewayInfo.port;
+
+    this.stompManager.createClientForGame(game, game.interfaceGatewayPort);
     const sim = this.getSimData(game.sim)
     if (sim) {
       console.log('LOADING PHONES FOR SIM', game.sim);
       this.phoneManager.generatePhonesForSim(sim);
-      sim.channel = game.channel;
+
+
+      sim.config = {
+        channel: game.channel,
+        host: game.host,
+        port: game.port,
+        interfaceGateway: gatewayInfo,
+      };
       this.sims.push(sim);
     } else {
       console.error('Unable to find simulation for', game.sim);
@@ -90,6 +102,16 @@ export default class ROCManager {
 
   disableInterfaceGateway(simId) {
     this.stompManager.deactivateClientForGame(simId);
+    this.updateAdminUI();
+  }
+
+  enableConnections(simId) {
+    this.getSimById(simId).connectionsOpen = true;
+    this.updateAdminUI();
+  }
+
+  disableConnections(simId) {
+    this.getSimById(simId).connectionsOpen = false;
     this.updateAdminUI();
   }
 
@@ -460,8 +482,12 @@ export default class ROCManager {
     this.updateAdminUI();
   }
 
+  sendGameUpdateToSocket(socket) {
+    socket.emit("gameInfo", this.getGameState());
+  }
+
   sendGameUpdateToPlayer(player) {
-    player.socket.emit("gameInfo", this.getGameState());
+    this.sendGameUpdateToSocket(player.socket);
   }
   /**
    * 

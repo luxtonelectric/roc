@@ -53,6 +53,15 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     gameManager.disableInterfaceGateway(msg.simId);
   });
 
+  socket.on("enableConnections", function (msg) {
+    console.log(chalk.yellow('enableConnections'), msg)
+    gameManager.enableConnections(msg.simId);
+  });
+  socket.on("disableConnections", function (msg) {
+    console.log(chalk.yellow('disableConnections'), msg)
+    gameManager.disableConnections(msg.simId);
+  });
+
   // kick the user from the call handler thingey socket yum
   socket.on("adminKickFromCall", function (msg) {
     gameManager.kickUserFromCall(msg);

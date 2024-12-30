@@ -39,9 +39,9 @@ export default class STOMPManager {
     this.trainManager = trainManager;
   }
 
-  createClientForGame(game) {
+  createClientForGame(game, port) {
     if ("interfaceGateway" in game) {
-      if (!("host" in game) || !("port" in game.interfaceGateway)) {
+      if (!("host" in game) || !port) {
         console.error(chalk.yellow('createClientForSim'), chalk.red("Invalid Interface Gateway configuration for", game.id));
         return false;
       }
@@ -56,7 +56,7 @@ export default class STOMPManager {
 
       const client = new Client({
         connectHeaders: clientConnectHeaders,
-        webSocketFactory: () => new TCPWrapper(game.host, game.interfaceGateway.port),
+        webSocketFactory: () => new TCPWrapper(game.host, port),
         onConnect: (iFrame) => {
           console.log("STOMP Connect");
           console.log(iFrame);

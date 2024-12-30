@@ -44,7 +44,7 @@ export default {
   methods: {
     movePlayer()
     {
-      this.socket.emit("movePlayerVoiceChannel", {"user": this.username, "channel": this.simData.channel});
+      this.socket.emit("movePlayerVoiceChannel", {"user": this.username, "channel": this.simData.config.channel});
       this.$emit("movedSim", this.simData.name);
     },
     claimPanel(sim, panel)

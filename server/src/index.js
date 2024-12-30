@@ -1,5 +1,6 @@
 //@ts-check
 import betterLogging from 'better-logging';
+import chalk from 'chalk';
 betterLogging(console,{
   format: ctx => `${ctx.date}${ctx.time}${ctx.type}${ctx.STAMP('ROC', chalk.blueBright)} ${ctx.msg}`
 });
@@ -7,10 +8,9 @@ import { readFileSync } from "fs";
 import { createServer as createSecureServer} from "https";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import chalk from 'chalk';
 import ROCManager from "./ROCManager.js";
 import DiscordBot from "./bot.js";
-// @ts-ignore
+// @ts-expect-error: with json is experimental
 import config from "./../config.json" with { type: "json" };
 
 import { rocSockets } from './sockets.js';

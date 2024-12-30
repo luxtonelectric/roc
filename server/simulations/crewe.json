@@ -1,0 +1,243 @@
+{
+	"name": "Crewe",
+	"panels": [
+		{
+			"id": "winsford",
+			"name": "Winsford",
+			"neighbours": [
+				{
+					"simId": "edgehill",
+					"panelId": "haltonjn"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "south"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "greenbank"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "coalyard"
+				}
+			]
+		},
+		{
+			"id": "coalyard",
+			"name": "Coal Yard",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "winsford"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "salopgoodsjn"
+				}
+			]
+		},
+		{
+			"id": "crewepsbnorth",
+			"name": "Crewe PSB North",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "coalyard"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "steelworks"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "basfordhall"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "grestylane"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "sortingsidingsnth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "salopgoodsjn"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				}
+			]
+		},
+		{
+			"id": "steelworks",
+			"name": "Steel Works",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "chester",
+					"panelId": "beestoncastle"
+				}
+			]
+		},
+		{
+			"id": "crewepsbsouth",
+			"name": "Crewe PSB South",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "coalyard"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "steelworks"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "basfordhall"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "grestylane"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stokenorth"
+				}
+			]
+		},
+		{
+			"id": "basfordhall",
+			"name": "Basford Hall",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "sortingsidingsnth"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stafford"
+				}
+			]
+		},
+		{
+			"id": "grestylane",
+			"name": "Gresty Lane",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "sortingsidingsnth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "salopgoodsjn"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "nantwich"
+				}
+			]
+		},
+		{
+			"id": "salopgoodsjn",
+			"name": "Salop Goods Jn",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "sortingsidingsnth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "grestylane"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "coalyard"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				}
+			]
+		},
+		{
+			"id": "sortingsidingsnth",
+			"name": "Sorting Sidings North",
+			"neighbours": [
+				{
+					"simId": "crewe",
+					"panelId": "basfordhall"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "salopgoodsjn"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "grestylane"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbsouth"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "crewepsbnorth"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				}
+			]
+		}
+	]
+}

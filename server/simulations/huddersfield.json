@@ -1,0 +1,33 @@
+{
+	"name": "Huddersfield",
+	"panels": [
+		{
+			"id": "huddersfield",
+			"name": "Huddersfield",
+			"neighbours": [
+				{
+					"simId": "huddersfield",
+					"panelId": "digglejn"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "barnsley"
+				}
+			]
+		},
+		{
+			"id": "digglejn",
+			"name": "Diggle Jn",
+			"neighbours": [
+				{
+					"simId": "huddersfield",
+					"panelId": "huddersfield"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "stalybridge"
+				}
+			]
+		}
+	]
+}

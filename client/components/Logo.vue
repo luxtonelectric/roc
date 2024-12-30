@@ -1,5 +1,5 @@
 <template>
-  <p class="text-xl text-center">
+  <p class="lg:text-xl text-center text-sm">
         ██████╗&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;██████╗&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;██████╗&nbsp;&nbsp;&nbsp;<br />
         ██╔══██╗&nbsp;&nbsp;&nbsp;██╔═══██╗&nbsp;&nbsp;&nbsp;██╔════╝&nbsp;&nbsp;&nbsp;<br />
         ██████╔╝&nbsp;&nbsp;&nbsp;██║&nbsp;&nbsp;&nbsp;██║&nbsp;&nbsp;&nbsp;██║&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />

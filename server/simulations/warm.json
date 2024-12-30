@@ -1,0 +1,43 @@
+{
+	"name": "West Anglia",
+	"panels": [
+		{
+			"id": "hackney",
+			"name": "Hackney",
+			"neighbours": [
+				{
+					"simId": "liverpoolstreet",
+					"panelId": "wa"
+				},
+				{
+					"simId": "warm",
+					"panelId": "brimsdown"
+				}
+			]
+		},
+		{
+			"id": "brimsdown",
+			"name": "Brimsdown",
+			"neighbours": [
+				{
+					"simId": "warm",
+					"panelId": "hackney"
+				},
+				{
+					"simId": "warm",
+					"panelId": "harlow"
+				}
+			]
+		},
+		{
+			"id": "harlow",
+			"name": "Harlow",
+			"neighbours": [
+				{
+					"simId": "warm",
+					"panelId": "brimsdown"
+				}
+			]
+		}
+	]
+}

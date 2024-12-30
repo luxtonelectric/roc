@@ -1,0 +1,55 @@
+{
+	"name": "Woking",
+	"panels": [
+		{
+			"id": "surbiton",
+			"name": "Surbiton",
+			"neighbours": [
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "ascot"
+				},
+				{
+					"simId": "woking",
+					"panelId": "woking"
+				}
+			]
+		},
+		{
+			"id": "woking",
+			"name": "Woking",
+			"neighbours": [
+				{
+					"simId": "woking",
+					"panelId": "surbiton"
+				},
+				{
+					"simId": "woking",
+					"panelId": "aldershot"
+				},
+				{
+					"simId": "basingstoke",
+					"panelId": "basingstoke"
+				}
+			]
+		},
+		{
+			"id": "aldershot",
+			"name": "Aldershot",
+			"neighbours": [
+				{
+					"simId": "woking",
+					"panelId": "woking"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "ascot"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,83 @@
+{
+	"name": "Manchester North",
+	"panels": [
+		{
+			"id": "west",
+			"name": "West",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "oxfordroad"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor1"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "east",
+			"name": "East",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "west"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "vitriolworks"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "baguleyfoldjn"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "ashburys"
+				}
+			]
+		},
+		{
+			"id": "vitriolworks",
+			"name": "Vitriol Works",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "east"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "castletoneast"
+				}
+			]
+		},
+		{
+			"id": "castletoneast",
+			"name": "Castleton East",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "vitriolworks"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "rochdalewest"
+				}
+			]
+		},
+		{
+			"id": "rochdalewest",
+			"name": "Rochdale West",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "castletoneast"
+				}
+			]
+		}
+	]
+}

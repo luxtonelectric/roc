@@ -1,0 +1,119 @@
+{
+	"name": "Victoria Central",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2a"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				}
+			]
+		},
+		{
+			"id": "panel2a",
+			"name": "Panel 2A",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2b"
+				},
+				{
+					"simId": "wembleymainline",
+					"panelId": "willesden"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel7"
+				}
+			]
+		},
+		{
+			"id": "panel2b",
+			"name": "Panel 2B",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2a"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1c"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel2b"
+				},
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				},
+				{
+					"simId": "londonbridge",
+					"panelId": "panel8"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1a"
+				},
+				{
+					"simId": "victoriasoutheast",
+					"panelId": "panel9"
+				}
+			]
+		},
+		{
+			"id": "panel4",
+			"name": "Panel 4",
+			"neighbours": [
+				{
+					"simId": "victoriacentral",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel1c"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel4"
+				}
+			]
+		}
+	]
+}

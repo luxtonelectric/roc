@@ -1,0 +1,137 @@
+{
+	"name": "Sheffield",
+	"panels": [
+		{
+			"id": "sheffield",
+			"name": "Sheffield",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "woodburnjn"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham1"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "barnsley"
+				}
+			]
+		},
+		{
+			"id": "rotherham1",
+			"name": "Rotherham 1",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham2"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "woodburnjn"
+				},
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "leedsa",
+					"panelId": "ardsley"
+				}
+			]
+		},
+		{
+			"id": "rotherham2",
+			"name": "Rotherham 2",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham1"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "beightonstnjn"
+				}
+			]
+		},
+		{
+			"id": "beightonstnjn",
+			"name": "Beighton Station Junction",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham2"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "woodhousejn"
+				}
+			]
+		},
+		{
+			"id": "woodhousejn",
+			"name": "Woodhouse Junction",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "beightonstnjn"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "woodburnjn"
+				}
+			]
+		},
+		{
+			"id": "woodburnjn",
+			"name": "Woodburn Junction",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "woodhousejn"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "sheffield"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham1"
+				}
+			]
+		},
+		{
+			"id": "barnsley",
+			"name": "Barnsley",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "sheffield"
+				},
+				{
+					"simId": "huddersfield",
+					"panelId": "huddersfield"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "woolleycoalsdgs"
+				}
+			]
+		},
+		{
+			"id": "woolleycoalsdgs",
+			"name": "Woolley Coal Sidings",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "barnsley"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "horburyjn"
+				}
+			]
+		}
+	]
+}

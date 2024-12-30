@@ -1,0 +1,33 @@
+{
+	"name": "Telford & Oxley",
+	"panels": [
+		{
+			"id": "madeleyjn",
+			"name": "Madeley Jn.",
+			"neighbours": [
+				{
+					"simId": "shrewsbury",
+					"panelId": "abbeyforegate"
+				},
+				{
+					"simId": "telfordoxley",
+					"panelId": "oxley"
+				}
+			]
+		},
+		{
+			"id": "oxley",
+			"name": "Oxley",
+			"neighbours": [
+				{
+					"simId": "telfordoxley",
+					"panelId": "madeleyjn"
+				},
+				{
+					"simId": "wolverhampton",
+					"panelId": "wolverhampton"
+				}
+			]
+		}
+	]
+}

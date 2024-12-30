@@ -1,0 +1,47 @@
+{
+	"name": "Swindon & Didcot",
+	"panels": [
+		{
+			"id": "wks1",
+			"name": "Workstation 1",
+			"neighbours": [
+				{
+					"simId": "westbury",
+					"panelId": "panela"
+				},
+				{
+					"simId": "swindonab",
+					"panelId": "wks2"
+				}
+			]
+		},
+		{
+			"id": "wks2",
+			"name": "Workstation 2",
+			"neighbours": [
+				{
+					"simId": "swindonab",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "swindonab",
+					"panelId": "wks3"
+				}
+			]
+		},
+		{
+			"id": "wks3",
+			"name": "Workstation 3",
+			"neighbours": [
+				{
+					"simId": "swindonab",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "oxford",
+					"panelId": "oxford"
+				}
+			]
+		}
+	]
+}

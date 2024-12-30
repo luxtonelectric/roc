@@ -1,0 +1,77 @@
+{
+	"name": "Cardiff",
+	"panels": [
+		{
+			"id": "east",
+			"name": "East",
+			"neighbours": [
+				{
+					"simId": "newport",
+					"panelId": "station"
+				},
+				{
+					"simId": "cardiff",
+					"panelId": "west"
+				}
+			]
+		},
+		{
+			"id": "west",
+			"name": "West",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "east"
+				},
+				{
+					"simId": "cardiff",
+					"panelId": "taff"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panela"
+				},
+				{
+					"simId": "cardiff",
+					"panelId": "stfagans"
+				}
+			]
+		},
+		{
+			"id": "taff",
+			"name": "Taff",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "west"
+				},
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "radyr"
+				},
+				{
+					"simId": "cardiffvalleys",
+					"panelId": "heathjunction"
+				},
+				{
+					"simId": "cardiffvog",
+					"panelId": "barry"
+				}
+			]
+		},
+		{
+			"id": "stfagans",
+			"name": "St Fagan's",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "west"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panela"
+				}
+			]
+		}
+	]
+}

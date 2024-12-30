@@ -1,0 +1,85 @@
+{
+	"name": "Tyneside IECC",
+	"panels": [
+		{
+			"id": "darlington",
+			"name": "Darlington",
+			"neighbours": [
+				{
+					"simId": "yorkns",
+					"panelId": "north"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "heighingtonsb"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "gateshead"
+				}
+			]
+		},
+		{
+			"id": "heighingtonsb",
+			"name": "Heighington Signal Box",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "darlington"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "shildonsb"
+				}
+			]
+		},
+		{
+			"id": "shildonsb",
+			"name": "Shildon Signal Box",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "heighingtonsb"
+				}
+			]
+		},
+		{
+			"id": "gateshead",
+			"name": "Gateshead",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "darlington"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "newcastle"
+				},
+				{
+					"simId": "tyneside",
+					"panelId": "sunderland"
+				}
+			]
+		},
+		{
+			"id": "newcastle",
+			"name": "Newcastle",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "gateshead"
+				}
+			]
+		},
+		{
+			"id": "sunderland",
+			"name": "Sunderland",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "gateshead"
+				}
+			]
+		}
+	]
+}

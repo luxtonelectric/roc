@@ -1,0 +1,51 @@
+{
+	"name": "aston",
+	"panels": [
+		{
+			"id": "aston",
+			"name": "Aston",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "south2"
+				},
+				{
+					"simId": "aston",
+					"panelId": "lichfieldtv"
+				}
+			]
+		},
+		{
+			"id": "lichfieldtv",
+			"name": "Lichfield T.V.",
+			"neighbours": [
+				{
+					"simId": "aston",
+					"panelId": "aston"
+				},
+				{
+					"simId": "aston",
+					"panelId": "alrewas"
+				},
+				{
+					"simId": "rugbynorth",
+					"panelId": "trentvalley"
+				}
+			]
+		},
+		{
+			"id": "alrewas",
+			"name": "Alrewas",
+			"neighbours": [
+				{
+					"simId": "aston",
+					"panelId": "lichfieldtv"
+				},
+				{
+					"simId": "derby",
+					"panelId": "west"
+				}
+			]
+		}
+	]
+}

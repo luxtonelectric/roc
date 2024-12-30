@@ -1,0 +1,135 @@
+{
+	"name": "Manchester Piccadilly",
+	"panels": [
+		{
+			"id": "healdgreen",
+			"name": "Heald Green",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "longsight"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				}
+			]
+		},
+		{
+			"id": "longsight",
+			"name": "Longsight",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "heatonnorrisjn"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "piccadilly"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "healdgreen"
+				}
+			]
+		},
+		{
+			"id": "piccadilly",
+			"name": "Piccadilly",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "longsight"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "oxfordroad"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "ashburys"
+				}
+			]
+		},
+		{
+			"id": "oxfordroad",
+			"name": "Oxford Road",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "piccadilly"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor1"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "west"
+				},
+				{
+					"simId": "huntscross",
+					"panelId": "glazebrookeastjn"
+				}
+			]
+		},
+		{
+			"id": "windsor1",
+			"name": "Windsor Bridge 1",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "oxfordroad"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor2"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "west"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "eccles"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "crownest"
+				}
+			]
+		},
+		{
+			"id": "windsor2",
+			"name": "Windsor Bridge 2",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor1"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "crownest"
+				}
+			]
+		},
+		{
+			"id": "crownest",
+			"name": "Crow Nest",
+			"neighbours": [
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor1"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor2"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "north"
+				}
+			]
+		}
+	]
+}

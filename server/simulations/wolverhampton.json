@@ -1,0 +1,31 @@
+{
+	"name": "Wolverhampton",
+	"panels": [
+		{
+			"id": "wolverhampton",
+			"name": "Wolverhampton",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				},
+				{
+					"simId": "telfordoxley",
+					"panelId": "oxley"
+				},
+				{
+					"simId": "staffordshire",
+					"panelId": "stafford"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "walsall2006"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "bescot"
+				}
+			]
+		}
+	]
+}

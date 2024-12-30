@@ -1,0 +1,99 @@
+{
+	"name": "Stockport",
+	"panels": [
+		{
+			"id": "edgeley1",
+			"name": "Edgeley No. 1",
+			"neighbours": [
+				{
+					"simId": "cheshirelines",
+					"panelId": "northendenjn"
+				},
+				{
+					"simId": "manchestersouth",
+					"panelId": "manchestersouthscc"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "edgeley2"
+				}
+			]
+		},
+		{
+			"id": "edgeley2",
+			"name": "Edgeley No. 2",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "edgeley1"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "stockport1"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "stockport2"
+				}
+			]
+		},
+		{
+			"id": "stockport1",
+			"name": "Stockport No. 1",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "edgeley2"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "stockport2"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "heatonnorrisjn"
+				}
+			]
+		},
+		{
+			"id": "stockport2",
+			"name": "Stockport No. 2",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "edgeley2"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "stockport1"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "heatonnorrisjn"
+				}
+			]
+		},
+		{
+			"id": "heatonnorrisjn",
+			"name": "Heaton Norris Jn",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "stockport1"
+				},
+				{
+					"simId": "stockport",
+					"panelId": "stockport2"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "longsight"
+				},
+				{
+					"simId": "manchestereast",
+					"panelId": "denton"
+				}
+			]
+		}
+	]
+}

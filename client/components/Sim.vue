@@ -4,20 +4,21 @@
       <div class="flex-grow">
         <h1 class="text-3xl font-semibold ">{{ simData.name }} ({{simData.id}})</h1>
       </div>
-      <a v-if="simData.name.includes('Private Call')" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400" @click="leaveCall">Leave Call</a>
-      <a v-else tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
+      <span v-if="simData.time" class="rounded border border-red-900 bg-red-300 text-white text-lg font-bold p-5 ml-2 mr-2 mb-2 hover:bg-red-400 focus:bg-red-400 active:bg-red-400">
+        <Clock :clockData="simData.time"/>
+      </span>
+      <a tabindex="0" class="text-2xl link py-1" @click="movePlayer">Join Voice Channel</a>
     </div>
     <div v-if="simData.panels" class="flex flex-wrap">
-      <div v-for="(panel, key) in simData.panels" class="w-1/3">
-        <h4>{{panel.name}}
-          <a v-if="!panel.player" class="" :key="key" @click="claimPanel(simData.id,key)"> - [C]</a>
-          <a v-if="panel.player === username" class="" :key="key" @click="releasePanel(simData.id,key)"> - [R]</a>
-        </h4>
-        <a class="button inline-block" :key="key" @click="placeCall(panel.phone)">Call</a>
-        
-        
-      </div>
-
+      <table>
+       <tr v-for="(panel) in simData.panels">
+        <td>{{panel.name}}</td>
+        <td class="py-1">
+          <a v-if="!panel.player" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" @click="claimPanel(simData.id, panel.id)">Claim</a>
+          <a v-if="panel.player === username" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" @click="releasePanel(simData.id,panel.id)">Release</a>
+        </td>
+       </tr> 
+      </table>
     </div>
 <!--    <hr class="mt-5"/>-->
   </div>
@@ -27,7 +28,7 @@
 <script>
 export default {
   name: "Sim",
-  props: ["simData", "socket", "username", "panel", "playerSim", "selectedPhone"],
+  props: ["simData", "socket", "username", "panel", "playerSim"],
   data() {
     return {
     }
@@ -46,22 +47,13 @@ export default {
       this.socket.emit("movePlayerVoiceChannel", {"user": this.username, "channel": this.simData.channel});
       this.$emit("movedSim", this.simData.name);
     },
-    claimPanel(sim, key)
+    claimPanel(sim, panel)
     {
-      this.socket.emit("claimPanel", {"sim": sim, "panel":key, "sender": this.username});
+      this.socket.emit("claimPanel", {"sim": sim, "panel":panel, "sender": this.username});
     },
-    releasePanel(sim, key)
+    releasePanel(sim, panel)
     {
-      this.socket.emit("releasePanel", {"sim": sim, "panel":key, "sender": this.username});
-    },
-    placeCall(key)
-    {
-      this.$emit('placedCall', {"receiver":key, "sender": this.selectedPhone});
-      this.socket.emit("placeCall", {"receiver":key, "sender": this.selectedPhone});
-    },
-    leaveCall()
-    {
-      this.$emit('leaveCall');
+      this.socket.emit("releasePanel", {"sim": sim, "panel":panel, "sender": this.username});
     }
   }
 }

@@ -1,0 +1,51 @@
+{
+	"name": "Westbury",
+	"panels": [
+		{
+			"id": "reading",
+			"name": "Reading Newbury",
+			"neighbours": [
+				{
+					"simId": "westbury",
+					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "panela",
+			"name": "Panel A",
+			"neighbours": [
+				{
+					"simId": "westbury",
+					"panelId": "reading"
+				},
+				{
+					"simId": "westbury",
+					"panelId": "panelb"
+				},
+				{
+					"simId": "swindonab",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "salisbury",
+					"panelId": "salisbury"
+				}
+			]
+		},
+		{
+			"id": "panelb",
+			"name": "Panel B",
+			"neighbours": [
+				{
+					"simId": "westbury",
+					"panelId": "panela"
+				},
+				{
+					"simId": "exeter",
+					"panelId": "panelc"
+				}
+			]
+		}
+	]
+}

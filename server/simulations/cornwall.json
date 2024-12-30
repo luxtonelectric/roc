@@ -1,0 +1,123 @@
+{
+	"name": "Cornwall",
+	"panels": [
+		{
+			"id": "penzance",
+			"name": "Penzance",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "sterth"
+				}
+			]
+		},
+		{
+			"id": "sterth",
+			"name": "St. Erth",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "penzance"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "roskearjn"
+				}
+			]
+		},
+		{
+			"id": "roskearjn",
+			"name": "Roskear Jn",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "truro"
+				}
+			]
+		},
+		{
+			"id": "truro",
+			"name": "Truro",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "roskearjn"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "par"
+				}
+			]
+		},
+		{
+			"id": "par",
+			"name": "Par",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "truro"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "stblazey"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "lostwithiel"
+				}
+			]
+		},
+		{
+			"id": "stblazey",
+			"name": "St. Blazey",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "par"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "goonbarrowjn"
+				}
+			]
+		},
+		{
+			"id": "goonbarrowjn",
+			"name": "Goonbarrow Jn",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "stblazey"
+				}
+			]
+		},
+		{
+			"id": "lostwithiel",
+			"name": "Lostwithiel",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "par"
+				},
+				{
+					"simId": "cornwall",
+					"panelId": "liskeard"
+				}
+			]
+		},
+		{
+			"id": "liskeard",
+			"name": "Liskeard",
+			"neighbours": [
+				{
+					"simId": "cornwall",
+					"panelId": "lostwithiel"
+				},
+				{
+					"simId": "plymouth",
+					"panelId": "west"
+				}
+			]
+		}
+	]
+}

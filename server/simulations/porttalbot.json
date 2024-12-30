@@ -1,0 +1,79 @@
+{
+	"name": "Port Talbot",
+	"panels": [
+		{
+			"id": "panela",
+			"name": "Panel A",
+			"neighbours": [
+				{
+					"simId": "cardiff",
+					"panelId": "stfagans"
+				},
+				{
+					"simId": "cardiffvog",
+					"panelId": "cowbridgeroad"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panelb"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "tondu"
+				}
+			]
+		},
+		{
+			"id": "panelb",
+			"name": "Panel B",
+			"neighbours": [
+				{
+					"simId": "porttalbot",
+					"panelId": "panela"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "pantyffynnon"
+				},
+				{
+					"simId": "porttalbot",
+					"panelId": "neathbrecon"
+				}
+			]
+		},
+		{
+			"id": "panelc",
+			"name": "Panel C",
+			"neighbours": [
+				{
+					"simId": "porttalbot",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "tondu",
+			"name": "Tondu",
+			"neighbours": [
+				{
+					"simId": "porttalbot",
+					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "neathbrecon",
+			"name": "Neath & Brecon Junction",
+			"neighbours": [
+				{
+					"simId": "porttalbot",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

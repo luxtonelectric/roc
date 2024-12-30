@@ -1,0 +1,31 @@
+{
+	"name": "Leeds Ardsley",
+	"panels": [
+		{
+			"id": "ardsley",
+			"name": "Ardsley",
+			"neighbours": [
+				{
+					"simId": "sheffield",
+					"panelId": "rotherham1"
+				},
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "ferrybridge"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "wakefieldkirkgate"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "west2"
+				}
+			]
+		}
+	]
+}

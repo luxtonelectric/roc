@@ -1,0 +1,19 @@
+{
+	"name": "Stourbridge Junction",
+	"panels": [
+		{
+			"id": "stourbridgejn",
+			"name": "Stourbridge Junction",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "southbottom"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				}
+			]
+		}
+	]
+}

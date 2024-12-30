@@ -1,0 +1,43 @@
+{
+	"name": "Carlisle",
+	"panels": [
+		{
+			"id": "panela",
+			"name": "Panel A",
+			"neighbours": [
+				{
+					"simId": "motherwell",
+					"panelId": "wks6"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "panelb",
+			"name": "Panel B",
+			"neighbours": [
+				{
+					"simId": "carlisle",
+					"panelId": "panela"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panelc"
+				}
+			]
+		},
+		{
+			"id": "panelc",
+			"name": "Panel C",
+			"neighbours": [
+				{
+					"simId": "carlisle",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

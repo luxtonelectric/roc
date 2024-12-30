@@ -1,0 +1,89 @@
+{
+	"name": "Birmingham New Street",
+	"panels": [
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "stourbridgejn",
+					"panelId": "stourbridgejn"
+				},
+				{
+					"simId": "wolverhampton",
+					"panelId": "wolverhampton"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "centre"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "south2"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "walsall2006"
+				},
+				{
+					"simId": "walsall",
+					"panelId": "bescot"
+				}
+			]
+		},
+		{
+			"id": "centre",
+			"name": "Centre",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "south1"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "southtop"
+				}
+			]
+		},
+		{
+			"id": "south1",
+			"name": "South 1",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "centre"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "south2"
+				},
+				{
+					"simId": "saltley",
+					"panelId": "centre"
+				}
+			]
+		},
+		{
+			"id": "south2",
+			"name": "South 2",
+			"neighbours": [
+				{
+					"simId": "newstreet",
+					"panelId": "north"
+				},
+				{
+					"simId": "newstreet",
+					"panelId": "south1"
+				},
+				{
+					"simId": "coventry",
+					"panelId": "coventry"
+				}
+			]
+		}
+	]
+}

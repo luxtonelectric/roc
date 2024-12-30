@@ -1,0 +1,33 @@
+{
+	"name": "Rugby SCC South",
+	"panels": [
+		{
+			"id": "bletchley",
+			"name": "Bletchley",
+			"neighbours": [
+				{
+					"simId": "rugbycentre",
+					"panelId": "northampton"
+				},
+				{
+					"simId": "rugbysouth",
+					"panelId": "tring"
+				}
+			]
+		},
+		{
+			"id": "tring",
+			"name": "Tring",
+			"neighbours": [
+				{
+					"simId": "rugbysouth",
+					"panelId": "bletchley"
+				},
+				{
+					"simId": "watfordjn",
+					"panelId": "watfordjn"
+				}
+			]
+		}
+	]
+}

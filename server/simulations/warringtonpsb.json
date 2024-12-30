@@ -1,0 +1,113 @@
+{
+	"name": "Warrington PSB",
+	"panels": [
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "huyton",
+					"panelId": "sthelens"
+				},
+				{
+					"simId": "wigan",
+					"panelId": "wiganwallgate"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "crownest"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "middle"
+				}
+			]
+		},
+		{
+			"id": "middle",
+			"name": "Middle",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "north"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "astley"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "south"
+				},
+				{
+					"simId": "huyton",
+					"panelId": "mroc"
+				}
+			]
+		},
+		{
+			"id": "south",
+			"name": "South",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "middle"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "arpleyjunction"
+				},
+				{
+					"simId": "chester",
+					"panelId": "norton"
+				},
+				{
+					"simId": "crewe",
+					"panelId": "winsford"
+				}
+			]
+		},
+		{
+			"id": "arpleyjunction",
+			"name": "Arpley Junction",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "south"
+				},
+				{
+					"simId": "edgehill",
+					"panelId": "monkssidings"
+				}
+			]
+		},
+		{
+			"id": "astley",
+			"name": "Astley",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "middle"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "eccles"
+				}
+			]
+		},
+		{
+			"id": "eccles",
+			"name": "Eccles",
+			"neighbours": [
+				{
+					"simId": "warringtonpsb",
+					"panelId": "astley"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor1"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,209 @@
+{
+	"name": "Central Scotland",
+	"panels": [
+		{
+			"id": "duty1",
+			"name": "Cowlairs - Workstation 1",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "duty2"
+				}
+			]
+		},
+		{
+			"id": "duty2",
+			"name": "Cowlairs - Workstation 2",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "duty1"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygj"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks2"
+				}
+			]
+		},
+		{
+			"id": "dutygj",
+			"name": "Greenhill Junction",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "duty2"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyce"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyp"
+				}
+			]
+		},
+		{
+			"id": "dutyce",
+			"name": "Carmuirs East Junction",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygj"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyln"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygh"
+				}
+			]
+		},
+		{
+			"id": "dutyln",
+			"name": "Larbert North",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyce"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm1"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm2"
+				}
+			]
+		},
+		{
+			"id": "dutygh",
+			"name": "Grangemouth Junction",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyce"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyp"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyfd"
+				}
+			]
+		},
+		{
+			"id": "dutyp",
+			"name": "Polmont Junction",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygj"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygh"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "dutyfd",
+			"name": "Fouldubs Junction",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutygh"
+				}
+			]
+		},
+		{
+			"id": "dutysm1",
+			"name": "Stirling Middle - South End",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyln"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysn"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm2"
+				}
+			]
+		},
+		{
+			"id": "dutysm2",
+			"name": "Stirling Middle - Kincardine Lines",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutyln"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysn"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm1"
+				}
+			]
+		},
+		{
+			"id": "dutysn",
+			"name": "Stirling North",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm1"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysm2"
+				},
+				{
+					"simId": "centralscotland",
+					"panelId": "dutydb"
+				}
+			]
+		},
+		{
+			"id": "dutydb",
+			"name": "Dunblane",
+			"neighbours": [
+				{
+					"simId": "centralscotland",
+					"panelId": "dutysn"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "greenloaning"
+				}
+			]
+		}
+	]
+}

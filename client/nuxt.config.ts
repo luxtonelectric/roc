@@ -11,14 +11,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@sidebase/nuxt-auth'
-    //'@nuxtjs/svg',
-    //['@nuxtjs/fontawesome', {
-    //  component: 'fa',
-    //  suffix: true,
-    //  icons: {
-    //    solid: true
-    //  }
-    //}]
   ],
 
   runtimeConfig: {

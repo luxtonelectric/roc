@@ -9,17 +9,13 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^5.15.2",
-    "@nuxtjs/fontawesome": "^1.1.2",
     "core-js": "^3.8.3",
-    "socket.io-client": "^4.7.4",
-    "vue-eva-icons": "^1.1.1"
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "@nuxtjs/svg": "^0.0.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
-    "@sidebase/nuxt-auth": "^0.6.7",
-    "next-auth": "4.24.11",
+    "@sidebase/nuxt-auth": "^0.10.0",
     "nuxt": "^3.14.1592",
     "vue": "^3.4.21"
   }

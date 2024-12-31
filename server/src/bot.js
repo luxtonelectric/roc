@@ -179,7 +179,7 @@ export default class DiscordBot {
    * 
    * @param {string} discordId 
    * @param {string | null} channelId 
-   * @returns 
+   * @returns {Promise<boolean>}
    */
   async setUserVoiceChannel(discordId, channelId = null)
   {
@@ -188,12 +188,12 @@ export default class DiscordBot {
       if(channelId === null) {
         channelId = this.gameManager.players[discordId].voiceChannelId;
       }
-      await member.voice.setChannel(channelId).catch((error)=>{
+      const result = await member.voice.setChannel(channelId).catch((error)=>{
         console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", discordId),error);
         return false;
       });
 
-      return true;
+      return !(result === false);
     } catch (error) {
       console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", discordId),JSON.stringify(error, Object.getOwnPropertyNames(error)));
       return false;
@@ -220,6 +220,5 @@ export default class DiscordBot {
     if(typeof channel !== 'undefined') {
       channel.reserved = false;
     }
-    console.info(chalk.magenta('releasePrivateCallChannelReservation PCC'), this.privateCallChannels);
   }
 }

@@ -66,13 +66,11 @@ export default class CallManager {
   placeCall(socketId, callType, callLevel, senderPhoneId, receiverPhones = null) {
     if (typeof this.phoneManager.getPhone(senderPhoneId) === 'undefined') {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not valid: "), senderPhoneId);
-      //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
 
     if (this.phoneManager.getPhone(senderPhoneId).getDiscordId() === null) {
       console.warn(chalk.yellow('placeCall'), chalk.red("Sender phone not assigned to a player: "), senderPhoneId);
-      //this.io.to(socketId).emit('rejectCall', {"success":false})
       return false;
     }
 
@@ -92,13 +90,11 @@ export default class CallManager {
 
       if (typeof this.phoneManager.getPhone(receiverPhoneId) === 'undefined') {
         console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not valid: "), receiverPhoneId, senderPhoneId);
-        //this.io.to(socketId).emit('rejectCall', {"success":false})
         return false;
       }
 
       if (this.phoneManager.getPhone(receiverPhoneId).getDiscordId() === null) {
         console.warn(chalk.yellow('placeCall'), chalk.red("Receiver phone not assigned to a player: "), receiverPhoneId, senderPhoneId);
-        //this.io.to(socketId).emit('rejectCall', {"success":false})
         return false;
       }
       const receivingPhone = this.phoneManager.getPhone(receiverPhoneId);
@@ -109,7 +105,6 @@ export default class CallManager {
         callRequest = new CallRequest(sendingPhone, receivingPhone);
       } else {
         console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to call themselves as was rejected."));
-        //this.io.to(socketId).emit('rejectCall', {"success":false})
         return false
       }
     } else if (callType === CallRequest.TYPES.REC) {
@@ -170,14 +165,13 @@ export default class CallManager {
 
     if (typeof callRequest === 'undefined') {
       console.log(chalk.yellow('acceptCall'), socket.id, 'attempting to accept undefined call', callId);
-      socket.emit('rejectCall', { "success": false })
       return false;
     }
 
     const channelId = this.bot.getAvailableCallChannel();
     if (channelId === null) {
       console.log(chalk.yellow('acceptCall'), socket.id, 'No channel available for call', callId);
-      socket.emit('rejectCall', { "success": false })
+      this.rejectCall(socket.id, callId);
       return false;
     }
 
@@ -186,16 +180,28 @@ export default class CallManager {
     // @ts-expect-error
     if (!(callRequest.getReceivers().some(p => p.getDiscordId() === socket.discordId))) {
       console.log(chalk.yellow('acceptCall'), socket.id, 'The person answering is not on the call?', callId);
-      socket.emit('rejectCall', { "success": false })
+      this.rejectCall(socket.id, callId);
       return false;
     }
 
     // @ts-expect-error
-    await this.movePlayerToCall(socket.discordId, callRequest.channel)
+    const moveSocketResult = await this.movePlayerToCall(socket.discordId, callRequest.channel)
+    if(!moveSocketResult) {
+      console.log(chalk.yellow('acceptCall'), socket.id, 'Failed to move player to call', callId);
+      this.rejectCall(socket.id, callId);
+      return false;
+    }
     console.log('accepted', callRequest);
     if (callRequest.status === CallRequest.STATUS.OFFERED) {
       console.log(chalk.yellow('acceptCall'), 'Moving sender to call...', callId);
-      await this.movePlayerToCall(callRequest.sender.getDiscordId(), callRequest.channel);
+      const result = await this.movePlayerToCall(callRequest.sender.getDiscordId(), callRequest.channel);
+      if(!result) {
+        console.log(chalk.red('acceptCall'), socket.id, 'Failed to move sender to call', callId);
+        this.rejectCall(socket.id, callId);
+        // @ts-expect-error
+        await this.bot.setUserVoiceChannel(socket.discordId);
+        return false;
+      }
     }
 
     if (callRequest.status === CallRequest.STATUS.OFFERED) {
@@ -216,7 +222,6 @@ export default class CallManager {
    * @returns 
    */
   rejectCall(socketId, callId) {
-
     const call = this.requestedCalls.find(c => c.id === callId);
     if (typeof call === 'undefined') {
       console.log(chalk.yellow('rejectCall'), socketId, 'attempting to reject undefined call', callId);
@@ -227,7 +232,7 @@ export default class CallManager {
     this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
     this.pastCalls.push(call);
     this.bot.releasePrivateCallChannelReservation(call.channel)
-    this.io.to(call.sender.getDiscordId()).emit("rejectCall", { "success": false });
+    
     if (call.type === CallRequest.TYPES.P2P) {
       this.sendCallQueueUpdateToPhones(call.getReceivers());
       this.sendCallQueueUpdateToPhones([call.sender]);
@@ -241,13 +246,8 @@ export default class CallManager {
    * @returns 
    */
   async movePlayerToCall(discordId, call) {
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToCall"), discordId, call);
+    console.log(chalk.blueBright("callManager"), chalk.yellow("movePlayerToCall"), discordId, call);
     const result = await this.bot.setUserVoiceChannel(discordId, call);
-    if (result) {
-      this.io.to(discordId).emit("joinedCall", { "success": true });
-    } else {
-      this.io.to(discordId).emit("joinedCall", { "success": false });
-    }
     return result;
   }
 

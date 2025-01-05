@@ -125,6 +125,7 @@
     </div>
   </div>
   <div class="my-20">
+    <button @click="playsound()">Play sound</button>
     zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
   </div>
 </template>
@@ -133,6 +134,28 @@
 export default {
   name: "AdminControlPanel",
   props: ['socket', 'discordId'],
+  data() {
+    return {
+      rejectedAudio: null,
+      callAudio: null,
+      callSoundSource: '/audio/telephone-ring.mp3',
+      recAudio: null,
+      gameState: {},
+      myPhones: {},
+      selectedPhone: {},
+      newPhone: {
+        name: "",
+        number: "",
+        type: "mobile",
+      }
+    }
+  },
+  created() {
+    this.rejectedAudio = new Audio('/audio/rejected.mp3');
+    this.callAudio = new Audio();
+    this.recAudio = new Audio('/audio/rec.mp3');
+    this.callAudio.loop = true;
+  },
   mounted() {
     var that = this;
     this.socket.on('adminStatus', function (msg) {
@@ -143,10 +166,7 @@ export default {
       const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === that.discordId);
       myPhones.forEach(mp => {
         if(!that.myPhones[mp.id]) {
-          console.log('Initing phone');
           that.myPhones[mp.id] = {};
-        } else {
-          console.log('Phone is already inited');
         }
       });
 
@@ -159,19 +179,18 @@ export default {
 
 
   },
-  data() {
-    return {
-      gameState: {},
-      myPhones: {},
-      selectedPhone: {},
-      newPhone: {
-        name: "",
-        number: "",
-        type: "mobile",
-      }
-    }
-  },
   methods: {
+    playsound() {
+      if(this.callAudio.paused) {
+        this.callAudio.src = this.callSoundSource;
+        this.callAudio.load();
+        this.callAudio.play();
+      } else {
+        this.callAudio.pause();
+        this.callAudio.src = "";
+        this.callAudio.load();
+      }
+    },
     kickUserFromCall(user) {
       this.socket.emit("adminKickFromCall", { "user": user });
     },
@@ -214,7 +233,7 @@ export default {
     },
     acceptCall(callId) {
       this.incomingCall = false;
-      //this.muteRinger();
+      this.muteRinger();
       const call = {id:callId}
       //this.callData = this.myCalls.find(c => c.id === callId);
       //this.myCalls = this.myCalls.filter(c => c.id !== callId);
@@ -232,6 +251,12 @@ export default {
     leaveCall(callId) {
       this.socket.emit("leaveCall", {id:callId});
       this.inCall = false;
+    },
+    muteRinger() {
+      //console.info("Mute Ringer");
+      this.callAudio.pause();
+      // this.callAudio.stop();
+      this.callAudio.currentTime = 0;
     },
   }
 }

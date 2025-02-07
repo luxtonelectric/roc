@@ -24,6 +24,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       socketServer: '',
+      nextSession: 'No session scheduled'
     }
     //socketServer: 'http://roc.onourlines.co.uk:3001'
   },

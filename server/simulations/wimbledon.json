@@ -40,11 +40,11 @@
 					"panelId": "barnes"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2a"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel7"
 				}
 			]
@@ -74,7 +74,7 @@
 					"panelId": "strawberryhill"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel4"
 				}
 			]
@@ -92,7 +92,7 @@
 					"panelId": "dorking"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel4"
 				}
 			]

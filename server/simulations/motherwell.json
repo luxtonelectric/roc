@@ -24,7 +24,7 @@
 			"name": "Workstation 2",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "duty2"
 				},
 				{

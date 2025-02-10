@@ -6,7 +6,7 @@
 			"name": "Greenloaning",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutydb"
 				},
 				{

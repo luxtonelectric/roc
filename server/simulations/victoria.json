@@ -6,11 +6,11 @@
 			"name": "North Signals",
 			"neighbours": [
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "centre"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "control"
 				}
 			]
@@ -20,15 +20,15 @@
 			"name": "Centre Signals",
 			"neighbours": [
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "north"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "south"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "control"
 				}
 			]
@@ -38,11 +38,11 @@
 			"name": "South Signals",
 			"neighbours": [
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "centre"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "control"
 				}
 			]
@@ -52,15 +52,15 @@
 			"name": "Line Controller",
 			"neighbours": [
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "north"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "centre"
 				},
 				{
-					"simId": "victorialul",
+					"simId": "victoria",
 					"panelId": "south"
 				}
 			]

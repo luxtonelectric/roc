@@ -6,15 +6,15 @@
 			"name": "Panel 1",
 			"neighbours": [
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2a"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel5"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel7"
 				}
 			]
@@ -24,15 +24,15 @@
 			"name": "Panel 2A",
 			"neighbours": [
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel1"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2b"
 				},
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "willesden"
 				},
 				{
@@ -40,7 +40,7 @@
 					"panelId": "panel2"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel7"
 				}
 			]
@@ -50,11 +50,11 @@
 			"name": "Panel 2B",
 			"neighbours": [
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2a"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel3"
 				},
 				{
@@ -68,19 +68,19 @@
 			"name": "Panel 3",
 			"neighbours": [
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2b"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel4"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel9"
 				},
 				{
-					"simId": "londonbridge",
+					"simId": "londonbridgeasc",
 					"panelId": "panel8"
 				},
 				{
@@ -88,7 +88,7 @@
 					"panelId": "panel1a"
 				},
 				{
-					"simId": "victoriasoutheast",
+					"simId": "victoriaeast",
 					"panelId": "panel9"
 				}
 			]
@@ -98,7 +98,7 @@
 			"name": "Panel 4",
 			"neighbours": [
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel3"
 				},
 				{

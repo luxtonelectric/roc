@@ -10,7 +10,7 @@
 					"panelId": "watfordjn"
 				},
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "willesden"
 				}
 			]
@@ -20,15 +20,15 @@
 			"name": "Willesden",
 			"neighbours": [
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "wembley"
 				},
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "camden"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2a"
 				}
 			]
@@ -38,11 +38,11 @@
 			"name": "Camden",
 			"neighbours": [
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "willesden"
 				},
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "euston"
 				},
 				{
@@ -56,7 +56,7 @@
 			"name": "Euston",
 			"neighbours": [
 				{
-					"simId": "wembleymainline",
+					"simId": "wembley",
 					"panelId": "camden"
 				}
 			]

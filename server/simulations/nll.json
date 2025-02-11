@@ -1,0 +1,235 @@
+{
+	"name": "North London Line",
+	"panels": [
+		{
+			"id": "richmond",
+			"name": "Richmond SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
+				}
+			]
+		},
+		{
+			"id": "actonwellsjn",
+			"name": "Acton Wells Jn SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "richmond"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "hounslow"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "nll",
+					"panelId": "actoncanalwharf"
+				},
+				{
+					"simId": "wembley",
+					"panelId": "willesden"
+				},
+				{
+					"simId": "nll",
+					"panelId": "central"
+				}
+			]
+		},
+		{
+			"id": "actoncanalwharf",
+			"name": "Acton Canal Wharf SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
+				},
+				{
+					"simId": "wembley",
+					"panelId": "willesden"
+				},
+				{
+					"simId": "nll",
+					"panelId": "neasdenjn"
+				}
+			]
+		},
+		{
+			"id": "neasdenjn",
+			"name": "Neasden Jn SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "actoncanalwharf"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "south"
+				},
+				{
+					"simId": "nll",
+					"panelId": "duddinghilljn"
+				}
+			]
+		},
+		{
+			"id": "duddinghilljn",
+			"name": "Dudding Hill Jn SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "neasdenjn"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel2"
+				}
+			]
+		},
+		{
+			"id": "central",
+			"name": "NLL Central Workstation",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
+				},
+				{
+					"simId": "wembley",
+					"panelId": "willesden"
+				},
+				{
+					"simId": "wembleysub",
+					"panelId": "wembleysub"
+				},
+				{
+					"simId": "nll",
+					"panelId": "upperholloway"
+				},
+				{
+					"simId": "wembley",
+					"panelId": "camden"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "cross"
+				},
+				{
+					"simId": "nll",
+					"panelId": "eastern"
+				}
+			]
+		},
+		{
+			"id": "eastern",
+			"name": "NLL Eastern Workstation",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "central"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "finsbury"
+				},
+				{
+					"simId": "warm",
+					"panelId": "hackney"
+				},
+				{
+					"simId": "gemlsouth",
+					"panelId": "stratford"
+				},
+				{
+					"simId": "nll",
+					"panelId": "templemills"
+				}
+			]
+		},
+		{
+			"id": "templemills",
+			"name": "Temple Mills Workstation",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "eastern"
+				},
+				{
+					"simId": "gemlsouth",
+					"panelId": "stratford"
+				},
+				{
+					"simId": "warm",
+					"panelId": "brimsdown"
+				},
+				{
+					"simId": "nll",
+					"panelId": "southtottenham"
+				},
+				{
+					"simId": "lts",
+					"panelId": "london"
+				}
+			]
+		},
+		{
+			"id": "upperholloway",
+			"name": "Upper Holloway SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "central"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "nll",
+					"panelId": "harringayparkjn"
+				}
+			]
+		},
+		{
+			"id": "harringayparkjn",
+			"name": "Harringay Park Junction SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "upperholloway"
+				},
+				{
+					"simId": "kingsx",
+					"panelId": "finsbury"
+				},
+				{
+					"simId": "nll",
+					"panelId": "southtottenham"
+				}
+			]
+		},
+		{
+			"id": "southtottenham",
+			"name": "South Tottenham Station Junction SB",
+			"neighbours": [
+				{
+					"simId": "nll",
+					"panelId": "harringayparkjn"
+				},
+				{
+					"simId": "warm",
+					"panelId": "brimsdown"
+				},
+				{
+					"simId": "nll",
+					"panelId": "templemills"
+				}
+			]
+		}
+	]
+}

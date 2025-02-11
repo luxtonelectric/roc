@@ -1,0 +1,85 @@
+{
+	"name": "West Wales",
+	"panels": [
+		{
+			"id": "pembrey",
+			"name": "Pembrey SB",
+			"neighbours": [
+				{
+					"simId": "porttalbot",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "kidwelly"
+				}
+			]
+		},
+		{
+			"id": "kidwelly",
+			"name": "Kidwelly SB",
+			"neighbours": [
+				{
+					"simId": "westwales",
+					"panelId": "pembrey"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "ferryside"
+				}
+			]
+		},
+		{
+			"id": "ferryside",
+			"name": "Ferryside SB",
+			"neighbours": [
+				{
+					"simId": "westwales",
+					"panelId": "kidwelly"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "carmarthenjn"
+				}
+			]
+		},
+		{
+			"id": "carmarthenjn",
+			"name": "Carmarthen Jn SB",
+			"neighbours": [
+				{
+					"simId": "westwales",
+					"panelId": "ferryside"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "whitland"
+				}
+			]
+		},
+		{
+			"id": "whitland",
+			"name": "Whitland SB",
+			"neighbours": [
+				{
+					"simId": "westwales",
+					"panelId": "carmarthenjn"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "clarbestonroad"
+				}
+			]
+		},
+		{
+			"id": "clarbestonroad",
+			"name": "Clarbeston Road SB",
+			"neighbours": [
+				{
+					"simId": "westwales",
+					"panelId": "whitland"
+				}
+			]
+		}
+	]
+}

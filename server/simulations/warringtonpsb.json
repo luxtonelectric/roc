@@ -6,6 +6,10 @@
 			"name": "North",
 			"neighbours": [
 				{
+					"simId": "preston",
+					"panelId": "panelb"
+				},
+				{
 					"simId": "huyton",
 					"panelId": "sthelens"
 				},

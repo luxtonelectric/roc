@@ -1,0 +1,65 @@
+{
+	"name": "Hastings",
+	"panels": [
+		{
+			"id": "robertsbridge",
+			"name": "Robertsbridge SB",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "tonbridge"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "bopeepjn"
+				}
+			]
+		},
+		{
+			"id": "bopeepjn",
+			"name": "Bo Peep Jn SB",
+			"neighbours": [
+				{
+					"simId": "hastings",
+					"panelId": "robertsbridge"
+				},
+				{
+					"simId": "eastcoastway",
+					"panelId": "bexhill"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "hastings"
+				}
+			]
+		},
+		{
+			"id": "hastings",
+			"name": "Hastings SB",
+			"neighbours": [
+				{
+					"simId": "hastings",
+					"panelId": "bopeepjn"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "rye"
+				}
+			]
+		},
+		{
+			"id": "rye",
+			"name": "Rye SB",
+			"neighbours": [
+				{
+					"simId": "hastings",
+					"panelId": "hastings"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks3"
+				}
+			]
+		}
+	]
+}

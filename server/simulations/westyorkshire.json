@@ -6,6 +6,10 @@
 			"name": "Horbury Jn",
 			"neighbours": [
 				{
+					"simId": "caldervalley",
+					"panelId": "healeymills"
+				},
+				{
 					"simId": "sheffield",
 					"panelId": "woolleycoalsdgs"
 				},
@@ -88,6 +92,10 @@
 				{
 					"simId": "westyorkshire",
 					"panelId": "milford"
+				},
+				{
+					"simId": "hull",
+					"panelId": "goole"
 				},
 				{
 					"simId": "doncasternorth",

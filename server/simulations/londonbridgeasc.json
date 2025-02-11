@@ -130,8 +130,8 @@
 					"panelId": "northkent1"
 				},
 				{
-					"simId": "victoriaeast",
-					"panelId": "panel9"
+					"simId": "ashford",
+					"panelId": "wks1"
 				}
 			]
 		},
@@ -150,6 +150,10 @@
 				{
 					"simId": "victoriaeast",
 					"panelId": "panel8"
+				},
+				{
+					"simId": "ell",
+					"panelId": "wks2"
 				},
 				{
 					"simId": "threebridges",

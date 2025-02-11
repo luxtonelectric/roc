@@ -1,0 +1,29 @@
+{
+	"name": "East London Line",
+	"panels": [
+		{
+			"id": "wks1",
+			"name": "Workstation 1",
+			"neighbours": [
+				{
+					"simId": "ell",
+					"panelId": "wks2"
+				}
+			]
+		},
+		{
+			"id": "wks2",
+			"name": "Workstation 2",
+			"neighbours": [
+				{
+					"simId": "ell",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "londonbridgeasc",
+					"panelId": "panel8"
+				}
+			]
+		}
+	]
+}

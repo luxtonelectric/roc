@@ -1,0 +1,71 @@
+{
+	"name": "Blackpool",
+	"panels": [
+		{
+			"id": "salwick",
+			"name": "Salwick SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "blackpool",
+					"panelId": "kirkham"
+				}
+			]
+		},
+		{
+			"id": "kirkham",
+			"name": "Kirkham SB",
+			"neighbours": [
+				{
+					"simId": "blackpool",
+					"panelId": "salwick"
+				},
+				{
+					"simId": "blackpool",
+					"panelId": "poulton"
+				}
+			]
+		},
+		{
+			"id": "poulton",
+			"name": "Poulton SB",
+			"neighbours": [
+				{
+					"simId": "blackpool",
+					"panelId": "kirkham"
+				},
+				{
+					"simId": "blackpool",
+					"panelId": "blackpool1"
+				}
+			]
+		},
+		{
+			"id": "blackpool1",
+			"name": "Blackpool North No.1 SB",
+			"neighbours": [
+				{
+					"simId": "blackpool",
+					"panelId": "poulton"
+				},
+				{
+					"simId": "blackpool",
+					"panelId": "blackpool2"
+				}
+			]
+		},
+		{
+			"id": "blackpool2",
+			"name": "Blackpool North No.2 SB",
+			"neighbours": [
+				{
+					"simId": "blackpool",
+					"panelId": "blackpool1"
+				}
+			]
+		}
+	]
+}

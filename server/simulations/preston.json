@@ -1,0 +1,173 @@
+{
+	"name": "Preston",
+	"panels": [
+		{
+			"id": "panela",
+			"name": "Panel A",
+			"neighbours": [
+				{
+					"simId": "caldervalley",
+					"panelId": "hebdenbridge"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "rochdalewest"
+				},
+				{
+					"simId": "preston",
+					"panelId": "daisyfield"
+				},
+				{
+					"simId": "preston",
+					"panelId": "panelb"
+				}
+			]
+		},
+		{
+			"id": "panelb",
+			"name": "Panel B",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panela"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "windsor2"
+				},
+				{
+					"simId": "warringtonpsb",
+					"panelId": "north"
+				},
+				{
+					"simId": "preston",
+					"panelId": "panelc"
+				}
+			]
+		},
+		{
+			"id": "panelc",
+			"name": "Panel C",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panelb"
+				},
+				{
+					"simId": "preston",
+					"panelId": "midgehall"
+				},
+				{
+					"simId": "blackpool",
+					"panelId": "salwick"
+				},
+				{
+					"simId": "preston",
+					"panelId": "paneld"
+				}
+			]
+		},
+		{
+			"id": "paneld",
+			"name": "Panel D",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "preston",
+					"panelId": "barelane"
+				},
+				{
+					"simId": "preston",
+					"panelId": "carnforth"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panelc"
+				}
+			]
+		},
+		{
+			"id": "daisyfield",
+			"name": "Daisyfield SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panela"
+				},
+				{
+					"simId": "preston",
+					"panelId": "horrocksfordjn"
+				}
+			]
+		},
+		{
+			"id": "horrocksfordjn",
+			"name": "Horrocksford Jn SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "daisyfield"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "hellifield"
+				}
+			]
+		},
+		{
+			"id": "midgehall",
+			"name": "Midge Hall SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "preston",
+					"panelId": "rufford"
+				}
+			]
+		},
+		{
+			"id": "rufford",
+			"name": "Rufford SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "midgehall"
+				}
+			]
+		},
+		{
+			"id": "barelane",
+			"name": "Bare Lane LC",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "paneld"
+				}
+			]
+		},
+		{
+			"id": "carnforth",
+			"name": "Carnforth Station Junction",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "paneld"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "arnside"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "settlejn"
+				}
+			]
+		}
+	]
+}

@@ -52,6 +52,10 @@
 				{
 					"simId": "porttalbot",
 					"panelId": "panelb"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "pembrey"
 				}
 			]
 		},

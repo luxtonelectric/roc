@@ -1,0 +1,25 @@
+{
+	"name": "Canterbury",
+	"panels": [
+		{
+			"id": "cwacc",
+			"name": "Canterbury/Wye ACC",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks4"
+				}
+			]
+		},
+		{
+			"id": "folkestoneeast",
+			"name": "Folkestone East SB",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks5"
+				}
+			]
+		}
+	]
+}

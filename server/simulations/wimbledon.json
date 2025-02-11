@@ -88,6 +88,10 @@
 					"panelId": "panel3"
 				},
 				{
+					"simId": "guildford",
+					"panelId": "east"
+				},
+				{
 					"simId": "horsham",
 					"panelId": "dorking"
 				},

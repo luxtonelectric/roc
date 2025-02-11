@@ -38,6 +38,10 @@
 					"panelId": "barfordstilton"
 				},
 				{
+					"simId": "cambridge",
+					"panelId": "kingsdyke"
+				},
+				{
 					"simId": "peterborough",
 					"panelId": "newengland"
 				}
@@ -54,6 +58,10 @@
 				{
 					"simId": "peterborough",
 					"panelId": "helpstonstoke"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "south"
 				}
 			]
 		},
@@ -64,6 +72,10 @@
 				{
 					"simId": "peterborough",
 					"panelId": "newengland"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "uffington"
 				},
 				{
 					"simId": "doncastersouth",

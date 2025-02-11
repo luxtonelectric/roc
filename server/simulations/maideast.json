@@ -8,6 +8,10 @@
 				{
 					"simId": "victoriaeast",
 					"panelId": "panel10b"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks4"
 				}
 			]
 		}

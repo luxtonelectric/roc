@@ -1,0 +1,27 @@
+{
+	"name": "Reading",
+	"panels": [
+		{
+			"id": "reading",
+			"name": "Reading Panel",
+			"neighbours": [
+				{
+					"simId": "swindid",
+					"panelId": "wks3"
+				},
+				{
+					"simId": "westbury",
+					"panelId": "reading"
+				},
+				{
+					"simId": "basingstoke",
+					"panelId": "basingstoke"
+				},
+				{
+					"simId": "slough",
+					"panelId": "west"
+				}
+			]
+		}
+	]
+}

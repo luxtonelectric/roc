@@ -66,6 +66,10 @@
 				{
 					"simId": "manchestereast",
 					"panelId": "ashburys"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "newmillscentral"
 				}
 			]
 		},

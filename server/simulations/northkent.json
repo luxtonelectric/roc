@@ -26,6 +26,14 @@
 				{
 					"simId": "northkent",
 					"panelId": "northkent1"
+				},
+				{
+					"simId": "eastkent",
+					"panelId": "rochester"
+				},
+				{
+					"simId": "eastkent",
+					"panelId": "cuxton"
 				}
 			]
 		}

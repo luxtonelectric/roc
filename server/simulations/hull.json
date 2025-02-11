@@ -1,0 +1,93 @@
+{
+	"name": "Hull line",
+	"panels": [
+		{
+			"id": "goole",
+			"name": "Goole SB",
+			"neighbours": [
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "westyorkshire",
+					"panelId": "ferrybridge"
+				},
+				{
+					"simId": "hull",
+					"panelId": "goolebridge"
+				}
+			]
+		},
+		{
+			"id": "goolebridge",
+			"name": "Goole Bridge SB",
+			"neighbours": [
+				{
+					"simId": "hull",
+					"panelId": "goole"
+				},
+				{
+					"simId": "hull",
+					"panelId": "brough"
+				}
+			]
+		},
+		{
+			"id": "selby",
+			"name": "Selby SB",
+			"neighbours": [
+				{
+					"simId": "yorkns",
+					"panelId": "south"
+				},
+				{
+					"simId": "hull",
+					"panelId": "brough"
+				}
+			]
+		},
+		{
+			"id": "brough",
+			"name": "Brough Workstation",
+			"neighbours": [
+				{
+					"simId": "hull",
+					"panelId": "selby"
+				},
+				{
+					"simId": "hull",
+					"panelId": "goolebridge"
+				},
+				{
+					"simId": "hull",
+					"panelId": "hessleroad"
+				}
+			]
+		},
+		{
+			"id": "hessleroad",
+			"name": "Hessle Road SB",
+			"neighbours": [
+				{
+					"simId": "hull",
+					"panelId": "brough"
+				},
+				{
+					"simId": "hull",
+					"panelId": "hullparagon"
+				}
+			]
+		},
+		{
+			"id": "hullparagon",
+			"name": "Hull Paragon SB",
+			"neighbours": [
+				{
+					"simId": "hull",
+					"panelId": "hessleroad"
+				}
+			]
+		}
+	]
+}

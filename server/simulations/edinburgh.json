@@ -6,6 +6,10 @@
 			"name": "Panel 1",
 			"neighbours": [
 				{
+					"simId": "morpeth",
+					"panelId": "tweedmouth"
+				},
+				{
 					"simId": "edinburgh",
 					"panelId": "millerhill"
 				},

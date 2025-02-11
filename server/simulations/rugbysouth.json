@@ -10,6 +10,10 @@
 					"panelId": "northampton"
 				},
 				{
+					"simId": "eastwestrail",
+					"panelId": "marstonvalewest"
+				},
+				{
 					"simId": "rugbysouth",
 					"panelId": "tring"
 				}

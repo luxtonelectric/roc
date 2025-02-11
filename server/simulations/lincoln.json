@@ -1,0 +1,323 @@
+{
+	"name": "Lincoln",
+	"panels": [
+		{
+			"id": "south",
+			"name": "South Workstation",
+			"neighbours": [
+				{
+					"simId": "peterborough",
+					"panelId": "newengland"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "east",
+			"name": "East Workstation",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "south"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordeast"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordwest"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "city"
+				}
+			]
+		},
+		{
+			"id": "city",
+			"name": "City Workstation",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "east"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "langworth"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "west"
+				}
+			]
+		},
+		{
+			"id": "west",
+			"name": "West Workstation",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "city"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "swinderby"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "gainsborough"
+				}
+			]
+		},
+		{
+			"id": "swinderby",
+			"name": "Swinderby SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "west"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				}
+			]
+		},
+		{
+			"id": "langworth",
+			"name": "Langworth SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "city"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "wickenby"
+				}
+			]
+		},
+		{
+			"id": "wickenby",
+			"name": "Wickenby SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "langworth"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "holtonlemoor"
+				}
+			]
+		},
+		{
+			"id": "holtonlemoor",
+			"name": "Holton-le-Moor SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "wickenby"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "barnetby"
+				}
+			]
+		},
+		{
+			"id": "allington",
+			"name": "Allington SB",
+			"neighbours": [
+				{
+					"simId": "trent",
+					"panelId": "eastnottingham"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "ancaster"
+				}
+			]
+		},
+		{
+			"id": "ancaster",
+			"name": "Ancaster SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "allington"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "rauceby"
+				}
+			]
+		},
+		{
+			"id": "rauceby",
+			"name": "Rauceby SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "ancaster"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordwest"
+				}
+			]
+		},
+		{
+			"id": "sleafordwest",
+			"name": "Sleaford West SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "rauceby"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "east"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordeast"
+				}
+			]
+		},
+		{
+			"id": "sleafordeast",
+			"name": "Sleaford East SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordwest"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "east"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "heckington"
+				}
+			]
+		},
+		{
+			"id": "heckington",
+			"name": "Heckington SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "sleafordeast"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "hubbertsbridge"
+				}
+			]
+		},
+		{
+			"id": "hubbertsbridge",
+			"name": "Hubberts Bridge SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "heckington"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "weststreetjn"
+				}
+			]
+		},
+		{
+			"id": "weststreetjn",
+			"name": "Boston West Street Jn SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "hubbertsbridge"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "sibsey"
+				}
+			]
+		},
+		{
+			"id": "sibsey",
+			"name": "Sibsey SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "weststreetjn"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "bellwaterjn"
+				}
+			]
+		},
+		{
+			"id": "bellwaterjn",
+			"name": "Bellwater Jn SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "sibsey"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "thorpeculvert"
+				}
+			]
+		},
+		{
+			"id": "thorpeculvert",
+			"name": "Thorpe Culvert SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "bellwaterjn"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "wainfleet"
+				}
+			]
+		},
+		{
+			"id": "wainfleet",
+			"name": "Wainfleet SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "thorpeculvert"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "skegness"
+				}
+			]
+		},
+		{
+			"id": "skegness",
+			"name": "Skegness SB",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "wainfleet"
+				}
+			]
+		}
+	]
+}

@@ -8,6 +8,10 @@
 				{
 					"simId": "leedsew",
 					"panelId": "west2"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "hellifield"
 				}
 			]
 		}

@@ -1,0 +1,59 @@
+{
+	"name": "Paddington",
+	"panels": [
+		{
+			"id": "greenford",
+			"name": "Greenford East SB",
+			"neighbours": [
+				{
+					"simId": "paddington",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "marylebone",
+					"panelId": "south"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "slough",
+					"panelId": "east"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "greenford"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "panel1"
+				}
+			]
+		},
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "paddington",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "greenford"
+				}
+			]
+		}
+	]
+}

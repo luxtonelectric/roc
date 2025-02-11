@@ -1,0 +1,307 @@
+{
+	"name": "Cumbrian Coast line",
+	"panels": [
+		{
+			"id": "arnside",
+			"name": "Arnside SB",
+			"neighbours": [
+				{
+					"simId": "preston",
+					"panelId": "carnforth"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "grangeoversands"
+				}
+			]
+		},
+		{
+			"id": "grangeoversands",
+			"name": "Grange-over-Sands SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "arnside"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "ulverston"
+				}
+			]
+		},
+		{
+			"id": "ulverston",
+			"name": "Ulverston SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "grangeoversands"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "daltonjn"
+				}
+			]
+		},
+		{
+			"id": "daltonjn",
+			"name": "Dalton Junction SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "ulverston"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "barrow"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "parksouth"
+				}
+			]
+		},
+		{
+			"id": "barrow",
+			"name": "Barrow-in-Furness SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "daltonjn"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "parksouth"
+				}
+			]
+		},
+		{
+			"id": "parksouth",
+			"name": "Park South SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "daltonjn"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "barrow"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "askam"
+				}
+			]
+		},
+		{
+			"id": "askam",
+			"name": "Askam SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "parksouth"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "foxfield"
+				}
+			]
+		},
+		{
+			"id": "foxfield",
+			"name": "Foxfield SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "askam"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "millom"
+				}
+			]
+		},
+		{
+			"id": "millom",
+			"name": "Millom SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "foxfield"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "silecroft"
+				}
+			]
+		},
+		{
+			"id": "silecroft",
+			"name": "Silecroft SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "millom"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "kirksanton"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "limestonehall"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "bootle"
+				}
+			]
+		},
+		{
+			"id": "kirksanton",
+			"name": "Kirksanton LC",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "silecroft"
+				}
+			]
+		},
+		{
+			"id": "limestonehall",
+			"name": "Limestone Hall LC",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "silecroft"
+				}
+			]
+		},
+		{
+			"id": "bootle",
+			"name": "Bootle SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "silecroft"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "drigg"
+				}
+			]
+		},
+		{
+			"id": "drigg",
+			"name": "Drigg SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "bootle"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "sellafield"
+				}
+			]
+		},
+		{
+			"id": "sellafield",
+			"name": "Sellafield SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "drigg"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "stbees"
+				}
+			]
+		},
+		{
+			"id": "stbees",
+			"name": "St Bees SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "sellafield"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "bransty"
+				}
+			]
+		},
+		{
+			"id": "bransty",
+			"name": "Bransty SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "stbees"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "workington2"
+				}
+			]
+		},
+		{
+			"id": "workington2",
+			"name": "Workington No.2 SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "bransty"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "workington3"
+				}
+			]
+		},
+		{
+			"id": "workington3",
+			"name": "Workington No.3 SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "workington2"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "maryport"
+				}
+			]
+		},
+		{
+			"id": "maryport",
+			"name": "Maryport Station SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "workington3"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "wigton"
+				}
+			]
+		},
+		{
+			"id": "wigton",
+			"name": "Wigton SB",
+			"neighbours": [
+				{
+					"simId": "cumbriancoast",
+					"panelId": "maryport"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

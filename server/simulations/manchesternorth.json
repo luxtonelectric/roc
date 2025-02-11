@@ -76,6 +76,10 @@
 				{
 					"simId": "manchesternorth",
 					"panelId": "castletoneast"
+				},
+				{
+					"simId": "preston",
+					"panelId": "panela"
 				}
 			]
 		}

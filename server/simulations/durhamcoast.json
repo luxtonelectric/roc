@@ -1,0 +1,53 @@
+{
+	"name": "Durham Coast",
+	"panels": [
+		{
+			"id": "lowgates",
+			"name": "Low Gates SB",
+			"neighbours": [
+				{
+					"simId": "yorkns",
+					"panelId": "north"
+				},
+				{
+					"simId": "durhamcoast",
+					"panelId": "bowesfield"
+				}
+			]
+		},
+		{
+			"id": "bowesfield",
+			"name": "Bowesfield SB",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "darlington"
+				},
+				{
+					"simId": "durhamcoast",
+					"panelId": "lowgates"
+				}
+			]
+		},
+		{
+			"id": "ferryhill",
+			"name": "Ferryhill SB",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "darlington"
+				}
+			]
+		},
+		{
+			"id": "ryhopegrangejn",
+			"name": "Ryhope Grange Jn SB",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "sunderland"
+				}
+			]
+		}
+	]
+}

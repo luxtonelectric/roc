@@ -10,6 +10,10 @@
 					"panelId": "dorrington"
 				},
 				{
+					"simId": "machynlleth",
+					"panelId": "east"
+				},
+				{
 					"simId": "shrewsbury",
 					"panelId": "severnbridgejn"
 				},

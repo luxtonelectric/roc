@@ -1,0 +1,179 @@
+{
+	"name": "Cotswolds line",
+	"panels": [
+		{
+			"id": "ascott",
+			"name": "Ascott-under-Wychwood SB",
+			"neighbours": [
+				{
+					"simId": "oxford",
+					"panelId": "oxford"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "moreton"
+				}
+			]
+		},
+		{
+			"id": "moreton",
+			"name": "Moreton-in-Marsh SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "ascott"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "evesham"
+				}
+			]
+		},
+		{
+			"id": "evesham",
+			"name": "Evesham SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "moreton"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "nortonjn"
+				}
+			]
+		},
+		{
+			"id": "nortonjn",
+			"name": "Norton Jn SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "evesham"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "north"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "shrubhill"
+				}
+			]
+		},
+		{
+			"id": "shrubhill",
+			"name": "Worcester Shrub Hill SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "nortonjn"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "henwick"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "tunneljn"
+				}
+			]
+		},
+		{
+			"id": "tunneljn",
+			"name": "Worcester Tunnel Jn SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "shrubhill"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "henwick"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "droitwichspa"
+				}
+			]
+		},
+		{
+			"id": "droitwichspa",
+			"name": "Droitwich Spa SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "tunneljn"
+				},
+				{
+					"simId": "stourbridge",
+					"panelId": "stourbridgejn"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "north"
+				}
+			]
+		},
+		{
+			"id": "henwick",
+			"name": "Henwick SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "shrubhill"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "tunneljn"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "newlandeast"
+				}
+			]
+		},
+		{
+			"id": "newlandeast",
+			"name": "Newland East SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "henwick"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "malvernwells"
+				}
+			]
+		},
+		{
+			"id": "malvernwells",
+			"name": "Malvern Wells SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "newlandeast"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "ledbury"
+				}
+			]
+		},
+		{
+			"id": "ledbury",
+			"name": "Ledbury SB",
+			"neighbours": [
+				{
+					"simId": "cotswolds",
+					"panelId": "malvernwells"
+				},
+				{
+					"simId": "hereford",
+					"panelId": "hereford"
+				}
+			]
+		}
+	]
+}

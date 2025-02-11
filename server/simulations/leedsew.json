@@ -18,6 +18,18 @@
 					"panelId": "ardsley"
 				},
 				{
+					"simId": "caldervalley",
+					"panelId": "batley"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "milllanejn"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "horsforth"
+				},
+				{
 					"simId": "leedsnw",
 					"panelId": "leedsnw"
 				}

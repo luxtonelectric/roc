@@ -75,8 +75,9 @@ def generate_graph_dot(sims, path):
     for sim in sims:
         graph.append("subgraph cluster_%s {" % sim["id"])
         graph.append('label = "%s"' % sim["name"])
+        graph.append('tooltip = "%s"' % sim["id"])
         for panel in sim["panels"]:
-            graph.append('%s_%s [label="%s"]' % (sim["id"], panel["id"], panel["name"]))
+            graph.append('%s_%s [label="%s" tooltip="%s"]' % (sim["id"], panel["id"], panel["name"], panel["id"]))
         graph.append("}")
 
     for sim in sims:

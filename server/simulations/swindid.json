@@ -10,7 +10,7 @@
 					"panelId": "panela"
 				},
 				{
-					"simId": "swindonab",
+					"simId": "swindid",
 					"panelId": "wks2"
 				}
 			]
@@ -20,11 +20,11 @@
 			"name": "Workstation 2",
 			"neighbours": [
 				{
-					"simId": "swindonab",
+					"simId": "swindid",
 					"panelId": "wks1"
 				},
 				{
-					"simId": "swindonab",
+					"simId": "swindid",
 					"panelId": "wks3"
 				}
 			]
@@ -34,7 +34,7 @@
 			"name": "Workstation 3",
 			"neighbours": [
 				{
-					"simId": "swindonab",
+					"simId": "swindid",
 					"panelId": "wks2"
 				},
 				{

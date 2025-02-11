@@ -88,7 +88,7 @@
 					"panelId": "wks6"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyp"
 				}
 			]
@@ -114,11 +114,11 @@
 					"panelId": "panel5"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm1"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm2"
 				}
 			]

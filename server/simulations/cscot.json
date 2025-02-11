@@ -6,7 +6,7 @@
 			"name": "Cowlairs - Workstation 1",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "duty2"
 				}
 			]
@@ -16,11 +16,11 @@
 			"name": "Cowlairs - Workstation 2",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "duty1"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygj"
 				},
 				{
@@ -34,15 +34,15 @@
 			"name": "Greenhill Junction",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "duty2"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyce"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyp"
 				}
 			]
@@ -52,15 +52,15 @@
 			"name": "Carmuirs East Junction",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygj"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyln"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygh"
 				}
 			]
@@ -70,15 +70,15 @@
 			"name": "Larbert North",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyce"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm1"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm2"
 				}
 			]
@@ -88,15 +88,15 @@
 			"name": "Grangemouth Junction",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyce"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyp"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyfd"
 				}
 			]
@@ -106,11 +106,11 @@
 			"name": "Polmont Junction",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygj"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygh"
 				},
 				{
@@ -124,7 +124,7 @@
 			"name": "Fouldubs Junction",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutygh"
 				}
 			]
@@ -134,11 +134,11 @@
 			"name": "Stirling Middle - South End",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyln"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysn"
 				},
 				{
@@ -146,7 +146,7 @@
 					"panelId": "panel5"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm2"
 				}
 			]
@@ -156,11 +156,11 @@
 			"name": "Stirling Middle - Kincardine Lines",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutyln"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysn"
 				},
 				{
@@ -168,7 +168,7 @@
 					"panelId": "panel5"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm1"
 				}
 			]
@@ -178,15 +178,15 @@
 			"name": "Stirling North",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm1"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysm2"
 				},
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutydb"
 				}
 			]
@@ -196,7 +196,7 @@
 			"name": "Dunblane",
 			"neighbours": [
 				{
-					"simId": "centralscotland",
+					"simId": "cscot",
 					"panelId": "dutysn"
 				},
 				{

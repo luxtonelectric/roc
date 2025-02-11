@@ -6,11 +6,11 @@
 			"name": "Panel 1A",
 			"neighbours": [
 				{
-					"simId": "londonbridge",
+					"simId": "londonbridgeasc",
 					"panelId": "panel8"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel3"
 				},
 				{
@@ -58,11 +58,11 @@
 					"panelId": "panel1b"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel2b"
 				},
 				{
-					"simId": "victoriacentral",
+					"simId": "victoriac",
 					"panelId": "panel4"
 				}
 			]

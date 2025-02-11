@@ -6,7 +6,7 @@
 			"name": "Hackney",
 			"neighbours": [
 				{
-					"simId": "liverpoolstreet",
+					"simId": "livst",
 					"panelId": "wa"
 				},
 				{

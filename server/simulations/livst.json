@@ -6,7 +6,7 @@
 			"name": "West Anglia",
 			"neighbours": [
 				{
-					"simId": "liverpoolstreet",
+					"simId": "livst",
 					"panelId": "ge"
 				},
 				{
@@ -20,7 +20,7 @@
 			"name": "Great Eastern",
 			"neighbours": [
 				{
-					"simId": "liverpoolstreet",
+					"simId": "livst",
 					"panelId": "wa"
 				}
 			]

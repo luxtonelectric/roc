@@ -6,7 +6,7 @@
 			"name": "North",
 			"neighbours": [
 				{
-					"simId": "stourbridgejn",
+					"simId": "stourbridge",
 					"panelId": "stourbridgejn"
 				},
 				{

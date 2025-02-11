@@ -31,18 +31,28 @@ def geo_order(sims):
     geopy.geocoders.options.default_ssl_context = ctx
     geolocator = geopy.Nominatim(user_agent="MyApp", timeout=3)
     lats = []
+
+    # Aliases that make it easier to geolocate certain places.
+    aliases = {
+        "Cardiff Valleys": "Abercynon",
+        "East Coastway": "Eastbourne",
+        "Leeds Northwest": "Keighley",
+        "Victoria Central": "Clapham Junction",
+        "Victoria South Eastern": "Brixton",
+        "Wembley Suburban": "Wembley Central",
+        "West Anglia": "Enfield",
+    }
+
     for sim in sims:
         name = sim["name"]
         if name.endswith("ASC") or name.endswith("PSB"):
             name = name[:-3]
         elif name.endswith("IECC"):
             name = name[:-4]
-        elif "Rugby SCC" in name:
+        elif "Rugby" in name:
             name = "Rugby"
-        elif "Cardiff Valleys" in name:
-            name = "Abercynon"
-        elif "Victoria South Eastern" in name:
-            name = "London"
+        elif name in aliases:
+            name = aliases[name]
         elif "&" in name:
             name = name.split(" & ")[0]
         loc = geolocator.geocode(name + ", United Kingdom")

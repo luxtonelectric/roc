@@ -45,7 +45,7 @@ def geo_order(sims):
             name = "London"
         elif "&" in name:
             name = name.split(" & ")[0]
-        loc = geolocator.geocode(name)
+        loc = geolocator.geocode(name + ", United Kingdom")
         if loc is not None:
             lats.append(loc.longitude)
             #print(sim["name"], loc.latitude)

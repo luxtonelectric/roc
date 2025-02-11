@@ -99,10 +99,6 @@
 			"neighbours": [
 				{
 					"simId": "edinburgh",
-					"panelId": "panel2"
-				},
-				{
-					"simId": "edinburgh",
 					"panelId": "panel3"
 				},
 				{
@@ -111,7 +107,7 @@
 				},
 				{
 					"simId": "edinburgh",
-					"panelId": "panel5"
+					"panelId": "panel6"
 				},
 				{
 					"simId": "cscot",

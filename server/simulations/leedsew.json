@@ -32,6 +32,10 @@
 					"panelId": "west1"
 				},
 				{
+					"simId": "leedsnw",
+					"panelId": "leedsnw"
+				},
+				{
 					"simId": "westyorkshire",
 					"panelId": "castleford"
 				}

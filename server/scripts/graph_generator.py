@@ -58,7 +58,7 @@ def geo_order(sims):
         loc = geolocator.geocode(name + ", United Kingdom")
         if loc is not None:
             lats.append(loc.longitude)
-            #print(sim["name"], loc.latitude)
+            #print(sim["name"], loc, loc.latitude)
         else:
             print(sim["name"], loc)
     print(len(sims), len(lats))

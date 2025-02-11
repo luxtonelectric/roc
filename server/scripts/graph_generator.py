@@ -30,7 +30,7 @@ def geo_order(sims):
     ctx.verify_mode = ssl.CERT_NONE
     geopy.geocoders.options.default_ssl_context = ctx
     geolocator = geopy.Nominatim(user_agent="MyApp", timeout=3)
-    lats = []
+    locs = []
 
     # Aliases that make it easier to geolocate certain places.
     aliases = {
@@ -57,14 +57,14 @@ def geo_order(sims):
             name = name.split(" & ")[0]
         loc = geolocator.geocode(name + ", United Kingdom")
         if loc is not None:
-            lats.append(loc.longitude)
-            #print(sim["name"], loc, loc.latitude)
+            locs.append(loc.longitude)
+            print(sim["name"], loc, loc.longitude)
         else:
             print(sim["name"], loc)
-    print(len(sims), len(lats))
+    print(len(sims), len(locs))
     #print(lats)
     #print(tuple(sorted(zip(lats, sims), key=itemgetter('id'), reverse=True)))
-    sims = [x for _, x in sorted(zip(lats, sims), key=lambda x:x[0], reverse=False)]
+    sims = [x for _, x in sorted(zip(locs, sims), key=lambda x:x[0], reverse=False)]
     #print(sims)
     return sims
 

@@ -3,7 +3,7 @@
 	"panels": [
 		{
 			"id": "west1",
-			"name": "West 2",
+			"name": "West 1",
 			"neighbours": [
 				{
 					"simId": "leedsew",

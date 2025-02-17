@@ -50,6 +50,10 @@
 					"panelId": "panel5"
 				},
 				{
+					"simId": "victoriac",
+					"panelId": "panel1"
+				},
+				{
 					"simId": "victoriaeast",
 					"panelId": "panel6"
 				},

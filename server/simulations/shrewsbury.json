@@ -16,10 +16,6 @@
 				{
 					"simId": "shrewsbury",
 					"panelId": "severnbridgejn"
-				},
-				{
-					"simId": "shrewsbury",
-					"panelId": "crewejunction"
 				}
 			]
 		},
@@ -30,6 +26,10 @@
 				{
 					"simId": "shrewsbury",
 					"panelId": "abbeyforegate"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "suttonbridgejn"
 				},
 				{
 					"simId": "shrewsbury",
@@ -48,10 +48,6 @@
 				{
 					"simId": "shrewsbury",
 					"panelId": "severnbridgejn"
-				},
-				{
-					"simId": "shrewsbury",
-					"panelId": "crewejunction"
 				}
 			]
 		},
@@ -80,10 +76,6 @@
 				{
 					"simId": "shrewsbury",
 					"panelId": "crewejunction"
-				},
-				{
-					"simId": "shrewsbury",
-					"panelId": "severnbridgejn"
 				},
 				{
 					"simId": "shrewsbury",

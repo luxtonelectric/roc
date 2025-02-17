@@ -47,6 +47,10 @@
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "victoriaeast",
 					"panelId": "panel6"
 				},
 				{

@@ -40,6 +40,10 @@
 					"panelId": "woodburnjn"
 				},
 				{
+					"simId": "sheffield",
+					"panelId": "sheffield"
+				},
+				{
 					"simId": "doncasterstation",
 					"panelId": "panel3"
 				},

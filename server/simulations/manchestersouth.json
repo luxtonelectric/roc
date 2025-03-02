@@ -27,14 +27,6 @@
 				},
 				{
 					"simId": "crewe",
-					"panelId": "crewepsbsouth"
-				},
-				{
-					"simId": "crewe",
-					"panelId": "sortingsidingsnth"
-				},
-				{
-					"simId": "crewe",
 					"panelId": "salopgoodsjn"
 				}
 			]

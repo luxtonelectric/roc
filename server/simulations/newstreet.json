@@ -80,6 +80,10 @@
 					"panelId": "south1"
 				},
 				{
+					"simId": "aston",
+					"panelId": "aston"
+				},
+				{
 					"simId": "coventry",
 					"panelId": "coventry"
 				}

@@ -1,0 +1,207 @@
+{
+	"name": "Leicester",
+	"panels": [
+		{
+			"id": "south",
+			"name": "South panel",
+			"neighbours": [
+				{
+					"simId": "westhampstead",
+					"panelId": "panel4"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "mantonjn"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "croft"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "north"
+				}
+			]
+		},
+		{
+			"id": "croft",
+			"name": "Croft SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "south"
+				},
+				{
+					"simId": "rugbynorth",
+					"panelId": "nuneaton"
+				}
+			]
+		},
+		{
+			"id": "north",
+			"name": "North panel",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "south"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "bardonhill"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "frisby"
+				},
+				{
+					"simId": "trent",
+					"panelId": "trent"
+				}
+			]
+		},
+		{
+			"id": "bardonhill",
+			"name": "Bardon Hill SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "north"
+				},
+				{
+					"simId": "derby",
+					"panelId": "mantlelane"
+				}
+			]
+		},
+		{
+			"id": "frisby",
+			"name": "Frisby SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "north"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "melton"
+				}
+			]
+		},
+		{
+			"id": "melton",
+			"name": "Melton Station SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "frisby"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "whissendine"
+				}
+			]
+		},
+		{
+			"id": "whissendine",
+			"name": "Whissendine SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "melton"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "ashwell"
+				}
+			]
+		},
+		{
+			"id": "ashwell",
+			"name": "Ashwell SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "whissendine"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "langhamjn"
+				}
+			]
+		},
+		{
+			"id": "langhamjn",
+			"name": "Langham Junction SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "ashwell"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "oakham"
+				}
+			]
+		},
+		{
+			"id": "oakham",
+			"name": "Oakham Level Crossing SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "langhamjn"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "mantonjn"
+				}
+			]
+		},
+		{
+			"id": "mantonjn",
+			"name": "Manton Junction SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "south"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "ketton"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "oakham"
+				}
+			]
+		},
+		{
+			"id": "ketton",
+			"name": "Ketton SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "mantonjn"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "uffington"
+				}
+			]
+		},
+		{
+			"id": "uffington",
+			"name": "Uffington & Barnack SB",
+			"neighbours": [
+				{
+					"simId": "leicester",
+					"panelId": "ketton"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "helpstonstoke"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,49 @@
+{
+	"name": "Guildford PSB",
+	"panels": [
+		{
+			"id": "east",
+			"name": "East",
+			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "west"
+				},
+				{
+					"simId": "woking",
+					"panelId": "aldershot"
+				},
+				{
+					"simId": "feltham",
+					"panelId": "wokingham"
+				},
+				{
+					"simId": "woking",
+					"panelId": "woking"
+				},
+				{
+					"simId": "woking",
+					"panelId": "surbiton"
+				},
+				{
+					"simId": "wimbledon",
+					"panelId": "panel4"
+				}
+			]
+		},
+		{
+			"id": "west",
+			"name": "West",
+			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "east"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "reigate"
+				}
+			]
+		}
+	]
+}

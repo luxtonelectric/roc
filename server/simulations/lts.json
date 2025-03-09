@@ -6,8 +6,20 @@
 			"name": "London",
 			"neighbours": [
 				{
+					"simId": "gemlsouth",
+					"panelId": "stratford"
+				},
+				{
+					"simId": "nll",
+					"panelId": "templemills"
+				},
+				{
 					"simId": "lts",
 					"panelId": "tilbury"
+				},
+				{
+					"simId": "gemlsouth",
+					"panelId": "ilford"
 				},
 				{
 					"simId": "lts",

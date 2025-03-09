@@ -1,0 +1,25 @@
+{
+	"name": "Inverness",
+	"panels": [
+		{
+			"id": "dunkeld",
+			"name": "Dunkeld SB",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "stanleyjn"
+				}
+			]
+		},
+		{
+			"id": "dyce",
+			"name": "Dyce SB",
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "aberdeen"
+				}
+			]
+		}
+	]
+}

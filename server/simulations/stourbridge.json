@@ -12,6 +12,10 @@
 				{
 					"simId": "newstreet",
 					"panelId": "north"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "droitwichspa"
 				}
 			]
 		}

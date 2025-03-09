@@ -12,6 +12,10 @@
 				{
 					"simId": "kingsx",
 					"panelId": "palace"
+				},
+				{
+					"simId": "nll",
+					"panelId": "central"
 				}
 			]
 		},
@@ -22,6 +26,14 @@
 				{
 					"simId": "kingsx",
 					"panelId": "cross"
+				},
+				{
+					"simId": "nll",
+					"panelId": "eastern"
+				},
+				{
+					"simId": "nll",
+					"panelId": "harringayparkjn"
 				},
 				{
 					"simId": "kingsx",

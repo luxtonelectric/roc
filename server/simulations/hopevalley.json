@@ -1,0 +1,203 @@
+{
+	"name": "Hope Valley",
+	"panels": [
+		{
+			"id": "hazelgrove",
+			"name": "Hazel Grove SB",
+			"neighbours": [
+				{
+					"simId": "stockport",
+					"panelId": "edgeley1"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "furnessvale"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "northendenjn"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "newmillssouthjn"
+				}
+			]
+		},
+		{
+			"id": "newmillscentral",
+			"name": "New Mills Central SB",
+			"neighbours": [
+				{
+					"simId": "manchestereast",
+					"panelId": "romileyjn"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "newmillssouthjn"
+				}
+			]
+		},
+		{
+			"id": "newmillssouthjn",
+			"name": "New Mills South Jn SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "newmillscentral"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "hazelgrove"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "chinley"
+				}
+			]
+		},
+		{
+			"id": "chinley",
+			"name": "Chinley SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "newmillssouthjn"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "edale"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "peakforestsouth"
+				}
+			]
+		},
+		{
+			"id": "edale",
+			"name": "Edale SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "chinley"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "earlessidings"
+				}
+			]
+		},
+		{
+			"id": "earlessidings",
+			"name": "Earles Sidings SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "edale"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "grindleford"
+				}
+			]
+		},
+		{
+			"id": "grindleford",
+			"name": "Grindleford SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "earlessidings"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "totleytunneleast"
+				}
+			]
+		},
+		{
+			"id": "totleytunneleast",
+			"name": "Totley Tunnel East SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "grindleford"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "sheffield"
+				}
+			]
+		},
+		{
+			"id": "peakforestsouth",
+			"name": "Peak Forest South SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "chinley"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "greatrocksjn"
+				}
+			]
+		},
+		{
+			"id": "greatrocksjn",
+			"name": "Great Rocks Junction SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "peakforestsouth"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "buxton"
+				}
+			]
+		},
+		{
+			"id": "furnessvale",
+			"name": "Furness Vale SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "hazelgrove"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "chapelenlefrith"
+				}
+			]
+		},
+		{
+			"id": "chapelenlefrith",
+			"name": "Chapel-en-le-Frith SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "furnessvale"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "buxton"
+				}
+			]
+		},
+		{
+			"id": "buxton",
+			"name": "Buxton SB",
+			"neighbours": [
+				{
+					"simId": "hopevalley",
+					"panelId": "chapelenlefrith"
+				},
+				{
+					"simId": "hopevalley",
+					"panelId": "greatrocksjn"
+				}
+			]
+		}
+	]
+}

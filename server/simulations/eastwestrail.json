@@ -1,0 +1,51 @@
+{
+	"name": "East West Rail",
+	"panels": [
+		{
+			"id": "claydonjn",
+			"name": "Claydon L&NE Jn SB",
+			"neighbours": [
+				{
+					"simId": "marylebone",
+					"panelId": "north"
+				},
+				{
+					"simId": "eastwestrail",
+					"panelId": "marstonvalewest"
+				}
+			]
+		},
+		{
+			"id": "marstonvalewest",
+			"name": "Marston Vale West Workstation",
+			"neighbours": [
+				{
+					"simId": "eastwestrail",
+					"panelId": "claydonjn"
+				},
+				{
+					"simId": "rugbysouth",
+					"panelId": "bletchley"
+				},
+				{
+					"simId": "eastwestrail",
+					"panelId": "marstonvaleeast"
+				}
+			]
+		},
+		{
+			"id": "marstonvaleeast",
+			"name": "Marston Vale East Workstation",
+			"neighbours": [
+				{
+					"simId": "eastwestrail",
+					"panelId": "marstonvalewest"
+				},
+				{
+					"simId": "westhampstead",
+					"panelId": "panel4"
+				}
+			]
+		}
+	]
+}

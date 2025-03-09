@@ -1,0 +1,123 @@
+{
+	"name": "South Humberside",
+	"panels": [
+		{
+			"id": "scunthorpewest",
+			"name": "Scunthorpe PSB West",
+			"neighbours": [
+				{
+					"simId": "doncasternorth",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "scunthorpeeast"
+				}
+			]
+		},
+		{
+			"id": "scunthorpeeast",
+			"name": "Scunthorpe PSB East",
+			"neighbours": [
+				{
+					"simId": "southhumberside",
+					"panelId": "scunthorpewest"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "barnetby"
+				}
+			]
+		},
+		{
+			"id": "gainsborough",
+			"name": "Gainsborough",
+			"neighbours": [
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "west"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "thrumpton"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "barnetby"
+				}
+			]
+		},
+		{
+			"id": "barnetby",
+			"name": "Barnetby",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "holtonlemoor"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "gainsborough"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "scunthorpeeast"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "ulcebyjn"
+				}
+			]
+		},
+		{
+			"id": "ulcebyjn",
+			"name": "Ulceby Jn",
+			"neighbours": [
+				{
+					"simId": "southhumberside",
+					"panelId": "barnetby"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "grimsby"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "immingham"
+				}
+			]
+		},
+		{
+			"id": "grimsby",
+			"name": "Grimsby",
+			"neighbours": [
+				{
+					"simId": "southhumberside",
+					"panelId": "ulcebyjn"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "immingham"
+				}
+			]
+		},
+		{
+			"id": "immingham",
+			"name": "Immingham",
+			"neighbours": [
+				{
+					"simId": "southhumberside",
+					"panelId": "ulcebyjn"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "grimsby"
+				}
+			]
+		}
+	]
+}

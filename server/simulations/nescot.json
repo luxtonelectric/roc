@@ -188,6 +188,10 @@
 				{
 					"simId": "nescot",
 					"panelId": "perth"
+				},
+				{
+					"simId": "inverness",
+					"panelId": "dunkeld"
 				}
 			]
 		},
@@ -338,6 +342,10 @@
 				{
 					"simId": "nescot",
 					"panelId": "newtonhill"
+				},
+				{
+					"simId": "inverness",
+					"panelId": "dyce"
 				}
 			]
 		}

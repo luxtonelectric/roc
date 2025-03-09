@@ -1,0 +1,121 @@
+{
+	"name": "Ashford IECC",
+	"panels": [
+		{
+			"id": "wks1",
+			"name": "Workstation 1 (Orpington & Sevenoaks)",
+			"neighbours": [
+				{
+					"simId": "londonbridgeasc",
+					"panelId": "panel7"
+				},
+				{
+					"simId": "victoriaeast",
+					"panelId": "panel10a"
+				},
+				{
+					"simId": "victoriaeast",
+					"panelId": "panel10b"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks2"
+				}
+			]
+		},
+		{
+			"id": "wks2",
+			"name": "Workstation 2 (Tonbridge & Paddock Wood)",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "threebridges",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "tonbridge"
+				},
+				{
+					"simId": "eastkent",
+					"panelId": "wateringbury"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks4"
+				}
+			]
+		},
+		{
+			"id": "tonbridge",
+			"name": "Tonbridge PSB",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "robertsbridge"
+				}
+			]
+		},
+		{
+			"id": "wks3",
+			"name": "Workstation 3 (Ashford-Rye)",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks4"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "rye"
+				}
+			]
+		},
+		{
+			"id": "wks4",
+			"name": "Workstation 4 (Ashford)",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "maideast",
+					"panelId": "maidstoneeast"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks3"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks5"
+				},
+				{
+					"simId": "canterbury",
+					"panelId": "cwacc"
+				}
+			]
+		},
+		{
+			"id": "wks5",
+			"name": "Workstation 5 (Dollands Moor)",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks4"
+				},
+				{
+					"simId": "canterbury",
+					"panelId": "folkestoneeast"
+				}
+			]
+		}
+	]
+}

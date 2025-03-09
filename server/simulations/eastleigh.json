@@ -1,0 +1,33 @@
+{
+	"name": "Eastleigh",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "basingstoke",
+					"panelId": "basingstoke"
+				},
+				{
+					"simId": "eastleigh",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "eastleigh",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "salisbury",
+					"panelId": "salisbury"
+				}
+			]
+		}
+	]
+}

@@ -36,6 +36,14 @@
 					"panelId": "panel5"
 				},
 				{
+					"simId": "worksop",
+					"panelId": "maltby"
+				},
+				{
+					"simId": "southhumberside",
+					"panelId": "gainsborough"
+				},
+				{
 					"simId": "doncastersouth",
 					"panelId": "panel1n"
 				}

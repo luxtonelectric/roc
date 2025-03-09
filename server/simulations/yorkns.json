@@ -18,6 +18,10 @@
 					"panelId": "north"
 				},
 				{
+					"simId": "hull",
+					"panelId": "selby"
+				},
+				{
 					"simId": "yorkns",
 					"panelId": "gascoignewood"
 				}
@@ -32,8 +36,16 @@
 					"panelId": "south"
 				},
 				{
+					"simId": "harrogate",
+					"panelId": "poppleton"
+				},
+				{
 					"simId": "tyneside",
 					"panelId": "darlington"
+				},
+				{
+					"simId": "durhamcoast",
+					"panelId": "lowgates"
 				}
 			]
 		},

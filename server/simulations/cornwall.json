@@ -31,6 +31,10 @@
 			"neighbours": [
 				{
 					"simId": "cornwall",
+					"panelId": "sterth"
+				},
+				{
+					"simId": "cornwall",
 					"panelId": "truro"
 				}
 			]

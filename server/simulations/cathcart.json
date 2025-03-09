@@ -8,6 +8,10 @@
 				{
 					"simId": "motherwell",
 					"panelId": "wks1"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "muirhouse"
 				}
 			]
 		}

@@ -52,10 +52,6 @@
 				{
 					"simId": "londonbridgeasc",
 					"panelId": "panel4"
-				},
-				{
-					"simId": "londonbridgeasc",
-					"panelId": "panel8"
 				}
 			]
 		},
@@ -66,10 +62,6 @@
 				{
 					"simId": "londonbridgeasc",
 					"panelId": "panel3"
-				},
-				{
-					"simId": "londonbridgeasc",
-					"panelId": "panel2"
 				},
 				{
 					"simId": "londonbridgeasc",
@@ -130,8 +122,8 @@
 					"panelId": "northkent1"
 				},
 				{
-					"simId": "victoriaeast",
-					"panelId": "panel9"
+					"simId": "ashford",
+					"panelId": "wks1"
 				}
 			]
 		},
@@ -150,6 +142,10 @@
 				{
 					"simId": "victoriaeast",
 					"panelId": "panel8"
+				},
+				{
+					"simId": "ell",
+					"panelId": "wks2"
 				},
 				{
 					"simId": "threebridges",

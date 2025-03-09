@@ -24,6 +24,10 @@
 					"panelId": "panel2"
 				},
 				{
+					"simId": "worksop",
+					"panelId": "thrumpton"
+				},
+				{
 					"simId": "doncastersouth",
 					"panelId": "panel1s"
 				}
@@ -36,6 +40,14 @@
 				{
 					"simId": "doncastersouth",
 					"panelId": "panel1n"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "swinderby"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "allington"
 				},
 				{
 					"simId": "peterborough",

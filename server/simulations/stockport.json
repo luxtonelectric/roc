@@ -14,6 +14,10 @@
 					"panelId": "manchestersouthscc"
 				},
 				{
+					"simId": "hopevalley",
+					"panelId": "hazelgrove"
+				},
+				{
 					"simId": "stockport",
 					"panelId": "edgeley2"
 				}

@@ -56,6 +56,10 @@
 				{
 					"simId": "newstreet",
 					"panelId": "centre"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "north"
 				}
 			]
 		},

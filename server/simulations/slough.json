@@ -1,0 +1,33 @@
+{
+	"name": "Slough",
+	"panels": [
+		{
+			"id": "west",
+			"name": "West Position",
+			"neighbours": [
+				{
+					"simId": "reading",
+					"panelId": "reading"
+				},
+				{
+					"simId": "slough",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "east",
+			"name": "East Position",
+			"neighbours": [
+				{
+					"simId": "slough",
+					"panelId": "west"
+				},
+				{
+					"simId": "paddington",
+					"panelId": "panel2"
+				}
+			]
+		}
+	]
+}

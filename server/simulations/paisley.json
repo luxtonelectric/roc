@@ -1,0 +1,51 @@
+{
+	"name": "Paisley",
+	"panels": [
+		{
+			"id": "panel1",
+			"name": "Panel 1",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "shields"
+				},
+				{
+					"simId": "paisley",
+					"panelId": "panel2"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "paisley",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "paisley",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel3",
+			"name": "Panel 3",
+			"neighbours": [
+				{
+					"simId": "paisley",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "kilmarnock"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "mauchline"
+				}
+			]
+		}
+	]
+}

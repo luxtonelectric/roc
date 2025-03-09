@@ -90,6 +90,10 @@
 					"panelId": "panel2"
 				},
 				{
+					"simId": "ashford",
+					"panelId": "wks2"
+				},
+				{
 					"simId": "threebridges",
 					"panelId": "panel4"
 				},
@@ -160,6 +164,10 @@
 				{
 					"simId": "threebridges",
 					"panelId": "panel3"
+				},
+				{
+					"simId": "guildford",
+					"panelId": "west"
 				}
 			]
 		}

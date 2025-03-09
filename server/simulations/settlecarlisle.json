@@ -1,0 +1,153 @@
+{
+	"name": "Settle & Carlisle line",
+	"panels": [
+		{
+			"id": "hellifield",
+			"name": "Hellifield SB",
+			"neighbours": [
+				{
+					"simId": "leedsnw",
+					"panelId": "leedsnw"
+				},
+				{
+					"simId": "preston",
+					"panelId": "horrocksfordjn"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "settlejn"
+				}
+			]
+		},
+		{
+			"id": "settlejn",
+			"name": "Settle Junction SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "hellifield"
+				},
+				{
+					"simId": "preston",
+					"panelId": "carnforth"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "bleamoor"
+				}
+			]
+		},
+		{
+			"id": "bleamoor",
+			"name": "Blea Moor SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "settlejn"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "garsdale"
+				}
+			]
+		},
+		{
+			"id": "garsdale",
+			"name": "Garsdale SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "bleamoor"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "kirkbystephen"
+				}
+			]
+		},
+		{
+			"id": "kirkbystephen",
+			"name": "Kirkby Stephen SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "garsdale"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "applebynorth"
+				}
+			]
+		},
+		{
+			"id": "applebynorth",
+			"name": "Appleby North SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "kirkbystephen"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "kirkbythore"
+				}
+			]
+		},
+		{
+			"id": "kirkbythore",
+			"name": "Kirkby Thore SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "applebynorth"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "culgaith"
+				}
+			]
+		},
+		{
+			"id": "culgaith",
+			"name": "Culgaith SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "kirkbythore"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "lowhousecrossing"
+				}
+			]
+		},
+		{
+			"id": "lowhousecrossing",
+			"name": "Low House Crossing SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "culgaith"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "howecosiding"
+				}
+			]
+		},
+		{
+			"id": "howecosiding",
+			"name": "Howe & Co Siding SB",
+			"neighbours": [
+				{
+					"simId": "settlecarlisle",
+					"panelId": "lowhousecrossing"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panelb"
+				}
+			]
+		}
+	]
+}

@@ -8,6 +8,10 @@
 				{
 					"simId": "threebridges",
 					"panelId": "panel6"
+				},
+				{
+					"simId": "westcoastway",
+					"panelId": "lancingwest"
 				}
 			]
 		}

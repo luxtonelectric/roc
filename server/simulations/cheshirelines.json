@@ -74,6 +74,10 @@
 					"panelId": "deansgatejn"
 				},
 				{
+					"simId": "hopevalley",
+					"panelId": "hazelgrove"
+				},
+				{
 					"simId": "stockport",
 					"panelId": "edgeley1"
 				}

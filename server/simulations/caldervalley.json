@@ -1,0 +1,109 @@
+{
+	"name": "Calder Valley line",
+	"panels": [
+		{
+			"id": "milllanejn",
+			"name": "Mill Lane Jn SB",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "west1"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "halifax"
+				}
+			]
+		},
+		{
+			"id": "halifax",
+			"name": "Halifax SB",
+			"neighbours": [
+				{
+					"simId": "caldervalley",
+					"panelId": "milllanejn"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "healeymills"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "milnerroydjn"
+				}
+			]
+		},
+		{
+			"id": "healeymills",
+			"name": "Healey Mills SB",
+			"neighbours": [
+				{
+					"simId": "westyorkshire",
+					"panelId": "horburyjn"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "batley"
+				},
+				{
+					"simId": "huddersfield",
+					"panelId": "huddersfield"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "halifax"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "milnerroydjn"
+				}
+			]
+		},
+		{
+			"id": "batley",
+			"name": "Batley SB",
+			"neighbours": [
+				{
+					"simId": "caldervalley",
+					"panelId": "healeymills"
+				},
+				{
+					"simId": "leedsew",
+					"panelId": "west1"
+				}
+			]
+		},
+		{
+			"id": "milnerroydjn",
+			"name": "Milner Royd Jn SB",
+			"neighbours": [
+				{
+					"simId": "caldervalley",
+					"panelId": "healeymills"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "halifax"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "hebdenbridge"
+				}
+			]
+		},
+		{
+			"id": "hebdenbridge",
+			"name": "Hebden Bridge SB",
+			"neighbours": [
+				{
+					"simId": "caldervalley",
+					"panelId": "milnerroydjn"
+				},
+				{
+					"simId": "preston",
+					"panelId": "panela"
+				}
+			]
+		}
+	]
+}

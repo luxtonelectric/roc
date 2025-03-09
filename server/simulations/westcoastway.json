@@ -1,0 +1,25 @@
+{
+	"name": "West Coastway",
+	"panels": [
+		{
+			"id": "billingshurst",
+			"name": "Billingshurst SB",
+			"neighbours": [
+				{
+					"simId": "horsham",
+					"panelId": "horsham"
+				}
+			]
+		},
+		{
+			"id": "lancingwest",
+			"name": "Lancing Panel 2",
+			"neighbours": [
+				{
+					"simId": "lancing",
+					"panelId": "panel1"
+				}
+			]
+		}
+	]
+}

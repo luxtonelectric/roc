@@ -10,6 +10,10 @@
 					"panelId": "panel3"
 				},
 				{
+					"simId": "guildford",
+					"panelId": "east"
+				},
+				{
 					"simId": "feltham",
 					"panelId": "ascot"
 				},
@@ -28,6 +32,10 @@
 					"panelId": "surbiton"
 				},
 				{
+					"simId": "guildford",
+					"panelId": "east"
+				},
+				{
 					"simId": "woking",
 					"panelId": "aldershot"
 				},
@@ -41,6 +49,10 @@
 			"id": "aldershot",
 			"name": "Aldershot",
 			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "east"
+				},
 				{
 					"simId": "woking",
 					"panelId": "woking"

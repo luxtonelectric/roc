@@ -1,0 +1,167 @@
+{
+	"name": "Glasgow South Western line",
+	"panels": [
+		{
+			"id": "barrhead",
+			"name": "Barrhead SB",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "muirhouse"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "lugton"
+				}
+			]
+		},
+		{
+			"id": "lugton",
+			"name": "Lugton SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "barrhead"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "kilmarnock"
+				}
+			]
+		},
+		{
+			"id": "kilmarnock",
+			"name": "Kilmarnock SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "lugton"
+				},
+				{
+					"simId": "paisley",
+					"panelId": "panel3"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "hurlford"
+				}
+			]
+		},
+		{
+			"id": "hurlford",
+			"name": "Hurlford SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "kilmarnock"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "mauchline"
+				}
+			]
+		},
+		{
+			"id": "mauchline",
+			"name": "Mauchline SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "hurlford"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "newcumnock"
+				},
+				{
+					"simId": "paisley",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "newcumnock",
+			"name": "New Cumnock SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "mauchline"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "kirkconnel"
+				}
+			]
+		},
+		{
+			"id": "kirkconnel",
+			"name": "Kirkconnel SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "newcumnock"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "thornhill"
+				}
+			]
+		},
+		{
+			"id": "thornhill",
+			"name": "Thornhill SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "kirkconnel"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "holywood"
+				}
+			]
+		},
+		{
+			"id": "holywood",
+			"name": "Holywood SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "thornhill"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "dumfries"
+				}
+			]
+		},
+		{
+			"id": "dumfries",
+			"name": "Dumfries Station SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "holywood"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "annan"
+				},
+				{
+					"simId": "carlisle",
+					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "annan",
+			"name": "Annan SB",
+			"neighbours": [
+				{
+					"simId": "gsw",
+					"panelId": "dumfries"
+				}
+			]
+		}
+	]
+}

@@ -32,6 +32,14 @@
 			"name": "Panel 5",
 			"neighbours": [
 				{
+					"simId": "southhumberside",
+					"panelId": "scunthorpewest"
+				},
+				{
+					"simId": "hull",
+					"panelId": "goole"
+				},
+				{
 					"simId": "doncasterstation",
 					"panelId": "panel2"
 				},

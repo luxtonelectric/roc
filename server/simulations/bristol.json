@@ -1,0 +1,99 @@
+{
+	"name": "Bristol",
+	"panels": [
+		{
+			"id": "weston",
+			"name": "Weston Panel",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "panelc"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "bristol"
+				}
+			]
+		},
+		{
+			"id": "bristol",
+			"name": "Bristol Panel",
+			"neighbours": [
+				{
+					"simId": "bristol",
+					"panelId": "weston"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "bath"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "filton"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "standrewsjn"
+				}
+			]
+		},
+		{
+			"id": "bath",
+			"name": "Bath Panel",
+			"neighbours": [
+				{
+					"simId": "bristol",
+					"panelId": "bristol"
+				},
+				{
+					"simId": "swindid",
+					"panelId": "wks1"
+				},
+				{
+					"simId": "westbury",
+					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "filton",
+			"name": "Filton Panel",
+			"neighbours": [
+				{
+					"simId": "bristol",
+					"panelId": "bristol"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "standrewsjn"
+				},
+				{
+					"simId": "newport",
+					"panelId": "severntunnel"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "south"
+				},
+				{
+					"simId": "swindid",
+					"panelId": "wks1"
+				}
+			]
+		},
+		{
+			"id": "standrewsjn",
+			"name": "St Andrews Jn SB",
+			"neighbours": [
+				{
+					"simId": "bristol",
+					"panelId": "bristol"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "filton"
+				}
+			]
+		}
+	]
+}

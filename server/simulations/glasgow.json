@@ -1,0 +1,111 @@
+{
+	"name": "Glasgow PSB",
+	"panels": [
+		{
+			"id": "station",
+			"name": "Station",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "bridgestreet"
+				}
+			]
+		},
+		{
+			"id": "bridgestreet",
+			"name": "Bridge Street",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "station"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "polmadie"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "muirhouse"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "shields"
+				}
+			]
+		},
+		{
+			"id": "polmadie",
+			"name": "Polmadie",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "bridgestreet"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "muirhouse"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "shields"
+				},
+				{
+					"simId": "yoker",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "motherwell",
+					"panelId": "wks1"
+				}
+			]
+		},
+		{
+			"id": "muirhouse",
+			"name": "Muirhouse",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "bridgestreet"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "polmadie"
+				},
+				{
+					"simId": "cathcart",
+					"panelId": "cathcart"
+				},
+				{
+					"simId": "gsw",
+					"panelId": "barrhead"
+				}
+			]
+		},
+		{
+			"id": "shields",
+			"name": "Shields",
+			"neighbours": [
+				{
+					"simId": "glasgow",
+					"panelId": "bridgestreet"
+				},
+				{
+					"simId": "yoker",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "polmadie"
+				},
+				{
+					"simId": "paisley",
+					"panelId": "panel1"
+				}
+			]
+		}
+	]
+}

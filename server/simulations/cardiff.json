@@ -66,10 +66,6 @@
 				{
 					"simId": "cardiff",
 					"panelId": "west"
-				},
-				{
-					"simId": "porttalbot",
-					"panelId": "panela"
 				}
 			]
 		}

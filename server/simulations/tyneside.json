@@ -10,8 +10,16 @@
 					"panelId": "north"
 				},
 				{
+					"simId": "durhamcoast",
+					"panelId": "bowesfield"
+				},
+				{
 					"simId": "tyneside",
 					"panelId": "heighingtonsb"
+				},
+				{
+					"simId": "durhamcoast",
+					"panelId": "ferryhill"
 				},
 				{
 					"simId": "tyneside",
@@ -68,6 +76,14 @@
 				{
 					"simId": "tyneside",
 					"panelId": "gateshead"
+				},
+				{
+					"simId": "morpeth",
+					"panelId": "bedlington"
+				},
+				{
+					"simId": "morpeth",
+					"panelId": "morpeth"
 				}
 			]
 		},
@@ -78,6 +94,10 @@
 				{
 					"simId": "tyneside",
 					"panelId": "gateshead"
+				},
+				{
+					"simId": "durhamcoast",
+					"panelId": "ryhopegrangejn"
 				}
 			]
 		}

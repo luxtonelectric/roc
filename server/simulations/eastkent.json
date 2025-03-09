@@ -1,0 +1,39 @@
+{
+	"name": "East Kent",
+	"panels": [
+		{
+			"id": "rochester",
+			"name": "Rochester SB",
+			"neighbours": [
+				{
+					"simId": "northkent",
+					"panelId": "northkent2"
+				},
+				{
+					"simId": "victoriaeast",
+					"panelId": "panel10b"
+				}
+			]
+		},
+		{
+			"id": "cuxton",
+			"name": "Cuxton SB",
+			"neighbours": [
+				{
+					"simId": "northkent",
+					"panelId": "northkent2"
+				}
+			]
+		},
+		{
+			"id": "wateringbury",
+			"name": "Wateringbury SB",
+			"neighbours": [
+				{
+					"simId": "ashford",
+					"panelId": "wks2"
+				}
+			]
+		}
+	]
+}

@@ -22,6 +22,10 @@
 				{
 					"simId": "feltham",
 					"panelId": "ascot"
+				},
+				{
+					"simId": "guildford",
+					"panelId": "east"
 				}
 			]
 		},
@@ -76,6 +80,10 @@
 				{
 					"simId": "feltham",
 					"panelId": "twickenham"
+				},
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
 				}
 			]
 		},

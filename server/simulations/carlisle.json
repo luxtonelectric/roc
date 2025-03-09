@@ -10,6 +10,10 @@
 					"panelId": "wks6"
 				},
 				{
+					"simId": "gsw",
+					"panelId": "dumfries"
+				},
+				{
 					"simId": "carlisle",
 					"panelId": "panelb"
 				}
@@ -26,6 +30,14 @@
 				{
 					"simId": "carlisle",
 					"panelId": "panelc"
+				},
+				{
+					"simId": "settlecarlisle",
+					"panelId": "howecosiding"
+				},
+				{
+					"simId": "cumbriancoast",
+					"panelId": "wigton"
 				}
 			]
 		},
@@ -36,6 +48,10 @@
 				{
 					"simId": "carlisle",
 					"panelId": "panelb"
+				},
+				{
+					"simId": "preston",
+					"panelId": "paneld"
 				}
 			]
 		}

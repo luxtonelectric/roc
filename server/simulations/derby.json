@@ -24,6 +24,10 @@
 				{
 					"simId": "staffordshire",
 					"panelId": "derbyline"
+				},
+				{
+					"simId": "trent",
+					"panelId": "trent"
 				}
 			]
 		},
@@ -34,6 +38,10 @@
 				{
 					"simId": "derby",
 					"panelId": "west"
+				},
+				{
+					"simId": "trent",
+					"panelId": "trent"
 				},
 				{
 					"simId": "derby",
@@ -48,6 +56,10 @@
 				{
 					"simId": "derby",
 					"panelId": "centre"
+				},
+				{
+					"simId": "trent",
+					"panelId": "claycross"
 				}
 			]
 		},
@@ -72,6 +84,10 @@
 				{
 					"simId": "derby",
 					"panelId": "moirawest"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "bardonhill"
 				}
 			]
 		}

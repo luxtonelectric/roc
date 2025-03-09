@@ -12,6 +12,10 @@
 				{
 					"simId": "sheffield",
 					"panelId": "barnsley"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "healeymills"
 				}
 			]
 		},

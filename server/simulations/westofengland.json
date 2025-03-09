@@ -1,0 +1,93 @@
+{
+	"name": "West of England line",
+	"panels": [
+		{
+			"id": "honiton",
+			"name": "Honiton SB",
+			"neighbours": [
+				{
+					"simId": "exeter",
+					"panelId": "exmouthjn"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "chardjn"
+				}
+			]
+		},
+		{
+			"id": "chardjn",
+			"name": "Chard Jn SB",
+			"neighbours": [
+				{
+					"simId": "westofengland",
+					"panelId": "honiton"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "yeoviljn"
+				}
+			]
+		},
+		{
+			"id": "yeoviljn",
+			"name": "Yeovil Jn SB",
+			"neighbours": [
+				{
+					"simId": "westofengland",
+					"panelId": "chardjn"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "yeovilpenmill"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "templecombe"
+				}
+			]
+		},
+		{
+			"id": "yeovilpenmill",
+			"name": "Yeovil Pen Mill SB",
+			"neighbours": [
+				{
+					"simId": "westbury",
+					"panelId": "panelb"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "yeoviljn"
+				}
+			]
+		},
+		{
+			"id": "templecombe",
+			"name": "Templecombe SB",
+			"neighbours": [
+				{
+					"simId": "westofengland",
+					"panelId": "yeoviljn"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "gillingham"
+				}
+			]
+		},
+		{
+			"id": "gillingham",
+			"name": "Gillingham SB",
+			"neighbours": [
+				{
+					"simId": "westofengland",
+					"panelId": "templecombe"
+				},
+				{
+					"simId": "salisbury",
+					"panelId": "salisbury"
+				}
+			]
+		}
+	]
+}

@@ -124,6 +124,10 @@
 				{
 					"simId": "eastcoastway",
 					"panelId": "pevenseywestham"
+				},
+				{
+					"simId": "hastings",
+					"panelId": "bopeepjn"
 				}
 			]
 		}

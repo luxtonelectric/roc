@@ -3,7 +3,7 @@
 	"panels": [
 		{
 			"id": "west1",
-			"name": "West 2",
+			"name": "West 1",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -18,6 +18,18 @@
 					"panelId": "ardsley"
 				},
 				{
+					"simId": "caldervalley",
+					"panelId": "batley"
+				},
+				{
+					"simId": "caldervalley",
+					"panelId": "milllanejn"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "horsforth"
+				},
+				{
 					"simId": "leedsnw",
 					"panelId": "leedsnw"
 				}
@@ -30,10 +42,6 @@
 				{
 					"simId": "leedsew",
 					"panelId": "west1"
-				},
-				{
-					"simId": "leedsnw",
-					"panelId": "leedsnw"
 				},
 				{
 					"simId": "westyorkshire",

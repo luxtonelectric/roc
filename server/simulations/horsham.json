@@ -12,6 +12,10 @@
 				{
 					"simId": "threebridges",
 					"panelId": "panel4"
+				},
+				{
+					"simId": "westcoastway",
+					"panelId": "billingshurst"
 				}
 			]
 		},

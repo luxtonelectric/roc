@@ -1,0 +1,117 @@
+{
+	"name": "Harrogate line",
+	"panels": [
+		{
+			"id": "horsforth",
+			"name": "Horsforth SB",
+			"neighbours": [
+				{
+					"simId": "leedsew",
+					"panelId": "west1"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "rigton"
+				}
+			]
+		},
+		{
+			"id": "rigton",
+			"name": "Rigton SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "horsforth"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "harrogate"
+				}
+			]
+		},
+		{
+			"id": "harrogate",
+			"name": "Harrogate SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "rigton"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "starbeck"
+				}
+			]
+		},
+		{
+			"id": "starbeck",
+			"name": "Starbeck SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "harrogate"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "knaresborough"
+				}
+			]
+		},
+		{
+			"id": "knaresborough",
+			"name": "Knaresborough SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "starbeck"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "cattal"
+				}
+			]
+		},
+		{
+			"id": "cattal",
+			"name": "Cattal SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "knaresborough"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "hammerton"
+				}
+			]
+		},
+		{
+			"id": "hammerton",
+			"name": "Hammerton SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "cattal"
+				},
+				{
+					"simId": "harrogate",
+					"panelId": "poppleton"
+				}
+			]
+		},
+		{
+			"id": "poppleton",
+			"name": "Poppleton SB",
+			"neighbours": [
+				{
+					"simId": "harrogate",
+					"panelId": "hammerton"
+				},
+				{
+					"simId": "yorkns",
+					"panelId": "north"
+				}
+			]
+		}
+	]
+}

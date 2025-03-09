@@ -1,0 +1,65 @@
+{
+	"name": "Cambridge PSB",
+	"panels": [
+		{
+			"id": "south",
+			"name": "South",
+			"neighbours": [
+				{
+					"simId": "warm",
+					"panelId": "harlow"
+				},
+				{
+					"simId": "royston",
+					"panelId": "royston"
+				},
+				{
+					"simId": "cambridge",
+					"panelId": "station"
+				}
+			]
+		},
+		{
+			"id": "station",
+			"name": "Station",
+			"neighbours": [
+				{
+					"simId": "cambridge",
+					"panelId": "south"
+				},
+				{
+					"simId": "cambridge",
+					"panelId": "north"
+				}
+			]
+		},
+		{
+			"id": "north",
+			"name": "North",
+			"neighbours": [
+				{
+					"simId": "cambridge",
+					"panelId": "station"
+				},
+				{
+					"simId": "cambridge",
+					"panelId": "kingsdyke"
+				}
+			]
+		},
+		{
+			"id": "kingsdyke",
+			"name": "Kings Dyke SB",
+			"neighbours": [
+				{
+					"simId": "cambridge",
+					"panelId": "north"
+				},
+				{
+					"simId": "peterborough",
+					"panelId": "peterborough"
+				}
+			]
+		}
+	]
+}

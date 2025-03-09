@@ -8,6 +8,10 @@
 				{
 					"simId": "cscot",
 					"panelId": "duty2"
+				},
+				{
+					"simId": "yoker",
+					"panelId": "wks1"
 				}
 			]
 		},
@@ -18,6 +22,10 @@
 				{
 					"simId": "cscot",
 					"panelId": "duty1"
+				},
+				{
+					"simId": "yoker",
+					"panelId": "wks2"
 				},
 				{
 					"simId": "cscot",

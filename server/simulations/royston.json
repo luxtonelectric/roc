@@ -8,6 +8,10 @@
 				{
 					"simId": "kingsx",
 					"panelId": "hitchin"
+				},
+				{
+					"simId": "cambridge",
+					"panelId": "south"
 				}
 			]
 		}

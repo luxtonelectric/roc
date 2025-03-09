@@ -37,7 +37,7 @@ export default class PhoneManager {
 
     //Create a phone for Control
     // TODO: Add ability to configure additional phones for the Sim.
-    this.phones.push(new Phone(sim.id + "_control", 'Control', Phone.TYPES.FIXED, new Location(sim.id)));
+    this.phones.push(new Phone(sim.id + "_control", sim.name + ' Control', Phone.TYPES.FIXED, new Location(sim.id)));
 
     this.sims.push(sim)
 
@@ -63,7 +63,7 @@ export default class PhoneManager {
    * @returns {Phone}
    */
   generatePhoneForPanel(sim, panel) {
-    const phone = new Phone(sim.id +'_' + panel.id, panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
+    const phone = new Phone(sim.id +'_' + panel.id, sim.name + " " + panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
     this.phones.push(phone);
     return phone;
   }

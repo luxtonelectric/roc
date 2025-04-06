@@ -24,14 +24,14 @@ export default {
   },
   methods: {
     takeAction() {
-      if (this.nextCall && !this.currentCall) {
-        this.$emit("acceptCall", this.nextCall.id);
-      } else if (this.currentCall && this.currentCall.status === 'offered' && this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
+      if (this.currentCall && this.currentCall.status === 'offered' && this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
         this.$emit("rejectCall", this.currentCall.id);
       } else if (this.currentCall && this.currentCall.status === 'accepted') {
         this.$emit("leaveCall", this.currentCall.Id);
       } else if (this.preparedCall) {
         this.$emit("placeCall", this.preparedCall);
+      } else if (this.nextCall && !this.currentCall) {
+        this.$emit("acceptCall", this.nextCall.id);
       } else {
         this.$emit("changeTab", "phoneBook");
       }
@@ -42,16 +42,16 @@ export default {
         this.line1 = "From: " + this.currentCall.sender.name;
         this.line2 = " -> ";
         this.line3 = "To: " + this.currentCall.receivers[0].name;
-      } else if (this.nextCall) {
-        this.title = "Answer Call";
-        this.line1 = "From: " + this.nextCall.sender.name;
-        this.line2 = " -> ";
-        this.line3 = "To: " + this.nextCall.receivers[0].name;
       } else if (this.preparedCall) {
         this.title = "Place Call";
         this.line1 = "From: " + this.preparedCall.sender.name;
         this.line2 = " -> ";
         this.line3 = "To: " + this.preparedCall.receivers[0].name;
+      } else if (this.nextCall) {
+        this.title = "Answer Call";
+        this.line1 = "From: " + this.nextCall.sender.name;
+        this.line2 = " -> ";
+        this.line3 = "To: " + this.nextCall.receivers[0].name;
       } else {
         this.title = "Call";
         this.line1 = "";

@@ -90,7 +90,7 @@
                 <td><button @click="claimPhone(phone.id)">Claim</button></td>
                 <td>
                   <select v-model="selectedPhone[phone.id]">
-                    <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{key}}</option>
+                    <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{myPhone?.name || key}}</option>
                   </select>
                   <button @click="placeCall(phone.id)">Call</button>
                 </td>
@@ -139,17 +139,16 @@ export default {
   name: "AdminControlPanel",
   props: ['socket', 'discordId'],
   mounted() {
-    var that = this;
-    this.socket.on('adminStatus', function (msg) {
+    this.socket.on('adminStatus', (msg) => {
       console.log(msg);
-      that.gameState = msg;
+      this.gameState = msg;
 
       const allPhones = msg.phones;
-      const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === that.discordId);
+      const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
       myPhones.forEach(mp => {
-        if(!that.myPhones[mp.id]) {
+        if(!this.myPhones[mp.id]) {
           console.log('Initing phone');
-          that.myPhones[mp.id] = {};
+          this.myPhones[mp.id] = mp;
         } else {
           console.log('Phone is already inited');
         }
@@ -157,8 +156,8 @@ export default {
 
     });
 
-    this.socket.on('callQueueUpdate', function (msg) {
-      that.myPhones[msg.phoneId] = msg;
+    this.socket.on('callQueueUpdate', (msg) => {
+      this.myPhones[msg.phoneId] = msg;
     });
 
 
@@ -212,7 +211,7 @@ export default {
     async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;
       console.log('placeCall', receiver, type, level);
-      console.log('this.selectedPhone', this.selectedPhone[receiver.id]);
+      console.log('this.selectedPhone', this.selectedPhone[receiver]);
 
       const receiverPhone = this.gameState.phones.find(p => p.id === receiver);
       const senderPhone = this.gameState.phones.find(p => p.id === this.selectedPhone[receiver]);

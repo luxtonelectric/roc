@@ -17,13 +17,12 @@ export default {
     calculateTime () {
       const time = this.clockData;
       if (time) {
-        const msPassed = Date.now() - time.lastReportedAt;
-        const secondsPassed = msPassed / 1000;
-        const timeNow = time.secondsSinceMidnight + (time.isPaused ? 0 : secondsPassed * time.speed);
-        const dateObj = new Date(0, 0, 0, 0, 0, timeNow);
+        const realTimePassed = Date.now() - time.lastReportedAt;
+        const timeNow = time.secondsSinceMidnight * 1000 + (time.isPaused ? 0 : realTimePassed * time.speed);
+        const dateObj = new Date(timeNow);
         const hours = dateObj.getUTCHours();
         const minutes = dateObj.getUTCMinutes();
-        const seconds = dateObj.getSeconds();
+        const seconds = dateObj.getUTCSeconds();
         this.time = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         this.simTime = true;
       } else {

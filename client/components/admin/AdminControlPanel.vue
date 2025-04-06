@@ -206,7 +206,6 @@ export default {
     },
     claimPhone(phoneId) {
       this.socket.emit("claimPhone", { phoneId: phoneId });
-      this.myPhones[phoneId] = {};
     },
     async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;

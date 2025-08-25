@@ -24,6 +24,14 @@
 					"panelId": "panel1"
 				},
 				{
+					"simId": "nll",
+					"panelId": "upperholloway"
+				},
+				{
+					"simId": "nll",
+					"panelId": "duddinghilljn"
+				},
+				{
 					"simId": "westhampstead",
 					"panelId": "panel3"
 				}
@@ -50,6 +58,14 @@
 				{
 					"simId": "westhampstead",
 					"panelId": "panel3"
+				},
+				{
+					"simId": "eastwestrail",
+					"panelId": "marstonvaleeast"
+				},
+				{
+					"simId": "leicester",
+					"panelId": "south"
 				}
 			]
 		}

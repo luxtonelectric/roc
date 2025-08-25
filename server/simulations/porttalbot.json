@@ -7,7 +7,7 @@
 			"neighbours": [
 				{
 					"simId": "cardiff",
-					"panelId": "stfagans"
+					"panelId": "west"
 				},
 				{
 					"simId": "cardiffvog",
@@ -52,6 +52,10 @@
 				{
 					"simId": "porttalbot",
 					"panelId": "panelb"
+				},
+				{
+					"simId": "westwales",
+					"panelId": "pembrey"
 				}
 			]
 		},

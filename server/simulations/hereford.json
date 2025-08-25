@@ -126,6 +126,10 @@
 					"panelId": "moretononlugg"
 				},
 				{
+					"simId": "cotswolds",
+					"panelId": "ledbury"
+				},
+				{
 					"simId": "hereford",
 					"panelId": "traminn"
 				}

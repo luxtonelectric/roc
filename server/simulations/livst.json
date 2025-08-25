@@ -22,6 +22,10 @@
 				{
 					"simId": "livst",
 					"panelId": "wa"
+				},
+				{
+					"simId": "gemlsouth",
+					"panelId": "stratford"
 				}
 			]
 		}

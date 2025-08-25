@@ -58,6 +58,10 @@
 				{
 					"simId": "exeter",
 					"panelId": "panelb"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "honiton"
 				}
 			]
 		},
@@ -68,6 +72,10 @@
 				{
 					"simId": "exeter",
 					"panelId": "panelb"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "weston"
 				},
 				{
 					"simId": "westbury",

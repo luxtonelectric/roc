@@ -47,6 +47,14 @@
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
+					"panelId": "panel5"
+				},
+				{
+					"simId": "victoriac",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "victoriaeast",
 					"panelId": "panel6"
 				},
 				{
@@ -132,6 +140,10 @@
 					"panelId": "panel9"
 				},
 				{
+					"simId": "ashford",
+					"panelId": "wks1"
+				},
+				{
 					"simId": "victoriaeast",
 					"panelId": "panel10b"
 				}
@@ -146,8 +158,16 @@
 					"panelId": "panel10a"
 				},
 				{
+					"simId": "eastkent",
+					"panelId": "rochester"
+				},
+				{
 					"simId": "maideast",
 					"panelId": "maidstoneeast"
+				},
+				{
+					"simId": "ashford",
+					"panelId": "wks1"
 				}
 			]
 		}

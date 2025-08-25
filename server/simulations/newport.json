@@ -6,6 +6,14 @@
 			"name": "Severn Tunnel",
 			"neighbours": [
 				{
+					"simId": "gloucester",
+					"panelId": "south"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "filton"
+				},
+				{
 					"simId": "newport",
 					"panelId": "magor"
 				}

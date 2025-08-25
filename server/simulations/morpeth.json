@@ -1,0 +1,57 @@
+{
+	"name": "Morpeth",
+	"panels": [
+		{
+			"id": "bedlington",
+			"name": "Bedlington SB",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "newcastle"
+				}
+			]
+		},
+		{
+			"id": "morpeth",
+			"name": "Morpeth SB",
+			"neighbours": [
+				{
+					"simId": "tyneside",
+					"panelId": "newcastle"
+				},
+				{
+					"simId": "morpeth",
+					"panelId": "alnmouth"
+				}
+			]
+		},
+		{
+			"id": "alnmouth",
+			"name": "Alnmouth SB",
+			"neighbours": [
+				{
+					"simId": "morpeth",
+					"panelId": "morpeth"
+				},
+				{
+					"simId": "morpeth",
+					"panelId": "tweedmouth"
+				}
+			]
+		},
+		{
+			"id": "tweedmouth",
+			"name": "Tweedmouth SB",
+			"neighbours": [
+				{
+					"simId": "morpeth",
+					"panelId": "alnmouth"
+				},
+				{
+					"simId": "edinburgh",
+					"panelId": "panel1"
+				}
+			]
+		}
+	]
+}

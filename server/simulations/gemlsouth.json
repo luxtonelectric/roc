@@ -1,0 +1,45 @@
+{
+	"name": "GEML Inner",
+	"panels": [
+		{
+			"id": "stratford",
+			"name": "Stratford Workstation",
+			"neighbours": [
+				{
+					"simId": "livst",
+					"panelId": "ge"
+				},
+				{
+					"simId": "lts",
+					"panelId": "london"
+				},
+				{
+					"simId": "nll",
+					"panelId": "eastern"
+				},
+				{
+					"simId": "nll",
+					"panelId": "templemills"
+				},
+				{
+					"simId": "gemlsouth",
+					"panelId": "ilford"
+				}
+			]
+		},
+		{
+			"id": "ilford",
+			"name": "Ilford Workstation",
+			"neighbours": [
+				{
+					"simId": "gemlsouth",
+					"panelId": "stratford"
+				},
+				{
+					"simId": "lts",
+					"panelId": "london"
+				}
+			]
+		}
+	]
+}

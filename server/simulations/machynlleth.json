@@ -1,0 +1,29 @@
+{
+	"name": "Machynlleth",
+	"panels": [
+		{
+			"id": "west",
+			"name": "West Workstation",
+			"neighbours": [
+				{
+					"simId": "machynlleth",
+					"panelId": "east"
+				}
+			]
+		},
+		{
+			"id": "east",
+			"name": "East Workstation",
+			"neighbours": [
+				{
+					"simId": "machynlleth",
+					"panelId": "west"
+				},
+				{
+					"simId": "shrewsbury",
+					"panelId": "suttonbridgejn"
+				}
+			]
+		}
+	]
+}

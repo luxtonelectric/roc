@@ -110,6 +110,10 @@
 				{
 					"simId": "manchesterpiccadilly",
 					"panelId": "crownest"
+				},
+				{
+					"simId": "preston",
+					"panelId": "panelb"
 				}
 			]
 		},

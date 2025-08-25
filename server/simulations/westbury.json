@@ -6,6 +6,10 @@
 			"name": "Reading Newbury",
 			"neighbours": [
 				{
+					"simId": "reading",
+					"panelId": "reading"
+				},
+				{
 					"simId": "westbury",
 					"panelId": "panela"
 				}
@@ -28,6 +32,10 @@
 					"panelId": "wks1"
 				},
 				{
+					"simId": "bristol",
+					"panelId": "bath"
+				},
+				{
 					"simId": "salisbury",
 					"panelId": "salisbury"
 				}
@@ -40,6 +48,10 @@
 				{
 					"simId": "westbury",
 					"panelId": "panela"
+				},
+				{
+					"simId": "westofengland",
+					"panelId": "yeovilpenmill"
 				},
 				{
 					"simId": "exeter",

@@ -1,0 +1,63 @@
+{
+	"name": "Gloucester",
+	"panels": [
+		{
+			"id": "north",
+			"name": "North Panel",
+			"neighbours": [
+				{
+					"simId": "saltley",
+					"panelId": "southtop"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "droitwichspa"
+				},
+				{
+					"simId": "cotswolds",
+					"panelId": "nortonjn"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "central"
+				}
+			]
+		},
+		{
+			"id": "central",
+			"name": "Central Panel",
+			"neighbours": [
+				{
+					"simId": "gloucester",
+					"panelId": "north"
+				},
+				{
+					"simId": "gloucester",
+					"panelId": "south"
+				}
+			]
+		},
+		{
+			"id": "south",
+			"name": "South Panel",
+			"neighbours": [
+				{
+					"simId": "gloucester",
+					"panelId": "central"
+				},
+				{
+					"simId": "swindid",
+					"panelId": "wks2"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "filton"
+				},
+				{
+					"simId": "newport",
+					"panelId": "severntunnel"
+				}
+			]
+		}
+	]
+}

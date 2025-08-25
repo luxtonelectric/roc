@@ -28,6 +28,18 @@
 					"panelId": "camden"
 				},
 				{
+					"simId": "nll",
+					"panelId": "actoncanalwharf"
+				},
+				{
+					"simId": "nll",
+					"panelId": "actonwellsjn"
+				},
+				{
+					"simId": "nll",
+					"panelId": "central"
+				},
+				{
 					"simId": "victoriac",
 					"panelId": "panel2a"
 				}
@@ -48,6 +60,10 @@
 				{
 					"simId": "wembleysub",
 					"panelId": "wembleysub"
+				},
+				{
+					"simId": "nll",
+					"panelId": "central"
 				}
 			]
 		},

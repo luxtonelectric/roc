@@ -1,0 +1,129 @@
+{
+	"name": "Worksop",
+	"panels": [
+		{
+			"id": "thrumpton",
+			"name": "Thrumpton SB",
+			"neighbours": [
+				{
+					"simId": "southhumberside",
+					"panelId": "gainsborough"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1n"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "worksop"
+				}
+			]
+		},
+		{
+			"id": "worksop",
+			"name": "Worksop SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "thrumpton"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "maltby"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "kiveton"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "creswell"
+				}
+			]
+		},
+		{
+			"id": "maltby",
+			"name": "Maltby Colliery SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "worksop"
+				},
+				{
+					"simId": "doncasterstation",
+					"panelId": "panel2"
+				}
+			]
+		},
+		{
+			"id": "kiveton",
+			"name": "Kiveton Park SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "worksop"
+				},
+				{
+					"simId": "sheffield",
+					"panelId": "woodhousejn"
+				}
+			]
+		},
+		{
+			"id": "creswell",
+			"name": "Elmton & Creswell Jn SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "worksop"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "shirebrookjn"
+				}
+			]
+		},
+		{
+			"id": "shirebrookjn",
+			"name": "Shirebrook Jn SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "creswell"
+				},
+				{
+					"simId": "trent",
+					"panelId": "kirkbysummit"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "clipstone"
+				}
+			]
+		},
+		{
+			"id": "clipstone",
+			"name": "Clipstone SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "shirebrookjn"
+				},
+				{
+					"simId": "worksop",
+					"panelId": "thoresby"
+				}
+			]
+		},
+		{
+			"id": "thoresby",
+			"name": "Thoresby Colliery Jn SB",
+			"neighbours": [
+				{
+					"simId": "worksop",
+					"panelId": "clipstone"
+				}
+			]
+		}
+	]
+}

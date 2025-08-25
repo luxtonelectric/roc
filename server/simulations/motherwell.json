@@ -6,6 +6,10 @@
 			"name": "Workstation 1",
 			"neighbours": [
 				{
+					"simId": "glasgow",
+					"panelId": "polmadie"
+				},
+				{
 					"simId": "cathcart",
 					"panelId": "cathcart"
 				},
@@ -26,6 +30,14 @@
 				{
 					"simId": "cscot",
 					"panelId": "duty2"
+				},
+				{
+					"simId": "glasgow",
+					"panelId": "polmadie"
+				},
+				{
+					"simId": "yoker",
+					"panelId": "wks2"
 				},
 				{
 					"simId": "motherwell",

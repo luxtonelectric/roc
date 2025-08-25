@@ -6,6 +6,14 @@
 			"name": "Workstation 1",
 			"neighbours": [
 				{
+					"simId": "bristol",
+					"panelId": "filton"
+				},
+				{
+					"simId": "bristol",
+					"panelId": "bath"
+				},
+				{
 					"simId": "westbury",
 					"panelId": "panela"
 				},
@@ -24,6 +32,10 @@
 					"panelId": "wks1"
 				},
 				{
+					"simId": "gloucester",
+					"panelId": "south"
+				},
+				{
 					"simId": "swindid",
 					"panelId": "wks3"
 				}
@@ -40,6 +52,10 @@
 				{
 					"simId": "oxford",
 					"panelId": "oxford"
+				},
+				{
+					"simId": "reading",
+					"panelId": "reading"
 				}
 			]
 		}

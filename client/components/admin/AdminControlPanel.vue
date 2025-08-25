@@ -216,6 +216,10 @@ export default {
 
       const receiverPhone = this.gameState.phones.find(p => p.id === receiver);
       const senderPhone = this.gameState.phones.find(p => p.id === this.selectedPhone[receiver]);
+      if (!senderPhone) {
+        console.log("Refusing call: sender phone not selected/not found")
+        return;
+      }
 
       const callId = await new Promise(resolve => { soc.emit("placeCall", { "receivers": [receiverPhone], "sender": senderPhone, "type": type, "level": level }, response => resolve(response)) });
       // if (callId) {

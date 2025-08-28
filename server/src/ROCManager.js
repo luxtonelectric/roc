@@ -48,9 +48,10 @@ export default class ROCManager {
   /**
    * 
    * @param {string} simId 
+   * @param {Array<string>} activeEras
    * @returns {Simulation}
    */
-  getSimData(simId) {
+  getSimData(simId, activeEras) {
     const filePath = new URL(`../simulations/${simId}.json`, import.meta.url)
     let simConfig;
     try {
@@ -60,7 +61,7 @@ export default class ROCManager {
       console.error(`Couldn't read sim config for ${simId}:`, e);
       return;
     }
-    return new Simulation(simId, simConfig);
+    return new Simulation(simId, simConfig, activeEras);
   }
 
   /**
@@ -77,7 +78,7 @@ export default class ROCManager {
     delete gatewayInfo.port;
 
     this.stompManager.createClientForGame(game, game.interfaceGatewayPort);
-    const sim = this.getSimData(game.sim)
+    const sim = this.getSimData(game.sim, game.eras ?? [])
     if (sim) {
       console.log('LOADING PHONES FOR SIM', game.sim);
       this.phoneManager.generatePhonesForSim(sim);

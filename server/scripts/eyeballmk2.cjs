@@ -47,17 +47,28 @@ for (const [id, sim] of Object.entries(simulations)) {
 	}
 
 	for (const panel of sim.panels) {
+		if (panel.era && !sim.eras?.includes(panel.era) && !sim.eras?.includes(panel.era.not)) {
+			console.error(`${id}.${panel.id} refers to non-existent era`);
+		}
+
 		for (const neighbour of panel.neighbours) {
 			const neighbourPanel = findPanel(neighbour.simId, neighbour.panelId);
 			if (!neighbourPanel) {
 				console.error(`${id}.${panel.id} refers to non-existent panel ${neighbour.simId}.${neighbour.panelId}`);
 				continue;
 			}
+
 			const linkCount = countLinks(neighbourPanel, id, panel.id);
 			if (linkCount === 0) {
 				console.error(`${neighbour.simId}.${neighbour.panelId} does not link back to ${id}.${panel.id}`);
 			} else if (linkCount > 1) {
 				console.error(`${neighbour.simId}.${neighbour.panelId} has a double link to ${id}.${panel.id}`);
+			}
+
+			if (neighbour.era && !sim.eras?.includes(neighbour.era) && !sim.eras?.includes(neighbour.era.not)) {
+				console.error(
+					`${id}.${panel.id}'s link to ${neighbour.simId}.${neighbour.panelId} refers to non-existent era`
+				);
 			}
 		}
 	}

@@ -3,21 +3,40 @@
 	"type": "object",
 	"properties": {
 		"name": { "type": "string", "description": "Simulation user-facing name" },
+		"eras": {
+			"type": "array",
+			"description": "Valid era options for the simulation",
+			"items": { "type": "string" }
+		},
 		"panels": {
 			"type": "array",
 			"description": "List of panels",
 			"items": {
 				"type": "object",
 				"properties": {
-					"id": { "type": "string" ,"description": "Panel internal identifier"},
+					"id": { "type": "string", "description": "Panel internal identifier" },
 					"name": { "type": "string", "description": "Panel user-facing name" },
+					"era": {
+						"type": ["string", "object"],
+						"description": "Era in which the panel exists",
+						"properties": {
+							"not": { "type": "string" }
+						}
+					},
 					"neighbours": {
 						"type": "array",
 						"items": {
 							"type": "object",
 							"properties": {
 								"simId": { "type": "string" },
-								"panelId": { "type": "string" }
+								"panelId": { "type": "string" },
+								"era": {
+									"type": ["string", "object"],
+									"description": "Era in which the link exists",
+									"properties": {
+										"not": { "type": "string" }
+									}
+								}
 							}
 						}
 					}

@@ -60,7 +60,7 @@ export default class ROCManager {
       console.error(`Couldn't read sim config for ${simId}:`, e);
       return;
     }
-    return Simulation.fromSimData(simId, simConfig);
+    return new Simulation(simId, simConfig);
   }
 
   /**

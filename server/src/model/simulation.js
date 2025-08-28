@@ -22,20 +22,17 @@ export default class Simulation {
 
   /**
    * @param {string} simId
-   * @param {*} simData 
-   * @returns {Simulation} 
+   * @param {*} simData
    */
-  static fromSimData(simId, simData) {
-    const sim = new Simulation();
-    sim.id = simId;
-    sim.name = simData.name;
+  constructor(simId, simData) {
+    this.id = simId;
+    this.name = simData.name;
     simData.panels.forEach(panelData => {
-      sim.panels.push(Panel.fromSimData(panelData));
+      this.panels.push(Panel.fromSimData(panelData));
       for (const loc of panelData.reportingLocations ?? []) {
-        sim.locationToPanelMap.set(loc, panelData.id)
+        this.locationToPanelMap.set(loc, panelData.id)
       }
     });
-    return sim;
   }
 
   /**

@@ -11,6 +11,24 @@
 				},
 				{
 					"simId": "eastleigh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "eastleigh",
+					"panelId": "panel3"
+				}
+			]
+		},
+		{
+			"id": "panel2",
+			"name": "Panel 2",
+			"neighbours": [
+				{
+					"simId": "eastleigh",
+					"panelId": "panel1"
+				},
+				{
+					"simId": "eastleigh",
 					"panelId": "panel3"
 				}
 			]
@@ -22,6 +40,10 @@
 				{
 					"simId": "eastleigh",
 					"panelId": "panel1"
+				},
+				{
+					"simId": "eastleigh",
+					"panelId": "panel2"
 				},
 				{
 					"simId": "salisbury",

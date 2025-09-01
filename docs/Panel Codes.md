@@ -36,7 +36,7 @@ The list is sorted alphabetically by sim name.
 | BLN1 | Blackpool North 1 |  |
 | BLN2 | Blackpool North 2 |  |
 | BRW | Weston | ~~Bristol~~ |
-| BR | Bristol |  |
+| BRS | Bristol |  |
 | BRB | Bath |  |
 | BRF | Filton |  |
 | BRA | St Andrews |  |

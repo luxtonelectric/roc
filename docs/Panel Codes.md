@@ -136,13 +136,13 @@ The list is sorted alphabetically by sim name.
 | CUR | Kirksanton |  |
 | CUL | Limestone Hall |  |
 | CUO | Bootle |  |
-| CUD | Drigg |  |
+| CUI | Drigg |  |
 | CUN | Sellafield |  |
 | CUE | St Bees |  |
-| CUA | Bransty |  |
-| CU2 | Workington 2 |  |
-| CU3 | Workington 3 |  |
-| CUP | Maryport |  |
+| CUT | Bransty |  |
+| CUW2 | Workington 2 |  |
+| CUW3 | Workington 3 |  |
+| CUY | Maryport |  |
 | CUW | Wigton |  |
 | DBW | West | Derby |
 | DBC | Centre |  |

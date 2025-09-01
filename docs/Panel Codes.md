@@ -33,8 +33,8 @@ The list is sorted alphabetically by sim name.
 | BLS | Salwick | ~~Blackpool~~ |
 | BLK | Kirkham |  |
 | BLP | Poulton |  |
-| BL1 | Blackpool North 1 |  |
-| BL2 | Blackpool North 2 |  |
+| BLN1 | Blackpool North 1 |  |
+| BLN2 | Blackpool North 2 |  |
 | BRW | Weston | ~~Bristol~~ |
 | BR | Bristol |  |
 | BRB | Bath |  |

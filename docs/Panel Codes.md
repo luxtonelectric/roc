@@ -20,6 +20,12 @@ The list is sorted alphabetically by sim name.
 | LTV | Lichfield Trent Valley |  |
 | AST | Aston |  |
 | BM | Basingstoke | Basingstoke Main |
+| BWH | Honiton | ~~Basingstoke WoE~~ |
+| BWC | Chard Jn |  |
+| BWY | Yeovil Jn |  |
+| BWP | Yeovil Pen Mill |  |
+| BWT | Templecombe |  |
+| BWG | Gillingham |  |
 | NSS1 | South 1 | Birmingham New Street |
 | NSS2 | South 2 |  |
 | NSC | Centre |  |
@@ -616,12 +622,6 @@ The list is sorted alphabetically by sim name.
 | WH2 | Panel 2 |  |
 | WH3 | Panel 3 |  |
 | WH4 | Panel 4 |  |
-| BWH | Honiton | ~~Basingstoke WoE~~ |
-| BWC | Chard Jn |  |
-| BWY | Yeovil Jn |  |
-| BWP | Yeovil Pen Mill |  |
-| BWT | Templecombe |  |
-| BWG | Gillingham |  |
 | WWP | Pembrey | ~~West Wales~~ |
 | WWK | Kidwelly |  |
 | WWF | Ferryside |  |

@@ -4,6 +4,7 @@
 		{
 			"id": "winsford",
 			"name": "Winsford",
+			"code": "CRW",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -26,6 +27,7 @@
 		{
 			"id": "coalyard",
 			"name": "Coal Yard",
+			"code": "CRY",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -44,6 +46,7 @@
 		{
 			"id": "crewepsbnorth",
 			"name": "Crewe PSB North",
+			"code": "CRN",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -70,6 +73,7 @@
 		{
 			"id": "steelworks",
 			"name": "Steel Works",
+			"code": "CRW",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -84,6 +88,7 @@
 		{
 			"id": "crewepsbsouth",
 			"name": "Crewe PSB South",
+			"code": "CRS",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -110,6 +115,7 @@
 		{
 			"id": "basfordhall",
 			"name": "Basford Hall",
+			"code": "CRB",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -128,6 +134,7 @@
 		{
 			"id": "grestylane",
 			"name": "Gresty Lane",
+			"code": "CRG",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -150,6 +157,7 @@
 		{
 			"id": "salopgoodsjn",
 			"name": "Salop Goods Jn",
+			"code": "CRA",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -176,6 +184,7 @@
 		{
 			"id": "sortingsidingsnth",
 			"name": "Sorting Sidings North",
+			"code": "CRO",
 			"neighbours": [
 				{
 					"simId": "crewe",

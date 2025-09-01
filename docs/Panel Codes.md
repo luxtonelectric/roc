@@ -110,8 +110,8 @@ The list is sorted alphabetically by sim name.
 | CWT | Worcester Tunnel Jn |  |
 | CWD | Droitwich Spa |  |
 | CWH | Henwick |  |
-| CWN | Newlands East |  |
-| CWM | Malvern Hills |  |
+| CWN | Newland East |  |
+| CWW | Malvern Wells |  |
 | CWL | Ledbury |  |
 | CV | Coventry | Coventry |
 | CRW | Winsford | Crewe |

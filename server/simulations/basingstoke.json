@@ -4,6 +4,7 @@
 		{
 			"id": "basingstoke",
 			"name": "Basingstoke",
+			"code": "BM",
 			"neighbours": [
 				{
 					"simId": "eastleigh",

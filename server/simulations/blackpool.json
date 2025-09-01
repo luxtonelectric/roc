@@ -4,6 +4,7 @@
 		{
 			"id": "salwick",
 			"name": "Salwick SB",
+			"code": "BLS",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -18,6 +19,7 @@
 		{
 			"id": "kirkham",
 			"name": "Kirkham SB",
+			"code": "BLK",
 			"neighbours": [
 				{
 					"simId": "blackpool",
@@ -32,6 +34,7 @@
 		{
 			"id": "poulton",
 			"name": "Poulton SB",
+			"code": "BLP",
 			"neighbours": [
 				{
 					"simId": "blackpool",
@@ -46,6 +49,7 @@
 		{
 			"id": "blackpool1",
 			"name": "Blackpool North No.1 SB",
+			"code": "BLN1",
 			"neighbours": [
 				{
 					"simId": "blackpool",
@@ -60,6 +64,7 @@
 		{
 			"id": "blackpool2",
 			"name": "Blackpool North No.2 SB",
+			"code": "BLN2",
 			"neighbours": [
 				{
 					"simId": "blackpool",

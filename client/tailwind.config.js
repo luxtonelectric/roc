@@ -3,6 +3,9 @@ module.exports = {
   content: [],
   theme: {
     extend: {
+      height: {
+        'pb': '94%',
+      },
       animation: {
         typewriter: "typewriter 5s steps(4) forwards infinite"
       },

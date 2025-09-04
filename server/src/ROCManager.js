@@ -468,7 +468,26 @@ export default class ROCManager {
 
   getGameState() {
     //console.log(this.sims);
-    return this.sims.filter(s => s.enabled);
+    const enabledSims = this.sims.filter(s => s.enabled);
+    
+    // Clone the sims to avoid modifying the original objects
+    const simsWithPlayerDetails = JSON.parse(JSON.stringify(enabledSims));
+    
+    // Enhance each panel with full player details
+    simsWithPlayerDetails.forEach(sim => {
+      sim.panels.forEach(panel => {
+        if (panel.player && this.players[panel.player]) {
+          const player = this.players[panel.player];
+          panel.playerDetails = {
+            id: player.discordId,
+            displayName: player.displayName,
+            avatarURL: player.avatarURL
+          };
+        }
+      });
+    });
+    
+    return simsWithPlayerDetails;
   }
 
   getHostState() {

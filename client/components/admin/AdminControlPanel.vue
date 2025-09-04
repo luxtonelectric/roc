@@ -54,11 +54,19 @@
                 <td>{{ panel.name }}</td>
                 <td>
                   <template v-if="panel.player">
-                    {{ panel.player }}
-                    <button class="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600" 
-                            @click="unclaimPanel(game.id, panel.id, panel.player)">
-                      Unclaim
-                    </button>
+                    <div class="flex items-center">
+                      <img v-if="panel.playerDetails?.avatarURL" 
+                           :src="panel.playerDetails.avatarURL" 
+                           :alt="panel.playerDetails.displayName"
+                           :title="panel.playerDetails.displayName"
+                           class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span>{{ panel.playerDetails?.displayName || panel.player }}</span>
+                      <button class="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600" 
+                              @click="unclaimPanel(game.id, panel.id, panel.player)">
+                        Unclaim
+                      </button>
+                    </div>
                   </template>
                 </td>
               </tr>

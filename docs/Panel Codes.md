@@ -260,8 +260,8 @@ The list is sorted alphabetically by sim name.
 | HFA | Abergavenny |  |
 | HFL | Little Mill Jn |  |
 | HVH | Hazel Grove | Hope Valley |
-| HVC | New Mills Central |  |
-| HVS | New Mills South Jn |  |
+| HVNC | New Mills Central |  |
+| HVNS | New Mills South Jn |  |
 | HVC | Chinley |  |
 | HVE | Edale |  |
 | HVA | Earles Sdgs |  |

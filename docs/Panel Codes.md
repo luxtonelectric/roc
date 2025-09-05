@@ -287,7 +287,7 @@ The list is sorted alphabetically by sim name.
 | HCG | Glazebrook East Jn |  |
 | HYL | MROC Liverpool | Huyton & St Helens |
 | HYH | St Helens |  |
-| IVD | Dunkeld | ~~Inverness~~ |
+| IVK | Dunkeld | ~~Inverness~~ |
 | IVY | Dyce |  |
 | KXX | Cross | Kings Cross |
 | KXF | Finsbury |  |

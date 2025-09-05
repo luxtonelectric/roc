@@ -4,6 +4,7 @@
 		{
 			"id": "horsforth",
 			"name": "Horsforth SB",
+			"code": "HGF",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -18,6 +19,7 @@
 		{
 			"id": "rigton",
 			"name": "Rigton SB",
+			"code": "HGR",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -32,6 +34,7 @@
 		{
 			"id": "harrogate",
 			"name": "Harrogate SB",
+			"code": "HGH",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -46,6 +49,7 @@
 		{
 			"id": "starbeck",
 			"name": "Starbeck SB",
+			"code": "HGS",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -60,6 +64,7 @@
 		{
 			"id": "knaresborough",
 			"name": "Knaresborough SB",
+			"code": "HGK",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -74,6 +79,7 @@
 		{
 			"id": "cattal",
 			"name": "Cattal SB",
+			"code": "HGC",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -88,6 +94,7 @@
 		{
 			"id": "hammerton",
 			"name": "Hammerton SB",
+			"code": "HGM",
 			"neighbours": [
 				{
 					"simId": "harrogate",
@@ -102,6 +109,7 @@
 		{
 			"id": "poppleton",
 			"name": "Poppleton SB",
+			"code": "HGP",
 			"neighbours": [
 				{
 					"simId": "harrogate",

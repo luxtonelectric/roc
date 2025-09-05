@@ -4,6 +4,7 @@
 		{
 			"id": "west",
 			"name": "West",
+			"code": "DBW",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -34,6 +35,7 @@
 		{
 			"id": "centre",
 			"name": "Centre",
+			"code": "DBC",
 			"neighbours": [
 				{
 					"simId": "derby",
@@ -52,6 +54,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "DBN",
 			"neighbours": [
 				{
 					"simId": "derby",
@@ -66,6 +69,7 @@
 		{
 			"id": "moirawest",
 			"name": "Moira West",
+			"code": "DBM",
 			"neighbours": [
 				{
 					"simId": "derby",
@@ -80,6 +84,7 @@
 		{
 			"id": "mantlelane",
 			"name": "Mantle Lane",
+			"code": "DBL",
 			"neighbours": [
 				{
 					"simId": "derby",

@@ -4,6 +4,7 @@
 		{
 			"id": "ascott",
 			"name": "Ascott-under-Wychwood SB",
+			"code": "CWA",
 			"neighbours": [
 				{
 					"simId": "oxford",
@@ -18,6 +19,7 @@
 		{
 			"id": "moreton",
 			"name": "Moreton-in-Marsh SB",
+			"code": "CWM",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -32,6 +34,7 @@
 		{
 			"id": "evesham",
 			"name": "Evesham SB",
+			"code": "CWE",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -46,6 +49,7 @@
 		{
 			"id": "nortonjn",
 			"name": "Norton Jn SB",
+			"code": "CWJ",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -64,6 +68,7 @@
 		{
 			"id": "shrubhill",
 			"name": "Worcester Shrub Hill SB",
+			"code": "CWS",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -82,6 +87,7 @@
 		{
 			"id": "tunneljn",
 			"name": "Worcester Tunnel Jn SB",
+			"code": "CWT",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -100,6 +106,7 @@
 		{
 			"id": "droitwichspa",
 			"name": "Droitwich Spa SB",
+			"code": "CWD",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -118,6 +125,7 @@
 		{
 			"id": "henwick",
 			"name": "Henwick SB",
+			"code": "CWH",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -136,6 +144,7 @@
 		{
 			"id": "newlandeast",
 			"name": "Newland East SB",
+			"code": "CWN",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -150,6 +159,7 @@
 		{
 			"id": "malvernwells",
 			"name": "Malvern Wells SB",
+			"code": "CWW",
 			"neighbours": [
 				{
 					"simId": "cotswolds",
@@ -164,6 +174,7 @@
 		{
 			"id": "ledbury",
 			"name": "Ledbury SB",
+			"code": "CWL",
 			"neighbours": [
 				{
 					"simId": "cotswolds",

@@ -4,6 +4,7 @@
 		{
 			"id": "east",
 			"name": "East",
+			"code": "GFE",
 			"neighbours": [
 				{
 					"simId": "guildford",
@@ -34,6 +35,7 @@
 		{
 			"id": "west",
 			"name": "West",
+			"code": "GFW",
 			"neighbours": [
 				{
 					"simId": "guildford",

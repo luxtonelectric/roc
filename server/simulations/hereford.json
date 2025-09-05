@@ -4,6 +4,7 @@
 		{
 			"id": "dorrington",
 			"name": "Dorrington",
+			"code": "HFD",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -18,6 +19,7 @@
 		{
 			"id": "marshbrook",
 			"name": "Marsh Brook",
+			"code": "HFM",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -32,6 +34,7 @@
 		{
 			"id": "cravenarms",
 			"name": "Craven Arms",
+			"code": "HFC",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -50,6 +53,7 @@
 		{
 			"id": "onibury",
 			"name": "Onibury",
+			"code": "HFO",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -64,6 +68,7 @@
 		{
 			"id": "bromfield",
 			"name": "Bromfield",
+			"code": "HFB",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -78,6 +83,7 @@
 		{
 			"id": "woofferton",
 			"name": "Woofferton",
+			"code": "HFW",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -92,6 +98,7 @@
 		{
 			"id": "leominster",
 			"name": "Leominster",
+			"code": "HFE",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -106,6 +113,7 @@
 		{
 			"id": "moretononlugg",
 			"name": "Moreton on Lugg",
+			"code": "HFG",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -120,6 +128,7 @@
 		{
 			"id": "hereford",
 			"name": "Hereford",
+			"code": "HFH",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -138,6 +147,7 @@
 		{
 			"id": "traminn",
 			"name": "Tram Inn",
+			"code": "HFT",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -152,6 +162,7 @@
 		{
 			"id": "pontrilias",
 			"name": "Pontrilias",
+			"code": "HFI",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -166,6 +177,7 @@
 		{
 			"id": "abergavenny",
 			"name": "Abergavenny",
+			"code": "HFA",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -180,6 +192,7 @@
 		{
 			"id": "littlemilljn",
 			"name": "Little Mill Junction",
+			"code": "HFL",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -194,6 +207,7 @@
 		{
 			"id": "pantyffynnon",
 			"name": "Pantyffynnon",
+			"code": "HFP",
 			"neighbours": [
 				{
 					"simId": "hereford",

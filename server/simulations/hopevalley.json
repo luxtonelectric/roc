@@ -4,6 +4,7 @@
 		{
 			"id": "hazelgrove",
 			"name": "Hazel Grove SB",
+			"code": "HVH",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -26,6 +27,7 @@
 		{
 			"id": "newmillscentral",
 			"name": "New Mills Central SB",
+			"code": "HVNC",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -40,6 +42,7 @@
 		{
 			"id": "newmillssouthjn",
 			"name": "New Mills South Jn SB",
+			"code": "HVNS",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -58,6 +61,7 @@
 		{
 			"id": "chinley",
 			"name": "Chinley SB",
+			"code": "HVC",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -76,6 +80,7 @@
 		{
 			"id": "edale",
 			"name": "Edale SB",
+			"code": "HVE",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -90,6 +95,7 @@
 		{
 			"id": "earlessidings",
 			"name": "Earles Sidings SB",
+			"code": "HVA",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -104,6 +110,7 @@
 		{
 			"id": "grindleford",
 			"name": "Grindleford SB",
+			"code": "HVG",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -118,6 +125,7 @@
 		{
 			"id": "totleytunneleast",
 			"name": "Totley Tunnel East SB",
+			"code": "HVT",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -132,6 +140,7 @@
 		{
 			"id": "peakforestsouth",
 			"name": "Peak Forest South SB",
+			"code": "HVP",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -146,6 +155,7 @@
 		{
 			"id": "greatrocksjn",
 			"name": "Great Rocks Junction SB",
+			"code": "HVG",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -160,6 +170,7 @@
 		{
 			"id": "furnessvale",
 			"name": "Furness Vale SB",
+			"code": "HVF",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -174,6 +185,7 @@
 		{
 			"id": "chapelenlefrith",
 			"name": "Chapel-en-le-Frith SB",
+			"code": "HVL",
 			"neighbours": [
 				{
 					"simId": "hopevalley",
@@ -188,6 +200,7 @@
 		{
 			"id": "buxton",
 			"name": "Buxton SB",
+			"code": "HVB",
 			"neighbours": [
 				{
 					"simId": "hopevalley",

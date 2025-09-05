@@ -4,6 +4,7 @@
 		{
 			"id": "coventry",
 			"name": "Coventry",
+			"code": "CV",
 			"neighbours": [
 				{
 					"simId": "newstreet",

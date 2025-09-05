@@ -4,6 +4,7 @@
 		{
 			"id": "panela",
 			"name": "Panel A",
+			"code": "EXA",
 			"neighbours": [
 				{
 					"simId": "plymouth",
@@ -22,6 +23,7 @@
 		{
 			"id": "paignton",
 			"name": "Paignton",
+			"code": "EXP",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -32,6 +34,7 @@
 		{
 			"id": "panelb",
 			"name": "Panel B",
+			"code": "EXB",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -54,6 +57,7 @@
 		{
 			"id": "exmouthjn",
 			"name": "Exmouth Jn",
+			"code": "EXE",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -68,6 +72,7 @@
 		{
 			"id": "panelc",
 			"name": "Panel C",
+			"code": "EXC",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -86,6 +91,7 @@
 		{
 			"id": "crediton",
 			"name": "Crediton",
+			"code": "EXR",
 			"neighbours": [
 				{
 					"simId": "exeter",

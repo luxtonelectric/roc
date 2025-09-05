@@ -4,6 +4,7 @@
 		{
 			"id": "radyr",
 			"name": "Radyr",
+			"code": "CVR",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -18,6 +19,7 @@
 		{
 			"id": "abercynon",
 			"name": "Abercynon",
+			"code": "CVA",
 			"neighbours": [
 				{
 					"simId": "cardiffvalleys",
@@ -28,6 +30,7 @@
 		{
 			"id": "heathjunction",
 			"name": "Heath Junction",
+			"code": "CVH",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -42,6 +45,7 @@
 		{
 			"id": "ystradmynachsouth",
 			"name": "Ystrad Mynach South",
+			"code": "CVYM",
 			"neighbours": [
 				{
 					"simId": "cardiffvalleys",
@@ -56,6 +60,7 @@
 		{
 			"id": "bargoed",
 			"name": "Bargoed",
+			"code": "CVB",
 			"neighbours": [
 				{
 					"simId": "cardiffvalleys",

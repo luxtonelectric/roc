@@ -4,6 +4,7 @@
 		{
 			"id": "wks1",
 			"name": "Workstation 1 (Orpington & Sevenoaks)",
+			"code": "AF1",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -26,6 +27,7 @@
 		{
 			"id": "wks2",
 			"name": "Workstation 2 (Tonbridge & Paddock Wood)",
+			"code": "AF2",
 			"neighbours": [
 				{
 					"simId": "ashford",
@@ -52,6 +54,7 @@
 		{
 			"id": "tonbridge",
 			"name": "Tonbridge PSB",
+			"code": "AFT",
 			"neighbours": [
 				{
 					"simId": "ashford",
@@ -66,6 +69,7 @@
 		{
 			"id": "wks3",
 			"name": "Workstation 3 (Ashford-Rye)",
+			"code": "AF3",
 			"neighbours": [
 				{
 					"simId": "ashford",
@@ -80,6 +84,7 @@
 		{
 			"id": "wks4",
 			"name": "Workstation 4 (Ashford)",
+			"code": "AF4",
 			"neighbours": [
 				{
 					"simId": "ashford",
@@ -106,6 +111,7 @@
 		{
 			"id": "wks5",
 			"name": "Workstation 5 (Dollands Moor)",
+			"code": "AF5",
 			"neighbours": [
 				{
 					"simId": "ashford",

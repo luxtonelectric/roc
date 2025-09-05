@@ -4,6 +4,7 @@
 		{
 			"id": "duty1",
 			"name": "Cowlairs - Workstation 1",
+			"code": "CS1",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -18,6 +19,7 @@
 		{
 			"id": "duty2",
 			"name": "Cowlairs - Workstation 2",
+			"code": "CS2",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -40,6 +42,7 @@
 		{
 			"id": "dutygj",
 			"name": "Greenhill Junction",
+			"code": "CSG",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -58,6 +61,7 @@
 		{
 			"id": "dutyce",
 			"name": "Carmuirs East Junction",
+			"code": "CSC",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -76,6 +80,7 @@
 		{
 			"id": "dutyln",
 			"name": "Larbert North",
+			"code": "CSL",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -94,6 +99,7 @@
 		{
 			"id": "dutygh",
 			"name": "Grangemouth Junction",
+			"code": "CSH",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -112,6 +118,7 @@
 		{
 			"id": "dutyp",
 			"name": "Polmont Junction",
+			"code": "CSP",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -130,6 +137,7 @@
 		{
 			"id": "dutyfd",
 			"name": "Fouldubs Junction",
+			"code": "CSF",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -140,6 +148,7 @@
 		{
 			"id": "dutysm1",
 			"name": "Stirling Middle - South End",
+			"code": "CSM1",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -162,6 +171,7 @@
 		{
 			"id": "dutysm2",
 			"name": "Stirling Middle - Kincardine Lines",
+			"code": "CSM2",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -184,6 +194,7 @@
 		{
 			"id": "dutysn",
 			"name": "Stirling North",
+			"code": "CSN",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -202,6 +213,7 @@
 		{
 			"id": "dutydb",
 			"name": "Dunblane",
+			"code": "CSD",
 			"neighbours": [
 				{
 					"simId": "cscot",

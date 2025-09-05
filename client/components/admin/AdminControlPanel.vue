@@ -230,37 +230,87 @@
         <h1 class="text-3xl font-bold">Phones</h1>
         <template v-if="gameState.phones">
           <div class="overflow-x-auto">
-            <h2 class="text-2xl font-bold mb-4">Phones</h2>
-            <table class="min-w-full table-auto">
-              <thead>
+            <div class="flex justify-between items-center mb-4">
+              <div class="relative">
+                <input
+                  v-model="phoneSearchQuery"
+                  type="text"
+                  placeholder="Search phones by name..."
+                  class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <span class="absolute right-3 top-2.5 text-gray-400">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <table class="min-w-full table-auto bg-white shadow-sm rounded-lg overflow-hidden">
+              <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-4 py-2 border">Sim ID</th>
-                  <th class="px-4 py-2 border">Panel ID</th>
-                  <th class="px-4 py-2 border">Name</th>
-                  <th class="px-4 py-2 border">Type</th>
-                  <th class="px-4 py-2 border">Number</th>
-                  <th class="px-4 py-2 border">Assigned</th>
-                  <th class="px-4 py-2 border">Claim</th>
-                  <th class="px-4 py-2 border">Place call</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sim ID</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Panel ID</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Claim</th>
+                  <th class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Place call</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="phone in gameState.phones" :key="phone.id">
-                <td><template v-if="phone.location">{{ phone.location.simId }}</template></td>
-                <td><template v-if="phone.location">{{ phone.location.panelId }}</template></td>
-                <td>{{ phone.name }}</td>
-                <td>{{ phone.type }}</td>
-                <td><template v-if="phone.type === 'mobile'">{{ phone.id }}</template></td>
-                <td><template v-if="phone.player">
-                    <img class="w-12 h-12 rounded-full" :src="phone.player.avatarURL" :title="phone.player.displayName"
-                      :alt="phone.player.displayName"></template>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="phone in filteredPhones" :key="phone.id" class="hover:bg-gray-50">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900"><template v-if="phone.location">{{ phone.location.simId }}</template></td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900"><template v-if="phone.location">{{ phone.location.panelId }}</template></td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ phone.name }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <span :class="[
+                    'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full',
+                    phone.type === 'mobile' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                  ]">
+                    {{ phone.type }}
+                  </span>
                 </td>
-                <td><button @click="claimPhone(phone.id)">Claim</button></td>
-                <td>
-                  <select v-model="selectedPhone[phone.id]">
-                    <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{myPhone?.name || key}}</option>
-                  </select>
-                  <button @click="placeCall(phone.id)">Call</button>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900"><template v-if="phone.type === 'mobile'">{{ phone.id }}</template></td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <template v-if="phone.player">
+                    <div class="flex items-center">
+                      <img class="h-8 w-8 rounded-full" :src="phone.player.avatarURL" :title="phone.player.displayName" :alt="phone.player.displayName">
+                      <span class="ml-2 text-sm text-gray-900">{{ phone.player.displayName }}</span>
+                    </div>
+                  </template>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <button 
+                    v-if="!phone.player" 
+                    @click="claimPhone(phone.id)"
+                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Claim
+                  </button>
+                  <button 
+                    v-else 
+                    @click="unclaimPhone(phone.id)"
+                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Unclaim
+                  </button>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <select 
+                      v-model="selectedPhone[phone.id]"
+                      class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{myPhone?.name || key}}</option>
+                    </select>
+                    <button 
+                      @click="placeCall(phone.id)"
+                      class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      Call
+                    </button>
+                  </div>
                 </td>
               </tr>
               </tbody>
@@ -354,24 +404,26 @@ export default {
         this.gameState = msg;
         const allPhones = msg.phones;
         const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
-        myPhones.forEach(mp => {
-          if(!this.myPhones[mp.id]) {
-            console.log('Initing phone');
-            this.myPhones[mp.id] = mp;
+        // Remove phones that are no longer assigned to this user
+        Object.keys(this.myPhones).forEach(phoneId => {
+          if (!myPhones.find(mp => mp.id === phoneId)) {
+            // Clean up selected phone entries using this phone
+            Object.keys(this.selectedPhone).forEach(key => {
+              if (this.selectedPhone[key] === phoneId) {
+                delete this.selectedPhone[key];
+              }
+            });
+            delete this.myPhones[phoneId];
           }
         });
         
+        // Update currently assigned phones
+        myPhones.forEach(mp => {
+          this.myPhones[mp.id] = mp;
+        });
         // Ensure voice channels are loaded
         if (!this.availableChannels.length) {
           this.loadVoiceChannels();
-        }
-      });
-
-      // Listen for voice channel updates
-      this.socket.on('voiceChannelsUpdate', (channels) => {
-        console.log('Voice channels updated:', channels);
-        if (channels && Array.isArray(channels)) {
-          this.availableChannels = channels;
         }
       });
 
@@ -424,6 +476,15 @@ export default {
   computed: {
     hasVoiceChannels() {
       return this.availableChannels && this.availableChannels.length > 0;
+    },
+    filteredPhones() {
+      if (!this.gameState?.phones) return [];
+      if (!this.phoneSearchQuery) return this.gameState.phones;
+      
+      const searchQuery = this.phoneSearchQuery.toLowerCase();
+      return this.gameState.phones.filter(phone => 
+        phone.name?.toLowerCase().includes(searchQuery)
+      );
     }
   },
   
@@ -438,6 +499,7 @@ export default {
   
   data() {
     return {
+      phoneSearchQuery: '',
       currentTab: 'hosts',
       tabs: [
         { id: 'hosts', name: 'Hosts' },
@@ -486,12 +548,27 @@ export default {
         this.gameState = msg;
         const allPhones = msg.phones;
         const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
-        myPhones.forEach(mp => {
-          if(!this.myPhones[mp.id]) {
-            console.log('Initing phone');
-            this.myPhones[mp.id] = mp;
+        console.log('Filtered my phones:', myPhones);
+        // Remove phones that are no longer assigned to this user
+        Object.keys(this.myPhones).forEach(phoneId => {
+          if (!myPhones.find(mp => mp.id === phoneId)) {
+            // Clean up selected phone entries using this phone
+            Object.keys(this.selectedPhone).forEach(key => {
+              if (this.selectedPhone[key] === phoneId) {
+                console.log('Cleaning up selected phone for key:', key);
+                delete this.selectedPhone[key];
+              }
+            });
+            console.log('Removing unassigned phone:', phoneId);
+            delete this.myPhones[phoneId];
           }
         });
+        
+        // Update currently assigned phones
+        myPhones.forEach(mp => {
+          this.myPhones[mp.id] = mp;
+        });
+        console.log('Updated myPhones:', this.myPhones);
         
         // Ensure voice channels are loaded
         if (!this.availableChannels.length) {
@@ -623,30 +700,7 @@ export default {
       }
     },
 
-    loadInitialData() {
-      // Request admin state
-      this.refreshAdminData();
-      
-      // Load available simulations
-      this.socket.emit('getAvailableSimulations', {}, (response) => {
-        if (response.success) {
-          console.log('Loaded available simulations:', response.simulations);
-          this.availableSimulations = response.simulations;
-        } else {
-          console.error('Failed to get simulations:', response.error);
-        }
-      });
-      
-      // Load available voice channels
-      this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
-        if (response.success) {
-          console.log('Loaded available voice channels:', response.voiceChannels);
-          this.availableChannels = response.voiceChannels;
-        } else {
-          console.error('Failed to get voice channels:', response.error);
-        }
-      });
-    },
+    // loadInitialData method moved to combined implementation above
 
     resetForm() {
       this.formMode = 'add';
@@ -713,6 +767,9 @@ export default {
     },
     claimPhone(phoneId) {
       this.socket.emit("claimPhone", { phoneId: phoneId });
+    },
+    unclaimPhone(phoneId) {
+      this.socket.emit("unclaimPhone", { phoneId: phoneId });
     },
     refreshAdminData() {
       console.log('Refreshing admin data...');

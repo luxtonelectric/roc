@@ -132,6 +132,19 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     } else {
       console.log('ADMIN SOCKET claimPhone error');
     }
+  });
+
+  socket.on('unclaimPhone', function (msg) {
+    console.log('adminSockets unclaimPhone', msg.phoneId)
+    const phone = phoneManager.getPhone(msg.phoneId);
+    if(phone) {
+      console.log(phone.toAdminView());
+      phoneManager.unassignPhone(phone);
+      gameManager.sendGameUpdateToPlayers();
+      gameManager.updateAdminUI();
+    } else {
+      console.log('ADMIN SOCKET unclaimPhone error');
+    }
   })
 
   socket.on("enableInterfaceGateway", function (msg, callback) {

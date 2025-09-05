@@ -3,81 +3,249 @@
     <div class="flex-grow py-1 text-center">
       <h1 class="text-6xl">ROC Administration Centre</h1>
     </div>
+    
+    <!-- Tab Navigation -->
+    <div class="flex border-b border-gray-200 mb-4">
+      <button 
+        v-for="tab in tabs" 
+        :key="tab.id"
+        @click="currentTab = tab.id"
+        :class="[
+          'py-2 px-4 text-sm font-medium rounded-t-lg',
+          currentTab === tab.id
+            ? 'bg-white text-indigo-600 border-b-2 border-indigo-600'
+            : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        ]"
+      >
+        {{ tab.name }}
+      </button>
+    </div>
+
+    <!-- Tab Content -->
     <div class="divide-y">
-      <div class="my-1">
+      <div v-show="currentTab === 'hosts'" class="my-1">
         <h1 class="text-3xl font-bold">Hosts</h1>
+        <div class="my-4">
+          <form @submit.prevent="submitHostForm" class="max-w-lg mx-auto bg-gray-100 p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">{{ formMode === 'add' ? 'Add New Host' : 'Edit Host' }}</h2>
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Simulation</label>
+                <select v-model="newHost.sim" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                  <option value="">Select a simulation</option>
+                  <option v-for="sim in availableSimulations" :key="sim.id" :value="sim.id">
+                    {{ sim.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Host URL/IP</label>
+                <input v-model="newHost.host" required type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., localhost or 192.168.1.100"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Voice Channel</label>
+                <select v-model="newHost.channel" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                  <option value="">{{ hasVoiceChannels ? 'Select a voice channel' : 'Loading channels...' }}</option>
+                  <option v-for="channel in availableChannels" :key="channel.id" :value="channel.name">
+                    {{ channel.name }}
+                  </option>
+                </select>
+                <div v-if="!hasVoiceChannels" class="mt-1 text-sm text-gray-500">
+                  Waiting for voice channels to load...
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Interface Gateway Port</label>
+                <input v-model="newHost.interfaceGateway.port" required type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"/>
+              </div>
+              <div class="flex justify-between">
+                <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  {{ formMode === 'add' ? 'Add Host' : 'Update Host' }}
+                </button>
+                <button v-if="formMode === 'edit'" type="button" @click="cancelEdit" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
         <template v-if="gameState.hostState">
-          <div>
-            <table>
-              <tr>
-                <td colspan="4">Host</td>
-                <td colspan="3">Interface Gateway</td>
-              </tr>
-              <tr>
-                <td>Simulation</td>
-                <td>URL/IP</td>
-                <td>Voice Chat Channel</td>
-                <td>Sim Enabled</td>
-                <td>Port</td>
-                <td>Connected</td>
-                <td>Enabled/Disable</td>
-              </tr>
-              <tr v-for=" host in gameState.hostState">
+          <div class="overflow-x-auto">
+            <table class="min-w-full table-auto">
+              <thead>
+                <tr>
+                  <th colspan="4" class="px-4 py-2 border">Host</th>
+                  <th colspan="3" class="px-4 py-2 border">Interface Gateway</th>
+                </tr>
+                <tr>
+                  <th class="px-4 py-2 border">Simulation</th>
+                  <th class="px-4 py-2 border">URL/IP</th>
+                  <th class="px-4 py-2 border">Voice Chat Channel</th>
+                  <th class="px-4 py-2 border">Host State</th>
+                  <th class="px-4 py-2 border">Port</th>
+                  <th class="px-4 py-2 border">Connected</th>
+                  <th class="px-4 py-2 border">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="host in gameState.hostState" :key="host.sim">
                 <td>{{ host.sim }}</td>
                 <td>{{ host.host }}</td>
                 <td>{{ host.channel }}</td>
-                <td>{{ host.enabled }}</td>
-                <td>{{ host.interfaceGatewayPort }}</td>
-                <td>{{ host.interfaceGateway.connected }}</td>
                 <td>
-                  <button v-if="host.interfaceGateway.enabled" class="btn" @click="disableIG(host.sim)">Disable
-                    IG</button>
-                  <button v-else class="btn" @click="enableIG(host.sim)">Enable IG</button>
+                  <button 
+                    :class="[
+                      'inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium',
+                      host.enabled 
+                        ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                    ]"
+                    @click="toggleHost(host)"
+                  >
+                    {{ host.enabled ? 'Enabled' : 'Disabled' }}
+                  </button>
+                </td>
+                <td>{{ host.interfaceGateway.port }}</td>
+                <td>
+                  <div class="flex flex-col">
+                    <span 
+                      :class="[
+                        'inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium',
+                        {
+                          'bg-green-100 text-green-800': host.interfaceGateway.connectionState === 'connected',
+                          'bg-yellow-100 text-yellow-800': host.interfaceGateway.connectionState === 'connecting',
+                          'bg-gray-100 text-gray-800': host.interfaceGateway.connectionState === 'disconnected',
+                          'bg-red-100 text-red-800': host.interfaceGateway.connectionState === 'error'
+                        }
+                      ]"
+                    >
+                      {{ host.interfaceGateway.connectionState?.charAt(0).toUpperCase() + host.interfaceGateway.connectionState?.slice(1) || 'Unknown' }}
+                    </span>
+                    <span 
+                      v-if="host.interfaceGateway.errorMessage" 
+                      class="text-xs text-red-600 mt-1"
+                      :title="host.interfaceGateway.errorMessage"
+                    >
+                      {{ host.interfaceGateway.errorMessage }}
+                    </span>
+                  </div>
+                </td>
+                <td class="space-x-2">
+                  <button 
+                    :class="[
+                      'inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium shadow-sm',
+                      host.interfaceGateway.enabled
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    ]"
+                    @click="host.interfaceGateway.enabled ? disableIG(host.sim) : enableIG(host.sim)"
+                  >
+                    {{ host.interfaceGateway.enabled ? 'Disable IG' : 'Enable IG' }}
+                  </button>
+                  <button class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 shadow-sm" @click="editHost(host)">Edit</button>
+                  <button class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600 shadow-sm" @click="confirmDelete(host)">Delete</button>
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
         </template>
       </div>
-      <div class="my-1">
-        <h1 class="text-3xl font-bold">Games</h1>
+      <div v-show="currentTab === 'games'" class="my-1">
+        <h1 class="text-3xl font-bold mb-6">Games</h1>
         <template v-if="gameState.gameState">
-          <div v-for=" game in gameState.gameState">
-            <h2 class="text-2xl font-bold">{{ game.name }}</h2>
-            <p>Connections open: {{ game.connectionsOpen }}</p>
-            <p>
-              <button v-if="game.connectionsOpen" class="btn" @click="disableConnections(game.id)">Toggle connections</button>
-              <button v-else class="btn" @click="enableConnections(game.id)">Toggle connections</button>
-            </p>
-            <table>
-              <tr v-for="panel in game.panels">
-                <td>{{ panel.name }}</td>
-                <td>
-                  <template v-if="panel.player">
-                    {{ panel.player }}
-                  </template>
-                </td>
-              </tr>
-            </table>
+          <div v-for="game in gameState.gameState" :key="game.id" class="mb-8 bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold text-gray-900">{{ game.name }}</h2>
+              <div class="flex items-center space-x-2">
+                <span :class="[
+                  'px-3 py-1 rounded-full text-sm font-medium',
+                  game.connectionsOpen 
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                ]">
+                  {{ game.connectionsOpen ? 'Connections Open' : 'Connections Closed' }}
+                </span>
+                <button 
+                  :class="[
+                    'inline-flex items-center px-4 py-2 rounded-md text-sm font-medium shadow-sm',
+                    game.connectionsOpen
+                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  ]"
+                  @click="game.connectionsOpen ? disableConnections(game.id) : enableConnections(game.id)"
+                >
+                  {{ game.connectionsOpen ? 'Close Connections' : 'Open Connections' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Panel
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Assigned Player
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr v-for="panel in game.panels" :key="panel.name" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {{ panel.name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <template v-if="panel.player">
+                        {{ panel.player }}
+                      </template>
+                      <span v-else class="text-gray-400">Unassigned</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span :class="[
+                        'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
+                        panel.player 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      ]">
+                        {{ panel.player ? 'Active' : 'Available' }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </template>
+        <div v-else class="text-center py-8 text-gray-500">
+          No active games found
+        </div>
       </div>
-      <div class="my-1">
+      <div v-show="currentTab === 'phones'" class="my-1">
+        <h1 class="text-3xl font-bold">Phones</h1>
         <template v-if="gameState.phones">
-          <div>
-            <h2 class="text-2xl font-bold">Phones</h2>
-            <table>
-              <tr>
-                <td>Sim ID</td>
-                <td>Panel ID</td>
-                <td>Name</td>
-                <td>Type</td>
-                <td>Number</td>
-                <td>Assigned</td>
-                <td>Claim</td>
-                <td>Place call</td>
-              </tr>
-              <tr v-for="phone in gameState.phones">
+          <div class="overflow-x-auto">
+            <h2 class="text-2xl font-bold mb-4">Phones</h2>
+            <table class="min-w-full table-auto">
+              <thead>
+                <tr>
+                  <th class="px-4 py-2 border">Sim ID</th>
+                  <th class="px-4 py-2 border">Panel ID</th>
+                  <th class="px-4 py-2 border">Name</th>
+                  <th class="px-4 py-2 border">Type</th>
+                  <th class="px-4 py-2 border">Number</th>
+                  <th class="px-4 py-2 border">Assigned</th>
+                  <th class="px-4 py-2 border">Claim</th>
+                  <th class="px-4 py-2 border">Place call</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="phone in gameState.phones" :key="phone.id">
                 <td><template v-if="phone.location">{{ phone.location.simId }}</template></td>
                 <td><template v-if="phone.location">{{ phone.location.panelId }}</template></td>
                 <td>{{ phone.name }}</td>
@@ -95,6 +263,7 @@
                   <button @click="placeCall(phone.id)">Call</button>
                 </td>
               </tr>
+              </tbody>
             </table>
           </div>
         </template>
@@ -111,14 +280,13 @@
           <button type="submit">Create Phone</button>
         </form>
       </div>
-      <div class="my-4">
+      <div v-show="currentTab === 'voice'" class="my-4">
         <h1 class="text-3xl font-bold">Voice Calls</h1>
 
         <div class="mb-5" v-for="(phone, key) in myPhones" :key="key">
           <CallListItem v-for="call in phone.queue" :key="call.id" :callData="call" :socket="socket" @accept-call="acceptCall"
             @reject-call="rejectCall" @leave-call="leaveCall"/>
         </div>
-
 
         <div v-for="(call, key) in gameState.privateCalls" :key="key">
           <p class="text-xl">{{ key }}:</p>
@@ -129,9 +297,6 @@
       </div>
     </div>
   </div>
-  <div class="my-20">
-    zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-  </div>
 </template>
 
 <script>
@@ -139,66 +304,408 @@ export default {
   name: "AdminControlPanel",
   props: ['socket', 'discordId'],
   mounted() {
-    this.socket.on('adminStatus', (msg) => {
-      console.log(msg);
-      this.gameState = msg;
+    console.log('AdminControlPanel mounted');
+    this.setupSocketListeners();
+    
+    // Load initial data if we're already connected
+    if (this.socket.connected) {
+      console.log('Socket already connected, loading initial data');
+      this.loadInitialData();
+    }
+  },
+  
+  beforeUnmount() {
+    // Clean up socket listeners
+    this.removeSocketListeners();
+  },
+  
+  methods: {
+    async loadInitialData() {
+      if (!this.socket.connected) {
+        console.warn('Socket not connected, waiting for connection...');
+        return;
+      }
+      
+      try {
+        // Load admin state first
+        await this.refreshAdminData();
+        
+        // Load available simulations - this also gets voice channels from the server
+        await this.loadSimulations();
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+      }
+    },
+    
+    setupSocketListeners() {
+      // Set up connection event handlers
+      this.socket.on('connect', () => {
+        console.log('Socket connected, loading initial data');
+        this.loadInitialData();
+      });
 
-      const allPhones = msg.phones;
-      const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
-      myPhones.forEach(mp => {
-        if(!this.myPhones[mp.id]) {
-          console.log('Initing phone');
-          this.myPhones[mp.id] = mp;
-        } else {
-          console.log('Phone is already inited');
+      this.socket.on('disconnect', () => {
+        console.log('Socket disconnected');
+      });
+
+      // Set up admin status listener
+      this.socket.on('adminStatus', (msg) => {
+        console.log('Received admin status update');
+        this.gameState = msg;
+        const allPhones = msg.phones;
+        const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
+        myPhones.forEach(mp => {
+          if(!this.myPhones[mp.id]) {
+            console.log('Initing phone');
+            this.myPhones[mp.id] = mp;
+          }
+        });
+        
+        // Ensure voice channels are loaded
+        if (!this.availableChannels.length) {
+          this.loadVoiceChannels();
         }
       });
 
-    });
+      // Listen for voice channel updates
+      this.socket.on('voiceChannelsUpdate', (channels) => {
+        console.log('Voice channels updated:', channels);
+        if (channels && Array.isArray(channels)) {
+          this.availableChannels = channels;
+        }
+      });
 
-    this.socket.on('callQueueUpdate', (msg) => {
-      this.myPhones[msg.phoneId] = msg;
-    });
+      this.socket.on('callQueueUpdate', (msg) => {
+        this.myPhones[msg.phoneId] = msg;
+      });
+    },
+    
+    removeSocketListeners() {
+      this.socket.off('connect');
+      this.socket.off('disconnect');
+      this.socket.off('adminStatus');
+      this.socket.off('voiceChannelsUpdate');
+      this.socket.off('callQueueUpdate');
+    },
+    
+    async loadSimulations() {
+      return new Promise((resolve, reject) => {
+        this.socket.emit('getAvailableSimulations', {}, (response) => {
+          if (response.success) {
+            console.log('Loaded available simulations:', response.simulations);
+            this.availableSimulations = response.simulations;
+            resolve(response.simulations);
+          } else {
+            console.error('Failed to get simulations:', response.error);
+            reject(new Error(response.error));
+          }
+        });
+      });
+    },
+    
+    async loadVoiceChannels() {
+      return new Promise((resolve, reject) => {
+        this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
+          if (response.success && response.voiceChannels) {
+            console.log('Loaded available voice channels:', response.voiceChannels);
+            this.availableChannels = response.voiceChannels;
+            resolve(response.voiceChannels);
+          } else {
+            console.error('Failed to get voice channels:', response.error);
+            reject(new Error(response.error));
+          }
+        });
+      });
+    },
 
 
 
   },
+  computed: {
+    hasVoiceChannels() {
+      return this.availableChannels && this.availableChannels.length > 0;
+    }
+  },
+  
+  watch: {
+    availableChannels: {
+      handler(newChannels) {
+        console.log('Voice channels changed:', newChannels);
+      },
+      immediate: true
+    }
+  },
+  
   data() {
     return {
+      currentTab: 'hosts',
+      tabs: [
+        { id: 'hosts', name: 'Hosts' },
+        { id: 'games', name: 'Games' },
+        { id: 'phones', name: 'Phones' },
+        { id: 'voice', name: 'Voice Calls' }
+      ],
       gameState: {},
       myPhones: {},
       selectedPhone: {},
+      availableSimulations: [],
+      availableChannels: [],
       newPhone: {
         name: "",
         number: "",
         type: "mobile",
+      },
+      formMode: 'add',
+      selectedHostId: null,
+      newHost: {
+        sim: "",
+        host: "",
+        channel: "",
+        interfaceGateway: {
+          port: 51515,
+          enabled: true
+        }
       }
     }
   },
   methods: {
+    setupSocketListeners() {
+      // Set up connection event handlers
+      this.socket.on('connect', () => {
+        console.log('Socket connected, loading initial data');
+        this.loadInitialData();
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('Socket disconnected');
+      });
+
+      // Set up admin status listener
+      this.socket.on('adminStatus', (msg) => {
+        console.log('Received admin status update');
+        this.gameState = msg;
+        const allPhones = msg.phones;
+        const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
+        myPhones.forEach(mp => {
+          if(!this.myPhones[mp.id]) {
+            console.log('Initing phone');
+            this.myPhones[mp.id] = mp;
+          }
+        });
+        
+        // Ensure voice channels are loaded
+        if (!this.availableChannels.length) {
+          this.loadVoiceChannels();
+        }
+      });
+
+      // Listen for voice channel updates
+      this.socket.on('voiceChannelsUpdate', (channels) => {
+        console.log('Voice channels updated:', channels);
+        if (channels && Array.isArray(channels)) {
+          this.availableChannels = channels;
+        }
+      });
+
+      this.socket.on('callQueueUpdate', (msg) => {
+        this.myPhones[msg.phoneId] = msg;
+      });
+    },
+
+    removeSocketListeners() {
+      this.socket.off('connect');
+      this.socket.off('disconnect');
+      this.socket.off('adminStatus');
+      this.socket.off('voiceChannelsUpdate');
+      this.socket.off('callQueueUpdate');
+    },
+
+    async loadInitialData() {
+      if (!this.socket.connected) {
+        console.warn('Socket not connected, waiting for connection...');
+        return;
+      }
+      
+      // Load admin state first
+      await this.refreshAdminData();
+      
+      // Load available simulations and voice channels in parallel
+      await Promise.all([
+        this.loadSimulations(),
+        this.loadVoiceChannels()
+      ]).catch(err => {
+        console.error('Error loading initial data:', err);
+      });
+    },
+
+    async loadSimulations() {
+      return new Promise((resolve, reject) => {
+        this.socket.emit('getAvailableSimulations', {}, (response) => {
+          if (response.success) {
+            console.log('Loaded available simulations:', response.simulations);
+            this.availableSimulations = response.simulations;
+            resolve(response.simulations);
+          } else {
+            console.error('Failed to get simulations:', response.error);
+            reject(new Error(response.error));
+          }
+        });
+      });
+    },
+    
+    async loadVoiceChannels() {
+      return new Promise((resolve, reject) => {
+        this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
+          if (response.success && response.voiceChannels) {
+            console.log('Loaded available voice channels:', response.voiceChannels);
+            this.availableChannels = response.voiceChannels;
+            resolve(response.voiceChannels);
+          } else {
+            console.error('Failed to get voice channels:', response.error);
+            reject(new Error(response.error));
+          }
+        });
+      });
+    },
+
+    submitHostForm() {
+      if (this.formMode === 'add') {
+        this.socket.emit("addHost", this.newHost, (response) => {
+          if (response.success) {
+            this.resetForm();
+          } else {
+            alert('Failed to add host: ' + response.error);
+          }
+        });
+      } else {
+        this.socket.emit("updateHost", { ...this.newHost, originalSimId: this.selectedHostId }, (response) => {
+          if (response.success) {
+            this.resetForm();
+          } else {
+            alert('Failed to update host: ' + response.error);
+          }
+        });
+      }
+    },
+
+    editHost(host) {
+      // Make sure the simulation is available
+      if (!this.availableSimulations.some(sim => sim.id === host.sim)) {
+        this.availableSimulations.push({
+          id: host.sim,
+          name: host.sim // Fallback in case we don't have the name
+        });
+      }
+      this.formMode = 'edit';
+      this.selectedHostId = host.sim;
+      this.newHost = {
+        sim: host.sim,
+        host: host.host,
+        channel: host.channel,
+        interfaceGateway: {
+          port: host.interfaceGateway.port,
+          enabled: host.interfaceGateway.enabled
+        }
+      };
+    },
+
+    cancelEdit() {
+      this.resetForm();
+    },
+
+    confirmDelete(host) {
+      if (confirm(`Are you sure you want to delete the host for ${host.sim}?`)) {
+        this.socket.emit("deleteHost", { simId: host.sim }, (response) => {
+          if (!response.success) {
+            alert('Failed to delete host: ' + response.error);
+          }
+        });
+      }
+    },
+
+    loadInitialData() {
+      // Request admin state
+      this.refreshAdminData();
+      
+      // Load available simulations
+      this.socket.emit('getAvailableSimulations', {}, (response) => {
+        if (response.success) {
+          console.log('Loaded available simulations:', response.simulations);
+          this.availableSimulations = response.simulations;
+        } else {
+          console.error('Failed to get simulations:', response.error);
+        }
+      });
+      
+      // Load available voice channels
+      this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
+        if (response.success) {
+          console.log('Loaded available voice channels:', response.voiceChannels);
+          this.availableChannels = response.voiceChannels;
+        } else {
+          console.error('Failed to get voice channels:', response.error);
+        }
+      });
+    },
+
+    resetForm() {
+      this.formMode = 'add';
+      this.selectedHostId = null;
+      this.newHost = {
+        sim: "",
+        host: "",
+        channel: "",
+        interfaceGateway: {
+          port: 51515,
+          enabled: true
+        }
+      };
+    },
     kickUserFromCall(user) {
       this.socket.emit("adminKickFromCall", { "user": user });
     },
+    toggleHost(host) {
+      if (host.enabled) {
+        this.socket.emit("disableHost", { simId: host.sim });
+      } else {
+        this.socket.emit("enableHost", { simId: host.sim });
+      }
+    },
     enableIG(simId) {
       console.log('enableIG', simId)
-      this.socket.emit("enableInterfaceGateway", { "simId": simId });
+      this.socket.emit("enableInterfaceGateway", { "simId": simId }, (response) => {
+        if (!response.success) {
+          alert(`Failed to enable Interface Gateway: ${response.error}`);
+        }
+      });
     },
     disableIG(simId) {
       console.log('disableIG', simId)
-      this.socket.emit("disableInterfaceGateway", { "simId": simId });
+      this.socket.emit("disableInterfaceGateway", { "simId": simId }, (response) => {
+        if (!response.success) {
+          alert(`Failed to disable Interface Gateway: ${response.error}`);
+        }
+      });
     },
     enableConnections(simId) {
-      console.log('enableIG', simId)
+      console.log('enableConnections', simId)
       this.socket.emit("enableConnections", { "simId": simId });
     },
     disableConnections(simId) {
-      console.log('disableIG', simId)
+      console.log('disableConnections', simId)
       this.socket.emit("disableConnections", { "simId": simId });
     },
     createPhone(number, name, type, location = null, hidden = false) {
       console.log('createPhone')
       //const phone = {'number': number, 'name': name, 'type': type, 'location':location, 'hidden':hidden};
       //const phone = {'number': '99999', 'name': 'TEST PHONE', 'type': 'mobile', 'location':null, 'hidden':false};
+      
+      // After a successful phone creation, reset the form
+      this.newPhone = {
+        name: "",
+        number: "",
+        type: "mobile"
+      };
       const phone = this.newPhone;
       phone.location = null;
       phone.hidden = false;
@@ -206,6 +713,41 @@ export default {
     },
     claimPhone(phoneId) {
       this.socket.emit("claimPhone", { phoneId: phoneId });
+    },
+    refreshAdminData() {
+      console.log('Refreshing admin data...');
+      return new Promise((resolve, reject) => {
+        this.socket.emit('adminLogin', { discordId: this.discordId }, (response) => {
+          console.log('Admin login response:', response);
+          if (response?.success) {
+            if (response.voiceChannels && Array.isArray(response.voiceChannels)) {
+              console.log('Setting voice channels from admin login:', response.voiceChannels.length);
+              this.availableChannels = response.voiceChannels;
+            } else {
+              console.log('No voice channels in admin login response, will retry');
+              this.retryLoadVoiceChannels();
+            }
+            resolve(response);
+          } else {
+            reject(new Error('Admin login failed'));
+          }
+        });
+      });
+    },
+
+    retryLoadVoiceChannels(attempt = 1) {
+      if (attempt > 3) return; // Max 3 attempts
+      
+      console.log(`Attempting to load voice channels (attempt ${attempt})`);
+      this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
+        if (response?.success && Array.isArray(response.voiceChannels)) {
+          console.log(`Got voice channels on attempt ${attempt}:`, response.voiceChannels.length);
+          this.availableChannels = response.voiceChannels;
+        } else {
+          console.log(`Voice channels not available on attempt ${attempt}, retrying in 2s...`);
+          setTimeout(() => this.retryLoadVoiceChannels(attempt + 1), 2000);
+        }
+      });
     },
     async placeCall(receiver, type = "p2p", level = "normal") {
       const soc = this.socket;

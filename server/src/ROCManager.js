@@ -16,9 +16,14 @@ export default class ROCManager {
   admins = {};
   /** @type {Simulation[]} */
   sims = [];
+  config = null;
+  channels = null;
+  io = null;
+  bot = null;
+  phoneManager = null;
+  stompManager = null;
 
   /**
-   * 
    * @param {Server} io 
    * @param {DiscordBot} bot 
    * @param {PhoneManager} phoneManager
@@ -41,26 +46,139 @@ export default class ROCManager {
     this.config = config;
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
-    config.games.forEach(g => { this.activateGame(g) }, this);
-    this.phoneManager.generateMissingNeighbourPhones(this);
+    // Only activate enabled games
+    config.games.filter(g => g.enabled).forEach(g => { this.activateGame(g) }, this);
   }
 
   /**
-   * 
+   * Read simulation file from disk
+   * @private
    * @param {string} simId 
-   * @returns {Simulation}
+   * @returns {object|null} Raw simulation config or null if file doesn't exist
    */
-  getSimData(simId) {
-    const filePath = new URL(`../simulations/${simId}.json`, import.meta.url)
-    let simConfig;
+  _readSimFile(simId) {
+    const filePath = new URL(`../simulations/${simId}.json`, import.meta.url);
     try {
-      /** @type {Simulation} */
-      simConfig = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      const simConfig = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return simConfig;
     } catch (e) {
-      console.error(`Couldn't read sim config for ${simId}:`, e);
-      return;
+      console.error(chalk.red(`Couldn't read simulation file for ${simId}:`), e);
+      return null;
     }
+  }
+
+  /**
+   * Get simulation data, optionally loading from disk if not cached
+   * @param {string} simId 
+   * @param {boolean} loadIfNotExists Whether to load from disk if not in memory
+   * @returns {Simulation|undefined}
+   */
+  getSimData(simId, loadIfNotExists = false) {
+    // First check if we already have this sim loaded
+    const existingSim = this.sims.find(s => s.id === simId);
+    if (existingSim || !loadIfNotExists) {
+      return existingSim;
+    }
+
+    // Only load from disk if explicitly requested
+    const simConfig = this._readSimFile(simId);
+    if (!simConfig) return;
+
+    console.log(chalk.yellow('getSimData'), chalk.green('Loading simulation from disk:'), chalk.white(simId));
     return Simulation.fromSimData(simId, simConfig);
+  }
+
+  /**
+   * Gets basic simulation metadata without loading the full simulation
+   * @param {string} simId 
+   * @returns {{id: string, name: string}}
+   */
+  getSimMetadata(simId) {
+    const simConfig = this._readSimFile(simId);
+    return {
+      id: simId,
+      name: simConfig?.name || simId
+    };
+  }
+
+  /**
+   * Get list of available simulations and their metadata
+   * @returns {Promise<{id: string, name: string}[]>}
+   */
+  async getAvailableSimulations() {
+    const simPath = new URL('../simulations', import.meta.url);
+    try {
+      const files = await fs.promises.readdir(simPath);
+      return files
+        .filter(file => file.endsWith('.json'))
+        .map(file => {
+          const simId = file.replace('.json', '');
+          return this.getSimMetadata(simId);
+        });
+    } catch (e) {
+      console.error(chalk.red('Error reading simulations directory:'), e);
+      return [];
+    }
+  }
+
+  /**
+   * Update an existing host configuration
+   * @param {string} originalSimId The original simulation ID
+   * @param {object} hostConfig The new host configuration
+   */
+  async updateHost(originalSimId, hostConfig) {
+    const existingHost = this.config.games.find(g => g.sim === originalSimId);
+    if (!existingHost) {
+      throw new Error("Host not found");
+    }
+
+    // Save old connection state
+    const wasEnabled = existingHost.interfaceGateway.enabled;
+    
+    // If sim ID hasn't changed, we need to preserve phones
+    const preservePhones = hostConfig.sim === originalSimId;
+    
+    // Deactivate the old simulation, preserving state if not changing sims
+    const preservedState = await this.deactivateGame(originalSimId, preservePhones, hostConfig.sim === originalSimId);
+    
+    // Remove existing host from config
+    this.config.games = this.config.games.filter(g => g.sim !== originalSimId);
+    
+    // Add new host config, preserving IG state
+    hostConfig.interfaceGateway.enabled = wasEnabled;
+    this.config.games.push(hostConfig);
+
+    // Save config
+    await this.saveConfig(this.config);
+    
+    // Reactivate if needed
+    if (hostConfig.sim === originalSimId && preservedState) {
+      await this.activateGame(hostConfig, preservedState);
+    } else if (wasEnabled) {
+      await this.activateGame(hostConfig);
+    }
+    
+    this.sendGameUpdateToPlayers();
+  }
+
+  /**
+   * Delete a host and clean up its resources
+   * @param {string} simId The simulation ID to delete
+   */
+  async deleteHost(simId) {
+    const existingHost = this.config.games.find(g => g.sim === simId);
+    if (!existingHost) {
+      throw new Error("Host not found");
+    }
+
+    // Clean up simulation and all its resources
+    await this.deactivateGame(simId);
+
+    // Remove from config and save
+    this.config.games = this.config.games.filter(g => g.sim !== simId);
+    await this.saveConfig(this.config);
+    
+    this.sendGameUpdateToPlayers();
   }
 
   /**
@@ -70,24 +188,43 @@ export default class ROCManager {
     return this.sims.find(sim => sim.id === simId);
   }
 
-  activateGame(game) {
-    const gatewayInfo = game.interfaceGateway;
-    game.interfaceGatewayPort = gatewayInfo.port;
-    // remove from interfaceGateway object so that it's not passed to clients
-    delete gatewayInfo.port;
+  /**
+   * @param {*} game The game configuration to activate
+   * @param {object|null} preservedState Optional preserved state to restore
+   */
+  activateGame(game, preservedState = null) {
+    // Check if sim is already loaded
+    const existingSim = this.sims.find(s => s.id === game.sim);
+    if (existingSim) {
+      // If sim already exists, just update the stomp client without recreating phones
+      this.stompManager.createClientForGame(game, game.interfaceGateway.port);
+      return;
+    }
 
-    this.stompManager.createClientForGame(game, game.interfaceGatewayPort);
-    const sim = this.getSimData(game.sim)
+    // Load the simulation data since this is an enabled host
+    this.stompManager.createClientForGame(game, game.interfaceGateway.port);
+    const sim = this.getSimData(game.sim, true) // true to load if not exists
     if (sim) {
-      console.log('LOADING PHONES FOR SIM', game.sim);
+      console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(game.sim));
+      
+      // Generate phones for all panels in this sim
       this.phoneManager.generatePhonesForSim(sim);
+      
+      // Generate any missing neighbor phones for all active sims
+      this.phoneManager.generateMissingNeighbourPhones(this);
 
+      // If we have preserved state, restore it
+      if (preservedState) {
+        sim.panels = preservedState.panels;
+        sim.time = preservedState.time;
+        sim.connectionsOpen = preservedState.connectionsOpen;
+      }
 
       sim.config = {
         channel: game.channel,
         host: game.host,
         port: game.port,
-        interfaceGateway: gatewayInfo,
+        interfaceGateway: game.interfaceGateway,
       };
       this.sims.push(sim);
     } else {
@@ -96,13 +233,79 @@ export default class ROCManager {
   }
 
   enableInterfaceGateway(simId) {
-    this.stompManager.activateClientForGame(simId);
-    this.updateAdminUI();
+    try {
+      // Find the host configuration
+      const host = this.config.games.find(g => g.sim === simId);
+      if (!host) {
+        throw new Error("Host configuration not found");
+      }
+      if (!host.enabled) {
+        throw new Error("Cannot enable Interface Gateway: Host is disabled");
+      }
+
+      // Activate the Interface Gateway client
+      const result = this.stompManager.activateClientForGame(simId);
+      this.updateAdminUI();
+      return result;
+    } catch (error) {
+      console.error(chalk.red("Failed to enable Interface Gateway:"), error);
+      throw error;
+    }
   }
 
   disableInterfaceGateway(simId) {
-    this.stompManager.deactivateClientForGame(simId);
-    this.updateAdminUI();
+    try {
+      this.stompManager.deactivateClientForGame(simId);
+      this.updateAdminUI();
+    } catch (error) {
+      console.error(chalk.red("Failed to disable Interface Gateway:"), error);
+      throw error;
+    }
+  }
+
+  /**
+   * Notify admin clients that voice channels have changed
+   */
+  async notifyVoiceChannelUpdate() {
+    const channels = await this.getAvailableVoiceChannels();
+    this.io.to('admins').emit('voiceChannelsUpdate', channels);
+  }
+
+  async enableHost(simId) {
+    const host = this.config.games.find(g => g.sim === simId);
+    if (host) {
+      host.enabled = true;
+      await this.saveConfig(this.config);
+      
+      // Activate the game when enabled
+      console.log(chalk.yellow('enableHost'), 'Activating game for', simId);
+      await this.activateGame(host);
+      
+      this.updateAdminUI();
+      this.sendGameUpdateToPlayers();
+    }
+  }
+
+  async disableHost(simId) {
+    const host = this.config.games.find(g => g.sim === simId);
+    if (host) {
+      // If IG is enabled, disable it first
+      if (host.interfaceGateway.enabled) {
+        this.disableInterfaceGateway(simId);
+      }
+      
+      // Deactivate the simulation first
+      await this.deactivateGame(simId);
+      
+      host.enabled = false;
+      await this.saveConfig(this.config);
+      
+      // After disabling a host, regenerate missing neighbor phones for remaining active sims
+      this.phoneManager.generateMissingNeighbourPhones(this);
+      
+      this.updateAdminUI();
+      this.sendGameUpdateToPlayers();
+    }
   }
 
   enableConnections(simId) {
@@ -559,4 +762,160 @@ export default class ROCManager {
   }
 
   // ============================= ADMIN STUFF =================================== 
+
+  /**
+   * Remove a game and clean up all associated resources
+   * @param {string} simId The simulation ID to remove
+   * @param {boolean} preservePhones If true, keeps all phones from the simulation
+   * @param {boolean} preserveState If true, preserves simulation state
+   * @returns {Promise<{panels: Array, time: object, connectionsOpen: boolean}|null>} Returns preserved simulation state if preserveState is true
+   */
+  async deactivateGame(simId, preservePhones = false, preserveState = false) {
+    // First, find all neighbor panels that might need phones preserved
+    const sim = this.getSimById(simId);
+    if (!sim) return null;
+
+    let preservedState = null;
+    if (preserveState) {
+      preservedState = {
+        panels: [...sim.panels],
+        time: sim.time,
+        connectionsOpen: sim.connectionsOpen,
+      };
+    }
+
+    // Get all active simulations except the one being removed
+    const activeSims = this.sims.filter(s => s.id !== simId);
+    
+    // Create a set of panel IDs that need their phones preserved
+    const preservePanelIds = new Set();
+    
+    if (!preservePhones) {
+      console.log(chalk.yellow('deactivateSimulation'), chalk.green('Checking neighbor panels for preservation...'));
+      // Check each panel in the removed sim
+      sim.panels.forEach(panel => {
+        // First check if this panel is a neighbor of any active sim's panels
+        const isNeighborOfActive = activeSims.some(activeSim =>
+          activeSim.panels.some(activePanel =>
+            activePanel.neighbours.some(n => n.simId === simId && n.panelId === panel.id)
+          )
+        );
+
+        // Then check if this panel has neighbors in any active sim
+        const hasActiveNeighbors = panel.neighbours.some(neighbor =>
+          activeSims.some(s => s.id === neighbor.simId)
+        );
+
+        if (isNeighborOfActive || hasActiveNeighbors) {
+          preservePanelIds.add(panel.id);
+          console.log(chalk.yellow('deactivateSimulation'), chalk.green('Preserving phone for panel:'), chalk.white(panel.id));
+        }
+      });
+    }
+
+    // First, deactivate the interface gateway
+    if (sim.config.interfaceGateway?.enabled) {
+      this.stompManager.deactivateClientForGame(simId);
+    }
+
+    // Remove phones that aren't needed anymore
+    this.phoneManager.phones = this.phoneManager.phones.filter(phone => {
+      if (phone.getLocation()?.simId === simId) {
+        // Keep all phones if preservePhones is true
+        if (preservePhones) return true;
+        // Otherwise, keep the phone if its panel needs to be preserved
+        return preservePanelIds.has(phone.getLocation().panelId);
+      }
+      return true;
+    });
+
+    // Get list of sims that will remain active
+    const remainingActiveSims = this.sims.filter(s => s.id !== simId);
+
+    // Remove simulation from active sims and clean up phones
+    this.sims = remainingActiveSims;
+    if (!preservePhones) {
+      this.phoneManager.removeSim(simId, this);
+    }
+
+    // Remove STOMP client
+    this.stompManager.removeClientForGame(simId);
+
+    return preservedState;
+
+    // Send updates
+    this.sendGameUpdateToPlayers();
+  }
+
+  /**
+   * Add a new host and activate it immediately
+   * @param {*} hostConfig The new host configuration
+   */
+  async addHost(hostConfig) {
+    // Validate the host config first
+    if (!hostConfig.sim || !hostConfig.host || !hostConfig.channel || !hostConfig.interfaceGateway?.port) {
+      throw new Error("Invalid host configuration");
+    }
+
+    // Ensure interfaceGateway is disabled by default
+    hostConfig.interfaceGateway.enabled = false;
+
+    // Check if simulation file exists
+    try {
+      const testSim = this.getSimData(hostConfig.sim, true);
+      if (!testSim) {
+        throw new Error(`Simulation ${hostConfig.sim} not found`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to load simulation ${hostConfig.sim}: ${error.message}`);
+    }
+
+    // Add to config
+    this.config.games.push(hostConfig);
+    
+    try {
+      // Save config first in case activation fails
+      await this.saveConfig(this.config);
+      
+      // Activate the new game
+      await this.activateGame(hostConfig);
+      
+      // Update all clients
+      this.sendGameUpdateToPlayers();
+      
+      return true;
+    } catch (error) {
+      // If activation fails, remove from config and save
+      this.config.games = this.config.games.filter(g => g.sim !== hostConfig.sim);
+      await this.saveConfig(this.config);
+      throw error;
+    }
+  }
+
+  /**
+   * Save the current configuration to disk
+   * @param {*} newConfig The new configuration to save
+   */
+  async saveConfig(newConfig) {
+    try {
+      fs.writeFileSync('./config.json', JSON.stringify(newConfig, null, 2), 'utf8');
+      this.config = newConfig;
+      console.log(chalk.green('Config saved successfully'));
+    } catch (error) {
+      console.error(chalk.red('Error saving config:'), error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all available voice channels regardless of host state
+   * @returns {Promise<Array<{id: string, name: string}>>}
+   */
+  /**
+   * Get all available voice channels from the bot's cached list
+   * @returns {Promise<Array<{id: string, name: string}>>}
+   */
+  async getAvailableVoiceChannels() {
+    return this.bot.getVoiceChannels();
+  }
 }

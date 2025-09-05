@@ -1,7 +1,7 @@
 // @ts-check
 import chalk from 'chalk';
 
-import {Client, GatewayIntentBits} from 'discord.js';
+import {Client, GatewayIntentBits, VoiceChannel, TextChannel, CategoryChannel, NewsChannel, StageChannel, ForumChannel} from 'discord.js';
 /** @typedef {import("./ROCManager.js").default} ROCManager */
 
 
@@ -11,6 +11,9 @@ export default class DiscordBot {
 
   /** @type {Array} */
   privateCallChannels = [];
+
+  /** @type {Array} */
+  voiceChannels = [];
 
   constructor (token, prefix, guildId)
   {
@@ -32,13 +35,58 @@ export default class DiscordBot {
 
   async setUpBot()
   {
-    this.client.on('ready', () => {
+    this.client.on('ready', async () => {
       console.info(chalk.blueBright("Discord.js"), chalk.yellow("Ready"), chalk.green("Logged in as:", chalk.white(this.client.user.tag)));
+      // Initial channel load
+      await this.updateVoiceChannels();
     });
     
     this.client.on('message', msg => {
       if (msg.content === `${this.prefix}ping`) {
         msg.reply('Pong!');
+      }
+    });
+
+    // Monitor voice channel changes
+    this.client.on('channelCreate', async channel => {
+      if (channel.isVoiceBased?.()) {
+        let channelName = 'Unknown';
+        if (channel instanceof VoiceChannel || channel instanceof StageChannel) {
+          channelName = channel.name;
+        }
+        console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.green("Created voice channel:", chalk.white(channelName)));
+        await this.updateVoiceChannels();
+        this.gameManager.notifyVoiceChannelUpdate();
+      }
+    });
+
+    this.client.on('channelDelete', async channel => {
+      if (channel.isVoiceBased?.()) {
+        let channelName = 'Unknown';
+        if (channel instanceof VoiceChannel || channel instanceof StageChannel) {
+          channelName = channel.name;
+        }
+        console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.red("Deleted voice channel:", chalk.white(channelName)));
+        await this.updateVoiceChannels();
+        this.gameManager.notifyVoiceChannelUpdate();
+      }
+    });
+
+    this.client.on('channelUpdate', async (oldChannel, newChannel) => {
+      if (oldChannel.isVoiceBased?.() || newChannel.isVoiceBased?.()) {
+        let oldName = 'Unknown';
+        let newName = 'Unknown';
+        
+        if (oldChannel instanceof VoiceChannel || oldChannel instanceof StageChannel) {
+          oldName = oldChannel.name;
+        }
+        if (newChannel instanceof VoiceChannel || newChannel instanceof StageChannel) {
+          newName = newChannel.name;
+        }
+
+        console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.green("Updated voice channel:", chalk.white(`${oldName} → ${newName}`)));
+        await this.updateVoiceChannels();
+        this.gameManager.notifyVoiceChannelUpdate();
       }
     });
 
@@ -87,15 +135,36 @@ export default class DiscordBot {
     await this.client.login(this.token).then(() =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
   }
 
+  /**
+   * Update the cached list of voice channels
+   */
+  async updateVoiceChannels() {
+    const guild = await this.client.guilds.fetch(this.guildId);
+    const channels = await guild.channels.fetch();
+    const voiceChannels = channels.filter(channel => channel.isVoiceBased());
+    
+    this.voiceChannels = Array.from(voiceChannels.values()).map(channel => ({
+      id: channel.id,
+      name: channel.name
+    }));
+  }
+
+  /**
+   * Get the current list of voice channels
+   * @returns {Array} List of voice channels with id and name
+   */
+  getVoiceChannels() {
+    return this.voiceChannels;
+  }
+
   async configureVoiceChannels() {
     const guild = await this.client.guilds.fetch(this.guildId);
     const channels = await guild.channels.fetch();
     const voiceChannels = channels.filter(x => x.isVoiceBased());
 
-    const privateCallChannels = voiceChannels.filter(x => x.name.startsWith(this.prefix));
-    for (const vc of privateCallChannels.values()){
-      this.privateCallChannels.push({id:vc.id, reserved:false, inUse:false});
-    }
+    const privateCallChannels = voiceChannels.filter(x => x.name?.startsWith(this.prefix));
+    this.privateCallChannels = Array.from(privateCallChannels.values())
+      .map(vc => ({id: vc.id, reserved: false, inUse: false}));
 
     for(const channel of Object.keys(this.gameManager.channels)) {
       const staticChannel = voiceChannels.filter(x => x.name === this.gameManager.channels[channel]).first();

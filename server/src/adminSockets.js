@@ -44,8 +44,8 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     }
   })
 
-  socket.on("adminUnclaimPanel", function (msg) {
-    console.log(chalk.yellow('adminUnclaimPanel'), msg);
+  socket.on("releasePanel", function (msg) {
+    console.log(chalk.yellow('releasePanel'), msg);
     gameManager.releasePanel(msg.player, msg.sim, msg.panel);
   });
 

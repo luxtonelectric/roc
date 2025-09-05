@@ -400,8 +400,13 @@ export default class ROCManager {
       console.error(chalk.red("Claim panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
-    //Assign the player to the panel
+    //Assign the player and their details to the panel
     panel.player = user;
+    panel.playerDetails = {
+      id: player.discordId,
+      displayName: player.displayName,
+      avatarURL: player.avatarURL
+    };
     this.phoneManager.assignPhone(panel.phone, player)
     //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
@@ -427,10 +432,9 @@ export default class ROCManager {
       console.error(chalk.red("Release panel called with undefined panel"), user, requestedSim, requestedPanel);
       return false;
     }
-    //Assign the player to the panel
     panel.player = undefined;
+    panel.playerDetails = undefined;
     this.phoneManager.unassignPhone(panel.phone);
-    //Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();
     console.log(chalk.yellow('ReleasePanel'), user, 'released', requestedSim, requestedPanel);
@@ -465,29 +469,8 @@ export default class ROCManager {
     await this.bot.setUserVoiceChannel(player.discordId, channelId);
   }
 
-
   getGameState() {
-    //console.log(this.sims);
-    const enabledSims = this.sims.filter(s => s.enabled);
-    
-    // Clone the sims to avoid modifying the original objects
-    const simsWithPlayerDetails = JSON.parse(JSON.stringify(enabledSims));
-    
-    // Enhance each panel with full player details
-    simsWithPlayerDetails.forEach(sim => {
-      sim.panels.forEach(panel => {
-        if (panel.player && this.players[panel.player]) {
-          const player = this.players[panel.player];
-          panel.playerDetails = {
-            id: player.discordId,
-            displayName: player.displayName,
-            avatarURL: player.avatarURL
-          };
-        }
-      });
-    });
-    
-    return simsWithPlayerDetails;
+    return this.sims.filter(s => s.enabled);
   }
 
   getHostState() {

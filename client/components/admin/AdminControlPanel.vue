@@ -209,7 +209,7 @@ export default {
     },
     unclaimPanel(sim, panel, player) {
       console.log('unclaimPanel', sim, panel, player);
-      this.socket.emit("adminUnclaimPanel", { sim, panel, player });
+      this.socket.emit("releasePanel", { sim, panel, player });
     },
     createPhone(number, name, type, location = null, hidden = false) {
       console.log('createPhone')

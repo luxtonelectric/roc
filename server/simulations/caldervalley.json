@@ -4,7 +4,7 @@
 		{
 			"id": "milllanejn",
 			"name": "Mill Lane Jn SB",
-			"code": "CVM",
+			"code": "CAM",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -19,7 +19,7 @@
 		{
 			"id": "halifax",
 			"name": "Halifax SB",
-			"code": "CVH",
+			"code": "CAH",
 			"neighbours": [
 				{
 					"simId": "caldervalley",
@@ -38,7 +38,7 @@
 		{
 			"id": "healeymills",
 			"name": "Healey Mills SB",
-			"code": "CVE",
+			"code": "CAE",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -65,7 +65,7 @@
 		{
 			"id": "batley",
 			"name": "Batley SB",
-			"code": "CVB",
+			"code": "CAB",
 			"neighbours": [
 				{
 					"simId": "caldervalley",
@@ -80,7 +80,7 @@
 		{
 			"id": "milnerroydjn",
 			"name": "Milner Royd Jn SB",
-			"code": "CVR",
+			"code": "CAR",
 			"neighbours": [
 				{
 					"simId": "caldervalley",
@@ -99,7 +99,7 @@
 		{
 			"id": "hebdenbridge",
 			"name": "Hebden Bridge SB",
-			"code": "CVD",
+			"code": "CAD",
 			"neighbours": [
 				{
 					"simId": "caldervalley",

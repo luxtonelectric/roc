@@ -60,7 +60,7 @@
 		{
 			"id": "par",
 			"name": "Par",
-			"code": "CNP",
+			"code": "CNA",
 			"neighbours": [
 				{
 					"simId": "cornwall",

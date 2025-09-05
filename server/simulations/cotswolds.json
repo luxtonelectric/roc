@@ -49,7 +49,7 @@
 		{
 			"id": "nortonjn",
 			"name": "Norton Jn SB",
-			"code": "CWN",
+			"code": "CWJ",
 			"neighbours": [
 				{
 					"simId": "cotswolds",

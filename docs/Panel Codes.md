@@ -40,12 +40,12 @@ The list is sorted alphabetically by sim name.
 | BRB | Bath |  |
 | BRF | Filton |  |
 | BRA | St Andrews |  |
-| CVM | Mill Lane Jn | ~~Calder Valley~~ |
-| CVH | Halifax |  |
-| CVE | Healey Mills |  |
-| CVB | Batley |  |
-| CVR | Milner Royd |  |
-| CVD | Hebden Bridge |  |
+| CAM | Mill Lane Jn | ~~Calder Valley~~ |
+| CAH | Halifax |  |
+| CAE | Healey Mills |  |
+| CAB | Batley |  |
+| CAR | Milner Royd |  |
+| CAD | Hebden Bridge |  |
 | CBS | South | ~~Cambridge~~ |
 | CBC | Station |  |
 | CBN | North |  |
@@ -64,9 +64,9 @@ The list is sorted alphabetically by sim name.
 | CGB | Barry | Cardiff Vale of Glamorgan |
 | CGA | Aberthaw |  |
 | CGC | Cowbridge Road |  |
-| CRA | A (North) | Carlisle |
-| CRB | B (Station) |  |
-| CRC | C (South) |  |
+| CLA | A (North) | Carlisle |
+| CLB | B (Station) |  |
+| CLC | C (South) |  |
 | CC | Cathcart | Cathcart |
 | CS1 | Cowlairs 1 | Central Scotland |
 | CS2 | Cowlairs 2 |  |
@@ -90,14 +90,14 @@ The list is sorted alphabetically by sim name.
 | CEE | Ellesmere Port |  |
 | CEB | Beeston Castle |  |
 | CEM | Mickle Trafford |  |
-| CEH | Helsby |  |
+| CEL | Helsby |  |
 | CEF | Frodsham |  |
 | CEN | Norton |  |
 | CNP | Penzance | Cornwall |
 | CNE | St Erth |  |
 | CNR | Roskear Jn |  |
 | CNT | Truro |  |
-| CNP | Par |  |
+| CNA | Par |  |
 | CNB | St Blazey |  |
 | CNG | Goonbarrow Jn |  |
 | CNW | Lostwithiel |  |
@@ -105,7 +105,7 @@ The list is sorted alphabetically by sim name.
 | CWA | Ascott under Wychwood | ~~Cotswolds~~ |
 | CWM | Moreton in Marsh |  |
 | CWE | Evesham |  |
-| CWN | Norton Jn |  |
+| CWJ | Norton Jn |  |
 | CWS | Worcester Shrub Hill |  |
 | CWT | Worcester Tunnel Jn |  |
 | CWD | Droitwich Spa |  |
@@ -118,7 +118,7 @@ The list is sorted alphabetically by sim name.
 | CRY | Coal Yard |  |
 | CRN | North |  |
 | CRS | South |  |
-| CRW | Steel Works |  |
+| CRK | Steel Works |  |
 | CRB | Basford Hall |  |
 | CRG | Gresty Lane |  |
 | CRA | Salop Goods Jn |  |

@@ -4,7 +4,7 @@
 		{
 			"id": "panela",
 			"name": "Panel A",
-			"code": "CRA",
+			"code": "CLA",
 			"neighbours": [
 				{
 					"simId": "motherwell",
@@ -23,7 +23,7 @@
 		{
 			"id": "panelb",
 			"name": "Panel B",
-			"code": "CRB",
+			"code": "CLB",
 			"neighbours": [
 				{
 					"simId": "carlisle",
@@ -46,7 +46,7 @@
 		{
 			"id": "panelc",
 			"name": "Panel C",
-			"code": "CRC",
+			"code": "CLC",
 			"neighbours": [
 				{
 					"simId": "carlisle",

@@ -73,7 +73,7 @@
 		{
 			"id": "steelworks",
 			"name": "Steel Works",
-			"code": "CRW",
+			"code": "CRK",
 			"neighbours": [
 				{
 					"simId": "crewe",

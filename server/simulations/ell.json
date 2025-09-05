@@ -4,6 +4,7 @@
 		{
 			"id": "wks1",
 			"name": "Workstation 1",
+			"code": "EL1",
 			"neighbours": [
 				{
 					"simId": "ell",
@@ -14,6 +15,7 @@
 		{
 			"id": "wks2",
 			"name": "Workstation 2",
+			"code": "EL2",
 			"neighbours": [
 				{
 					"simId": "ell",

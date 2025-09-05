@@ -4,6 +4,7 @@
 		{
 			"id": "rochester",
 			"name": "Rochester SB",
+			"code": "EKR",
 			"neighbours": [
 				{
 					"simId": "northkent",
@@ -18,6 +19,7 @@
 		{
 			"id": "cuxton",
 			"name": "Cuxton SB",
+			"code": "EKC",
 			"neighbours": [
 				{
 					"simId": "northkent",
@@ -28,6 +30,7 @@
 		{
 			"id": "wateringbury",
 			"name": "Wateringbury SB",
+			"code": "EKW",
 			"neighbours": [
 				{
 					"simId": "ashford",

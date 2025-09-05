@@ -4,6 +4,7 @@
 		{
 			"id": "claydonjn",
 			"name": "Claydon L&NE Jn SB",
+			"code": "EWC",
 			"neighbours": [
 				{
 					"simId": "marylebone",
@@ -18,6 +19,7 @@
 		{
 			"id": "marstonvalewest",
 			"name": "Marston Vale West Workstation",
+			"code": "EWW",
 			"neighbours": [
 				{
 					"simId": "eastwestrail",
@@ -36,6 +38,7 @@
 		{
 			"id": "marstonvaleeast",
 			"name": "Marston Vale East Workstation",
+			"code": "EWE",
 			"neighbours": [
 				{
 					"simId": "eastwestrail",

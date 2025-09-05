@@ -161,11 +161,11 @@ The list is sorted alphabetically by sim name.
 | DCF | Ferryhill |  |
 | DCR | Ryhope Grange |  |
 | ECL | Lewes | East Coastway |
-| ECT | Newhaven Town |  |
-| ECH | Newhaven Harbour |  |
+| ECNT | Newhaven Town |  |
+| ECNH | Newhaven Harbour |  |
 | ECB | Berwick |  |
 | ECP | Polegate |  |
-| ECA | Hampden Park |  |
+| ECH | Hampden Park |  |
 | ECE | Eastbourne |  |
 | ECW | Pevensey & Westham |  |
 | ECX | Bexhill |  |

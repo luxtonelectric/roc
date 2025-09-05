@@ -16,7 +16,7 @@
     "@nuxtjs/svg": "^0.0.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
     "@sidebase/nuxt-auth": "^0.10.0",
-    "nuxt": "^3.14.1592",
+    "nuxt": "^4.1.0",
     "vue": "^3.4.21"
   }
 }

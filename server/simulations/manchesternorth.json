@@ -1,5 +1,6 @@
 {
 	"name": "Manchester North",
+	"eras": ["oldhamloop"],
 	"panels": [
 		{
 			"id": "west",
@@ -30,6 +31,10 @@
 				{
 					"simId": "manchesternorth",
 					"panelId": "vitriolworks"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "oldham"
 				},
 				{
 					"simId": "manchestereast",
@@ -78,8 +83,42 @@
 					"panelId": "castletoneast"
 				},
 				{
+					"simId": "manchesternorth",
+					"panelId": "shaw"
+				},
+				{
 					"simId": "preston",
 					"panelId": "panela"
+				}
+			]
+		},
+		{
+			"id": "shaw",
+			"name": "Shaw",
+			"era": "oldhamloop",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "rochdalewest"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "oldham"
+				}
+			]
+		},
+		{
+			"id": "oldham",
+			"name": "Oldham",
+			"era": "oldhamloop",
+			"neighbours": [
+				{
+					"simId": "manchesternorth",
+					"panelId": "shaw"
+				},
+				{
+					"simId": "manchesternorth",
+					"panelId": "east"
 				}
 			]
 		}

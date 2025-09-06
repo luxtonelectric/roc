@@ -10,6 +10,10 @@
 					"panelId": "north"
 				},
 				{
+					"simId": "oxford",
+					"panelId": "oxford"
+				},
+				{
 					"simId": "eastwestrail",
 					"panelId": "marstonvalewest"
 				}

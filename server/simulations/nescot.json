@@ -1,5 +1,6 @@
 {
 	"name": "North East Scotland",
+	"eras": ["montroseresignalling"],
 	"panels": [
 		{
 			"id": "greenloaning",
@@ -234,16 +235,37 @@
 				{
 					"simId": "nescot",
 					"panelId": "usan"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "montrosenorth",
+					"era": "montroseresignalling"
 				}
 			]
 		},
 		{
 			"id": "usan",
 			"name": "Usan",
+			"era": { "not": "montroseresignalling" },
 			"neighbours": [
 				{
 					"simId": "nescot",
 					"panelId": "inverkeilor"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "montrosesouth"
+				}
+			]
+		},
+		{
+			"id": "montrosesouth",
+			"name": "Montrose South",
+			"era": { "not": "montroseresignalling" },
+			"neighbours": [
+				{
+					"simId": "nescot",
+					"panelId": "usan"
 				},
 				{
 					"simId": "nescot",
@@ -257,7 +279,12 @@
 			"neighbours": [
 				{
 					"simId": "nescot",
-					"panelId": "usan"
+					"panelId": "inverkeilor",
+					"era": "montroseresignalling"
+				},
+				{
+					"simId": "nescot",
+					"panelId": "montrosesouth"
 				},
 				{
 					"simId": "nescot",

@@ -1,5 +1,6 @@
 {
 	"name": "Cheshire Lines",
+	"eras": ["pre1991"],
 	"panels": [
 		{
 			"id": "greenbank",
@@ -58,6 +59,11 @@
 				{
 					"simId": "cheshirelines",
 					"panelId": "mobberley"
+				},
+				{
+					"simId": "manchesterpiccadilly",
+					"panelId": "oxfordroad",
+					"era": "pre1991"
 				},
 				{
 					"simId": "cheshirelines",

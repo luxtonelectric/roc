@@ -1,9 +1,11 @@
 {
 	"name": "Doncaster South",
+	"eras": ["1981", "panel2"],
 	"panels": [
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"era": "panel2",
 			"neighbours": [
 				{
 					"simId": "doncastersouth",
@@ -44,6 +46,11 @@
 				{
 					"simId": "lincoln",
 					"panelId": "swinderby"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "barkstoneastjn",
+					"era": "1981"
 				},
 				{
 					"simId": "lincoln",

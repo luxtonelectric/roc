@@ -115,10 +115,6 @@
 				},
 				{
 					"simId": "cscot",
-					"panelId": "dutysm1"
-				},
-				{
-					"simId": "cscot",
 					"panelId": "dutysm2"
 				}
 			]

@@ -1,5 +1,6 @@
 {
 	"name": "Oxford",
+	"eras": ["2016"],
 	"panels": [
 		{
 			"id": "oxford",
@@ -11,7 +12,13 @@
 				},
 				{
 					"simId": "marylebone",
-					"panelId": "banbury"
+					"panelId": "banbury",
+					"era": "2016"
+				},
+				{
+					"simId": "eastwestrail",
+					"panelId": "claydonjn",
+					"era": { "not": "2016" }
 				},
 				{
 					"simId": "cotswolds",

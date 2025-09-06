@@ -89,6 +89,20 @@
 			]
 		},
 		{
+			"id": "newark",
+			"name": "Newark Castle SB",
+			"neighbours": [
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				},
+				{
+					"simId": "trent",
+					"panelId": "eastnottingham"
+				}
+			]
+		},
+		{
 			"id": "langworth",
 			"name": "Langworth SB",
 			"neighbours": [

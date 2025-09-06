@@ -49,6 +49,10 @@
 				},
 				{
 					"simId": "lincoln",
+					"panelId": "newark"
+				},
+				{
+					"simId": "lincoln",
 					"panelId": "barkstoneastjn",
 					"era": "1981"
 				},

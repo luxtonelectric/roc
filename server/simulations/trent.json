@@ -138,6 +138,10 @@
 				{
 					"simId": "lincoln",
 					"panelId": "allington"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "newark"
 				}
 			]
 		},

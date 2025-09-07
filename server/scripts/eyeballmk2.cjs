@@ -2,6 +2,9 @@
 
 const fs = require("fs");
 const path = require("path");
+const jsonschema = require("jsonschema");
+
+const schema = require(`${__dirname}/../simulation-schema.json`);
 
 const simulations = {};
 
@@ -37,6 +40,12 @@ for (const [id, sim] of Object.entries(simulations)) {
 }
 
 for (const [id, sim] of Object.entries(simulations)) {
+	const validated = jsonschema.validate(sim, schema);
+	if (!validated.valid) {
+		console.error(`${id} does not conform to schema: ${validated.errors}`);
+		continue;
+	}
+
 	for (const panel of sim.panels) {
 		for (const neighbour of panel.neighbours) {
 			const neighbourPanel = findPanel(neighbour.simId, neighbour.panelId);

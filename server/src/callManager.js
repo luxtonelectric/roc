@@ -132,6 +132,10 @@ export default class CallManager {
 
     console.log(chalk.yellow("Placing call"), callRequest.toEmittable());
 
+    // Send new call notifications
+    this.sendNewCallNotifications(callRequest);
+
+    // Update call queues
     this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
     this.sendCallQueueUpdateToPhones([callRequest.sender]);
 
@@ -158,6 +162,20 @@ export default class CallManager {
       const queue = this.getCallQueueForPhone(phone);
       const emittableQueue = queue.map((r) => r.toEmittable());
       this.io.to(phone.getDiscordId()).emit('callQueueUpdate', { 'phoneId': phone.getId(), 'queue': emittableQueue });
+    });
+  }
+
+  /**
+   * Send new call notifications to phones
+   * @param {CallRequest} callRequest 
+   */
+  sendNewCallNotifications(callRequest) {
+    const allPhones = [callRequest.sender, ...callRequest.getReceivers()];
+    
+    allPhones.forEach((phone) => {
+      if (phone.getDiscordId()) {
+        this.io.to(phone.getDiscordId()).emit('newCallInQueue', callRequest.toEmittable());
+      }
     });
   }
 
@@ -190,6 +208,12 @@ export default class CallManager {
       return false;
     }
 
+    // Handle REC call acceptance
+    if (callRequest.type === CallRequest.TYPES.REC) {
+      return await this.acceptRECCall(socket, callRequest);
+    }
+
+    // Handle P2P call acceptance (existing logic)
     const channelId = this.bot.getAvailableCallChannel();
     if (channelId === null) {
       console.log(chalk.yellow('acceptCall'), socket.id, 'No channel available for call', callId);
@@ -235,6 +259,75 @@ export default class CallManager {
     }
 
     return true;
+  }
+
+  /**
+   * Handle REC call acceptance with special logic for auto-join and player deduplication
+   * @param {Socket} socket 
+   * @param {CallRequest} callRequest 
+   * @returns {Promise<boolean>}
+   */
+  async acceptRECCall(socket, callRequest) {
+    // @ts-expect-error
+    const discordId = socket.discordId;
+    
+    // Check if player is already on a REC call
+    if (this.isPlayerOnRECCall(discordId)) {
+      console.log(chalk.yellow('acceptRECCall'), 'Player already on REC call, cannot auto-join another:', discordId);
+      return false;
+    }
+
+    // Get or assign a channel for the REC call
+    if (!callRequest.channel) {
+      const channelId = this.bot.getAvailableCallChannel();
+      if (channelId === null) {
+        console.log(chalk.yellow('acceptRECCall'), socket.id, 'No channel available for REC call', callRequest.id);
+        return false;
+      }
+      callRequest.channel = channelId;
+    }
+
+    // Move player to the REC call
+    const moveResult = await this.movePlayerToCall(discordId, callRequest.channel);
+    if (!moveResult) {
+      console.log(chalk.yellow('acceptRECCall'), socket.id, 'Failed to move player to REC call', callRequest.id);
+      return false;
+    }
+
+    // If this is the first person joining, move the call to ongoing
+    if (callRequest.status === CallRequest.STATUS.OFFERED) {
+      this.requestedCalls = this.requestedCalls.filter(c => c.id !== callRequest.id);
+      callRequest.status = CallRequest.STATUS.ACCEPTED;
+      this.ongoingCalls.push(callRequest);
+      
+      // Move sender to call if they haven't joined yet
+      if (callRequest.sender.getDiscordId() !== discordId) {
+        await this.movePlayerToCall(callRequest.sender.getDiscordId(), callRequest.channel);
+      }
+    }
+
+    // Update call queues for all participants
+    this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
+    this.sendCallQueueUpdateToPhones([callRequest.sender]);
+
+    // Emit joined call event
+    this.io.to(discordId).emit("joinedCall", { "success": true });
+
+    console.log(chalk.green('acceptRECCall'), 'Player joined REC call:', discordId, 'call:', callRequest.id);
+    return true;
+  }
+
+  /**
+   * Check if a player is currently on any REC call
+   * @param {string} discordId 
+   * @returns {boolean}
+   */
+  isPlayerOnRECCall(discordId) {
+    return this.ongoingCalls.some(call => 
+      call.type === CallRequest.TYPES.REC && 
+      (call.sender.getDiscordId() === discordId || 
+       call.getReceivers().some(phone => phone.getDiscordId() === discordId))
+    );
   }
 
   /**
@@ -358,11 +451,10 @@ export default class CallManager {
     console.log('leaving', callId);
     const call = this.ongoingCalls.find(c => c.id === callId);
     if (typeof call !== 'undefined') {
+      //@ts-expect-error
+      const leaversDiscordId = this.io.sockets.sockets.get(socketId).discordId;
+
       if (call.type === CallRequest.TYPES.P2P) {
-        //@ts-expect-error
-        const leaversDiscordId = this.io.sockets.sockets.get(socketId).discordId
-
-
         await this.bot.setUserVoiceChannel(call.sender.getDiscordId());
         await this.bot.setUserVoiceChannel(call.getReceiver().getDiscordId());
 
@@ -377,11 +469,53 @@ export default class CallManager {
         this.pastCalls.push(call);
         this.sendCallQueueUpdateToPhones(call.getReceivers());
         this.sendCallQueueUpdateToPhones([call.sender]);
+      } else if (call.type === CallRequest.TYPES.REC) {
+        // Handle REC call leaving
+        await this.leaveRECCall(socketId, call, leaversDiscordId);
       }
 
     } else {
       console.info(chalk.yellow('leaveCall'), 'Call already terminated.', callId)
     }
+  }
+
+  /**
+   * Handle leaving a REC call with last-person-leaves termination logic
+   * @param {string} socketId 
+   * @param {CallRequest} call 
+   * @param {string} leaversDiscordId 
+   */
+  async leaveRECCall(socketId, call, leaversDiscordId) {
+    // Move the leaving player back to their original channel
+    await this.bot.setUserVoiceChannel(leaversDiscordId);
+
+    // Get all participants in the REC call
+    const allParticipants = [call.sender, ...call.getReceivers()];
+    const remainingParticipants = allParticipants.filter(phone => 
+      phone.getDiscordId() !== leaversDiscordId && phone.getDiscordId() !== null
+    );
+
+    console.log(chalk.yellow('leaveRECCall'), 'Remaining participants:', remainingParticipants.length);
+
+    // If this was the last person, terminate the call
+    if (remainingParticipants.length === 0) {
+      console.log(chalk.yellow('leaveRECCall'), 'Last person left, terminating REC call:', call.id);
+      
+      call.status = CallRequest.STATUS.ENDED;
+      this.ongoingCalls = this.ongoingCalls.filter(c => c.id !== call.id);
+      this.pastCalls.push(call);
+
+      // Release the channel
+      if (call.channel) {
+        this.bot.releasePrivateCallChannelReservation(call.channel);
+      }
+    }
+
+    // Update call queues for all phones
+    this.sendCallQueueUpdateToPhones(call.getReceivers());
+    this.sendCallQueueUpdateToPhones([call.sender]);
+
+    console.log(chalk.green('leaveRECCall'), 'Player left REC call:', leaversDiscordId, 'call:', call.id);
   }
 
 

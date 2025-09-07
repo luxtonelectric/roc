@@ -202,6 +202,7 @@ function prepareCall(call: PreparedCall) {
 }
 
 function placeCall(toPlaceCall: PreparedCall) {
+  preparedCall.value = toPlaceCall;
   socket?.emit("placeCall", toPlaceCall, (response) => {
     if (!response) {
       playRejectedAudio();
@@ -286,6 +287,7 @@ function removeCallFromQueue(call: CallDetails | null) {
         <DialPad v-if="showTab === 'dialPad'" @prepare-call="prepareCall" @place-call="placeCall"
           :phoneData="phoneData" />
         <PhoneBook v-if="showTab === 'phoneBook'" @prepare-call="prepareCall" :prepared-call="preparedCall" :phoneData="phoneData" />
+        <StartREC v-if="showTab === 'considerREC'" @prepare-call="prepareCall" :phoneData="phoneData" :username=username />
         <IncomingCalls v-if="showTab === 'incomingCalls'" :callData="callData" @reject-call="rejectCall" />
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6 bg-zinc-200">
@@ -298,7 +300,7 @@ function removeCallFromQueue(call: CallDetails | null) {
         <div class="">
           <AuthenticationButton />
         </div>
-        <div class="">
+        <div class="row-start-2">
           <button v-if="hasPhones" @click="changeTab('phoneBook')"
             class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Phone Book</a>
@@ -314,6 +316,12 @@ function removeCallFromQueue(call: CallDetails | null) {
           <button v-if="hasPhones" @click="changeTab('incomingCalls')"
             class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
             <a>Incoming Calls</a>
+          </button>
+        </div>
+        <div>
+          <button v-if="hasPhones" @click="changeTab('considerREC')"
+            class="w-full bg-red-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+            <a>EMERGENCY</a>
           </button>
         </div>
         <div class="row-start-4 col-span-2">

@@ -19,6 +19,8 @@ import STOMPManager from './stomp.js';
 import PhoneManager from './phonemanager.js';
 import CallManager from './callManager.js';
 import TrainManager from './trainManager.js';
+import SimulationLoader from './services/SimulationLoader.js';
+import ConfigurationManager from './services/ConfigurationManager.js';
 
 let httpServer;
 
@@ -54,13 +56,15 @@ httpServer.listen(port);
 console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
-const phoneManager = new PhoneManager();
+const simulationLoader = new SimulationLoader();
+const configurationManager = new ConfigurationManager();
+const phoneManager = new PhoneManager(simulationLoader);
 const trainManager = new TrainManager();
 trainManager.setPhoneManager(phoneManager);
 const stompManager = new STOMPManager();
 stompManager.setTrainManager (trainManager);
 const callManager = new CallManager(phoneManager,discordBot,io);
-const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager);
+const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, simulationLoader, configurationManager);
 rocManager.load(config);
 
 await discordBot.setUpBot().then(() => {

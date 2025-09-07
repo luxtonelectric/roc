@@ -1,6 +1,6 @@
 <template>
   <button @click="takeAction()"
-    class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+    :class="`w-full ${backgroundClass} text-black py-1 px-3 text-lg border-4 ${borderClass} ${hoverClass} aspect-square`">
     <a>{{ title }}</a><br />
     <a> {{ line1 }}</a><br>
     <a> {{ line2 }} </a>
@@ -22,6 +22,53 @@ export default {
       line3: "",
     };
   },
+  computed: {
+    currentCallLevel() {
+      if (this.currentCall && this.currentCall.level) {
+        return this.currentCall.level;
+      }
+      if (this.preparedCall && this.preparedCall.level) {
+        return this.preparedCall.level;
+      }
+      if (this.nextCall && this.nextCall.level) {
+        return this.nextCall.level;
+      }
+      return 'normal';
+    },
+    backgroundClass() {
+      switch (this.currentCallLevel) {
+        case 'emergency':
+          return 'bg-red-600';
+        case 'urgent':
+          return 'bg-orange-300';
+        case 'normal':
+        default:
+          return 'bg-zinc-300';
+      }
+    },
+    borderClass() {
+      switch (this.currentCallLevel) {
+        case 'emergency':
+          return 'border-red-700';
+        case 'urgent':
+          return 'border-orange-400';
+        case 'normal':
+        default:
+          return 'border-zinc-400';
+      }
+    },
+    hoverClass() {
+      switch (this.currentCallLevel) {
+        case 'emergency':
+          return 'hover:bg-red-700 hover:border-red-600';
+        case 'urgent':
+          return 'hover:bg-orange-400 hover:border-orange-300';
+        case 'normal':
+        default:
+          return 'hover:bg-zinc-400 hover:border-zinc-300';
+      }
+    }
+  },
   methods: {
     takeAction() {
       if (this.currentCall && this.currentCall.status === 'offered' && this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
@@ -38,15 +85,25 @@ export default {
     },
     changeScreen() {
       if (this.currentCall) {
+        console.log("Current Call:", this.currentCall);
         this.title = "End Call";
         this.line1 = "From: " + this.currentCall.sender.name;
         this.line2 = " -> ";
         this.line3 = "To: " + this.currentCall.receivers[0].name;
       } else if (this.preparedCall) {
-        this.title = "Place Call";
-        this.line1 = "From: " + this.preparedCall.sender.name;
-        this.line2 = " -> ";
-        this.line3 = "To: " + this.preparedCall.receivers[0].name;
+        console.log("Prepared Call:", this.preparedCall);
+        if(this.preparedCall.level === 'emergency')
+        {
+          this.title = "Place Emergency Call";
+          this.line1 = "From: " + this.preparedCall.sender.name;
+          this.line2 = "";
+          this.line3 = ""
+        } else {
+          this.title = "Place Call";
+          this.line1 = "From: " + this.preparedCall.sender.name;
+          this.line2 = " -> ";
+          this.line3 = "To: " + this.preparedCall.receivers[0].name;
+        }
       } else if (this.nextCall) {
         this.title = "Answer Call";
         this.line1 = "From: " + this.nextCall.sender.name;

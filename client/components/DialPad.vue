@@ -2,11 +2,30 @@
   <div class="flex pt-2">
     <div class="grid w-full p-2">
       <h1 class="text-center text-3xl font-bold">Dial Number</h1>
+      <p class="text-center text-sm text-gray-600 mt-1">Click display or start typing to enter a number</p>
     </div>
   </div>
   <div class="grid grid-cols-6 pt-2">
-    <div class="grid col-start-3 col-span-2 w-full h-12 p-2 bg-zinc-100 border-2 border-zinc-400">
+    <div class="grid col-start-3 col-span-2 w-full h-12 p-2 bg-zinc-100 border-2 border-zinc-400 focus:bg-zinc-200 focus:border-zinc-500 cursor-text" 
+         tabindex="0" 
+         ref="numberDisplay"
+         @click="focusDisplay"
+         @keydown="handleKeydown">
      {{ phoneNumber }}
+    </div>
+  </div>
+  <div class="flex justify-center pt-2">
+    <div class="flex space-x-2">
+      <button 
+        @click="setPriority('normal')" 
+        :class="['px-4 py-2 border-2 font-medium', callPriority === 'normal' ? 'bg-green-500 text-white border-green-600' : 'bg-zinc-300 text-black border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300']">
+        Normal
+      </button>
+      <button 
+        @click="setPriority('urgent')" 
+        :class="['px-4 py-2 border-2 font-medium', callPriority === 'urgent' ? 'bg-yellow-500 text-white border-yellow-600' : 'bg-zinc-300 text-black border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300']">
+        Urgent
+      </button>
     </div>
   </div>
   <div class="flex p-2">
@@ -90,21 +109,65 @@ export default {
   data() {
     return {
       phoneNumber: "",
+      callPriority: "normal", // Default to normal priority
     }
   },
   created() {
   },
   mounted() {
-    var that = this;
-
+    // Auto-focus the number display when component is mounted
+    this.$nextTick(() => {
+      this.$refs.numberDisplay?.focus();
+    });
+  },
+  beforeUnmount() {
+    // Clean up any global event listeners if we had any
   },
   methods: {
+    focusDisplay() {
+      // Keep the number display focused when clicked
+      this.$refs.numberDisplay?.focus();
+    },
+
+    handleKeydown(event) {
+      // Handle keyboard input for numbers and special keys
+      const key = event.key;
+      
+      // Prevent default behavior for keys we handle
+      if (/[0-9]/.test(key) || key === 'Backspace' || key === 'Delete' || key === 'Enter' || key === 'Escape') {
+        event.preventDefault();
+      }
+
+      if (/[0-9]/.test(key)) {
+        // Handle number keys (0-9)
+        this.buttonPress(key);
+      } else if (key === 'Backspace' || key === 'Delete') {
+        // Handle backspace and delete keys
+        this.buttonPress('del');
+      } else if (key === 'Enter') {
+        // Handle enter key to place call
+        this.callNumber();
+      } else if (key === 'Escape') {
+        // Handle escape key to clear
+        this.buttonPress('clear');
+      }
+    },
+
     changeTab(tab) {
       this.showTab = tab;
     },
 
+    setPriority(priority) {
+      this.callPriority = priority;
+    },
+
     callNumber(){
-      const preparedCall = new PreparedCall(this.phoneData[0],[{id:this.phoneNumber, name:this.phoneNumber}]);
+      const preparedCall = new PreparedCall(
+        this.phoneData[0], 
+        [{id:this.phoneNumber, name:this.phoneNumber}], 
+        PreparedCall.TYPES.P2P, 
+        this.callPriority
+      );
       this.$emit("prepareCall", preparedCall);
       this.$emit("placeCall", preparedCall);
     },

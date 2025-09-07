@@ -1,9 +1,10 @@
 // @ts-check
 import chalk from 'chalk'
-import fs from 'fs';
 import Player from './model/player.js';
 import Simulation from './model/simulation.js';
 import ClockData from './model/clockData.js';
+import SimulationLoader from './services/SimulationLoader.js';
+import ConfigurationManager from './services/ConfigurationManager.js';
 /** @typedef {import("./bot.js").default} DiscordBot */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
 /** @typedef {import("socket.io").Server} Server */
@@ -22,18 +23,26 @@ export default class ROCManager {
   bot = null;
   phoneManager = null;
   stompManager = null;
+  /** @type {SimulationLoader} */
+  simulationLoader = null;
+  /** @type {ConfigurationManager} */
+  configurationManager = null;
 
   /**
    * @param {Server} io 
    * @param {DiscordBot} bot 
    * @param {PhoneManager} phoneManager
    * @param {STOMPManager} stompManager 
+   * @param {SimulationLoader} simulationLoader
+   * @param {ConfigurationManager} configurationManager
    */
-  constructor(io, bot, phoneManager, stompManager) {
+  constructor(io, bot, phoneManager, stompManager, simulationLoader, configurationManager) {
     this.io = io;
     this.bot = bot;
     this.phoneManager = phoneManager;
     this.stompManager = stompManager;
+    this.simulationLoader = simulationLoader;
+    this.configurationManager = configurationManager;
     console.info(chalk.yellow("constructor"), `Welcome! Yum yum!`);
   }
 
@@ -51,23 +60,6 @@ export default class ROCManager {
   }
 
   /**
-   * Read simulation file from disk
-   * @private
-   * @param {string} simId 
-   * @returns {object|null} Raw simulation config or null if file doesn't exist
-   */
-  _readSimFile(simId) {
-    const filePath = new URL(`../simulations/${simId}.json`, import.meta.url);
-    try {
-      const simConfig = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      return simConfig;
-    } catch (e) {
-      console.error(chalk.red(`Couldn't read simulation file for ${simId}:`), e);
-      return null;
-    }
-  }
-
-  /**
    * Get simulation data, optionally loading from disk if not cached
    * @param {string} simId 
    * @param {boolean} loadIfNotExists Whether to load from disk if not in memory
@@ -81,24 +73,16 @@ export default class ROCManager {
     }
 
     // Only load from disk if explicitly requested
-    const simConfig = this._readSimFile(simId);
-    if (!simConfig) return;
-
-    console.log(chalk.yellow('getSimData'), chalk.green('Loading simulation from disk:'), chalk.white(simId));
-    return Simulation.fromSimData(simId, simConfig);
+    return this.simulationLoader.loadSimulation(simId);
   }
 
   /**
    * Gets basic simulation metadata without loading the full simulation
    * @param {string} simId 
-   * @returns {{id: string, name: string}}
+   * @returns {{id: string, name: string}|null}
    */
   getSimMetadata(simId) {
-    const simConfig = this._readSimFile(simId);
-    return {
-      id: simId,
-      name: simConfig?.name || simId
-    };
+    return this.simulationLoader.getSimulationMetadata(simId);
   }
 
   /**
@@ -106,19 +90,7 @@ export default class ROCManager {
    * @returns {Promise<{id: string, name: string}[]>}
    */
   async getAvailableSimulations() {
-    const simPath = new URL('../simulations', import.meta.url);
-    try {
-      const files = await fs.promises.readdir(simPath);
-      return files
-        .filter(file => file.endsWith('.json'))
-        .map(file => {
-          const simId = file.replace('.json', '');
-          return this.getSimMetadata(simId);
-        });
-    } catch (e) {
-      console.error(chalk.red('Error reading simulations directory:'), e);
-      return [];
-    }
+    return this.simulationLoader.getAvailableSimulations();
   }
 
   /**
@@ -207,14 +179,12 @@ export default class ROCManager {
     if (sim) {
       console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(game.sim));
       
-      // Generate phones for all panels in this sim
-      this.phoneManager.generatePhonesForSim(sim);
-      
-      // Generate any missing neighbor phones for all active sims
-      this.phoneManager.generateMissingNeighbourPhones(this);
+      // Generate phones for all panels in this sim (including neighbor phones)
+      sim.panels = this.phoneManager.generatePhonesForSim(sim);
 
       // If we have preserved state, restore it
       if (preservedState) {
+        console.log(chalk.yellow('activateGame'), chalk.green('Restoring preserved state for sim:'), chalk.white(game.sim));
         sim.panels = preservedState.panels;
         sim.time = preservedState.time;
         sim.connectionsOpen = preservedState.connectionsOpen;
@@ -299,9 +269,6 @@ export default class ROCManager {
       
       host.enabled = false;
       await this.saveConfig(this.config);
-      
-      // After disabling a host, regenerate missing neighbor phones for remaining active sims
-      this.phoneManager.generateMissingNeighbourPhones(this);
       
       this.updateAdminUI();
       this.sendGameUpdateToPlayers();
@@ -835,7 +802,7 @@ export default class ROCManager {
     // Remove simulation from active sims and clean up phones
     this.sims = remainingActiveSims;
     if (!preservePhones) {
-      this.phoneManager.removeSim(simId, this);
+      this.phoneManager.removeSim(simId, (id, loadIfNotExists) => this.getSimData(id, loadIfNotExists));
     }
 
     // Remove STOMP client
@@ -897,14 +864,8 @@ export default class ROCManager {
    * @param {*} newConfig The new configuration to save
    */
   async saveConfig(newConfig) {
-    try {
-      fs.writeFileSync('./config.json', JSON.stringify(newConfig, null, 2), 'utf8');
-      this.config = newConfig;
-      console.log(chalk.green('Config saved successfully'));
-    } catch (error) {
-      console.error(chalk.red('Error saving config:'), error);
-      throw error;
-    }
+    await this.configurationManager.saveConfig(newConfig);
+    this.config = newConfig;
   }
 
   /**

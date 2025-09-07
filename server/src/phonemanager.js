@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import Phone from "./model/phone.js";
 import Location from './model/location.js';
 import Panel from './model/panel.js';
-import ROCManager from './ROCManager.js';
+import SimulationLoader from './services/SimulationLoader.js';
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("./model/simulation.js").default} Simulation */
 /** @typedef {import("./model/phonebookentry.js").default} PhonebookEntry */
@@ -18,23 +18,27 @@ export default class PhoneManager {
   /** @type {Simulation[]} */
   sims = [];
 
+  /** @type {SimulationLoader} */
+  simulationLoader;
+
   /**
-   * 
+   * @param {SimulationLoader} simulationLoader The simulation loader service
    */
-  constructor() {
+  constructor(simulationLoader) {
+    this.simulationLoader = simulationLoader;
   }
 
   /**
    * Remove a simulation from the phone manager
    * @param {string} simId The ID of the simulation to remove
-   * @param {ROCManager} rocManager The ROC manager instance for looking up sim data
+   * @param {function(string, boolean): Simulation|undefined} getSimDataFn Function to get simulation data
    */
-  removeSim(simId, rocManager) {
+  removeSim(simId, getSimDataFn) {
     // Get the list of active sims excluding the one being removed
     const activeSims = this.sims.filter(s => s.id !== simId);
 
     // Use the existing cleanup logic which preserves needed neighbor phones
-    this.removeUnusedNeighbourPhones(rocManager, simId, activeSims);
+    this.removeUnusedNeighbourPhones(getSimDataFn, simId, activeSims);
 
     // Remove the sim from our tracked sims
     this.sims = this.sims.filter(s => s.id !== simId);
@@ -44,30 +48,71 @@ export default class PhoneManager {
    * @param {Simulation} sim 
    */
   /**
-   * Generate phones for a simulation
+   * Generate phones for a simulation and its neighbors
    * @param {Simulation} sim The simulation to generate phones for
    * @param {Set<string>} [excludePanelIds] Optional set of panel IDs to exclude (already have phones)
+   * @return {Panel[]} The panels that were processed (with phones assigned)
    */
   generatePhonesForSim(sim, excludePanelIds = new Set()) {
-    //Create a phone for each panel in the sim that doesn't already have one
+    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating phones for sim:'), chalk.white(sim.id));
+
+    // Create a phone for each panel in the sim that doesn't already have one
     sim.panels.forEach((panel) => {
       // Skip if this panel already has a phone due to being a neighbor
       if (!excludePanelIds.has(panel.id)) {
         const phone = this.generatePhoneForPanel(sim, panel);
-        console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Added phone:'), chalk.white(phone.toAdminView()));
+        console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Added phone:'), chalk.white(phone.getId()));
         panel.phone = phone;
       } else {
         console.log(chalk.yellow('generatePhonesForSim'), chalk.blue('Skipped existing phone for panel:'), chalk.white(panel.id));
       }
-    })
+    });
 
-    //Create a phone for Control
+    // Generate neighbor phones for all panels in this sim
+    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating neighbor phones for sim:'), chalk.white(sim.id));
+    sim.panels.forEach((panel) => {
+      panel.neighbours.forEach((neighbour) => {
+        // Skip if neighbor is in the same sim
+        if (neighbour.simId === sim.id) {
+          return;
+        }
+
+        // Load the neighbor sim data
+        const neighbourSim = this.simulationLoader.loadSimulation(neighbour.simId);
+        if (!neighbourSim) {
+          console.error(chalk.red('generatePhonesForSim: Failed to load neighbor sim:'), chalk.white(neighbour.simId));
+          return;
+        }
+
+        // Check if neighbor panel exists
+        const neighbourPanel = neighbourSim.getPanel(neighbour.panelId);
+        if (!neighbourPanel) {
+          console.error(chalk.red('generatePhonesForSim: Neighbor panel not found:'), 
+            chalk.white(`${neighbour.panelId} in ${neighbour.simId}`));
+          return;
+        }
+
+        // Check if phone already exists
+        const phoneId = neighbourSim.id + "_" + neighbourPanel.id;
+        const existingPhone = this.getPhone(phoneId);
+        
+        // Only create a phone if it doesn't exist
+        if (!existingPhone) {
+          console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Creating neighbor phone for:'), 
+            chalk.white(`${neighbourPanel.id} in ${neighbourSim.id}`));
+          const phone = this.generatePhoneForPanel(neighbourSim, neighbourPanel);
+          neighbourPanel.phone = phone;
+        }
+      });
+    });
+
+    // Create a phone for Control
     // TODO: Add ability to configure additional phones for the Sim.
     this.phones.push(new Phone(sim.id + "_control", sim.name + ' Control', Phone.TYPES.FIXED, new Location(sim.id)));
 
-    this.sims.push(sim)
-
-    //console.log(chalk.yellow('generatePhonesForSim'), this.phones);
+    this.sims.push(sim);
+    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Finished generating phones for sim:'), chalk.white(sim.id));
+    return sim.panels;
   }
 
   /**
@@ -125,53 +170,6 @@ export default class PhoneManager {
     }
   }
 
-  /**
-   * 
-   * @param {ROCManager} rocManager 
-   */
-  generateMissingNeighbourPhones(rocManager) {
-    console.log(chalk.yellow('generateMissingNeighbourPhones'), 'Checking for missing neighbor phones');
-
-    this.sims.forEach((sim) => {
-      sim.panels.forEach((panel) => {
-        panel.neighbours.forEach((neighbour) => {
-          // Skip if neighbor is in the same sim
-          if (neighbour.simId === sim.id) {
-            return;
-          }
-
-          // Get the neighbor sim data, forcing load since we need it for phones
-          const neighbourSim = rocManager.getSimData(neighbour.simId, true);
-          if (!neighbourSim) {
-            console.log(chalk.yellow('generateMissingNeighbourPhones'), chalk.red('Failed to load neighbor sim:'), chalk.white(neighbour.simId));
-            return;
-          }
-
-          // Check if neighbor panel exists
-          const neighbourPanel = neighbourSim.getPanel(neighbour.panelId);
-          if (!neighbourPanel) {
-            console.log(chalk.yellow('generateMissingNeighbourPhones'), chalk.red('Neighbor panel not found:'), 
-              chalk.white(`${neighbour.panelId} in ${neighbour.simId}`));
-            return;
-          }
-
-          // Check if phone already exists
-          const phoneId = neighbourSim.id + "_" + neighbourPanel.id;
-          const existingPhone = this.getPhone(phoneId);
-          
-          // Only create a phone if it doesn't exist AND its sim is loaded
-          if (!existingPhone && neighbourSim) {
-            console.log(chalk.yellow('generateMissingNeighbourPhones'), chalk.green('Creating missing phone for:'), 
-              chalk.white(`${neighbourPanel.id} in ${neighbourSim.id}`));
-            const phone = this.generatePhoneForPanel(neighbourSim, neighbourPanel);
-            neighbourPanel.phone = phone;
-          }
-        });
-      });
-    });
-    
-    console.log(chalk.yellow('generateMissingNeighbourPhones'), chalk.green('Finished generating missing phones'));
-  }
 
   /**
    * 
@@ -228,7 +226,8 @@ export default class PhoneManager {
     const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
 
     phones = phones.concat(neighbourPhones);
-    console.log(chalk.redBright('REC neighbourphones'), neighbourPhones.length, neighbourPhones);
+    console.log(chalk.redBright('REC neighbourphones'), neighbourPhones.length);
+    console.log(neighbourPhones);
     
     // Include control
     const control = this.phones.find(x => x.getId() === sim.id + "_control" && x.getDiscordId() !== null);
@@ -293,14 +292,14 @@ export default class PhoneManager {
 
   /**
    * Remove phones for panels in neighboring sims that are no longer needed
-   * @param {ROCManager} rocManager The ROC manager instance
+   * @param {function(string, boolean): Simulation|undefined} getSimDataFn Function to get simulation data
    * @param {string} simId The simulation ID to clean up neighbors for
    * @param {Simulation[]} activeSims Array of simulations that will remain active (not including the one being deactivated)
    */
-  removeUnusedNeighbourPhones(rocManager, simId, activeSims) {
+  removeUnusedNeighbourPhones(getSimDataFn, simId, activeSims) {
     console.log(chalk.yellow('removeUnusedNeighbourPhones'), 'Checking for unused neighbor phones in', chalk.white(simId));
 
-    const sim = rocManager.getSimData(simId, true);
+    const sim = getSimDataFn(simId, true);
     if (!sim) {
       console.log(chalk.yellow('removeUnusedNeighbourPhones'), chalk.red('Failed to load sim:'), chalk.white(simId));
       return;
@@ -319,7 +318,7 @@ export default class PhoneManager {
 
     const neighborMap = new Map();
 
-    const simToDeactivate = rocManager.getSimData(simId);
+    const simToDeactivate = getSimDataFn(simId,false);
     if (!simToDeactivate) {
       console.log(chalk.yellow('removeUnusedNeighbourPhones'), chalk.red('Failed to load sim:'), chalk.white(simId));
       return;

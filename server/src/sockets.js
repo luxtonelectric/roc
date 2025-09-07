@@ -52,8 +52,17 @@ export function rocSockets (socket, gameManager, callManager) {
   });
 
   socket.on("placeCall", function(msg,callback){
-    //TODO: This needs to be updated to handle multiple receivers
-    const response = callManager.placeCall(socket.id, msg.type, msg.level, msg.sender.id, msg.receivers);
+    // Handle both old format (receiver) and new format (receivers)
+    let receivers = msg.receivers;
+    if (!receivers && msg.receiver) {
+      // Convert old format to new format
+      receivers = [{ id: msg.receiver }];
+    }
+    
+    // For REC calls, sender is the phone ID, not an object
+    const senderId = typeof msg.sender === 'object' ? msg.sender.id : msg.sender;
+    
+    const response = callManager.placeCall(socket.id, msg.type, msg.level, senderId, receivers);
     callback(response);
   });
 

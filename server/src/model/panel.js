@@ -15,6 +15,6 @@ export default class Panel {
     panel.id = panelData.id;
     panel.name = panelData.name;
     panelData.neighbours.forEach(p => panel.neighbours.push(p));
-    return panelData;
+    return panel;
   }
 }

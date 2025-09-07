@@ -208,7 +208,19 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <template v-if="panel.player">
-                        {{ panel.player }}
+                        <div class="flex items-center">
+                      <img v-if="panel.playerDetails?.avatarURL" 
+                           :src="panel.playerDetails.avatarURL" 
+                           :alt="panel.playerDetails.displayName"
+                           :title="panel.playerDetails.displayName"
+                           class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span>{{ panel.playerDetails?.displayName || panel.player }}</span>
+                      <button class="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600" 
+                              @click="unclaimPanel(game.id, panel.id, panel.player)">
+                        Unclaim
+                      </button>
+                    </div>
                       </template>
                       <span v-else class="text-gray-400">Unassigned</span>
                     </td>
@@ -723,6 +735,10 @@ export default {
     disableConnections(simId) {
       console.log('disableConnections', simId)
       this.socket.emit("disableConnections", { "simId": simId });
+    },
+    unclaimPanel(sim, panel, player) {
+      console.log('unclaimPanel', sim, panel, player);
+      this.socket.emit("releasePanel", { sim, panel, player });
     },
     createPhone(number, name, type, location = null, hidden = false) {
       console.log('createPhone')

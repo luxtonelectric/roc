@@ -57,8 +57,11 @@ export function rocSockets (socket, gameManager, callManager) {
     callback(response);
   });
 
-  socket.on("rejectCall", function(msg){
-    callManager.rejectCall(socket.id,msg.id);
+  socket.on("rejectCall", function(msg, callback){
+    const result = callManager.rejectCall(socket.id,msg.id);
+    if (callback && typeof callback === 'function') {
+      callback({ success: result });
+    }
   });
   
   socket.on("acceptCall", function(msg, callback){

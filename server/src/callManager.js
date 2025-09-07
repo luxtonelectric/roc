@@ -39,9 +39,16 @@ export default class CallManager {
    * @returns {CallRequest[]}
    */
   getCallQueueForPhone(phone) {
-    const requestedCalls = this.requestedCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
-    const ongoingCalls = this.ongoingCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
-    const pastCalls = this.pastCalls.filter((c) => c.isForPhone(phone) || c.isFromPhone(phone));
+    // Get valid calls that exist in our arrays to prevent ghost calls
+    const validCallIds = new Set([
+      ...this.requestedCalls.map(c => c.id),
+      ...this.ongoingCalls.map(c => c.id),
+      ...this.pastCalls.map(c => c.id)
+    ]);
+
+    const requestedCalls = this.requestedCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
+    const ongoingCalls = this.ongoingCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
+    const pastCalls = this.pastCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
     const toNowCalls = requestedCalls.concat(ongoingCalls)
 
     const lastCall = pastCalls.pop();
@@ -161,10 +168,25 @@ export default class CallManager {
    * @returns 
    */
   async acceptCall(socket, callId) {
-    const callRequest = this.requestedCalls.some(x => x.id === callId) ? this.requestedCalls.find(x => x.id === callId) : this.ongoingCalls.find(x => x.id === callId);
+    const callRequest = this.requestedCalls.find(x => x.id === callId) || this.ongoingCalls.find(x => x.id === callId);
 
     if (typeof callRequest === 'undefined') {
       console.log(chalk.yellow('acceptCall'), socket.id, 'attempting to accept undefined call', callId);
+      
+      // Additional debugging: check if call exists in pastCalls
+      const pastCall = this.pastCalls.find(x => x.id === callId);
+      if (pastCall) {
+        console.log(chalk.yellow('acceptCall'), 'Call found in pastCalls with status:', pastCall.status);
+      }
+      
+      // Force a call queue update to clean up client state
+      // @ts-expect-error
+      const phones = this.phoneManager.getPhonesForDiscordId(socket.discordId);
+      if (phones && phones.length > 0) {
+        console.log(chalk.yellow('acceptCall'), 'Sending queue update to clean up stale call for phones:', phones.map(p => p.getId()));
+        this.sendCallQueueUpdateToPhones(phones);
+      }
+      
       return false;
     }
 
@@ -219,23 +241,99 @@ export default class CallManager {
    * 
    * @param {string} socketId 
    * @param {string} callId 
-   * @returns 
+   * @returns {boolean} - Returns true if call was successfully rejected, false otherwise
    */
   rejectCall(socketId, callId) {
-    const call = this.requestedCalls.find(c => c.id === callId);
-    if (typeof call === 'undefined') {
-      console.log(chalk.yellow('rejectCall'), socketId, 'attempting to reject undefined call', callId);
-      return false;
-    }
+    try {
+      // Validate input parameters
+      if (!socketId || typeof socketId !== 'string') {
+        console.error(chalk.red('rejectCall'), 'Invalid socketId provided:', socketId);
+        return false;
+      }
 
-    call.status = CallRequest.STATUS.REJECTED;
-    this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
-    this.pastCalls.push(call);
-    this.bot.releasePrivateCallChannelReservation(call.channel)
-    
-    if (call.type === CallRequest.TYPES.P2P) {
-      this.sendCallQueueUpdateToPhones(call.getReceivers());
-      this.sendCallQueueUpdateToPhones([call.sender]);
+      if (!callId || typeof callId !== 'string') {
+        console.error(chalk.red('rejectCall'), 'Invalid callId provided:', callId);
+        return false;
+      }
+
+      // Find the call in requested calls
+      const call = this.requestedCalls.find(c => c.id === callId);
+      if (typeof call === 'undefined') {
+        console.log(chalk.yellow('rejectCall'), socketId, 'attempting to reject undefined call', callId);
+        return false;
+      }
+
+      // Verify call is in a rejectable state
+      if (call.status !== CallRequest.STATUS.OFFERED) {
+        console.warn(chalk.yellow('rejectCall'), socketId, 'attempting to reject call with status:', call.status, 'callId:', callId);
+        return false;
+      }
+
+      // Update call status
+      try {
+        call.status = CallRequest.STATUS.REJECTED;
+      } catch (error) {
+        console.error(chalk.red('rejectCall'), 'Failed to update call status:', error.message);
+        return false;
+      }
+
+      // Remove call from requested calls and add to past calls
+      try {
+        this.requestedCalls = this.requestedCalls.filter(c => c.id !== callId);
+        this.pastCalls.push(call);
+      } catch (error) {
+        console.error(chalk.red('rejectCall'), 'Failed to move call between arrays:', error.message);
+        // Attempt to restore original status
+        try {
+          call.status = CallRequest.STATUS.OFFERED;
+        } catch (restoreError) {
+          console.error(chalk.red('rejectCall'), 'Failed to restore call status after array operation failure:', restoreError.message);
+        }
+        return false;
+      }
+
+      // Release private call channel reservation if channel exists
+      try {
+        if (call.channel && this.bot && typeof this.bot.releasePrivateCallChannelReservation === 'function') {
+          this.bot.releasePrivateCallChannelReservation(call.channel);
+        } else if (call.channel) {
+          console.warn(chalk.yellow('rejectCall'), 'Bot or releasePrivateCallChannelReservation method not available for channel:', call.channel);
+        }
+      } catch (error) {
+        console.error(chalk.red('rejectCall'), 'Failed to release private call channel reservation:', error.message, 'channel:', call.channel);
+        // Don't return false here as the core rejection logic succeeded
+      }
+      
+      // Send call queue updates for P2P calls
+      if (call.type === CallRequest.TYPES.P2P) {
+        try {
+          // Get receivers and validate they exist
+          const receivers = call.getReceivers();
+          if (Array.isArray(receivers) && receivers.length > 0) {
+            this.sendCallQueueUpdateToPhones(receivers);
+          } else {
+            console.warn(chalk.yellow('rejectCall'), 'No valid receivers found for P2P call:', callId);
+          }
+
+          // Send update to sender if sender exists
+          if (call.sender) {
+            this.sendCallQueueUpdateToPhones([call.sender]);
+          } else {
+            console.warn(chalk.yellow('rejectCall'), 'No sender found for call:', callId);
+          }
+        } catch (error) {
+          console.error(chalk.red('rejectCall'), 'Failed to send call queue updates:', error.message, 'callId:', callId);
+          // Don't return false here as the core rejection logic succeeded
+        }
+      }
+
+      console.log(chalk.green('rejectCall'), 'Successfully rejected call:', callId, 'from socket:', socketId);
+      return true;
+
+    } catch (error) {
+      console.error(chalk.red('rejectCall'), 'Unexpected error occurred:', error.message, 'callId:', callId, 'socketId:', socketId);
+      console.error(chalk.red('rejectCall'), 'Stack trace:', error.stack);
+      return false;
     }
   }
 

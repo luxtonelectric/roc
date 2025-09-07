@@ -10,7 +10,7 @@
         v-for="tab in tabs" 
         :key="tab.id"
         @click="currentTab = tab.id"
-        :class="[
+        :class="tab.id === 'voice' ? voiceTabClasses : [
           'py-2 px-4 text-sm font-medium rounded-t-lg',
           currentTab === tab.id
             ? 'bg-white text-indigo-600 border-b-2 border-indigo-600'
@@ -18,6 +18,12 @@
         ]"
       >
         {{ tab.name }}
+        <span 
+          v-if="tab.id === 'voice' && queuedCallsCount > 0"
+          class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+        >
+          {{ queuedCallsCount }}
+        </span>
       </button>
     </div>
 
@@ -331,17 +337,68 @@
         </form>
       </div>
       <div v-show="currentTab === 'voice'" class="my-4">
-        <h1 class="text-3xl font-bold">Voice Calls</h1>
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+          <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
+            <h1 class="text-3xl font-bold text-gray-900">Voice Calls</h1>
+          </div>
+          
+          <div class="px-4 py-5 sm:p-6">
+            <!-- Phone Queues Section -->
+            <div v-for="(phone, key) in myPhones" :key="key" class="mb-6 last:mb-0">
+              <div v-if="phone.queue && phone.queue.length > 0">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                  {{ phone.name || key }}
+                  <span class="ml-2 text-sm text-gray-500">({{ phone.queue.length }} calls in queue)</span>
+                </h3>
+                <div class="space-y-3">
+                  <CallListItem
+                    v-for="call in phone.queue"
+                    :key="call.id"
+                    :callData="call"
+                    :socket="socket"
+                    @accept-call="acceptCall"
+                    @reject-call="rejectCall"
+                    @leave-call="leaveCall"
+                    class="bg-white shadow-sm rounded-md p-4 border border-gray-200"
+                  />
+                </div>
+              </div>
+            </div>
 
-        <div class="mb-5" v-for="(phone, key) in myPhones" :key="key">
-          <CallListItem v-for="call in phone.queue" :key="call.id" :callData="call" :socket="socket" @accept-call="acceptCall"
-            @reject-call="rejectCall" @leave-call="leaveCall"/>
-        </div>
+            <!-- Active Private Calls Section -->
+            <div v-if="Object.keys(gameState.privateCalls || {}).length > 0" class="mt-8">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Active Private Calls</h3>
+              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div 
+                  v-for="(call, key) in gameState.privateCalls" 
+                  :key="key"
+                  class="bg-gray-50 rounded-lg p-4"
+                >
+                  <h4 class="text-md font-medium text-gray-700 mb-2">{{ key }}</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="(user, userKey) in call"
+                      :key="userKey"
+                      @click="kickUserFromCall(user)"
+                      class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      {{ user }}
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <div v-for="(call, key) in gameState.privateCalls" :key="key">
-          <p class="text-xl">{{ key }}:</p>
-          <div v-for="(user, key) in call" :key="key">
-            <a class="button inline-block" @click="kickUserFromCall(user)">{{ user }}</a>
+            <!-- No Active Calls Message -->
+            <div 
+              v-if="!Object.keys(gameState.privateCalls || {}).length && !Object.values(myPhones).some(phone => phone.queue?.length)"
+              class="text-center py-8 text-gray-500"
+            >
+              No active calls or calls in queue
+            </div>
           </div>
         </div>
       </div>
@@ -368,135 +425,7 @@ export default {
     // Clean up socket listeners
     this.removeSocketListeners();
   },
-  
-  methods: {
-    async loadInitialData() {
-      if (!this.socket.connected) {
-        console.warn('Socket not connected, waiting for connection...');
-        return;
-      }
-      
-      try {
-        // Load admin state first
-        await this.refreshAdminData();
-        
-        // Load available simulations - this also gets voice channels from the server
-        await this.loadSimulations();
-      } catch (err) {
-        console.error('Error loading initial data:', err);
-      }
-    },
-    
-    setupSocketListeners() {
-      // Set up connection event handlers
-      this.socket.on('connect', () => {
-        console.log('Socket connected, loading initial data');
-        this.loadInitialData();
-      });
 
-      this.socket.on('disconnect', () => {
-        console.log('Socket disconnected');
-      });
-
-      // Set up admin status listener
-      this.socket.on('adminStatus', (msg) => {
-        console.log('Received admin status update');
-        this.gameState = msg;
-        const allPhones = msg.phones;
-        const myPhones = allPhones.filter((p) => typeof p.player !== 'undefined' && p.player.discordId === this.discordId);
-        // Remove phones that are no longer assigned to this user
-        Object.keys(this.myPhones).forEach(phoneId => {
-          if (!myPhones.find(mp => mp.id === phoneId)) {
-            // Clean up selected phone entries using this phone
-            Object.keys(this.selectedPhone).forEach(key => {
-              if (this.selectedPhone[key] === phoneId) {
-                delete this.selectedPhone[key];
-              }
-            });
-            delete this.myPhones[phoneId];
-          }
-        });
-        
-        // Update currently assigned phones
-        myPhones.forEach(mp => {
-          this.myPhones[mp.id] = mp;
-        });
-        // Ensure voice channels are loaded
-        if (!this.availableChannels.length) {
-          this.loadVoiceChannels();
-        }
-      });
-
-      this.socket.on('callQueueUpdate', (msg) => {
-        this.myPhones[msg.phoneId] = msg;
-      });
-    },
-    
-    removeSocketListeners() {
-      this.socket.off('connect');
-      this.socket.off('disconnect');
-      this.socket.off('adminStatus');
-      this.socket.off('voiceChannelsUpdate');
-      this.socket.off('callQueueUpdate');
-    },
-    
-    async loadSimulations() {
-      return new Promise((resolve, reject) => {
-        this.socket.emit('getAvailableSimulations', {}, (response) => {
-          if (response.success) {
-            console.log('Loaded available simulations:', response.simulations);
-            this.availableSimulations = response.simulations;
-            resolve(response.simulations);
-          } else {
-            console.error('Failed to get simulations:', response.error);
-            reject(new Error(response.error));
-          }
-        });
-      });
-    },
-    
-    async loadVoiceChannels() {
-      return new Promise((resolve, reject) => {
-        this.socket.emit('getAvailableVoiceChannels', {}, (response) => {
-          if (response.success && response.voiceChannels) {
-            console.log('Loaded available voice channels:', response.voiceChannels);
-            this.availableChannels = response.voiceChannels;
-            resolve(response.voiceChannels);
-          } else {
-            console.error('Failed to get voice channels:', response.error);
-            reject(new Error(response.error));
-          }
-        });
-      });
-    },
-
-
-
-  },
-  computed: {
-    hasVoiceChannels() {
-      return this.availableChannels && this.availableChannels.length > 0;
-    },
-    filteredPhones() {
-      if (!this.gameState?.phones) return [];
-      if (!this.phoneSearchQuery) return this.gameState.phones;
-      
-      const searchQuery = this.phoneSearchQuery.toLowerCase();
-      return this.gameState.phones.filter(phone => 
-        phone.name?.toLowerCase().includes(searchQuery)
-      );
-    }
-  },
-  
-  watch: {
-    availableChannels: {
-      handler(newChannels) {
-        console.log('Voice channels changed:', newChannels);
-      },
-      immediate: true
-    }
-  },
-  
   data() {
     return {
       phoneSearchQuery: '',
@@ -530,7 +459,61 @@ export default {
       }
     }
   },
+  computed: {
+    hasVoiceChannels() {
+      return this.availableChannels && this.availableChannels.length > 0;
+    },
+    filteredPhones() {
+      if (!this.gameState?.phones) return [];
+      if (!this.phoneSearchQuery) return this.gameState.phones;
+      
+      const searchQuery = this.phoneSearchQuery.toLowerCase();
+      return this.gameState.phones.filter(phone => 
+        phone.name?.toLowerCase().includes(searchQuery)
+      );
+    },
+    queuedCallsCount() {
+      return Object.values(this.myPhones).reduce((total, phone) => {
+        return total + (phone.queue?.length || 0);
+      }, 0);
+    },
+    voiceTabClasses() {
+      return {
+        'py-2 px-4 text-sm font-medium rounded-t-lg': true,
+        'text-gray-500 hover:text-gray-700 hover:border-gray-300': this.currentTab !== 'voice',
+        'bg-white text-indigo-600 border-b-2 border-indigo-600': this.currentTab === 'voice',
+        'animate-pulse bg-green-50': this.queuedCallsCount > 0 && this.currentTab !== 'voice'
+      };
+    }
+  },
+  
+  watch: {
+    availableChannels: {
+      handler(newChannels) {
+        console.log('Voice channels changed:', newChannels);
+      },
+      immediate: true
+    }
+  },
+  
   methods: {
+    async loadInitialData() {
+      if (!this.socket.connected) {
+        console.warn('Socket not connected, waiting for connection...');
+        return;
+      }
+      
+      // Load admin state first
+      await this.refreshAdminData();
+      
+      // Load available simulations and voice channels in parallel
+      await Promise.all([
+        this.loadSimulations(),
+        this.loadVoiceChannels()
+      ]).catch(err => {
+        console.error('Error loading initial data:', err);
+      });
+    },
     setupSocketListeners() {
       // Set up connection event handlers
       this.socket.on('connect', () => {
@@ -585,7 +568,17 @@ export default {
       });
 
       this.socket.on('callQueueUpdate', (msg) => {
-        this.myPhones[msg.phoneId] = msg;
+        console.log('Call queue update received:', msg);
+        if (this.myPhones[msg.phoneId]) {
+          // Update only the queue and preserve other phone properties
+          this.myPhones[msg.phoneId] = {
+            ...this.myPhones[msg.phoneId],
+            queue: msg.queue || []
+          };
+        } else {
+          // If the phone doesn't exist yet, initialize it
+          this.myPhones[msg.phoneId] = msg;
+        }
       });
     },
 
@@ -595,24 +588,6 @@ export default {
       this.socket.off('adminStatus');
       this.socket.off('voiceChannelsUpdate');
       this.socket.off('callQueueUpdate');
-    },
-
-    async loadInitialData() {
-      if (!this.socket.connected) {
-        console.warn('Socket not connected, waiting for connection...');
-        return;
-      }
-      
-      // Load admin state first
-      await this.refreshAdminData();
-      
-      // Load available simulations and voice channels in parallel
-      await Promise.all([
-        this.loadSimulations(),
-        this.loadVoiceChannels()
-      ]).catch(err => {
-        console.error('Error loading initial data:', err);
-      });
     },
 
     async loadSimulations() {
@@ -838,10 +813,20 @@ export default {
       
 
     },
-    rejectCall(callId) {
-      this.incomingCall = false;
-      //this.muteRinger();
-      this.socket.emit('rejectCall', {id:callId})
+    async rejectCall(callId) {
+      console.log('Rejecting call:', callId);
+      return new Promise((resolve) => {
+        this.socket.emit('rejectCall', { id: callId }, (response) => {
+          console.log('Call rejection response:', response);
+          if (response?.success) {
+            this.incomingCall = false;
+            // The queue will be updated via callQueueUpdate event
+          } else {
+            console.error('Failed to reject call:', response?.error || 'Unknown error');
+          }
+          resolve(response);
+        });
+      });
     },
     leaveCall(callId) {
       this.socket.emit("leaveCall", {id:callId});
@@ -851,4 +836,29 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+@keyframes pulse {
+  0%, 100% {
+    background-color: rgb(240, 253, 244); /* green-50 */
+  }
+  50% {
+    background-color: rgb(220, 252, 231); /* green-100 */
+  }
+}
+
+@keyframes blink {
+  0% {
+    background-color: rgb(220, 252, 231); /* green-100 */
+  }
+  50% {
+    background-color: rgb(240, 253, 244); /* green-50 */
+  }
+  100% {
+    background-color: rgb(220, 252, 231); /* green-100 */
+  }
+}
+
+.animate-pulse {
+  animation: blink 500s infinite;
+}
+</style>

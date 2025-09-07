@@ -44,6 +44,11 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     }
   })
 
+  socket.on("releasePanel", function (msg) {
+    console.log(chalk.yellow('releasePanel'), msg);
+    gameManager.releasePanel(msg.player, msg.sim, msg.panel);
+  });
+
   socket.on("enableInterfaceGateway", function (msg) {
     console.log(chalk.yellow('enableInterfaceGateway'), msg)
     gameManager.enableInterfaceGateway(msg.simId);

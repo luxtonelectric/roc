@@ -154,7 +154,12 @@ onMounted(() => {
           callData.push(call);
           if (phoneData.value.some((phone) => phone.id === call.sender.id)) {
             // This is a call from a phone that we have in our inventory
-            currentCall.value = call;
+            if(call.type === "REC") {
+              nextCall.value = call;
+              acceptCall();
+            } else {
+              currentCall.value = call;
+            }
 
           } else {
             // This is an incoming call, we need to ring the phone

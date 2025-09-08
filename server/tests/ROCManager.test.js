@@ -89,6 +89,19 @@ class MockServer {
   // Add minimum required properties to satisfy TS
 }
 
+// @ts-ignore  
+class MockSimulationLoader {
+  loadSimulation() { return null; }
+  getSimulationMetadata() { return null; }
+  getAvailableSimulations() { return Promise.resolve([]); }
+}
+
+// @ts-ignore
+class MockConfigurationManager {
+  saveConfig() { return Promise.resolve(); }
+  loadConfig() { return Promise.resolve({}); }
+}
+
 describe('ROCManager.releasePanel', () => {
   let rocManager;
   let mockSocket;
@@ -201,5 +214,343 @@ describe('ROCManager.releasePanel', () => {
 
     // Verify player info is updated
     expect(rocManager.updatePlayerInfo).toHaveBeenCalledWith(rocManager.players['test-user']);
+  });
+});
+
+describe('ROCManager Host Integration', () => {
+  let rocManager;
+  let mockPhoneManager;
+  let mockBot;
+  let mockStompManager;
+  let mockSimulationLoader;
+  let mockConfigurationManager;
+  let mockIo;
+  
+  beforeEach(() => {
+    mockPhoneManager = new MockPhoneManager();
+    mockBot = new MockDiscordBot();
+    mockStompManager = new MockSTOMPManager();
+    mockSimulationLoader = new MockSimulationLoader();
+    mockConfigurationManager = new MockConfigurationManager();
+    mockIo = { emit: jest.fn(), to: jest.fn().mockReturnValue({ emit: jest.fn() }) };
+    
+    rocManager = new ROCManager(
+      mockIo,
+      mockBot,
+      mockPhoneManager,
+      mockStompManager,
+      mockSimulationLoader,
+      mockConfigurationManager
+    );
+  });
+  
+  test('load method creates Host instances from config', () => {
+    const config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: [
+        {
+          sim: 'test-sim',
+          host: 'localhost',
+          channel: 'test-channel',
+          enabled: true,
+          interfaceGateway: { port: 8080, enabled: false }
+        }
+      ]
+    };
+    
+    rocManager.load(config);
+    
+    expect(rocManager.hosts).toHaveLength(1);
+    expect(rocManager.hosts[0].sim).toBe('test-sim');
+    expect(rocManager.hosts[0].host).toBe('localhost');
+    expect(rocManager.hosts[0].channel).toBe('test-channel');
+    expect(rocManager.hosts[0].enabled).toBe(true);
+    expect(rocManager.hosts[0].interfaceGateway.port).toBe(8080);
+    expect(rocManager.hosts[0].interfaceGateway.enabled).toBe(false);
+  });
+  
+  test('getHostById returns correct host', () => {
+    const config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: [
+        {
+          sim: 'test-sim-1',
+          host: 'localhost',
+          channel: 'test-channel',
+          enabled: true,
+          interfaceGateway: { port: 8080, enabled: false }
+        },
+        {
+          sim: 'test-sim-2',
+          host: 'localhost',
+          channel: 'test-channel-2',
+          enabled: true,
+          interfaceGateway: { port: 8081, enabled: false }
+        }
+      ]
+    };
+    
+    rocManager.load(config);
+    
+    const host = rocManager.getHostById('test-sim-2');
+    expect(host).toBeDefined();
+    expect(host.sim).toBe('test-sim-2');
+    expect(host.channel).toBe('test-channel-2');
+    expect(host.interfaceGateway.port).toBe(8081);
+  });
+  
+  test('getHostState returns client objects', () => {
+    const config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: [
+        {
+          sim: 'test-sim',
+          host: 'localhost',
+          channel: 'test-channel',
+          enabled: true,
+          interfaceGateway: { port: 8080, enabled: false }
+        }
+      ]
+    };
+    
+    rocManager.load(config);
+    
+    const hostState = rocManager.getHostState();
+    expect(hostState).toHaveLength(1);
+    expect(hostState[0].sim).toBe('test-sim');
+    expect(hostState[0].host).toBe('localhost');
+    expect(hostState[0].channel).toBe('test-channel');
+    expect(hostState[0].enabled).toBe(true);
+    expect(hostState[0].interfaceGateway.port).toBe(8080);
+    expect(hostState[0].interfaceGateway.enabled).toBe(false);
+  });
+});
+
+describe('ROCManager.addHost', () => {
+  let rocManager;
+  let mockPhoneManager;
+  let mockBot;
+  let mockStompManager;
+  let mockSimulationLoader;
+  let mockConfigurationManager;
+  let mockIo;
+  
+  beforeEach(() => {
+    mockPhoneManager = new MockPhoneManager();
+    mockBot = new MockDiscordBot();
+    mockStompManager = new MockSTOMPManager();
+    mockSimulationLoader = new MockSimulationLoader();
+    mockConfigurationManager = new MockConfigurationManager();
+    mockIo = { emit: jest.fn(), to: jest.fn().mockReturnValue({ emit: jest.fn() }) };
+    
+    rocManager = new ROCManager(
+      mockIo,
+      mockBot,
+      mockPhoneManager,
+      mockStompManager,
+      mockSimulationLoader,
+      mockConfigurationManager
+    );
+    
+    // Initialize with a basic config to avoid null reference errors
+    rocManager.config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: []
+    };
+    
+    // Mock simulation loading to return a valid simulation
+    jest.spyOn(rocManager, 'getSimData').mockImplementation(() => ({
+      id: 'test-sim',
+      name: 'Test Simulation',
+      panels: []
+    }));
+    
+    // Mock other methods to avoid side effects
+    jest.spyOn(rocManager, 'activateGame').mockImplementation(jest.fn());
+    jest.spyOn(rocManager, 'saveConfig').mockResolvedValue();
+    jest.spyOn(rocManager, 'sendGameUpdateToPlayers').mockImplementation(jest.fn());
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should add a single host successfully', async () => {
+    // Setup: Empty hosts array
+    rocManager.hosts = [];
+    
+    const hostConfig = {
+      sim: 'kingsx',
+      host: 'localhost',
+      port: 8080,
+      channel: 'kingsx-channel',
+      enabled: true,
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+    
+    // Execute
+    await rocManager.addHost(hostConfig);
+    
+    // Verify
+    expect(rocManager.hosts).toHaveLength(1);
+    expect(rocManager.hosts[0].sim).toBe('kingsx');
+    expect(rocManager.saveConfig).toHaveBeenCalled();
+    expect(rocManager.activateGame).toHaveBeenCalled();
+  });
+
+  test('should reject adding a second host with the same simulation ID', async () => {
+    // Setup: Add first host
+    rocManager.hosts = [];
+    
+    const firstHostConfig = {
+      sim: 'kingsx',
+      host: 'host1.example.com',
+      port: 8080,
+      channel: 'kingsx-channel-1',
+      enabled: true,
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+    
+    const secondHostConfig = {
+      sim: 'kingsx',  // Same simulation ID
+      host: 'host2.example.com',
+      port: 8081,
+      channel: 'kingsx-channel-2',
+      enabled: true,
+      interfaceGateway: { port: 51516, enabled: false }
+    };
+    
+    // Add first host successfully
+    await rocManager.addHost(firstHostConfig);
+    expect(rocManager.hosts).toHaveLength(1);
+    
+    // Try to add second host with same sim ID
+    // Current implementation doesn't check for duplicates, so it will succeed
+    // But it SHOULD fail - this test will currently fail and should pass after fix
+    let errorThrown = false;
+    try {
+      await rocManager.addHost(secondHostConfig);
+    } catch (error) {
+      errorThrown = true;
+      expect(error.message).toMatch(/simulation.*already.*exists|duplicate.*simulation|only.*one.*host.*per.*simulation/i);
+    }
+    
+    // The current implementation will allow both hosts, but it shouldn't
+    // This assertion tests the constraint: only one host per simulation should exist
+    if (!errorThrown) {
+      // If no error was thrown, then the implementation is broken 
+      // because it allowed duplicate simulation IDs
+      expect(rocManager.hosts.filter(h => h.sim === 'kingsx')).toHaveLength(1);
+    }
+    
+    // This assertion will fail with current implementation and demonstrate the bug
+    expect(rocManager.hosts).toHaveLength(1);
+  });
+
+  test('should allow adding hosts with different simulation IDs', async () => {
+    // Setup: Empty hosts array
+    rocManager.hosts = [];
+    
+    const kingsxConfig = {
+      sim: 'kingsx',
+      host: 'host1.example.com',
+      port: 8080,
+      channel: 'kingsx-channel',
+      enabled: true,
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+    
+    const bristolConfig = {
+      sim: 'bristol',  // Different simulation ID
+      host: 'host2.example.com',
+      port: 8081,
+      channel: 'bristol-channel',
+      enabled: true,
+      interfaceGateway: { port: 51516, enabled: false }
+    };
+    
+    // Add both hosts
+    await rocManager.addHost(kingsxConfig);
+    await rocManager.addHost(bristolConfig);
+    
+    // Verify both were added
+    expect(rocManager.hosts).toHaveLength(2);
+    expect(rocManager.hosts.find(h => h.sim === 'kingsx')).toBeDefined();
+    expect(rocManager.hosts.find(h => h.sim === 'bristol')).toBeDefined();
+  });
+
+  test('should create new host as disabled by default', async () => {
+    // Setup: Empty hosts array
+    rocManager.hosts = [];
+    
+    const hostConfig = {
+      sim: 'kingsx',
+      host: 'localhost',
+      port: 8080,
+      channel: 'kingsx-channel',
+      enabled: true, // Even if enabled is set to true in config
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+    
+    // Execute
+    await rocManager.addHost(hostConfig);
+    
+    // Verify host was added but is disabled
+    expect(rocManager.hosts).toHaveLength(1);
+    const addedHost = rocManager.hosts[0];
+    expect(addedHost.sim).toBe('kingsx');
+    
+    // This is the key assertion: new hosts should be disabled by default
+    expect(addedHost.enabled).toBe(false);
+  });
+
+  test('should detect existing host with same sim ID in current configuration', async () => {
+    // Setup: Pre-load configuration with existing host
+    const config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: [{
+        sim: 'kingsx',
+        host: 'existing-host.example.com',
+        port: 8080,
+        channel: 'existing-channel',
+        enabled: false,
+        interfaceGateway: { port: 51515, enabled: false }
+      }]
+    };
+    
+    rocManager.load(config);
+    expect(rocManager.hosts).toHaveLength(1);
+    
+    // Try to add another host with same sim ID
+    const conflictingHostConfig = {
+      sim: 'kingsx',  // Same as existing
+      host: 'new-host.example.com',
+      port: 8081,
+      channel: 'new-channel',
+      enabled: true,
+      interfaceGateway: { port: 51516, enabled: false }
+    };
+    
+    // Current implementation will allow this, but it shouldn't
+    let errorThrown = false;
+    try {
+      await rocManager.addHost(conflictingHostConfig);
+    } catch (error) {
+      errorThrown = true;
+      expect(error.message).toMatch(/simulation.*already.*exists|duplicate.*simulation|only.*one.*host.*per.*simulation/i);
+    }
+    
+    // The key constraint: should not have more than one host with same sim ID
+    const kingsxHosts = rocManager.hosts.filter(h => h.sim === 'kingsx');
+    
+    // This assertion will fail with current implementation - it should only be 1
+    expect(kingsxHosts).toHaveLength(1);
+    
+    if (!errorThrown) {
+      // If no error was thrown, verify the implementation is broken by allowing duplicates
+      // This will fail and show the current bug
+      expect(rocManager.hosts).toHaveLength(1); // Should still be 1, but will be 2
+      expect(rocManager.hosts[0].host).toBe('existing-host.example.com');
+    }
   });
 });

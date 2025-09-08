@@ -4,6 +4,57 @@
       <h1 class="text-6xl">ROC Administration Centre</h1>
     </div>
     
+    <!-- Error/Success Notification -->
+    <div 
+      v-if="notification.show" 
+      :class="[
+        'fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-300',
+        notification.type === 'error' ? 'bg-red-50 border-l-4 border-red-400' : 'bg-green-50 border-l-4 border-green-400'
+      ]"
+    >
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <!-- Error Icon -->
+          <svg v-if="notification.type === 'error'" class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+          <!-- Success Icon -->
+          <svg v-else class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p :class="[
+            'text-sm font-medium',
+            notification.type === 'error' ? 'text-red-800' : 'text-green-800'
+          ]">
+            {{ notification.title }}
+          </p>
+          <p :class="[
+            'mt-1 text-sm',
+            notification.type === 'error' ? 'text-red-700' : 'text-green-700'
+          ]">
+            {{ notification.message }}
+          </p>
+        </div>
+        <div class="ml-auto pl-3">
+          <button 
+            @click="hideNotification"
+            :class="[
+              'inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2',
+              notification.type === 'error' 
+                ? 'text-red-400 hover:bg-red-100 focus:ring-red-600' 
+                : 'text-green-400 hover:bg-green-100 focus:ring-green-600'
+            ]"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- Tab Navigation -->
     <div class="flex border-b border-gray-200 mb-4">
       <button 
@@ -62,7 +113,18 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Interface Gateway Port</label>
-                <input v-model="newHost.interfaceGateway.port" required type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"/>
+                <input 
+                  v-model="newHost.interfaceGateway.port" 
+                  required 
+                  type="number" 
+                  min="1" 
+                  max="65535" 
+                  step="1"
+                  pattern="[0-9]+"
+                  @input="validatePortInput"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="e.g., 51515"
+                />
               </div>
               <div class="flex justify-between">
                 <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -338,8 +400,17 @@
 
         <form @submit.prevent="createPhone">
           <input v-model="newPhone.name" id="newphone_name" type="text" placeholder="Name">
-          <input v-model="newPhone.number" id="newphone_number" type="text" title="" pattern="[0-9]+"
-            placeholder="Number">
+          <input 
+            v-model="newPhone.number" 
+            id="newphone_number" 
+            type="number" 
+            min="1" 
+            step="1"
+            pattern="[0-9]+" 
+            title="Phone number (numbers only)" 
+            placeholder="Number"
+            @input="validatePhoneNumberInput"
+          />
           <select v-model="newPhone.type" id="newphone_type">
             <option value="mobile">Mobile</option>
             <option value="fixed">Fixed</option>
@@ -453,6 +524,12 @@ export default {
       selectedPhone: {},
       availableSimulations: [],
       availableChannels: [],
+      notification: {
+        show: false,
+        type: 'error', // 'error' or 'success'
+        title: '',
+        message: ''
+      },
       newPhone: {
         name: "",
         number: "",
@@ -509,6 +586,32 @@ export default {
   },
   
   methods: {
+    showNotification(type, title, message) {
+      this.notification = {
+        show: true,
+        type: type, // 'error' or 'success'
+        title: title,
+        message: message
+      };
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        this.hideNotification();
+      }, 5000);
+    },
+
+    hideNotification() {
+      this.notification.show = false;
+    },
+
+    showError(title, message) {
+      this.showNotification('error', title, message);
+    },
+
+    showSuccess(title, message) {
+      this.showNotification('success', title, message);
+    },
+
     async loadInitialData() {
       if (!this.socket.connected) {
         console.warn('Socket not connected, waiting for connection...');
@@ -636,17 +739,19 @@ export default {
       if (this.formMode === 'add') {
         this.socket.emit("addHost", this.newHost, (response) => {
           if (response.success) {
+            this.showSuccess('Host Added', `Successfully added host for simulation '${this.newHost.sim}'`);
             this.resetForm();
           } else {
-            alert('Failed to add host: ' + response.error);
+            this.showError('Failed to Add Host', response.error);
           }
         });
       } else {
         this.socket.emit("updateHost", { ...this.newHost, originalSimId: this.selectedHostId }, (response) => {
           if (response.success) {
+            this.showSuccess('Host Updated', `Successfully updated host for simulation '${this.newHost.sim}'`);
             this.resetForm();
           } else {
-            alert('Failed to update host: ' + response.error);
+            this.showError('Failed to Update Host', response.error);
           }
         });
       }
@@ -680,8 +785,10 @@ export default {
     confirmDelete(host) {
       if (confirm(`Are you sure you want to delete the host for ${host.sim}?`)) {
         this.socket.emit("deleteHost", { simId: host.sim }, (response) => {
-          if (!response.success) {
-            alert('Failed to delete host: ' + response.error);
+          if (response.success) {
+            this.showSuccess('Host Deleted', `Successfully deleted host for simulation '${host.sim}'`);
+          } else {
+            this.showError('Failed to Delete Host', response.error);
           }
         });
       }
@@ -701,6 +808,47 @@ export default {
           enabled: true
         }
       };
+    },
+
+    validatePortInput(event) {
+      // Only allow numeric input for port fields
+      const value = event.target.value;
+      
+      // Remove any non-numeric characters
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      // Convert to number and validate range
+      const portNumber = parseInt(numericValue);
+      
+      if (numericValue !== value) {
+        // Update the input with cleaned value
+        event.target.value = numericValue;
+        this.newHost.interfaceGateway.port = portNumber || '';
+      } else if (portNumber) {
+        // Ensure the port is within valid range
+        if (portNumber < 1 || portNumber > 65535) {
+          // If outside range, reset to a valid port
+          if (portNumber > 65535) {
+            this.newHost.interfaceGateway.port = 65535;
+          } else if (portNumber < 1) {
+            this.newHost.interfaceGateway.port = 1;
+          }
+        }
+      }
+    },
+
+    validatePhoneNumberInput(event) {
+      // Only allow numeric input for phone number fields
+      const value = event.target.value;
+      
+      // Remove any non-numeric characters
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      if (numericValue !== value) {
+        // Update the input with cleaned value
+        event.target.value = numericValue;
+        this.newPhone.number = numericValue;
+      }
     },
     kickUserFromCall(user) {
       this.socket.emit("adminKickFromCall", { "user": user });

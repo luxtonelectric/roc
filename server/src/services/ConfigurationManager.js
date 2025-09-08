@@ -1,6 +1,7 @@
 // @ts-check
 import fs from 'fs';
 import chalk from 'chalk';
+import Host from '../model/host.js';
 
 /**
  * Service for managing application configuration
@@ -69,32 +70,31 @@ export default class ConfigurationManager {
 
   /**
    * Add a new game host to the configuration
-   * @param {object} hostConfig The host configuration to add
+   * @param {object|Host} hostConfig The host configuration to add
    * @param {object} currentConfig The current configuration object
    * @returns {object} The updated configuration
    * @throws {Error} If host configuration is invalid
    */
   addHost(hostConfig, currentConfig) {
-    // Validate host config
-    this.#validateHostConfig(hostConfig);
+    // Create Host instance if not already one
+    const host = hostConfig instanceof Host ? hostConfig : Host.fromConfig(hostConfig);
+    
+    // Validate the host configuration
+    host.validate();
     
     // Check for duplicate sim IDs
-    const existingHost = currentConfig.games.find(g => g.sim === hostConfig.sim);
+    const existingHost = currentConfig.games.find(g => g.sim === host.sim);
     if (existingHost) {
-      throw new Error(`Host with simulation ID '${hostConfig.sim}' already exists`);
+      throw new Error(`Host with simulation ID '${host.sim}' already exists`);
     }
 
     // Ensure interfaceGateway is disabled by default for new hosts
-    if (!hostConfig.interfaceGateway) {
-      hostConfig.interfaceGateway = { enabled: false };
-    } else {
-      hostConfig.interfaceGateway.enabled = false;
-    }
+    host.disableInterfaceGateway();
 
     // Create updated config
     const updatedConfig = {
       ...currentConfig,
-      games: [...currentConfig.games, hostConfig]
+      games: [...currentConfig.games, host.toConfig()]
     };
 
     return updatedConfig;
@@ -103,14 +103,17 @@ export default class ConfigurationManager {
   /**
    * Update an existing host in the configuration
    * @param {string} originalSimId The original simulation ID
-   * @param {object} newHostConfig The new host configuration
+   * @param {object|Host} newHostConfig The new host configuration
    * @param {object} currentConfig The current configuration object
    * @returns {object} The updated configuration
    * @throws {Error} If host is not found or configuration is invalid
    */
   updateHost(originalSimId, newHostConfig, currentConfig) {
+    // Create Host instance if not already one
+    const newHost = newHostConfig instanceof Host ? newHostConfig : Host.fromConfig(newHostConfig);
+    
     // Validate new host config
-    this.#validateHostConfig(newHostConfig);
+    newHost.validate();
 
     // Find existing host
     const existingHostIndex = currentConfig.games.findIndex(g => g.sim === originalSimId);
@@ -119,20 +122,22 @@ export default class ConfigurationManager {
     }
 
     // Check for duplicate sim IDs (if sim ID is changing)
-    if (newHostConfig.sim !== originalSimId) {
-      const duplicateHost = currentConfig.games.find(g => g.sim === newHostConfig.sim);
+    if (newHost.sim !== originalSimId) {
+      const duplicateHost = currentConfig.games.find(g => g.sim === newHost.sim);
       if (duplicateHost) {
-        throw new Error(`Host with simulation ID '${newHostConfig.sim}' already exists`);
+        throw new Error(`Host with simulation ID '${newHost.sim}' already exists`);
       }
     }
 
-    // Preserve interface gateway enabled state
-    const existingHost = currentConfig.games[existingHostIndex];
-    newHostConfig.interfaceGateway.enabled = existingHost.interfaceGateway.enabled;
+    // Preserve interface gateway enabled state and connection info
+    const existingHost = Host.fromConfig(currentConfig.games[existingHostIndex]);
+    newHost.interfaceGateway.enabled = existingHost.interfaceGateway.enabled;
+    newHost.interfaceGateway.connectionState = existingHost.interfaceGateway.connectionState;
+    newHost.interfaceGateway.errorMessage = existingHost.interfaceGateway.errorMessage;
 
     // Create updated config
     const updatedGames = [...currentConfig.games];
-    updatedGames[existingHostIndex] = newHostConfig;
+    updatedGames[existingHostIndex] = newHost.toConfig();
 
     const updatedConfig = {
       ...currentConfig,
@@ -178,12 +183,19 @@ export default class ConfigurationManager {
       throw new Error(`Host with simulation ID '${simId}' not found`);
     }
 
+    // Create Host instance from existing config
+    const existingHost = Host.fromConfig(currentConfig.games[hostIndex]);
+    
+    // Update enabled state
+    if (enabled) {
+      existingHost.enable();
+    } else {
+      existingHost.disable(); // This also disables interface gateway
+    }
+
     // Create updated config
     const updatedGames = [...currentConfig.games];
-    updatedGames[hostIndex] = {
-      ...updatedGames[hostIndex],
-      enabled: enabled
-    };
+    updatedGames[hostIndex] = existingHost.toConfig();
 
     const updatedConfig = {
       ...currentConfig,
@@ -210,7 +222,8 @@ export default class ConfigurationManager {
     // Validate each game host
     config.games.forEach((game, index) => {
       try {
-        this.#validateHostConfig(game);
+        const host = Host.fromConfig(game);
+        host.validate();
       } catch (error) {
         throw new Error(`Invalid host configuration at index ${index}: ${error.message}`);
       }
@@ -218,43 +231,80 @@ export default class ConfigurationManager {
   }
 
   /**
-   * Validate a host configuration
-   * @param {object} hostConfig The host configuration to validate
+   * Validate a host configuration using the Host class
+   * @param {object|Host} hostConfig The host configuration to validate
    * @throws {Error} If host configuration is invalid
    */
   #validateHostConfig(hostConfig) {
-    if (!hostConfig || typeof hostConfig !== 'object') {
-      throw new Error('Host configuration must be an object');
+    const host = hostConfig instanceof Host ? hostConfig : Host.fromConfig(hostConfig);
+    host.validate();
+  }
+
+  /**
+   * Get all hosts as Host class instances
+   * @param {object} config The configuration object
+   * @returns {Host[]} Array of Host instances
+   */
+  getHosts(config) {
+    if (!config || !Array.isArray(config.games)) {
+      return [];
+    }
+    
+    return config.games.map(game => Host.fromConfig(game));
+  }
+
+  /**
+   * Find a host by simulation ID
+   * @param {string} simId The simulation ID
+   * @param {object} config The configuration object
+   * @returns {Host|null} Host instance or null if not found
+   */
+  getHost(simId, config) {
+    if (!config || !Array.isArray(config.games)) {
+      return null;
+    }
+    
+    const hostConfig = config.games.find(g => g.sim === simId);
+    return hostConfig ? Host.fromConfig(hostConfig) : null;
+  }
+
+  /**
+   * Update interface gateway state for a host
+   * @param {string} simId The simulation ID
+   * @param {boolean} enabled Whether interface gateway should be enabled
+   * @param {string} connectionState Connection state
+   * @param {string} errorMessage Optional error message
+   * @param {object} currentConfig The current configuration object
+   * @returns {object} The updated configuration
+   * @throws {Error} If host is not found
+   */
+  updateInterfaceGatewayState(simId, enabled, connectionState = undefined, errorMessage = undefined, currentConfig) {
+    const hostIndex = currentConfig.games.findIndex(g => g.sim === simId);
+    if (hostIndex === -1) {
+      throw new Error(`Host with simulation ID '${simId}' not found`);
     }
 
-    // Required fields
-    const requiredFields = ['sim', 'host', 'channel'];
-    for (const field of requiredFields) {
-      if (!hostConfig[field] || typeof hostConfig[field] !== 'string') {
-        throw new Error(`Host configuration must have a valid '${field}' string field`);
-      }
+    // Create Host instance from existing config
+    const host = Host.fromConfig(currentConfig.games[hostIndex]);
+    
+    // Update interface gateway state
+    if (enabled) {
+      host.enableInterfaceGateway();
+    } else {
+      host.disableInterfaceGateway();
+    }
+    
+    if (connectionState !== undefined) {
+      host.updateInterfaceGatewayState(connectionState, errorMessage);
     }
 
-    // Validate interfaceGateway
-    if (!hostConfig.interfaceGateway || typeof hostConfig.interfaceGateway !== 'object') {
-      throw new Error('Host configuration must have an interfaceGateway object');
-    }
+    // Create updated config
+    const updatedGames = [...currentConfig.games];
+    updatedGames[hostIndex] = host.toConfig();
 
-    if (typeof hostConfig.interfaceGateway.port !== 'number' || hostConfig.interfaceGateway.port <= 0) {
-      throw new Error('interfaceGateway must have a valid port number');
-    }
-
-    if (typeof hostConfig.interfaceGateway.enabled !== 'boolean') {
-      throw new Error('interfaceGateway must have a boolean enabled field');
-    }
-
-    // Optional fields validation
-    if (hostConfig.enabled !== undefined && typeof hostConfig.enabled !== 'boolean') {
-      throw new Error('enabled field must be a boolean if provided');
-    }
-
-    if (hostConfig.port !== undefined && (typeof hostConfig.port !== 'number' || hostConfig.port <= 0)) {
-      throw new Error('port field must be a positive number if provided');
-    }
+    return {
+      ...currentConfig,
+      games: updatedGames
+    };
   }
 }

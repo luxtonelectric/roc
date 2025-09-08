@@ -1,5 +1,6 @@
 {
 	"name": "Victoria South Eastern",
+	"eras": ["thameslink"],
 	"panels": [
 		{
 			"id": "panel5",
@@ -37,7 +38,8 @@
 				},
 				{
 					"simId": "westhampstead",
-					"panelId": "panel1"
+					"panelId": "panel1",
+					"era": "thameslink"
 				}
 			]
 		},

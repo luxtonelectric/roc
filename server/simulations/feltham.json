@@ -1,9 +1,11 @@
 {
 	"name": "Feltham",
+	"eras": ["reading"],
 	"panels": [
 		{
 			"id": "reading",
 			"name": "Reading",
+			"era": "reading",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -15,6 +17,11 @@
 			"id": "wokingham",
 			"name": "Wokingham",
 			"neighbours": [
+				{
+					"simId": "reading",
+					"panelId": "reading",
+					"era": { "not": "reading" }
+				},
 				{
 					"simId": "feltham",
 					"panelId": "reading"

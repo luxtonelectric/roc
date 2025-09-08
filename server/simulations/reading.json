@@ -18,6 +18,10 @@
 					"panelId": "basingstoke"
 				},
 				{
+					"simId": "feltham",
+					"panelId": "wokingham"
+				},
+				{
 					"simId": "slough",
 					"panelId": "west"
 				}

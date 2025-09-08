@@ -1,9 +1,11 @@
 {
 	"name": "Walsall PSB",
+	"eras": ["2019"],
 	"panels": [
 		{
 			"id": "walsall2006",
-			"name": "Walsall (2006)",
+			"name": "Walsall PSB",
+			"era": { "not": "2019" },
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -26,6 +28,7 @@
 		{
 			"id": "bloxwich",
 			"name": "Bloxwich SB",
+			"era": { "not": "2019" },
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -40,6 +43,7 @@
 		{
 			"id": "hednesford",
 			"name": "Hednesford SB",
+			"era": { "not": "2019" },
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -54,6 +58,7 @@
 		{
 			"id": "brereton",
 			"name": "Brereton Sidings SB",
+			"era": { "not": "2019" },
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -63,7 +68,8 @@
 		},
 		{
 			"id": "walsall2019",
-			"name": "Walsall (2019)",
+			"name": "Walsall Workstation",
+			"era": "2019",
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -77,7 +83,8 @@
 		},
 		{
 			"id": "bescot",
-			"name": "Bescot",
+			"name": "Bescot Workstation",
+			"era": "2019",
 			"neighbours": [
 				{
 					"simId": "walsall",

@@ -1,5 +1,6 @@
 {
 	"name": "Marylebone",
+	"eras": ["oxfordline", "lul"],
 	"panels": [
 		{
 			"id": "south",
@@ -37,7 +38,8 @@
 				},
 				{
 					"simId": "eastwestrail",
-					"panelId": "claydonjn"
+					"panelId": "claydonjn",
+					"era": "oxfordline"
 				},
 				{
 					"simId": "marylebone",
@@ -45,13 +47,15 @@
 				},
 				{
 					"simId": "oxford",
-					"panelId": "oxford"
+					"panelId": "oxford",
+					"era": "oxfordline"
 				}
 			]
 		},
 		{
 			"id": "lul",
 			"name": "London Underground Metropolitan line",
+			"era": "lul",
 			"neighbours": [
 				{
 					"simId": "marylebone",

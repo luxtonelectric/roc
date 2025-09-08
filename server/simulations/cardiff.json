@@ -1,5 +1,6 @@
 {
 	"name": "Cardiff",
+	"eras": ["stfagans"],
 	"panels": [
 		{
 			"id": "east",
@@ -62,6 +63,7 @@
 		{
 			"id": "stfagans",
 			"name": "St Fagan's",
+			"era": "stfagans",
 			"neighbours": [
 				{
 					"simId": "cardiff",

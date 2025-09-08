@@ -1,5 +1,6 @@
 {
 	"name": "North Kent",
+	"eras": ["2017"],
 	"panels": [
 		{
 			"id": "northkent1",
@@ -33,7 +34,8 @@
 				},
 				{
 					"simId": "eastkent",
-					"panelId": "cuxton"
+					"panelId": "cuxton",
+					"era": {"not": "2017"}
 				}
 			]
 		}

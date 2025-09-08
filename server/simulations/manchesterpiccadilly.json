@@ -1,5 +1,6 @@
 {
 	"name": "Manchester Piccadilly",
+	"eras": ["1990"],
 	"panels": [
 		{
 			"id": "healdgreen",
@@ -66,6 +67,11 @@
 				{
 					"simId": "manchesternorth",
 					"panelId": "west"
+				},
+				{
+					"simId": "cheshirelines",
+					"panelId": "deansgatejn",
+					"era": "1990"
 				},
 				{
 					"simId": "huntscross",

@@ -1,5 +1,6 @@
 {
 	"name": "Birmingham New Street",
+	"eras": ["walsall2019"],
 	"panels": [
 		{
 			"id": "north",
@@ -23,11 +24,13 @@
 				},
 				{
 					"simId": "walsall",
-					"panelId": "walsall2006"
+					"panelId": "walsall2006",
+					"era": { "not": "walsall2019" }
 				},
 				{
 					"simId": "walsall",
-					"panelId": "bescot"
+					"panelId": "bescot",
+					"era": "walsall2019"
 				}
 			]
 		},

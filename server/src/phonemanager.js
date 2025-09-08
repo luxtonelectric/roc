@@ -101,7 +101,7 @@ export default class PhoneManager {
       if (neighbour.simId !== sim.id) {
         const px = this.getPhone(neighbour.simId + "_" + neighbour.panelId);
         if (!px) {
-          const neighbourSim = rocManager.getSimData(neighbour.simId);
+          const neighbourSim = rocManager.getSimData(neighbour.simId, []);
           this.generatePhoneForPanel(neighbourSim, neighbourSim.getPanel(neighbour.panelId));
         }
       }

@@ -3,7 +3,7 @@
 	"panels": [
 		{
 			"id": "rochester",
-			"name": "Rochester SB",
+			"name": "Rochester",
 			"neighbours": [
 				{
 					"simId": "northkent",

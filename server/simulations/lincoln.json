@@ -1,5 +1,6 @@
 {
 	"name": "Lincoln",
+	"eras": ["1981"],
 	"panels": [
 		{
 			"id": "south",
@@ -88,6 +89,20 @@
 			]
 		},
 		{
+			"id": "newark",
+			"name": "Newark Castle SB",
+			"neighbours": [
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				},
+				{
+					"simId": "trent",
+					"panelId": "eastnottingham"
+				}
+			]
+		},
+		{
 			"id": "langworth",
 			"name": "Langworth SB",
 			"neighbours": [
@@ -143,6 +158,30 @@
 				},
 				{
 					"simId": "lincoln",
+					"panelId": "barkstoneastjn"
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "ancaster",
+					"era": { "not": "1981" }
+				}
+			]
+		},
+		{
+			"id": "barkstoneastjn",
+			"name": "Barkston East Junction SB",
+			"era": "1981",
+			"neighbours": [
+				{
+					"simId": "lincoln",
+					"panelId": "allington"
+				},
+				{
+					"simId": "doncastersouth",
+					"panelId": "panel1s"
+				},
+				{
+					"simId": "lincoln",
 					"panelId": "ancaster"
 				}
 			]
@@ -153,7 +192,12 @@
 			"neighbours": [
 				{
 					"simId": "lincoln",
-					"panelId": "allington"
+					"panelId": "allington",
+					"era": { "not": "1981" }
+				},
+				{
+					"simId": "lincoln",
+					"panelId": "barkstoneastjn"
 				},
 				{
 					"simId": "lincoln",

@@ -1,6 +1,33 @@
 // @ts-check
 import ClockData from "./clockData.js";
 import Panel from "./panel.js";
+import Location from "./location.js"
+
+/**
+ * @typedef {string | {not: string}} EraSpecifier
+ */
+/**
+ * @typedef {Object} PanelData
+ * @property {string} name
+ * @property {string} id
+ * @property {EraSpecifier | undefined} era
+ * @property {Array<Location & { era?: EraSpecifier }>} neighbours
+ * @property {Array<string>} reportingLocations
+ */
+/**
+ * @typedef {Object} SimData
+ * @property {string} name
+ * @property {Array<string>} eras
+ * @property {Array<PanelData>} panels
+ */
+
+/**
+ * @param {Array<string>} activeEras
+ * @param {EraSpecifier | undefined} era
+ */
+function isEraActive(activeEras, era) {
+  return era === undefined ? true : typeof era === "string" ? activeEras.includes(era) : !activeEras.includes(era.not);
+}
 
 export default class Simulation {
   id;
@@ -22,20 +49,23 @@ export default class Simulation {
 
   /**
    * @param {string} simId
-   * @param {*} simData 
-   * @returns {Simulation} 
+   * @param {SimData} simData
+   * @param {Array<string>} activeEras
    */
-  static fromSimData(simId, simData) {
-    const sim = new Simulation();
-    sim.id = simId;
-    sim.name = simData.name;
+  constructor(simId, simData, activeEras) {
+    this.id = simId;
+    this.name = simData.name;
     simData.panels.forEach(panelData => {
-      sim.panels.push(Panel.fromSimData(panelData));
+      if (!isEraActive(activeEras, panelData.era)) return;
+      panelData.neighbours = panelData.neighbours.filter((link) => 
+        isEraActive(activeEras, link.era) && isEraActive(activeEras, simData.panels.find(p => p.id === link.panelId)?.era)
+		  );
+
+      this.panels.push(Panel.fromSimData(panelData));
       for (const loc of panelData.reportingLocations ?? []) {
-        sim.locationToPanelMap.set(loc, panelData.id)
+        this.locationToPanelMap.set(loc, panelData.id)
       }
     });
-    return sim;
   }
 
   /**

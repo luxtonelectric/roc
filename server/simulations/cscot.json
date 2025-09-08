@@ -1,5 +1,6 @@
 {
 	"name": "Central Scotland",
+	"eras": ["sak", "egip"],
 	"panels": [
 		{
 			"id": "duty1",
@@ -47,11 +48,35 @@
 				},
 				{
 					"simId": "cscot",
-					"panelId": "dutyce"
+					"panelId": "dutycw"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutyce",
+					"era": "egip"
 				},
 				{
 					"simId": "cscot",
 					"panelId": "dutyp"
+				}
+			]
+		},
+		{
+			"id": "dutycw",
+			"name": "Carmuirs West Junction",
+			"era": { "not": "egip" },
+			"neighbours": [
+				{
+					"simId": "cscot",
+					"panelId": "dutygj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutylj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutyce"
 				}
 			]
 		},
@@ -61,33 +86,25 @@
 			"neighbours": [
 				{
 					"simId": "cscot",
-					"panelId": "dutygj"
+					"panelId": "dutygj",
+					"era": "egip"
 				},
 				{
 					"simId": "cscot",
-					"panelId": "dutyln"
+					"panelId": "dutycw"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutylj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutyln",
+					"era": "egip"
 				},
 				{
 					"simId": "cscot",
 					"panelId": "dutygh"
-				}
-			]
-		},
-		{
-			"id": "dutyln",
-			"name": "Larbert North",
-			"neighbours": [
-				{
-					"simId": "cscot",
-					"panelId": "dutyce"
-				},
-				{
-					"simId": "cscot",
-					"panelId": "dutysm1"
-				},
-				{
-					"simId": "cscot",
-					"panelId": "dutysm2"
 				}
 			]
 		},
@@ -138,8 +155,52 @@
 			]
 		},
 		{
-			"id": "dutysm1",
-			"name": "Stirling Middle - South End",
+			"id": "dutylj",
+			"name": "Larbert Junction",
+			"era": { "not": "egip" },
+			"neighbours": [
+				{
+					"simId": "cscot",
+					"panelId": "dutycw"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutyce"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutyln"
+				}
+			]
+		},
+		{
+			"id": "dutyln",
+			"name": "Larbert North",
+			"neighbours": [
+				{
+					"simId": "cscot",
+					"panelId": "dutyce",
+					"era": "egip"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutylj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutypj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutysm1",
+					"era": "egip"
+				}
+			]
+		},
+		{
+			"id": "dutypj",
+			"name": "Plean Junction",
+			"era": { "not": "egip" },
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -147,11 +208,26 @@
 				},
 				{
 					"simId": "cscot",
-					"panelId": "dutysn"
+					"panelId": "dutysm1"
+				}
+			]
+		},
+		{
+			"id": "dutysm1",
+			"name": "Stirling Middle - South End",
+			"neighbours": [
+				{
+					"simId": "cscot",
+					"panelId": "dutyln",
+					"era": "egip"
 				},
 				{
-					"simId": "edinburgh",
-					"panelId": "panel5"
+					"simId": "cscot",
+					"panelId": "dutypj"
+				},
+				{
+					"simId": "cscot",
+					"panelId": "dutysn"
 				},
 				{
 					"simId": "cscot",
@@ -162,10 +238,11 @@
 		{
 			"id": "dutysm2",
 			"name": "Stirling Middle - Kincardine Lines",
+			"era": "sak",
 			"neighbours": [
 				{
 					"simId": "cscot",
-					"panelId": "dutyln"
+					"panelId": "dutysm1"
 				},
 				{
 					"simId": "cscot",
@@ -174,10 +251,6 @@
 				{
 					"simId": "edinburgh",
 					"panelId": "panel5"
-				},
-				{
-					"simId": "cscot",
-					"panelId": "dutysm1"
 				}
 			]
 		},

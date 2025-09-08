@@ -39,23 +39,16 @@ export default class CallManager {
    * @returns {CallRequest[]}
    */
   getCallQueueForPhone(phone) {
-    // Get valid calls that exist in our arrays to prevent ghost calls
-    const validCallIds = new Set([
-      ...this.requestedCalls.map(c => c.id),
-      ...this.ongoingCalls.map(c => c.id),
-      ...this.pastCalls.map(c => c.id)
-    ]);
+    const requestedCalls = this.requestedCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)));
+    const ongoingCalls = this.ongoingCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)));
+    const pastCalls = this.pastCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)));
+    
+    // Get current calls (requested + ongoing)
+    const toNowCalls = requestedCalls.concat(ongoingCalls);
 
-    const requestedCalls = this.requestedCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
-    const ongoingCalls = this.ongoingCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
-    const pastCalls = this.pastCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)) && validCallIds.has(c.id));
-    const toNowCalls = requestedCalls.concat(ongoingCalls)
-
-    const lastCall = pastCalls.pop();
-
-    if (typeof lastCall !== 'undefined') {
-      toNowCalls.push(lastCall);
-    }
+    // Add last 10 past calls
+    const last10PastCalls = pastCalls.slice(-10);
+    toNowCalls.push(...last10PastCalls);
 
     return toNowCalls;
   }
@@ -115,6 +108,12 @@ export default class CallManager {
         return false
       }
     } else if (callType === CallRequest.TYPES.REC) {
+      // REC calls must be EMERGENCY level only
+      if (callLevel !== CallRequest.LEVELS.EMERGENCY) {
+        console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to place REC call with non-EMERGENCY level:"), callLevel);
+        return false;
+      }
+      
       const recPhones = this.phoneManager.getRECRecipientsForPhone(sendingPhone);
       if (recPhones.length > 0) {
         console.log(chalk.magenta('RECPHONES'), typeof recPhones, Array.isArray(recPhones), recPhones);
@@ -462,6 +461,11 @@ export default class CallManager {
           this.io.to(call.getReceiver().getDiscordId()).emit("kickedFromCall", { "success": true });
         } else {
           this.io.to(call.sender.getDiscordId()).emit("kickedFromCall", { "success": true });
+        }
+
+        // Release the channel reservation
+        if (call.channel) {
+          this.bot.releasePrivateCallChannelReservation(call.channel);
         }
 
         call.status = CallRequest.STATUS.ENDED;

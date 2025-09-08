@@ -74,7 +74,7 @@ export default {
       if (this.currentCall && this.currentCall.status === 'offered' && this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
         this.$emit("rejectCall", this.currentCall.id);
       } else if (this.currentCall && this.currentCall.status === 'accepted') {
-        this.$emit("leaveCall", this.currentCall.Id);
+        this.$emit("leaveCall", this.currentCall.id);
       } else if (this.preparedCall) {
         this.$emit("placeCall", this.preparedCall);
       } else if (this.nextCall && !this.currentCall) {

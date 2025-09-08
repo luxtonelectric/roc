@@ -178,6 +178,17 @@ onMounted(() => {
     });
   });
 
+  socket.on("kickedFromCall", function(msg) {
+    console.log('Kicked from call:', msg);
+    // Handle being kicked from call - end current call
+    if (currentCall.value) {
+      currentCall.value = null;
+      preparedCall.value = null;
+      // Stop any audio
+      callAudio.pause();
+    }
+  });
+
   socket.on('disconnect', function (reason) {
     error.value = `You have been disconnected from ROC. (${reason})`;
     connected.value = false;

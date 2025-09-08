@@ -4,6 +4,7 @@
 		{
 			"id": "station",
 			"name": "Station",
+			"code": "GGS",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -14,6 +15,7 @@
 		{
 			"id": "bridgestreet",
 			"name": "Bridge Street",
+			"code": "GGB",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -36,6 +38,7 @@
 		{
 			"id": "polmadie",
 			"name": "Polmadie",
+			"code": "GGP",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -66,6 +69,7 @@
 		{
 			"id": "muirhouse",
 			"name": "Muirhouse",
+			"code": "GGM",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -88,6 +92,7 @@
 		{
 			"id": "shields",
 			"name": "Shields",
+			"code": "GGS",
 			"neighbours": [
 				{
 					"simId": "glasgow",

@@ -4,6 +4,7 @@
 		{
 			"id": "penzance",
 			"name": "Penzance",
+			"code": "CNP",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -14,6 +15,7 @@
 		{
 			"id": "sterth",
 			"name": "St. Erth",
+			"code": "CNE",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -28,6 +30,7 @@
 		{
 			"id": "roskearjn",
 			"name": "Roskear Jn",
+			"code": "CNR",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -42,6 +45,7 @@
 		{
 			"id": "truro",
 			"name": "Truro",
+			"code": "CNT",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -56,6 +60,7 @@
 		{
 			"id": "par",
 			"name": "Par",
+			"code": "CNA",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -74,6 +79,7 @@
 		{
 			"id": "stblazey",
 			"name": "St. Blazey",
+			"code": "CNB",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -88,6 +94,7 @@
 		{
 			"id": "goonbarrowjn",
 			"name": "Goonbarrow Jn",
+			"code": "CNG",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -98,6 +105,7 @@
 		{
 			"id": "lostwithiel",
 			"name": "Lostwithiel",
+			"code": "CNW",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -112,6 +120,7 @@
 		{
 			"id": "liskeard",
 			"name": "Liskeard",
+			"code": "CNK",
 			"neighbours": [
 				{
 					"simId": "cornwall",

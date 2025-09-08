@@ -4,6 +4,7 @@
 		{
 			"id": "huddersfield",
 			"name": "Huddersfield",
+			"code": "HUH",
 			"neighbours": [
 				{
 					"simId": "huddersfield",
@@ -22,6 +23,7 @@
 		{
 			"id": "digglejn",
 			"name": "Diggle Jn",
+			"code": "HUD",
 			"neighbours": [
 				{
 					"simId": "huddersfield",

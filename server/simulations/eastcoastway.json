@@ -4,6 +4,7 @@
 		{
 			"id": "lewes",
 			"name": "Lewes",
+			"code": "ECL",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -26,6 +27,7 @@
 		{
 			"id": "newhaventown",
 			"name": "Newhaven Town",
+			"code": "ECNT",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -40,6 +42,7 @@
 		{
 			"id": "newhavenharbour",
 			"name": "Newhaven Harbour",
+			"code": "ECNH",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -50,6 +53,7 @@
 		{
 			"id": "berwick",
 			"name": "Berwick",
+			"code": "ECB",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -64,6 +68,7 @@
 		{
 			"id": "polegate",
 			"name": "Polegate",
+			"code": "ECP",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -78,6 +83,7 @@
 		{
 			"id": "hampdenpark",
 			"name": "Hampden Park",
+			"code": "ECH",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -96,6 +102,7 @@
 		{
 			"id": "eastbourne",
 			"name": "Eastbourne",
+			"code": "ECE",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -106,6 +113,7 @@
 		{
 			"id": "pevenseywestham",
 			"name": "Pevensey & Westham",
+			"code": "ECW",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",
@@ -120,6 +128,7 @@
 		{
 			"id": "bexhill",
 			"name": "Bexhill",
+			"code": "ECX",
 			"neighbours": [
 				{
 					"simId": "eastcoastway",

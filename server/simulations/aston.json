@@ -4,6 +4,7 @@
 		{
 			"id": "aston",
 			"name": "Aston",
+			"code": "AST",
 			"neighbours": [
 				{
 					"simId": "newstreet",
@@ -18,6 +19,7 @@
 		{
 			"id": "lichfieldtv",
 			"name": "Lichfield T.V.",
+			"code": "LTV",
 			"neighbours": [
 				{
 					"simId": "aston",
@@ -36,6 +38,7 @@
 		{
 			"id": "alrewas",
 			"name": "Alrewas",
+			"code": "ALR",
 			"neighbours": [
 				{
 					"simId": "aston",

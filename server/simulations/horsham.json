@@ -4,6 +4,7 @@
 		{
 			"id": "horsham",
 			"name": "Horsham",
+			"code": "HOH",
 			"neighbours": [
 				{
 					"simId": "horsham",
@@ -22,6 +23,7 @@
 		{
 			"id": "dorking",
 			"name": "Dorking",
+			"code": "HOD",
 			"neighbours": [
 				{
 					"simId": "wimbledon",

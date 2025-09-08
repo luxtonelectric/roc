@@ -4,6 +4,7 @@
 		{
 			"id": "huntscross",
 			"name": "Hunts Cross",
+			"code": "HCH",
 			"neighbours": [
 				{
 					"simId": "sandhills",
@@ -22,6 +23,7 @@
 		{
 			"id": "warringtoncentral",
 			"name": "Warrington Central",
+			"code": "HCW",
 			"neighbours": [
 				{
 					"simId": "huntscross",
@@ -36,6 +38,7 @@
 		{
 			"id": "glazebrookeastjn",
 			"name": "Glazebrook East Jn",
+			"code": "HCG",
 			"neighbours": [
 				{
 					"simId": "huntscross",

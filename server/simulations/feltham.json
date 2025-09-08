@@ -4,6 +4,7 @@
 		{
 			"id": "reading",
 			"name": "Reading",
+			"code": "FHR",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -14,6 +15,7 @@
 		{
 			"id": "wokingham",
 			"name": "Wokingham",
+			"code": "FHW",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -32,6 +34,7 @@
 		{
 			"id": "ascot",
 			"name": "Ascot",
+			"code": "FHA",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -54,6 +57,7 @@
 		{
 			"id": "staines",
 			"name": "Staines",
+			"code": "FHS",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -68,6 +72,7 @@
 		{
 			"id": "hounslow",
 			"name": "Hounslow",
+			"code": "FHH",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -90,6 +95,7 @@
 		{
 			"id": "twickenham",
 			"name": "Twickenham",
+			"code": "FHT",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -108,6 +114,7 @@
 		{
 			"id": "strawberryhill",
 			"name": "Strawberry Hill",
+			"code": "FHR",
 			"neighbours": [
 				{
 					"simId": "feltham",
@@ -122,6 +129,7 @@
 		{
 			"id": "barnes",
 			"name": "Barnes",
+			"code": "FHB",
 			"neighbours": [
 				{
 					"simId": "feltham",

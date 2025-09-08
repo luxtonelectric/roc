@@ -4,6 +4,7 @@
 		{
 			"id": "stratford",
 			"name": "Stratford Workstation",
+			"code": "GES",
 			"neighbours": [
 				{
 					"simId": "livst",
@@ -30,6 +31,7 @@
 		{
 			"id": "ilford",
 			"name": "Ilford Workstation",
+			"code": "GEI",
 			"neighbours": [
 				{
 					"simId": "gemlsouth",

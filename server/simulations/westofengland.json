@@ -4,6 +4,7 @@
 		{
 			"id": "honiton",
 			"name": "Honiton SB",
+			"code": "BWH",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -18,6 +19,7 @@
 		{
 			"id": "chardjn",
 			"name": "Chard Jn SB",
+			"code": "BWC",
 			"neighbours": [
 				{
 					"simId": "westofengland",
@@ -32,6 +34,7 @@
 		{
 			"id": "yeoviljn",
 			"name": "Yeovil Jn SB",
+			"code": "BWY",
 			"neighbours": [
 				{
 					"simId": "westofengland",
@@ -50,6 +53,7 @@
 		{
 			"id": "yeovilpenmill",
 			"name": "Yeovil Pen Mill SB",
+			"code": "BWP",
 			"neighbours": [
 				{
 					"simId": "westbury",
@@ -64,6 +68,7 @@
 		{
 			"id": "templecombe",
 			"name": "Templecombe SB",
+			"code": "BWT",
 			"neighbours": [
 				{
 					"simId": "westofengland",
@@ -78,6 +83,7 @@
 		{
 			"id": "gillingham",
 			"name": "Gillingham SB",
+			"code": "BWG",
 			"neighbours": [
 				{
 					"simId": "westofengland",

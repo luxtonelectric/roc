@@ -4,6 +4,7 @@
 		{
 			"id": "goole",
 			"name": "Goole SB",
+			"code": "HLG",
 			"neighbours": [
 				{
 					"simId": "doncasternorth",
@@ -22,6 +23,7 @@
 		{
 			"id": "goolebridge",
 			"name": "Goole Bridge SB",
+			"code": "HLB",
 			"neighbours": [
 				{
 					"simId": "hull",
@@ -36,6 +38,7 @@
 		{
 			"id": "selby",
 			"name": "Selby SB",
+			"code": "HLS",
 			"neighbours": [
 				{
 					"simId": "yorkns",
@@ -50,6 +53,7 @@
 		{
 			"id": "brough",
 			"name": "Brough Workstation",
+			"code": "HLB",
 			"neighbours": [
 				{
 					"simId": "hull",
@@ -68,6 +72,7 @@
 		{
 			"id": "hessleroad",
 			"name": "Hessle Road SB",
+			"code": "HLH",
 			"neighbours": [
 				{
 					"simId": "hull",
@@ -82,6 +87,7 @@
 		{
 			"id": "hullparagon",
 			"name": "Hull Paragon SB",
+			"code": "HLP",
 			"neighbours": [
 				{
 					"simId": "hull",

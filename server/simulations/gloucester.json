@@ -4,6 +4,7 @@
 		{
 			"id": "north",
 			"name": "North Panel",
+			"code": "GLN",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -26,6 +27,7 @@
 		{
 			"id": "central",
 			"name": "Central Panel",
+			"code": "GLC",
 			"neighbours": [
 				{
 					"simId": "gloucester",
@@ -40,6 +42,7 @@
 		{
 			"id": "south",
 			"name": "South Panel",
+			"code": "GLS",
 			"neighbours": [
 				{
 					"simId": "gloucester",

@@ -486,6 +486,19 @@
         <div class="bg-white shadow-sm rounded-lg overflow-hidden">
           <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
             <h1 class="text-3xl font-bold text-gray-900">Voice Calls</h1>
+            <!-- Current Call Status -->
+            <div class="mt-2">
+              <span 
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  inCall ? 'bg-green-100 text-green-800' : 
+                  incomingCall ? 'bg-yellow-100 text-yellow-800' : 
+                  'bg-gray-100 text-gray-600'
+                ]"
+              >
+                {{ currentCallStatus }}
+              </span>
+            </div>
           </div>
           
           <div class="px-4 py-5 sm:p-6">
@@ -613,7 +626,11 @@ export default {
           hasPassword: false
         }
       },
-      passwordConfirmation: ""
+      passwordConfirmation: "",
+      // Call state management
+      currentCall: null,
+      inCall: false,
+      incomingCall: false
     }
   },
   computed: {
@@ -641,6 +658,12 @@ export default {
         'bg-white text-indigo-600 border-b-2 border-indigo-600': this.currentTab === 'voice',
         'animate-pulse bg-green-50': this.queuedCallsCount > 0 && this.currentTab !== 'voice'
       };
+    },
+    currentCallStatus() {
+      if (!this.currentCall) return 'No active call';
+      if (this.inCall) return `In call: ${this.currentCall.sender.name} ↔ ${this.currentCall.receivers[0].name}`;
+      if (this.incomingCall) return `Incoming call: ${this.currentCall.sender.name} → ${this.currentCall.receivers[0].name}`;
+      return `Call status: ${this.currentCall.status}`;
     }
   },
   
@@ -762,6 +785,49 @@ export default {
           // If the phone doesn't exist yet, initialize it
           this.myPhones[msg.phoneId] = msg;
         }
+        
+        // Check if our current call was ended/rejected and update state accordingly
+        if (this.currentCall) {
+          let callStillExists = false;
+          const queue = msg.queue || [];
+          
+          for (const call of queue) {
+            if (call.id === this.currentCall.id) {
+              // Update current call status
+              this.currentCall = call;
+              
+              if (call.status === 'accepted') {
+                this.inCall = true;
+                this.incomingCall = false;
+              } else if (call.status === 'offered') {
+                this.inCall = false;
+                this.incomingCall = true;
+              }
+              
+              callStillExists = true;
+              break;
+            }
+          }
+          
+          // If our current call is no longer in the queue, it was ended/rejected
+          if (!callStillExists) {
+            console.log('Current call no longer in queue, clearing state');
+            this.currentCall = null;
+            this.inCall = false;
+            this.incomingCall = false;
+          }
+        }
+      });
+
+      // Handle being kicked from call
+      this.socket.on("kickedFromCall", (msg) => {
+        console.log('Admin kicked from call:', msg);
+        // End current call state
+        if (this.currentCall) {
+          this.currentCall = null;
+          this.inCall = false;
+          this.incomingCall = false;
+        }
       });
     },
 
@@ -771,6 +837,7 @@ export default {
       this.socket.off('adminStatus');
       this.socket.off('voiceChannelsUpdate');
       this.socket.off('callQueueUpdate');
+      this.socket.off('kickedFromCall');
     },
 
     async loadSimulations() {
@@ -1069,25 +1136,49 @@ export default {
       // }
     },
     acceptCall(callId) {
-      this.incomingCall = false;
-      //this.muteRinger();
-      const call = {id:callId}
-      //this.callData = this.myCalls.find(c => c.id === callId);
-      //this.myCalls = this.myCalls.filter(c => c.id !== callId);
+      console.log('Accepting call:', callId);
+      
+      // Find the call in the queue
+      let foundCall = null;
+      for (const phone of Object.values(this.myPhones)) {
+        if (phone.queue) {
+          foundCall = phone.queue.find(c => c.id === callId);
+          if (foundCall) break;
+        }
+      }
+      
+      if (!foundCall) {
+        console.error('Call not found in queue:', callId);
+        return;
+      }
+
+      const call = { id: callId };
       this.socket.emit('acceptCall', call, response => {
         console.log('acceptCall response', response);
+        if (response && response !== false) {
+          // Set current call state
+          this.currentCall = foundCall;
+          this.inCall = true;
+          this.incomingCall = false;
+          console.log('Call accepted successfully');
+        } else {
+          console.error('Failed to accept call');
+        }
       });
-      
-
     },
     async rejectCall(callId) {
       console.log('Rejecting call:', callId);
       return new Promise((resolve) => {
         this.socket.emit('rejectCall', { id: callId }, (response) => {
           console.log('Call rejection response:', response);
-          if (response?.success) {
+          if (response?.success || response === true) {
+            // Clear call state if we were rejecting our incoming call
+            if (this.currentCall && this.currentCall.id === callId) {
+              this.currentCall = null;
+            }
             this.incomingCall = false;
-            // The queue will be updated via callQueueUpdate event
+            this.inCall = false;
+            console.log('Call rejected successfully');
           } else {
             console.error('Failed to reject call:', response?.error || 'Unknown error');
           }
@@ -1096,8 +1187,18 @@ export default {
       });
     },
     leaveCall(callId) {
-      this.socket.emit("leaveCall", {id:callId});
+      console.log('Leaving call:', callId);
+      
+      this.socket.emit("leaveCall", { id: callId });
+      
+      // Clear call state
+      if (this.currentCall && this.currentCall.id === callId) {
+        this.currentCall = null;
+      }
       this.inCall = false;
+      this.incomingCall = false;
+      
+      console.log('Left call successfully');
     },
   }
 }

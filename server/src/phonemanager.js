@@ -61,15 +61,15 @@ export default class PhoneManager {
       // Skip if this panel already has a phone due to being a neighbor
       if (!excludePanelIds.has(panel.id)) {
         const phone = this.generatePhoneForPanel(sim, panel);
-        console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Added phone:'), chalk.white(phone.getId()));
+        //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Added phone:'), chalk.white(phone.getId()));
         panel.phone = phone;
       } else {
-        console.log(chalk.yellow('generatePhonesForSim'), chalk.blue('Skipped existing phone for panel:'), chalk.white(panel.id));
+        //console.log(chalk.yellow('generatePhonesForSim'), chalk.blue('Skipped existing phone for panel:'), chalk.white(panel.id));
       }
     });
 
     // Generate neighbor phones for all panels in this sim
-    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating neighbor phones for sim:'), chalk.white(sim.id));
+    //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating neighbor phones for sim:'), chalk.white(sim.id));
     sim.panels.forEach((panel) => {
       panel.neighbours.forEach((neighbour) => {
         // Skip if neighbor is in the same sim
@@ -98,8 +98,8 @@ export default class PhoneManager {
         
         // Only create a phone if it doesn't exist
         if (!existingPhone) {
-          console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Creating neighbor phone for:'), 
-            chalk.white(`${neighbourPanel.id} in ${neighbourSim.id}`));
+          //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Creating neighbor phone for:'), 
+          //  chalk.white(`${neighbourPanel.id} in ${neighbourSim.id}`));
           const phone = this.generatePhoneForPanel(neighbourSim, neighbourPanel);
           neighbourPanel.phone = phone;
         }
@@ -111,7 +111,7 @@ export default class PhoneManager {
     this.phones.push(new Phone(sim.id + "_control", sim.name + ' Control', Phone.TYPES.FIXED, new Location(sim.id)));
 
     this.sims.push(sim);
-    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Finished generating phones for sim:'), chalk.white(sim.id));
+    //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Finished generating phones for sim:'), chalk.white(sim.id));
     return sim.panels;
   }
 

@@ -56,7 +56,7 @@ export default class SimulationLoader {
     }
 
     try {
-      console.log(chalk.yellow('SimulationLoader'), chalk.green('Loading simulation from disk:'), chalk.white(simId));
+      //console.log(chalk.yellow('SimulationLoader'), chalk.green('Loading simulation from disk:'), chalk.white(simId));
       const simulation = Simulation.fromSimData(simId, simConfig);
       
       // Cache the loaded simulation

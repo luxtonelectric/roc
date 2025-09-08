@@ -1,5 +1,7 @@
 // @ts-check
 
+import EncryptionService from '../services/EncryptionService.js';
+
 /**
  * Interface Gateway configuration for a host
  */
@@ -12,18 +14,26 @@ class InterfaceGateway {
   connectionState;
   /** @type {string|undefined} */
   errorMessage;
+  /** @type {string|undefined} */
+  username;
+  /** @type {string|undefined} */
+  encryptedPassword;
 
   /**
    * @param {number} port The port number for the interface gateway
    * @param {boolean} enabled Whether the interface gateway is enabled
    * @param {string} connectionState Current connection state
    * @param {string} errorMessage Error message if connection failed
+   * @param {string} username Optional username for authentication
+   * @param {string} encryptedPassword Optional encrypted password for authentication
    */
-  constructor(port, enabled = false, connectionState = 'disconnected', errorMessage = undefined) {
+  constructor(port, enabled = false, connectionState = 'disconnected', errorMessage = undefined, username = undefined, encryptedPassword = undefined) {
     this.port = port;
     this.enabled = enabled;
     this.connectionState = connectionState;
     this.errorMessage = errorMessage;
+    this.username = username;
+    this.encryptedPassword = encryptedPassword;
   }
 
   /**
@@ -36,7 +46,9 @@ class InterfaceGateway {
       igConfig.port,
       igConfig.enabled || false,
       igConfig.connectionState || 'disconnected',
-      igConfig.errorMessage
+      igConfig.errorMessage,
+      igConfig.username,
+      igConfig.encryptedPassword
     );
   }
 
@@ -57,8 +69,51 @@ class InterfaceGateway {
     if (this.errorMessage !== undefined) {
       config.errorMessage = this.errorMessage;
     }
+
+    if (this.username !== undefined) {
+      config.username = this.username;
+    }
+
+    if (this.encryptedPassword !== undefined) {
+      config.encryptedPassword = this.encryptedPassword;
+    }
     
     return config;
+  }
+
+  /**
+   * Set authentication credentials (encrypts password automatically)
+   * @param {string} username Username for authentication
+   * @param {string} password Plain text password (will be encrypted)
+   */
+  setAuthentication(username, password) {
+    this.username = username;
+    this.encryptedPassword = password ? EncryptionService.encrypt(password) : undefined;
+  }
+
+  /**
+   * Get decrypted password for STOMP connection (server-side only)
+   * @returns {string|undefined} Decrypted password or undefined
+   */
+  getDecryptedPassword() {
+    if (!this.encryptedPassword) {
+      return undefined;
+    }
+    
+    try {
+      return EncryptionService.decrypt(this.encryptedPassword);
+    } catch (error) {
+      console.error('Failed to decrypt password:', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Check if authentication is configured
+   * @returns {boolean} True if both username and password are set
+   */
+  hasAuthentication() {
+    return !!(this.username && this.encryptedPassword);
   }
 }
 
@@ -70,30 +125,30 @@ export default class Host {
   sim;
   /** @type {string} */
   host;
+  /** @type {number} */
+  port;
   /** @type {string} */
   channel;
   /** @type {boolean} */
   enabled;
-  /** @type {number|undefined} */
-  port;
   /** @type {InterfaceGateway} */
   interfaceGateway;
 
   /**
    * @param {string} sim Simulation ID
    * @param {string} host Host URL/IP address
+   * @param {number} port Host port number
    * @param {string} channel Discord voice channel name
    * @param {InterfaceGateway} interfaceGateway Interface gateway configuration
    * @param {boolean} enabled Whether the host is enabled
-   * @param {number} port Optional host port number
    */
-  constructor(sim, host, channel, interfaceGateway, enabled = true, port = undefined) {
+  constructor(sim, host, port, channel, interfaceGateway, enabled = true) {
     this.sim = sim;
     this.host = host;
+    this.port = port;
     this.channel = channel;
     this.interfaceGateway = interfaceGateway;
     this.enabled = enabled;
-    this.port = port;
   }
 
   /**
@@ -115,6 +170,11 @@ export default class Host {
       }
     }
 
+    // Validate port (required)
+    if (config.port === undefined || config.port === null || typeof config.port !== 'number' || config.port <= 0 || config.port > 65535) {
+      throw new Error('Host configuration must have a valid port number (1-65535)');
+    }
+
     // Validate interfaceGateway
     if (!config.interfaceGateway || typeof config.interfaceGateway !== 'object') {
       throw new Error('Host configuration must have an interfaceGateway object');
@@ -126,10 +186,10 @@ export default class Host {
     return new Host(
       config.sim,
       config.host,
+      config.port,
       config.channel,
       interfaceGateway,
-      config.enabled !== undefined ? config.enabled : true,
-      config.port
+      config.enabled !== undefined ? config.enabled : true
     );
   }
 
@@ -138,19 +198,14 @@ export default class Host {
    * @returns {object}
    */
   toConfig() {
-    const config = {
+    return {
       sim: this.sim,
       host: this.host,
+      port: this.port,
       channel: this.channel,
       interfaceGateway: this.interfaceGateway.toConfig(),
       enabled: this.enabled
     };
-
-    if (this.port !== undefined) {
-      config.port = this.port;
-    }
-
-    return config;
   }
 
   /**
@@ -164,6 +219,11 @@ export default class Host {
       if (!this[field] || typeof this[field] !== 'string') {
         throw new Error(`Host configuration must have a valid '${field}' string field`);
       }
+    }
+
+    // Validate port (required)
+    if (typeof this.port !== 'number' || this.port <= 0 || this.port > 65535) {
+      throw new Error('Host port must be a valid port number (1-65535)');
     }
 
     // Validate interfaceGateway
@@ -182,10 +242,6 @@ export default class Host {
     // Validate optional fields
     if (this.enabled !== undefined && typeof this.enabled !== 'boolean') {
       throw new Error('Host enabled field must be a boolean if provided');
-    }
-
-    if (this.port !== undefined && (typeof this.port !== 'number' || this.port <= 0 || this.port > 65535)) {
-      throw new Error('Host port must be a valid port number (1-65535) if provided');
     }
   }
 
@@ -248,21 +304,30 @@ export default class Host {
 
   /**
    * Get a simple representation of the host for client updates
+   * SECURITY: Never includes encrypted passwords
    * @returns {object}
    */
   toClientObject() {
+    const igConfig = {
+      port: this.interfaceGateway.port,
+      enabled: this.interfaceGateway.enabled,
+      connectionState: this.interfaceGateway.connectionState,
+      errorMessage: this.interfaceGateway.errorMessage
+    };
+
+    // Include username if present, but never include password
+    if (this.interfaceGateway.username) {
+      igConfig.username = this.interfaceGateway.username;
+      igConfig.hasPassword = !!this.interfaceGateway.encryptedPassword;
+    }
+
     return {
       sim: this.sim,
       host: this.host,
+      port: this.port,
       channel: this.channel,
       enabled: this.enabled,
-      port: this.port,
-      interfaceGateway: {
-        port: this.interfaceGateway.port,
-        enabled: this.interfaceGateway.enabled,
-        connectionState: this.interfaceGateway.connectionState,
-        errorMessage: this.interfaceGateway.errorMessage
-      }
+      interfaceGateway: igConfig
     };
   }
 

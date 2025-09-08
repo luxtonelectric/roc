@@ -191,6 +191,7 @@ export default class ROCManager {
    * @param {object|null} preservedState Optional preserved state to restore
    */
   activateGame(host, preservedState = null) {
+    console.log(chalk.yellow('activateGame'), 'Activating game for', host.sim);
     // Convert to Host instance if needed
     const hostInstance = host instanceof Host ? host : Host.fromConfig(host);
     
@@ -206,7 +207,7 @@ export default class ROCManager {
     this.stompManager.createClientForGame(hostInstance.toConfig(), hostInstance.interfaceGateway.port);
     const sim = this.getSimData(hostInstance.sim, true) // true to load if not exists
     if (sim) {
-      console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(hostInstance.sim));
+      //console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(hostInstance.sim));
       
       // Generate phones for all panels in this sim (including neighbor phones)
       sim.panels = this.phoneManager.generatePhonesForSim(sim);
@@ -883,12 +884,26 @@ export default class ROCManager {
     // Create and validate the Host instance
     let newHost;
     try {
+      // Handle authentication if provided
+      if (hostConfig.interfaceGateway?.username && hostConfig.interfaceGateway?.password) {
+        // Create host first
+        newHost = Host.fromConfig(hostConfig);
+        // Set authentication (this will encrypt the password)
+        newHost.interfaceGateway.setAuthentication(
+          hostConfig.interfaceGateway.username,
+          hostConfig.interfaceGateway.password
+        );
+      } else {
+        // No authentication provided, create normally
+        newHost = Host.fromConfig(hostConfig);
+      }
+
       // Ensure interfaceGateway is disabled by default
       if (hostConfig.interfaceGateway) {
         hostConfig.interfaceGateway.enabled = false;
       }
+      newHost.interfaceGateway.enabled = false;
       
-      newHost = Host.fromConfig(hostConfig);
       // Force new hosts to be disabled by default for security and operational safety
       newHost.enabled = false;
       newHost.validate();

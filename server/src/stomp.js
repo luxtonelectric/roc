@@ -53,8 +53,20 @@ export default class STOMPManager {
 
       let clientConnectHeaders = new StompHeaders();
       clientConnectHeaders.ack = 'auto';
-      if(game.interfaceGateway.login) {
-        console.log(chalk.green('Using credential to login'), game.interfaceGateway.login)
+      
+      // Use new authentication from InterfaceGateway
+      if(game.interfaceGateway.hasAuthentication && game.interfaceGateway.hasAuthentication()) {
+        const username = game.interfaceGateway.username;
+        const password = game.interfaceGateway.getDecryptedPassword();
+        if (username && password) {
+          console.log(chalk.green('Using credentials to login as'), username);
+          clientConnectHeaders.login = username;
+          clientConnectHeaders.passcode = password;
+        }
+      } 
+      // Fallback to legacy authentication for backwards compatibility
+      else if(game.interfaceGateway.login) {
+        console.log(chalk.green('Using legacy credential to login'), game.interfaceGateway.login);
         clientConnectHeaders.login = game.interfaceGateway.login;
         clientConnectHeaders.passcode = game.interfaceGateway.password;
       }

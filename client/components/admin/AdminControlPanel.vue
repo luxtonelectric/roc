@@ -100,6 +100,19 @@
                 <input v-model="newHost.host" required type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., localhost or 192.168.1.100"/>
               </div>
               <div>
+                <label class="block text-sm font-medium text-gray-700">Host Port</label>
+                <input 
+                  v-model="newHost.port" 
+                  required 
+                  type="number" 
+                  min="1" 
+                  max="65535" 
+                  step="1"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="e.g., 51515"
+                />
+              </div>
+              <div>
                 <label class="block text-sm font-medium text-gray-700">Voice Channel</label>
                 <select v-model="newHost.channel" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                   <option value="">{{ hasVoiceChannels ? 'Select a voice channel' : 'Loading channels...' }}</option>
@@ -126,6 +139,47 @@
                   placeholder="e.g., 51515"
                 />
               </div>
+              <!-- Interface Gateway Authentication (Optional) -->
+              <div class="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Interface Gateway Authentication (Optional)</h3>
+                <div class="grid grid-cols-1 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input 
+                      v-model="newHost.interfaceGateway.username" 
+                      type="text" 
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      placeholder="Optional username for STOMP authentication"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input 
+                      v-model="newHost.interfaceGateway.password" 
+                      type="password" 
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      :placeholder="formMode === 'edit' && newHost.interfaceGateway.hasPassword ? 'Leave blank to keep existing password' : 'Optional password for STOMP authentication'"
+                    />
+                    <div v-if="formMode === 'edit' && newHost.interfaceGateway.hasPassword" class="mt-1 text-sm text-gray-500">
+                      Current password is set. Enter new password to change it, or leave blank to keep existing.
+                    </div>
+                  </div>
+                  <div v-if="newHost.interfaceGateway.password" class="grid grid-cols-1 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                      <input 
+                        v-model="passwordConfirmation" 
+                        type="password" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Confirm the password"
+                      />
+                      <div v-if="newHost.interfaceGateway.password && passwordConfirmation && newHost.interfaceGateway.password !== passwordConfirmation" class="mt-1 text-sm text-red-600">
+                        Passwords do not match
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="flex justify-between">
                 <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                   {{ formMode === 'add' ? 'Add Host' : 'Update Host' }}
@@ -142,16 +196,17 @@
             <table class="min-w-full table-auto">
               <thead>
                 <tr>
-                  <th colspan="4" class="px-4 py-2 border">Host</th>
+                  <th colspan="5" class="px-4 py-2 border">Host</th>
                   <th colspan="3" class="px-4 py-2 border">Interface Gateway</th>
                 </tr>
                 <tr>
                   <th class="px-4 py-2 border">Simulation</th>
                   <th class="px-4 py-2 border">URL/IP</th>
-                  <th class="px-4 py-2 border">Voice Chat Channel</th>
-                  <th class="px-4 py-2 border">Host State</th>
                   <th class="px-4 py-2 border">Port</th>
-                  <th class="px-4 py-2 border">Connected</th>
+                  <th class="px-4 py-2 border">Voice Channel</th>
+                  <th class="px-4 py-2 border">Host State</th>
+                  <th class="px-4 py-2 border">IG Port</th>
+                  <th class="px-4 py-2 border">Status</th>
                   <th class="px-4 py-2 border">Actions</th>
                 </tr>
               </thead>
@@ -159,6 +214,7 @@
                 <tr v-for="host in gameState.hostState" :key="host.sim">
                 <td>{{ host.sim }}</td>
                 <td>{{ host.host }}</td>
+                <td>{{ host.port || 'Not Set' }}</td>
                 <td>{{ host.channel }}</td>
                 <td>
                   <button 
@@ -188,6 +244,13 @@
                       ]"
                     >
                       {{ host.interfaceGateway.connectionState?.charAt(0).toUpperCase() + host.interfaceGateway.connectionState?.slice(1) || 'Unknown' }}
+                    </span>
+                    <span 
+                      v-if="host.interfaceGateway.username" 
+                      class="text-xs text-blue-600 mt-1"
+                      title="Authentication configured"
+                    >
+                      🔐 Auth: {{ host.interfaceGateway.username }}
                     </span>
                     <span 
                       v-if="host.interfaceGateway.errorMessage" 
@@ -540,12 +603,17 @@ export default {
       newHost: {
         sim: "",
         host: "",
+        port: "",
         channel: "",
         interfaceGateway: {
           port: 51515,
-          enabled: true
+          enabled: true,
+          username: "",
+          password: "",
+          hasPassword: false
         }
-      }
+      },
+      passwordConfirmation: ""
     }
   },
   computed: {
@@ -736,19 +804,44 @@ export default {
     },
 
     submitHostForm() {
+      // Validate passwords if provided
+      if (this.newHost.interfaceGateway.password) {
+        if (this.newHost.interfaceGateway.password !== this.passwordConfirmation) {
+          this.showError('Validation Error', 'Passwords do not match');
+          return;
+        }
+        if (this.newHost.interfaceGateway.password.length < 6) {
+          this.showError('Validation Error', 'Password must be at least 6 characters long');
+          return;
+        }
+      }
+
+      // Prepare host data
+      const hostData = { ...this.newHost };
+      
+      // Only include authentication if username is provided
+      if (!hostData.interfaceGateway.username) {
+        // Clear authentication fields if no username
+        delete hostData.interfaceGateway.username;
+        delete hostData.interfaceGateway.password;
+      } else if (!hostData.interfaceGateway.password && this.formMode === 'edit') {
+        // For edit mode, if no password provided, don't include it (keep existing)
+        delete hostData.interfaceGateway.password;
+      }
+
       if (this.formMode === 'add') {
-        this.socket.emit("addHost", this.newHost, (response) => {
+        this.socket.emit("addHost", hostData, (response) => {
           if (response.success) {
-            this.showSuccess('Host Added', `Successfully added host for simulation '${this.newHost.sim}'`);
+            this.showSuccess('Host Added', `Successfully added host for simulation '${hostData.sim}'`);
             this.resetForm();
           } else {
             this.showError('Failed to Add Host', response.error);
           }
         });
       } else {
-        this.socket.emit("updateHost", { ...this.newHost, originalSimId: this.selectedHostId }, (response) => {
+        this.socket.emit("updateHost", { ...hostData, originalSimId: this.selectedHostId }, (response) => {
           if (response.success) {
-            this.showSuccess('Host Updated', `Successfully updated host for simulation '${this.newHost.sim}'`);
+            this.showSuccess('Host Updated', `Successfully updated host for simulation '${hostData.sim}'`);
             this.resetForm();
           } else {
             this.showError('Failed to Update Host', response.error);
@@ -770,12 +863,17 @@ export default {
       this.newHost = {
         sim: host.sim,
         host: host.host,
+        port: host.port,
         channel: host.channel,
         interfaceGateway: {
           port: host.interfaceGateway.port,
-          enabled: host.interfaceGateway.enabled
+          enabled: host.interfaceGateway.enabled,
+          username: host.interfaceGateway.username || "",
+          password: "", // Never populate password field for security
+          hasPassword: host.interfaceGateway.hasPassword || false
         }
       };
+      this.passwordConfirmation = "";
     },
 
     cancelEdit() {
@@ -802,12 +900,17 @@ export default {
       this.newHost = {
         sim: "",
         host: "",
+        port: "",
         channel: "",
         interfaceGateway: {
           port: 51515,
-          enabled: true
+          enabled: true,
+          username: "",
+          password: "",
+          hasPassword: false
         }
       };
+      this.passwordConfirmation = "";
     },
 
     validatePortInput(event) {

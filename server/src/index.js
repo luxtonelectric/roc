@@ -21,6 +21,16 @@ import CallManager from './callManager.js';
 import TrainManager from './trainManager.js';
 import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
+import EncryptionService from './services/EncryptionService.js';
+
+// Initialize encryption service
+if (config.encryptionKey) {
+  EncryptionService.initialize(config.encryptionKey);
+  console.log(chalk.green('Encryption service initialized with configured key'));
+} else {
+  EncryptionService.initialize('');
+  console.error(chalk.yellow('Encryption service initialized with generated key - add encryptionKey to config.json for production'));
+}
 
 let httpServer;
 

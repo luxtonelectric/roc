@@ -251,6 +251,7 @@ describe('ROCManager Host Integration', () => {
         {
           sim: 'test-sim',
           host: 'localhost',
+          port: 8080,
           channel: 'test-channel',
           enabled: true,
           interfaceGateway: { port: 8080, enabled: false }
@@ -276,6 +277,7 @@ describe('ROCManager Host Integration', () => {
         {
           sim: 'test-sim-1',
           host: 'localhost',
+          port: 8080,
           channel: 'test-channel',
           enabled: true,
           interfaceGateway: { port: 8080, enabled: false }
@@ -283,6 +285,7 @@ describe('ROCManager Host Integration', () => {
         {
           sim: 'test-sim-2',
           host: 'localhost',
+          port: 8081,
           channel: 'test-channel-2',
           enabled: true,
           interfaceGateway: { port: 8081, enabled: false }
@@ -306,6 +309,7 @@ describe('ROCManager Host Integration', () => {
         {
           sim: 'test-sim',
           host: 'localhost',
+          port: 8080,
           channel: 'test-channel',
           enabled: true,
           interfaceGateway: { port: 8080, enabled: false }
@@ -552,5 +556,136 @@ describe('ROCManager.addHost', () => {
       expect(rocManager.hosts).toHaveLength(1); // Should still be 1, but will be 2
       expect(rocManager.hosts[0].host).toBe('existing-host.example.com');
     }
+  });
+
+  describe('authentication handling', () => {
+    test('should encrypt password when creating host with authentication', async () => {
+      rocManager.hosts = [];
+      
+      const hostConfig = {
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: false,
+          username: 'testuser',
+          password: 'plainpassword'
+        }
+      };
+      
+      await rocManager.addHost(hostConfig);
+      
+      const addedHost = rocManager.hosts[0];
+      expect(addedHost.interfaceGateway.hasAuthentication()).toBe(true);
+      expect(addedHost.interfaceGateway.username).toBe('testuser');
+      expect(addedHost.interfaceGateway.encryptedPassword).toBeDefined();
+      expect(addedHost.interfaceGateway.encryptedPassword).not.toBe('plainpassword');
+      expect(addedHost.interfaceGateway.encryptedPassword).toMatch(/^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/); // IV:encrypted format
+      expect(addedHost.interfaceGateway.getDecryptedPassword()).toBe('plainpassword');
+    });
+
+    test('should create host without authentication when no credentials provided', async () => {
+      rocManager.hosts = [];
+      
+      const hostConfig = {
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: false
+        }
+      };
+      
+      await rocManager.addHost(hostConfig);
+      
+      const addedHost = rocManager.hosts[0];
+      expect(addedHost.interfaceGateway.hasAuthentication()).toBe(false);
+      expect(addedHost.interfaceGateway.username).toBeUndefined();
+      expect(addedHost.interfaceGateway.encryptedPassword).toBeUndefined();
+    });
+
+    test('should create host without authentication when username provided but no password', async () => {
+      rocManager.hosts = [];
+      
+      const hostConfig = {
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: false,
+          username: 'testuser'
+          // No password provided
+        }
+      };
+      
+      await rocManager.addHost(hostConfig);
+      
+      const addedHost = rocManager.hosts[0];
+      expect(addedHost.interfaceGateway.hasAuthentication()).toBe(false);
+      expect(addedHost.interfaceGateway.username).toBe('testuser'); // Username is preserved from config
+      expect(addedHost.interfaceGateway.encryptedPassword).toBeUndefined(); // But no password
+    });
+
+    test('should create host without authentication when password provided but no username', async () => {
+      rocManager.hosts = [];
+      
+      const hostConfig = {
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: false,
+          password: 'plainpassword'
+          // No username provided
+        }
+      };
+      
+      await rocManager.addHost(hostConfig);
+      
+      const addedHost = rocManager.hosts[0];
+      expect(addedHost.interfaceGateway.hasAuthentication()).toBe(false);
+      expect(addedHost.interfaceGateway.username).toBeUndefined();
+      expect(addedHost.interfaceGateway.encryptedPassword).toBeUndefined();
+    });
+
+    test('should never include passwords in client object', async () => {
+      rocManager.hosts = [];
+      
+      const hostConfig = {
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: false,
+          username: 'testuser',
+          password: 'secretpassword'
+        }
+      };
+      
+      await rocManager.addHost(hostConfig);
+      
+      const addedHost = rocManager.hosts[0];
+      const clientObject = addedHost.toClientObject();
+      
+      expect(clientObject.interfaceGateway.username).toBe('testuser');
+      expect(clientObject.interfaceGateway.hasPassword).toBe(true);
+      expect(clientObject.interfaceGateway.password).toBeUndefined();
+      expect(clientObject.interfaceGateway.encryptedPassword).toBeUndefined();
+    });
   });
 });

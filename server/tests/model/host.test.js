@@ -79,6 +79,7 @@ describe('Host', () => {
   const createValidHostConfig = () => ({
     sim: 'test-sim',
     host: 'localhost',
+    port: 8080,
     channel: 'Test Channel',
     interfaceGateway: {
       port: 51515,
@@ -89,26 +90,26 @@ describe('Host', () => {
   describe('constructor', () => {
     test('creates Host with minimal required fields', () => {
       const ig = new InterfaceGateway(51515);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig);
       
       expect(host.sim).toBe('test-sim');
       expect(host.host).toBe('localhost');
+      expect(host.port).toBe(8080);
       expect(host.channel).toBe('Test Channel');
       expect(host.interfaceGateway).toBe(ig);
       expect(host.enabled).toBe(true);
-      expect(host.port).toBeUndefined();
     });
 
     test('creates Host with all fields', () => {
       const ig = new InterfaceGateway(51515, true);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig, false, 8080);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig, false);
       
       expect(host.sim).toBe('test-sim');
       expect(host.host).toBe('localhost');
+      expect(host.port).toBe(8080);
       expect(host.channel).toBe('Test Channel');
       expect(host.interfaceGateway).toBe(ig);
       expect(host.enabled).toBe(false);
-      expect(host.port).toBe(8080);
     });
   });
 
@@ -171,6 +172,7 @@ describe('Host', () => {
       const config = {
         sim: 'test-sim',
         host: 'localhost',
+        port: 8080,
         channel: 'Test Channel'
       };
       
@@ -195,6 +197,7 @@ describe('Host', () => {
       expect(outputConfig).toEqual({
         sim: 'test-sim',
         host: 'localhost',
+        port: 8080,
         channel: 'Test Channel',
         interfaceGateway: {
           port: 51515,
@@ -236,30 +239,30 @@ describe('Host', () => {
 
     test('throws error for missing sim field', () => {
       const ig = new InterfaceGateway(51515);
-      const host = new Host('', 'localhost', 'Test Channel', ig);
+      const host = new Host('', 'localhost', 8080, 'Test Channel', ig);
       
       expect(() => host.validate()).toThrow('Host configuration must have a valid \'sim\' string field');
     });
 
     test('throws error for invalid port range - too low', () => {
       const ig = new InterfaceGateway(0);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig);
       
       expect(() => host.validate()).toThrow('InterfaceGateway port must be a valid port number (1-65535)');
     });
 
     test('throws error for invalid port range - too high', () => {
       const ig = new InterfaceGateway(99999);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig);
       
       expect(() => host.validate()).toThrow('InterfaceGateway port must be a valid port number (1-65535)');
     });
 
     test('throws error for invalid host port range', () => {
       const ig = new InterfaceGateway(51515);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig, true, 70000);
+      const host = new Host('test-sim', 'localhost', 70000, 'Test Channel', ig);
       
-      expect(() => host.validate()).toThrow('Host port must be a valid port number (1-65535) if provided');
+      expect(() => host.validate()).toThrow('Host port must be a valid port number (1-65535)');
     });
   });
 
@@ -280,7 +283,7 @@ describe('Host', () => {
 
     test('returns false for invalid host configuration', () => {
       const ig = new InterfaceGateway(99999); // Invalid port
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig);
       
       expect(host.isActive()).toBe(false);
     });
@@ -500,15 +503,15 @@ describe('Host', () => {
   describe('edge cases and error handling', () => {
     test('handles undefined values gracefully in toConfig', () => {
       const ig = new InterfaceGateway(51515);
-      const host = new Host('test-sim', 'localhost', 'Test Channel', ig, true, undefined);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', ig);
       const config = host.toConfig();
       
-      expect(config.port).toBeUndefined();
-      expect(config).not.toHaveProperty('port');
+      expect(config.port).toBe(8080);
+      expect(config).toHaveProperty('port');
     });
 
     test('validates interface gateway type', () => {
-      const host = new Host('test-sim', 'localhost', 'Test Channel', null);
+      const host = new Host('test-sim', 'localhost', 8080, 'Test Channel', null);
       
       expect(() => host.validate()).toThrow('Host must have a valid InterfaceGateway instance');
     });
@@ -529,6 +532,7 @@ describe('Host', () => {
       const config = {
         sim: 'test-sim',
         host: 'localhost',
+        port: 8080,
         channel: 'Test Channel',
         interfaceGateway: {
           enabled: false
@@ -600,6 +604,117 @@ describe('Host', () => {
       // Ensure we can create another host from the serialized config
       const recreatedHost = Host.fromConfig(serializedConfig);
       expect(recreatedHost.isEquivalentTo(host)).toBe(true);
+    });
+  });
+
+  describe('authentication', () => {
+    test('InterfaceGateway should not have authentication by default', () => {
+      const ig = new InterfaceGateway(8080);
+      
+      expect(ig.hasAuthentication()).toBe(false);
+      expect(ig.username).toBeUndefined();
+      expect(ig.encryptedPassword).toBeUndefined();
+    });
+
+    test('setAuthentication should encrypt password and store username', () => {
+      const ig = new InterfaceGateway(8080);
+      
+      ig.setAuthentication('testuser', 'plainpassword');
+      
+      expect(ig.hasAuthentication()).toBe(true);
+      expect(ig.username).toBe('testuser');
+      expect(ig.encryptedPassword).toBeDefined();
+      expect(ig.encryptedPassword).not.toBe('plainpassword'); // Should be encrypted
+      expect(ig.encryptedPassword).toMatch(/^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/); // IV:encrypted format
+    });
+
+    test('getDecryptedPassword should return original password', () => {
+      const ig = new InterfaceGateway(8080);
+      const originalPassword = 'mySecretPassword123';
+      
+      ig.setAuthentication('testuser', originalPassword);
+      const decryptedPassword = ig.getDecryptedPassword();
+      
+      expect(decryptedPassword).toBe(originalPassword);
+    });
+
+    test('authentication can be cleared by setting to undefined', () => {
+      const ig = new InterfaceGateway(8080);
+      
+      ig.setAuthentication('testuser', 'password');
+      expect(ig.hasAuthentication()).toBe(true);
+      
+      ig.setAuthentication(undefined, undefined);
+      expect(ig.hasAuthentication()).toBe(false);
+      expect(ig.username).toBeUndefined();
+      expect(ig.encryptedPassword).toBeUndefined();
+    });
+
+    test('Host toClientObject should exclude password but include username', () => {
+      const host = new Host(
+        'test-sim',
+        'localhost', 
+        8080,
+        'test-channel',
+        new InterfaceGateway(55555)
+      );
+      
+      host.interfaceGateway.setAuthentication('testuser', 'secretpassword');
+      
+      const clientObj = host.toClientObject();
+      
+      expect(clientObj.interfaceGateway.username).toBe('testuser');
+      expect(clientObj.interfaceGateway.hasPassword).toBe(true);
+      expect(clientObj.interfaceGateway.encryptedPassword).toBeUndefined();
+      expect(clientObj.interfaceGateway.password).toBeUndefined();
+    });
+
+    test('toConfig should include encrypted password for persistence', () => {
+      const ig = new InterfaceGateway(8080);
+      ig.setAuthentication('testuser', 'secretpassword');
+      
+      const config = ig.toConfig();
+      
+      expect(config.username).toBe('testuser');
+      expect(config.encryptedPassword).toBeDefined();
+      expect(config.encryptedPassword).toMatch(/^[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/); // IV:encrypted format
+      expect(config.password).toBeUndefined(); // Plain password should never be in config
+    });
+
+    test('fromConfig should restore authentication from encrypted data', () => {
+      const ig1 = new InterfaceGateway(8080);
+      ig1.setAuthentication('testuser', 'mypassword');
+      
+      // Save to config and recreate
+      const config = ig1.toConfig();
+      const ig2 = InterfaceGateway.fromConfig(config);
+      
+      expect(ig2.hasAuthentication()).toBe(true);
+      expect(ig2.username).toBe('testuser');
+      expect(ig2.encryptedPassword).toBe(ig1.encryptedPassword);
+      expect(ig2.getDecryptedPassword()).toBe('mypassword');
+    });
+
+    test('Host authentication should be preserved through Host.fromConfig with encrypted password', () => {
+      // First create a host with authentication
+      const host1 = new Host(
+        'test-sim',
+        'localhost',
+        8080,
+        'test-channel',
+        new InterfaceGateway(55555)
+      );
+      host1.interfaceGateway.setAuthentication('hostuser', 'hostpassword');
+      
+      // Convert to config (this will include the encrypted password)
+      const config = host1.toConfig();
+      
+      // Create new host from config
+      const host2 = Host.fromConfig(config);
+      
+      expect(host2.interfaceGateway.hasAuthentication()).toBe(true);
+      expect(host2.interfaceGateway.username).toBe('hostuser');
+      expect(host2.interfaceGateway.getDecryptedPassword()).toBe('hostpassword');
     });
   });
 });

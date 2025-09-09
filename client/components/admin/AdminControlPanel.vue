@@ -648,7 +648,10 @@ export default {
     },
     queuedCallsCount() {
       return Object.values(this.myPhones).reduce((total, phone) => {
-        return total + (phone.queue?.length || 0);
+        if (!phone.queue) return total;
+        return total + phone.queue.filter(call => 
+          call.status === 'offered' || call.status === 'accepted'
+        ).length;
       }, 0);
     },
     voiceTabClasses() {

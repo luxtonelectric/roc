@@ -59,7 +59,7 @@ class InterfaceGateway {
   toConfig() {
     const config = {
       port: this.port,
-      enabled: this.enabled
+      enabled: false // Never persist enabled state - always start disabled on server restart
     };
     
     if (this.connectionState !== undefined) {

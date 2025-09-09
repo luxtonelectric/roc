@@ -10,8 +10,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import ROCManager from "./ROCManager.js";
 import DiscordBot from "./bot.js";
-// @ts-expect-error: with json is experimental
-import config from "./../config.json" with { type: "json" };
 
 import { rocSockets } from './sockets.js';
 import { adminSockets } from './adminSockets.js';
@@ -22,6 +20,10 @@ import TrainManager from './trainManager.js';
 import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
 import EncryptionService from './services/EncryptionService.js';
+
+// Initialize configuration manager and load config
+const configurationManager = new ConfigurationManager();
+const config = configurationManager.loadConfig();
 
 // Initialize encryption service
 if (config.encryptionKey) {
@@ -67,7 +69,6 @@ console.log(chalk.greenBright("Server started and listening on port", port));
 
 const discordBot = new DiscordBot(config.token, config.prefix, config.guild);
 const simulationLoader = new SimulationLoader();
-const configurationManager = new ConfigurationManager();
 const phoneManager = new PhoneManager(simulationLoader);
 const trainManager = new TrainManager();
 trainManager.setPhoneManager(phoneManager);
@@ -75,7 +76,7 @@ const stompManager = new STOMPManager();
 stompManager.setTrainManager (trainManager);
 const callManager = new CallManager(phoneManager,discordBot,io);
 const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, simulationLoader, configurationManager);
-rocManager.load(config);
+rocManager.load();
 
 await discordBot.setUpBot().then(() => {
   console.log("Configuring voice channels");

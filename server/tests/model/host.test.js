@@ -67,10 +67,24 @@ describe('InterfaceGateway', () => {
       
       expect(config).toEqual({
         port: 8888,
-        enabled: true,
+        enabled: false, // Always saved as false for server restart
         connectionState: 'connecting',
         errorMessage: 'Attempting connection'
       });
+    });
+
+    test('toConfig never persists enabled state for server restart consistency', () => {
+      // Test that even when IG is enabled, toConfig always saves as disabled
+      const enabledIG = new InterfaceGateway(9999, true, 'connected');
+      const config = enabledIG.toConfig();
+      
+      expect(config.enabled).toBe(false);
+      
+      // Test that disabled IG also saves as disabled (consistent behavior)
+      const disabledIG = new InterfaceGateway(9999, false, 'disconnected');
+      const config2 = disabledIG.toConfig();
+      
+      expect(config2.enabled).toBe(false);
     });
   });
 });
@@ -225,7 +239,16 @@ describe('Host', () => {
       const host = Host.fromConfig(config);
       const outputConfig = host.toConfig();
       
-      expect(outputConfig).toEqual(config);
+      // IG enabled state should always be saved as false
+      const expectedConfig = {
+        ...config,
+        interfaceGateway: {
+          ...config.interfaceGateway,
+          enabled: false
+        }
+      };
+      
+      expect(outputConfig).toEqual(expectedConfig);
     });
   });
 
@@ -599,11 +622,27 @@ describe('Host', () => {
       const host = Host.fromConfig(originalConfig);
       const serializedConfig = host.toConfig();
       
-      expect(serializedConfig).toEqual(originalConfig);
+      // Serialized config should have IG enabled set to false for server restart behavior
+      const expectedSerializedConfig = {
+        ...originalConfig,
+        interfaceGateway: {
+          ...originalConfig.interfaceGateway,
+          enabled: false
+        }
+      };
+      
+      expect(serializedConfig).toEqual(expectedSerializedConfig);
       
       // Ensure we can create another host from the serialized config
       const recreatedHost = Host.fromConfig(serializedConfig);
-      expect(recreatedHost.isEquivalentTo(host)).toBe(true);
+      // The recreated host will have IG disabled due to serialization behavior
+      expect(recreatedHost.sim).toBe(host.sim);
+      expect(recreatedHost.host).toBe(host.host);
+      expect(recreatedHost.port).toBe(host.port);
+      expect(recreatedHost.channel).toBe(host.channel);
+      expect(recreatedHost.enabled).toBe(host.enabled);
+      expect(recreatedHost.interfaceGateway.port).toBe(host.interfaceGateway.port);
+      expect(recreatedHost.interfaceGateway.enabled).toBe(false); // Always false after serialization
     });
   });
 

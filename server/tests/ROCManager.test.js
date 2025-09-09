@@ -72,9 +72,10 @@ class MockSTOMPManager {
   trainManager = null;
   
   setGameManager() {}
-  createClientForGame() { return true; }
+  createClientForHost() { return true; }
   activateClientForGame() { return true; }
   deactivateClientForGame() { return true; }
+  removeClientForGame() { return true; }
   setTrainManager() {}
 }
 
@@ -98,8 +99,12 @@ class MockSimulationLoader {
 
 // @ts-ignore
 class MockConfigurationManager {
+  #cachedConfig = null;
+  
   saveConfig() { return Promise.resolve(); }
   loadConfig() { return Promise.resolve({}); }
+  getCachedConfig() { return this.#cachedConfig; }
+  setCachedConfig(config) { this.#cachedConfig = config; }
 }
 
 describe('ROCManager.releasePanel', () => {
@@ -259,7 +264,8 @@ describe('ROCManager Host Integration', () => {
       ]
     };
     
-    rocManager.load(config);
+    mockConfigurationManager.setCachedConfig(config);
+    rocManager.load();
     
     expect(rocManager.hosts).toHaveLength(1);
     expect(rocManager.hosts[0].sim).toBe('test-sim');
@@ -268,6 +274,35 @@ describe('ROCManager Host Integration', () => {
     expect(rocManager.hosts[0].enabled).toBe(true);
     expect(rocManager.hosts[0].interfaceGateway.port).toBe(8080);
     expect(rocManager.hosts[0].interfaceGateway.enabled).toBe(false);
+  });
+
+  test('load method resets Interface Gateway enabled state on server restart', () => {
+    const config = {
+      channels: { lobby: 'test-lobby', afk: 'test-afk' },
+      games: [
+        {
+          sim: 'test-sim',
+          host: 'localhost',
+          port: 8080,
+          channel: 'test-channel',
+          enabled: true,
+          interfaceGateway: { 
+            port: 8080, 
+            enabled: true, // This should be reset to false
+            connectionState: 'connected',
+            errorMessage: 'Previous error'
+          }
+        }
+      ]
+    };
+    
+    mockConfigurationManager.setCachedConfig(config);
+    rocManager.load();
+    
+    expect(rocManager.hosts).toHaveLength(1);
+    expect(rocManager.hosts[0].interfaceGateway.enabled).toBe(false); // Always disabled on load
+    expect(rocManager.hosts[0].interfaceGateway.connectionState).toBe('disconnected'); // Reset state
+    expect(rocManager.hosts[0].interfaceGateway.errorMessage).toBeUndefined(); // Clear errors
   });
   
   test('getHostById returns correct host', () => {
@@ -293,7 +328,8 @@ describe('ROCManager Host Integration', () => {
       ]
     };
     
-    rocManager.load(config);
+    mockConfigurationManager.setCachedConfig(config);
+    rocManager.load();
     
     const host = rocManager.getHostById('test-sim-2');
     expect(host).toBeDefined();
@@ -317,7 +353,8 @@ describe('ROCManager Host Integration', () => {
       ]
     };
     
-    rocManager.load(config);
+    mockConfigurationManager.setCachedConfig(config);
+    rocManager.load();
     
     const hostState = rocManager.getHostState();
     expect(hostState).toHaveLength(1);
@@ -522,7 +559,8 @@ describe('ROCManager.addHost', () => {
       }]
     };
     
-    rocManager.load(config);
+    mockConfigurationManager.setCachedConfig(config);
+    rocManager.load();
     expect(rocManager.hosts).toHaveLength(1);
     
     // Try to add another host with same sim ID
@@ -686,6 +724,41 @@ describe('ROCManager.addHost', () => {
       expect(clientObject.interfaceGateway.hasPassword).toBe(true);
       expect(clientObject.interfaceGateway.password).toBeUndefined();
       expect(clientObject.interfaceGateway.encryptedPassword).toBeUndefined();
+    });
+  });
+
+  describe('Interface Gateway Management', () => {
+    test('disableInterfaceGateway removes client completely', () => {
+      // Setup: Add a host and enable IG
+      rocManager.hosts = [{
+        sim: 'test-sim',
+        host: 'localhost',
+        port: 8080,
+        channel: 'test-channel',
+        enabled: true,
+        interfaceGateway: {
+          port: 55555,
+          enabled: true,
+          connectionState: 'connected'
+        },
+        disableInterfaceGateway: jest.fn(),
+        toConfig: () => ({})
+      }];
+      
+      // Mock the STOMP manager methods
+      const mockRemoveClient = jest.fn();
+      rocManager.stompManager.removeClientForGame = mockRemoveClient;
+      rocManager.syncHostsWithConfig = jest.fn();
+      rocManager.updateAdminUI = jest.fn();
+      
+      // Call disableInterfaceGateway
+      rocManager.disableInterfaceGateway('test-sim');
+      
+      // Verify it calls removeClientForGame, not just deactivate
+      expect(mockRemoveClient).toHaveBeenCalledWith('test-sim');
+      expect(rocManager.hosts[0].disableInterfaceGateway).toHaveBeenCalled();
+      expect(rocManager.syncHostsWithConfig).toHaveBeenCalled();
+      expect(rocManager.updateAdminUI).toHaveBeenCalled();
     });
   });
 });

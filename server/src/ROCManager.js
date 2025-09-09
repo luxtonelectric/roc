@@ -50,17 +50,28 @@ export default class ROCManager {
   }
 
   /**
-   * 
-   * @param {*} config 
+   * Load configuration and initialize the game manager
    */
-  load(config) {
+  load() {
+    const config = this.configurationManager.getCachedConfig();
+    if (!config) {
+      throw new Error('Configuration not loaded. Ensure ConfigurationManager.loadConfig() is called first.');
+    }
+    
     this.channels = config.channels;
     this.config = config;
     this.stompManager.setGameManager(this);
     this.bot.setGameManager(this);
     
-    // Convert config games to Host instances
-    this.hosts = config.games.map(gameConfig => Host.fromConfig(gameConfig));
+    // Convert config games to Host instances and reset IG enabled state
+    this.hosts = config.games.map(gameConfig => {
+      const host = Host.fromConfig(gameConfig);
+      // Always start with IG disabled on server restart
+      host.interfaceGateway.enabled = false;
+      host.interfaceGateway.connectionState = 'disconnected';
+      host.interfaceGateway.errorMessage = undefined;
+      return host;
+    });
     
     // Only activate enabled games
     this.hosts.filter(host => host.enabled).forEach(host => { this.activateGame(host) }, this);
@@ -199,12 +210,12 @@ export default class ROCManager {
     const existingSim = this.sims.find(s => s.id === hostInstance.sim);
     if (existingSim) {
       // If sim already exists, just update the stomp client without recreating phones
-      this.stompManager.createClientForGame(hostInstance.toConfig(), hostInstance.interfaceGateway.port);
+      this.stompManager.createClientForHost(hostInstance);
       return;
     }
 
     // Load the simulation data since this is an enabled host
-    this.stompManager.createClientForGame(hostInstance.toConfig(), hostInstance.interfaceGateway.port);
+    this.stompManager.createClientForHost(hostInstance);
     const sim = this.getSimData(hostInstance.sim, true) // true to load if not exists
     if (sim) {
       //console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(hostInstance.sim));
@@ -268,7 +279,8 @@ export default class ROCManager {
         this.syncHostsWithConfig();
       }
       
-      this.stompManager.deactivateClientForGame(simId);
+      // Remove client completely instead of just deactivating
+      this.stompManager.removeClientForGame(simId);
       this.updateAdminUI();
     } catch (error) {
       console.error(chalk.red("Failed to disable Interface Gateway:"), error);

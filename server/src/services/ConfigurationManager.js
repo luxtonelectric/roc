@@ -1,6 +1,8 @@
 // @ts-check
 import fs from 'fs';
+import path from 'path';
 import chalk from 'chalk';
+import { fileURLToPath } from 'url';
 import Host from '../model/host.js';
 
 /**
@@ -16,8 +18,20 @@ export default class ConfigurationManager {
   /**
    * @param {string} configPath Path to the configuration file
    */
-  constructor(configPath = './config.json') {
-    this.#configPath = configPath;
+  constructor(configPath = null) {
+    if (!configPath) {
+      // Determine project root and set absolute path
+      const currentFileUrl = import.meta.url;
+      const currentFilePath = fileURLToPath(currentFileUrl);
+      const currentDir = path.dirname(currentFilePath);
+      // Navigate from src/services to server root
+      const serverRoot = path.resolve(currentDir, '..', '..');
+      this.#configPath = path.join(serverRoot, 'config.json');
+    } else {
+      this.#configPath = path.resolve(configPath);
+    }
+    
+    console.log(chalk.blue('ConfigurationManager'), 'Using config path:', this.#configPath);
   }
 
   /**
@@ -27,9 +41,17 @@ export default class ConfigurationManager {
    */
   loadConfig() {
     try {
+      if (!fs.existsSync(this.#configPath)) {
+        throw new Error(`Configuration file not found at ${this.#configPath}`);
+      }
+      
       const configData = fs.readFileSync(this.#configPath, 'utf8');
       this.#cachedConfig = JSON.parse(configData);
-      console.log(chalk.green('Configuration loaded successfully from'), this.#configPath);
+      
+      // Validate configuration structure on load
+      this.#validateConfig(this.#cachedConfig);
+      
+      console.log(chalk.green('Configuration loaded and validated successfully from'), this.#configPath);
       return this.#cachedConfig;
     } catch (error) {
       console.error(chalk.red('Error loading configuration:'), error);
@@ -46,6 +68,9 @@ export default class ConfigurationManager {
     try {
       // Validate config before saving
       this.#validateConfig(config);
+      
+      // Create backup of current config
+      await this.#createBackup();
       
       // Write to file with pretty formatting
       fs.writeFileSync(this.#configPath, JSON.stringify(config, null, 2), 'utf8');
@@ -66,6 +91,24 @@ export default class ConfigurationManager {
    */
   getCachedConfig() {
     return this.#cachedConfig;
+  }
+
+  /**
+   * Reload configuration from file
+   * @returns {object} The reloaded configuration
+   * @throws {Error} If configuration file cannot be read or parsed
+   */
+  reloadConfig() {
+    console.log(chalk.yellow('Reloading configuration from'), this.#configPath);
+    return this.loadConfig();
+  }
+
+  /**
+   * Check if configuration is loaded
+   * @returns {boolean} True if configuration is loaded
+   */
+  isConfigLoaded() {
+    return this.#cachedConfig !== null;
   }
 
   /**
@@ -215,8 +258,25 @@ export default class ConfigurationManager {
       throw new Error('Configuration must be an object');
     }
 
+    // Validate required top-level properties
+    const requiredProperties = ['games', 'server', 'token', 'prefix', 'guild'];
+    for (const prop of requiredProperties) {
+      if (!(prop in config)) {
+        throw new Error(`Configuration missing required property: ${prop}`);
+      }
+    }
+
     if (!Array.isArray(config.games)) {
-      throw new Error('Configuration must have a games array');
+      throw new Error('Configuration.games must be an array');
+    }
+
+    // Validate server configuration
+    if (!config.server || typeof config.server !== 'object') {
+      throw new Error('Configuration.server must be an object');
+    }
+    
+    if (typeof config.server.port !== 'number') {
+      throw new Error('Configuration.server.port must be a number');
     }
 
     // Validate each game host
@@ -228,6 +288,8 @@ export default class ConfigurationManager {
         throw new Error(`Invalid host configuration at index ${index}: ${error.message}`);
       }
     });
+
+    console.log(chalk.green('Configuration validation passed'));
   }
 
   /**
@@ -306,5 +368,64 @@ export default class ConfigurationManager {
       ...currentConfig,
       games: updatedGames
     };
+  }
+
+  /**
+   * Create a backup of the current configuration
+   */
+  async #createBackup() {
+    if (!fs.existsSync(this.#configPath)) {
+      return; // No config to backup
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupPath = `${this.#configPath}.backup.${timestamp}`;
+    
+    try {
+      fs.copyFileSync(this.#configPath, backupPath);
+      console.log(chalk.blue('Configuration backup created:'), backupPath);
+    } catch (error) {
+      console.warn(chalk.yellow('Warning: Could not create configuration backup:'), error.message);
+    }
+  }
+
+  /**
+   * Restore configuration from backup
+   * @param {string} backupPath Path to the backup file
+   * @throws {Error} If backup cannot be restored
+   */
+  async restoreFromBackup(backupPath) {
+    try {
+      if (!fs.existsSync(backupPath)) {
+        throw new Error(`Backup file not found at ${backupPath}`);
+      }
+
+      // Validate backup before restoring
+      const backupData = fs.readFileSync(backupPath, 'utf8');
+      const backupConfig = JSON.parse(backupData);
+      this.#validateConfig(backupConfig);
+
+      // Create backup of current config before restoring
+      await this.#createBackup();
+
+      // Restore from backup
+      fs.copyFileSync(backupPath, this.#configPath);
+      
+      // Reload configuration
+      this.loadConfig();
+      
+      console.log(chalk.green('Configuration restored successfully from backup:'), backupPath);
+    } catch (error) {
+      console.error(chalk.red('Error restoring configuration from backup:'), error);
+      throw new Error(`Failed to restore configuration from backup ${backupPath}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get the path to the configuration file
+   * @returns {string} The absolute path to the configuration file
+   */
+  getConfigPath() {
+    return this.#configPath;
   }
 }

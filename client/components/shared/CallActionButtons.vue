@@ -96,14 +96,32 @@ export default {
     allowEnd: {
       type: Boolean,
       default: false
+    },
+    myPhones: {
+      type: Object,
+      default: () => ({})
     }
   },
   emits: ['accept', 'reject', 'leave', 'end'],
   computed: {
     canAccept() {
       if (!this.allowAccept) return false
-      return this.call.status === PreparedCall.STATUS.OFFERED || 
-             this.call.status === CallDetails.STATUS.OFFERED
+      
+      // Check if call is in an acceptable state
+      const isOffered = this.call.status === PreparedCall.STATUS.OFFERED || 
+                        this.call.status === CallDetails.STATUS.OFFERED
+      
+      if (!isOffered) return false
+      
+      // Don't show accept button if current user is the sender (owns the sender phone)
+      if (this.call.sender && this.myPhones) {
+        const senderPhoneId = this.call.sender.id
+        if (this.myPhones[senderPhoneId]) {
+          return false
+        }
+      }
+      
+      return true
     },
     canReject() {
       if (!this.allowReject) return false

@@ -47,6 +47,7 @@
                 <CallActionButtons 
                   :call="call" 
                   :compact="true"
+                  :my-phones="myPhones"
                   @accept="$emit('acceptCall', call.id)"
                   @reject="$emit('rejectCall', call.id)"
                   @leave="$emit('leaveCall', call.id)"
@@ -87,6 +88,7 @@
             <CallActionButtons 
               :call="call" 
               :compact="false"
+              :my-phones="myPhones"
               @accept="$emit('acceptCall', call.id)"
               @reject="$emit('rejectCall', call.id)"
               @leave="$emit('leaveCall', call.id)"
@@ -185,6 +187,10 @@ export default {
     emptyMessage: {
       type: String,
       default: ''
+    },
+    myPhones: {
+      type: Object,
+      default: () => ({})
     }
   },
   emits: [

@@ -28,6 +28,7 @@
             :show-count="true"
             :show-actions="true"
             :show-empty="false"
+            :my-phones="myPhones"
             @accept-call="acceptCall"
             @reject-call="rejectCall"
             @leave-call="leaveCall"
@@ -45,6 +46,7 @@
             :show-count="false"
             :show-actions="true"
             :show-empty="false"
+            :my-phones="myPhones"
             @end-call="endCall"
           />
         </div>

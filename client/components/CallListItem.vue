@@ -1,12 +1,55 @@
 <template>
-  <div class="border-b-2 border-gray-400">
-    <a :class="[callData.status ==='offered' || callData.status ==='accepted' ? 'border-green-600 bg-green-500' : 'border-gray-600 bg-gray-500']" class="border rounded p-5 ml-2 mr-2 mb-2 text-white inline-block hover" @click="acceptCall(callData.id)" href="#">{{ callData.sender.name }} -> {{ callData.receivers[0].name }}</a>
-    <a v-if="callData.status ==='accepted'" class="border border-red-600 bg-red-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold" @click="leaveCall(callData.id)">LEAVE</a>
-    <a v-else-if="callData.status ==='offered'" class="border border-red-600 bg-red-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold" @click="rejectCall(callData.id)">REJECT</a>
-    <a v-else-if="callData.status ==='ended'" class="border border-gray-600 bg-gray-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold">-ENDED-</a>
-    <a v-else-if="callData.status ==='rejected'" class="border border-gray-600 bg-gray-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block font-bold">-REJECTED-</a>
-    <p class="border border-gray-800 bg-gray-500 rounded p-5 ml-2 mr-2 mb-2 text-white inline-block">{{new Date(callData.timePlaced).toLocaleString("en-GB", {hour: "numeric", minute: "numeric", second: "numeric"})}}</p>
-  </div>
+  <tr class="hover:bg-gray-50">
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+      {{ callData.sender.name }} → {{ callData.receivers[0].name }}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      {{ new Date(callData.timePlaced).toLocaleString("en-GB", {hour: "numeric", minute: "numeric", second: "numeric"}) }}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+      <span 
+        :class="[
+          'inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium',
+          {
+            'bg-green-100 text-green-800': callData.status === 'offered' || callData.status === 'accepted',
+            'bg-gray-100 text-gray-800': callData.status === 'ended',
+            'bg-red-100 text-red-800': callData.status === 'rejected'
+          }
+        ]"
+      >
+        {{ callData.status.charAt(0).toUpperCase() + callData.status.slice(1) }}
+      </span>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+      <button 
+        v-if="callData.status === 'offered'"
+        @click="acceptCall(callData.id)"
+        class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 shadow-sm"
+      >
+        Accept
+      </button>
+      <button 
+        v-if="callData.status === 'accepted'"
+        @click="leaveCall(callData.id)"
+        class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 shadow-sm"
+      >
+        Leave
+      </button>
+      <button 
+        v-if="callData.status === 'offered'"
+        @click="rejectCall(callData.id)"
+        class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600 shadow-sm"
+      >
+        Reject
+      </button>
+      <span 
+        v-if="callData.status === 'ended' || callData.status === 'rejected'"
+        class="text-gray-400 text-sm"
+      >
+        No actions available
+      </span>
+    </td>
+  </tr>
 </template>
 
 <script>

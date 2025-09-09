@@ -503,23 +503,42 @@
           
           <div class="px-4 py-5 sm:p-6">
             <!-- Phone Queues Section -->
-            <div v-for="(phone, key) in myPhones" :key="key" class="mb-6 last:mb-0">
+            <div v-for="(phone, key) in myPhones" :key="key" class="mb-8 last:mb-0">
               <div v-if="phone.queue && phone.queue.length > 0">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
                   {{ phone.name || key }}
                   <span class="ml-2 text-sm text-gray-500">({{ phone.queue.length }} calls in queue)</span>
                 </h3>
-                <div class="space-y-3">
-                  <CallListItem
-                    v-for="call in phone.queue"
-                    :key="call.id"
-                    :callData="call"
-                    :socket="socket"
-                    @accept-call="acceptCall"
-                    @reject-call="rejectCall"
-                    @leave-call="leaveCall"
-                    class="bg-white shadow-sm rounded-md p-4 border border-gray-200"
-                  />
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Call Route
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Time Placed
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <CallListItem
+                        v-for="call in phone.queue"
+                        :key="call.id"
+                        :callData="call"
+                        :socket="socket"
+                        @accept-call="acceptCall"
+                        @reject-call="rejectCall"
+                        @leave-call="leaveCall"
+                      />
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -527,27 +546,56 @@
             <!-- Active Private Calls Section -->
             <div v-if="Object.keys(gameState.privateCalls || {}).length > 0" class="mt-8">
               <h3 class="text-lg font-medium text-gray-900 mb-4">Active Private Calls</h3>
-              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div 
-                  v-for="(call, key) in gameState.privateCalls" 
-                  :key="key"
-                  class="bg-gray-50 rounded-lg p-4"
-                >
-                  <h4 class="text-md font-medium text-gray-700 mb-2">{{ key }}</h4>
-                  <div class="flex flex-wrap gap-2">
-                    <button
-                      v-for="(user, userKey) in call"
-                      :key="userKey"
-                      @click="kickUserFromCall(user)"
-                      class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      {{ user }}
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Call Channel
+                      </th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Participants
+                      </th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="(call, key) in gameState.privateCalls" :key="key" class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ key }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex flex-wrap gap-1">
+                          <span 
+                            v-for="(user, userKey) in call" 
+                            :key="userKey"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800"
+                          >
+                            {{ user }}
+                          </span>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end flex-wrap gap-1">
+                          <button
+                            v-for="(user, userKey) in call"
+                            :key="userKey"
+                            @click="kickUserFromCall(user)"
+                            class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            :title="`Kick ${user} from call`"
+                          >
+                            Kick {{ user }}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 

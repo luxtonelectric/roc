@@ -2,10 +2,12 @@
 import io from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 import DialPad from '~/components/DialPad.vue';
-import IncomingCalls from '~/components/IncomingCalls.vue';
 import PhoneBook from '~/components/PhoneBook.vue';
-import { CallDetails } from "~/models/CallDetails.js";
 import type { PreparedCall } from '~/models/PreparedCall';
+import { useCallManager } from '~/composables/useCallManager'
+import CallDisplay from '~/components/shared/CallDisplay.vue'
+import CallStatus from '~/components/shared/CallStatus.vue'
+import CallButton from '~/components/shared/CallButton.vue'
 
 const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
@@ -17,11 +19,6 @@ const gameData = ref({});
 const username = ref("");
 const playerData = ref({ phones: {} })
 const phoneData = ref({});
-const callData = reactive<CallDetails[]>([]);
-
-const preparedCall: Ref<PreparedCall | null> = ref(null);
-const nextCall: Ref<CallDetails | null> = ref(null);
-const currentCall: Ref<CallDetails | null> = ref(null);
 
 const app = useNuxtApp();
 let socket: Socket | undefined
@@ -29,23 +26,56 @@ const connected = ref(false)
 const hasPhones = ref(false)
 const showTab = ref("panelSelector");
 
-let rejectedAudio: HTMLAudioElement;
-let callAudio: HTMLAudioElement;
-let recAudio: HTMLAudioElement;
+// Create a reactive socket reference
+const socketRef = ref(null)
+
+// Initialize unified call manager with client-specific options
+const callManager = useCallManager(
+  socketRef, 
+  gameData, 
+  phoneData, 
+  (title: string, message: string) => console.error(title, message), 
+  (title: string, message: string) => console.log(title, message),
+  {
+    enableAudio: true,
+    autoAcceptREC: true,
+    enableQueueManagement: true
+  }
+)
+
+// Destructure call manager properties
+const {
+  currentCall,
+  nextCall,
+  preparedCall,
+  callQueue,
+  inCall,
+  incomingCall,
+  queuedCallsCount,
+  sortedIncomingCalls,
+  placeCall,
+  acceptCall,
+  rejectCall,
+  leaveCall,
+  selectCall,
+  setupCallEventListeners,
+  removeCallEventListeners
+} = callManager
 
 onMounted(() => {
-
-  rejectedAudio = new Audio('/audio/rejected.mp3');
-  callAudio = new Audio('/audio/telephone-ring.mp3');
-  recAudio = new Audio('/audio/rec.mp3');
-  callAudio.loop = true;
-
   socket = io(runtimeConfig.public.socketServer)
+  
   socket.on('connect', () => {
     console.log('connected');
     connected.value = true;
     error.value = "";
     joinUser();
+    
+    // Update the socket reference for the call manager
+    socketRef.value = socket;
+    
+    // Set up unified call event listeners
+    setupCallEventListeners();
   });
 
   socket.on("loggedIn", (msg: any) => {
@@ -71,12 +101,10 @@ onMounted(() => {
       if (msg.phones.length > 0) {
         console.log(msg.phones.length);
         hasPhones.value = true;
-
         msg.phones.forEach((phone) => {
           console.log('requesting phone queue update', phone.id);
           socket?.emit("requestPhoneQueueUpdate", { id: phone.id });
         });
-
       } else {
         hasPhones.value = false;
       }
@@ -93,102 +121,6 @@ onMounted(() => {
     }
   });
 
-  socket.on("callQueueUpdate", function (msg) {
-
-    console.log('callQueueUpdate', msg);
-    //playerData.value = msg;
-    const phoneId: string = msg.phoneId;
-    const queue: Array<CallDetails> = msg.queue;
-
-    // Process each update in the queue
-    queue.forEach((call: CallDetails) => {
-      const oldCall = callData.find((c) => c.id === call.id);
-      if (oldCall) {
-        if (oldCall.status === call.status) {
-          return;
-        }
-        console.log('Known call', call.id);
-        if (call.status === CallDetails.STATUS.ENDED) {
-          //console.log('Call ended', call.id);
-          removeCallFromQueue(call);
-          currentCall.value = null;
-          preparedCall.value = null;
-          if (callData.length === 0) {
-            nextCall.value = null;
-            callAudio.pause();
-          }
-
-        } else if (call.status === CallDetails.STATUS.REJECTED) {
-          console.log('Call rejected', call.id);
-          removeCallFromQueue(call);
-          console.log(callData.length);
-          console.log(callData);
-
-          // If the rejected call is the one we were making then we need to no longer be in a a call
-          if (currentCall.value && call.id === currentCall.value.id) {
-            preparedCall.value = null;
-            currentCall.value = null;
-          }
-
-          // If the rejected call is the next call then we need to stop ringing the phone
-          if (nextCall.value && call.id === nextCall.value.id) {
-            nextCall.value = null;
-            callAudio.pause();
-          }
-
-          if (callData.length === 0) {
-            nextCall.value = null;
-            callAudio.pause();
-          }
-
-        } else if (call.status === CallDetails.STATUS.ACCEPTED) {
-          // The call has newly been accepted, we need to do things.
-          currentCall.value = call;
-          removeCallFromQueue(call);
-          callData.splice(callData.findIndex((c) => c.id === call.id), 1, call);
-        }
-      } else {
-        console.log('New call', call.id);
-        // This is a new call for the queue. We need to add it to the callData
-        if (call.status === CallDetails.STATUS.OFFERED) {
-          callData.push(call);
-          if (phoneData.value.some((phone) => phone.id === call.sender.id)) {
-            // This is a call from a phone that we have in our inventory
-            if(call.type === "REC") {
-              nextCall.value = call;
-              acceptCall();
-            } else {
-              currentCall.value = call;
-            }
-
-          } else {
-            // This is an incoming call, we need to ring the phone
-            if (!nextCall.value) {
-              console.log('This is the incoming call...', call.id);
-              nextCall.value = call;
-              // This is an incoming call, we need to ring the phone
-              playCallAudio();
-            }
-          }
-        } else {
-          // ????
-        }
-
-      }
-    });
-  });
-
-  socket.on("kickedFromCall", function(msg) {
-    console.log('Kicked from call:', msg);
-    // Handle being kicked from call - end current call
-    if (currentCall.value) {
-      currentCall.value = null;
-      preparedCall.value = null;
-      // Stop any audio
-      callAudio.pause();
-    }
-  });
-
   socket.on('disconnect', function (reason) {
     error.value = `You have been disconnected from ROC. (${reason})`;
     connected.value = false;
@@ -200,9 +132,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  removeCallEventListeners(); // Clean up unified call event listeners
   socket?.disconnect()
 })
-
 
 function joinUser() {
   username.value = session.sub;
@@ -217,87 +149,32 @@ function prepareCall(call: PreparedCall) {
   preparedCall.value = call;
 }
 
-function placeCall(toPlaceCall: PreparedCall) {
-  preparedCall.value = toPlaceCall;
-  socket?.emit("placeCall", toPlaceCall, (response) => {
-    if (!response) {
-      playRejectedAudio();
-      preparedCall.value = null;
-    }
-  });
-}
-
-function acceptCall() {
-  if (nextCall.value === null) {
-    console.log('no call to accept');
-    return;
-  }
-
-  console.log('accept call', nextCall.value.id);
-  socket?.emit('acceptCall', { id: nextCall.value.id }, (response) => {
-    console.log('place call response', response);
-    if (response === false) {
-      playRejectedAudio();
-      removeCallFromQueue(nextCall.value);
-    }
-  });
-}
-
-function leaveCall() {
-  if (currentCall.value === null) {
-    console.log('no call to leave');
-    return;
-  }
-  console.log('leave call', currentCall.value.id);
-  socket?.emit("leaveCall", { id: currentCall.value.id });
-}
-
-function rejectCall(callId: string) {
-  console.log('reject call', callId);
-  socket?.emit('rejectCall', { id: callId })
-}
-
-function selectCall(call: CallDetails) {
-  console.log('select call', call.id);
-  // Set this call as the next call to answer
-  nextCall.value = call;
-  // Start ringing if not already ringing
-  if (callAudio.paused) {
-    playCallAudio();
-  }
-}
-
-function playCallAudio() {
-  callAudio.currentTime = 0;
-  callAudio.play().then(() => { console.log('audio played'); }).catch((error) => { console.log('audio error', error) });
-}
-
-function playRejectedAudio() {
-  rejectedAudio.currentTime = 0;
-  rejectedAudio.play().then(() => { console.log('audio played'); }).catch((error) => { console.log('audio error', error) });
-}
-
-function removeCallFromQueue(call: CallDetails | null) {
-  console.log('remove call from queue', call);
-  const callIndex = callData.findIndex((c) => c.id === call?.id);
-  callData.splice(callIndex, 1);
-  if (callData.length === 0) {
-    console.log('no calls left');
-    nextCall.value = null;
-    callAudio.pause();
-  } else if (callData.some((c) => c.status === CallDetails.STATUS.OFFERED)) {
-    console.log('new call to ring');
-    nextCall.value = callData.find((c) => c.status === CallDetails.STATUS.OFFERED) || null;
-    playCallAudio();
-  }
-}
-
 </script>
 
 <template>
   <div class="flex flex-col pb-0 px-4 bg-neutral-200 text-lg h-screen max-h-screen">
-    <StatusBar :gameData="gameData" :username=username :playerData="playerData" :phoneData="phoneData" :socket="socket"
-      :error="error" :callData="callData" />
+    <!-- Status Bar with unified call status -->
+    <StatusBar 
+      :gameData="gameData" 
+      :username="username" 
+      :playerData="playerData" 
+      :phoneData="phoneData" 
+      :socket="socket"
+      :error="error" 
+      :callData="callQueue" 
+    >
+      <!-- Enhanced call status display -->
+      <template #call-status>
+        <CallStatus 
+          :current-call="currentCall"
+          :in-call="inCall"
+          :incoming-call="incomingCall"
+          :queued-calls-count="queuedCallsCount"
+          :show-count="true"
+          :show-details="true"
+        />
+      </template>
+    </StatusBar>
 
     <div class="flex flex-row pt-2 h-5/6">
       <div v-if="error" class="mr-2 w-5/6 border-4 border-zinc-400 bg-red-100 h-full text-center">
@@ -313,8 +190,21 @@ function removeCallFromQueue(call: CallDetails | null) {
         <DialPad v-if="showTab === 'dialPad'" @prepare-call="prepareCall" @place-call="placeCall"
           :phoneData="phoneData" />
         <PhoneBook v-if="showTab === 'phoneBook'" @prepare-call="prepareCall" :prepared-call="preparedCall" :phoneData="phoneData" />
-        <StartREC v-if="showTab === 'considerREC'" @prepare-call="prepareCall" :phoneData="phoneData" :username=username />
-        <IncomingCalls v-if="showTab === 'incomingCalls'" :callData="callData" @reject-call="rejectCall" @select-call="selectCall" />
+        <StartREC v-if="showTab === 'considerREC'" @prepare-call="prepareCall" :phoneData="phoneData" :username="username" />
+        
+        <!-- Unified incoming calls display -->
+        <CallDisplay 
+          v-if="showTab === 'incomingCalls'"
+          :calls="sortedIncomingCalls"
+          :selected-call="nextCall"
+          :display-mode="'grid'"
+          title="Incoming Calls"
+          :show-queue="true"
+          :show-count="true"
+          :show-actions="false"
+          @select-call="selectCall"
+          @reject-call="rejectCall"
+        />
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6 bg-zinc-200">
         <div class="">
@@ -351,9 +241,20 @@ function removeCallFromQueue(call: CallDetails | null) {
           </button>
         </div>
         <div class="row-start-4 col-span-2">
-          <CallButton v-if="hasPhones" @change-tab="changeTab" @place-call="placeCall" @accept-call="acceptCall"
-            @leave-call="leaveCall" @reject-call="rejectCall" :callData="callData" :phoneData="phoneData"
-            :current-call="currentCall" :nextCall="nextCall" :preparedCall="preparedCall" />
+          <!-- Enhanced call button using unified call manager -->
+          <CallButton 
+            v-if="hasPhones" 
+            :current-call="currentCall"
+            :next-call="nextCall"
+            :prepared-call="preparedCall"
+            :in-call="inCall"
+            :incoming-call="incomingCall"
+            @change-tab="changeTab"
+            @place-call="placeCall"
+            @accept-call="acceptCall"
+            @leave-call="leaveCall"
+            @reject-call="rejectCall"
+          />
         </div>
         <!--div class="row-start-5">
           <MuteButton />

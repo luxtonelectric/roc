@@ -73,7 +73,6 @@
 import { PreparedCall } from '~/models/PreparedCall'
 import { useNotifications } from '~/composables/useNotifications'
 import { useAdminSocket } from '~/composables/useAdminSocket'
-import { useVoiceCallManagement } from '~/composables/useVoiceCallManagement'
 import AdminNotification from './AdminNotification.vue'
 import AdminHostsTab from './tabs/AdminHostsTab.vue'
 import AdminGamesTab from './tabs/AdminGamesTab.vue'
@@ -95,19 +94,9 @@ export default {
     const notifications = useNotifications()
     const socketManager = useAdminSocket(props.socket, props.discordId)
     
-    // Use voice call management for queue count computation
-    const voiceCallManager = useVoiceCallManagement(
-      props.socket,
-      socketManager.gameState,
-      socketManager.myPhones,
-      notifications.showError,
-      notifications.showSuccess
-    )
-    
     return {
       ...notifications,
-      ...socketManager,
-      queuedCallsCount: voiceCallManager.queuedCallsCount
+      ...socketManager
     }
   },
   
@@ -143,6 +132,14 @@ export default {
   },
   
   computed: {
+    queuedCallsCount() {
+      return Object.values(this.myPhones).reduce((total, phone) => {
+        if (!phone.queue) return total
+        return total + phone.queue.filter(call => 
+          call.status === PreparedCall.STATUS.OFFERED || call.status === PreparedCall.STATUS.ACCEPTED
+        ).length
+      }, 0)
+    },
     voiceTabClasses() {
       return {
         'py-2 px-4 text-sm font-medium rounded-t-lg': true,

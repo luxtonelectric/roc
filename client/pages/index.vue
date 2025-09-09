@@ -257,6 +257,16 @@ function rejectCall(callId: string) {
   socket?.emit('rejectCall', { id: callId })
 }
 
+function selectCall(call: CallDetails) {
+  console.log('select call', call.id);
+  // Set this call as the next call to answer
+  nextCall.value = call;
+  // Start ringing if not already ringing
+  if (callAudio.paused) {
+    playCallAudio();
+  }
+}
+
 function playCallAudio() {
   callAudio.currentTime = 0;
   callAudio.play().then(() => { console.log('audio played'); }).catch((error) => { console.log('audio error', error) });
@@ -304,7 +314,7 @@ function removeCallFromQueue(call: CallDetails | null) {
           :phoneData="phoneData" />
         <PhoneBook v-if="showTab === 'phoneBook'" @prepare-call="prepareCall" :prepared-call="preparedCall" :phoneData="phoneData" />
         <StartREC v-if="showTab === 'considerREC'" @prepare-call="prepareCall" :phoneData="phoneData" :username=username />
-        <IncomingCalls v-if="showTab === 'incomingCalls'" :callData="callData" @reject-call="rejectCall" />
+        <IncomingCalls v-if="showTab === 'incomingCalls'" :callData="callData" @reject-call="rejectCall" @select-call="selectCall" />
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6 bg-zinc-200">
         <div class="">

@@ -5,46 +5,25 @@
     </div>
   </div>
   <div class="grid">
-    <template v-for="call in callData">
-      <template v-if="call.status === 'incoming'">
-        <div class="grid grid-cols-4 bg-zinc-200 text-white w-full text-center text-xl py-4 border-y border-zinc-400">
-          <div>{{call.type}}</div>
-          <div>{{call.sender.name}}</div>
-          <div>{{call.receivers[0].name}}</div>
-          <div><button @click="rejectCall(call.id)">Reject</button></div>
+    <template v-for="call in sortedOfferedCalls" :key="call.id">
+      <div 
+        class="grid grid-cols-4 w-full text-center text-xl py-4 border-y border-zinc-400 cursor-pointer hover:opacity-80 transition-opacity"
+        :class="getCallRowClass(call)"
+        @click="selectCall(call)"
+      >
+        <div>{{call.type}}</div>
+        <div>{{call.sender.name}}</div>
+        <div>{{call.receivers[0].name}}</div>
+        <div>
+          <button 
+            @click.stop="rejectCall(call.id)"
+            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Reject
+          </button>
         </div>
-      </template>
+      </div>
     </template>
-    <!--div class="grid grid-cols-4 bg-red-600 text-white w-full text-center text-xl py-4 border-y border-zinc-400">
-      <div>Emergency</div>
-      <div>23172</div>
-      <div>Unknown</div>
-      <div>00:13</div>
-    </div>
-    <div class="grid grid-cols-4 bg-cyan-400 w-full text-center text-xl py-4 border-y border-zinc-400">
-      <div>Phone</div>
-      <div>21869</div>
-      <div>Fran Franklin</div>
-      <div>01:03</div>
-    </div>
-    <div class="grid grid-cols-4 bg-zinc-200 w-full text-center text-xl py-4 border-y border-zinc-400">
-      <div>Train</div>
-      <div>1X01</div>
-      <div>HIT</div>
-      <div>03:03</div>
-    </div>
-    <div class="grid grid-cols-4 bg-zinc-200 w-full text-center text-xl py-4 border-y border-zinc-400">
-      <div>Phone</div>
-      <div>1555</div>
-      <div>IM Services</div>
-      <div>05:03</div>
-    </div>
-    <div class="grid grid-cols-4 bg-zinc-200 w-full text-center text-xl py-4 border-y border-zinc-400">
-      <div>Phone</div>
-      <div>78192</div>
-      <div>Unknown</div>
-      <div>06:09</div>
-    </div-->
   </div>
 </template>
 
@@ -53,10 +32,26 @@
 export default {
   name: "Incoming Calls",
   props: ["callData"],
-  emits: ["rejectCall"],
+  emits: ["rejectCall", "selectCall"],
   data() {
     return {
 
+    }
+  },
+  computed: {
+    sortedOfferedCalls() {
+      // Filter to only show offered calls (incoming calls)
+      const offeredCalls = this.callData.filter(call => call.status === 'offered');
+      
+      // Sort by priority: emergency (1), urgent (2), normal (3)
+      return offeredCalls.sort((a, b) => {
+        const priorityOrder = {
+          'emergency': 1,
+          'urgent': 2,
+          'normal': 3
+        };
+        return priorityOrder[a.level] - priorityOrder[b.level];
+      });
     }
   },
   created() {
@@ -69,6 +64,21 @@ export default {
   methods: {
     rejectCall(key) {
       this.$emit("rejectCall", key);
+    },
+    selectCall(call) {
+      this.$emit("selectCall", call);
+    },
+    getCallRowClass(call) {
+      // Return appropriate CSS classes based on call priority
+      switch (call.level) {
+        case 'emergency':
+          return 'bg-red-600 text-white';
+        case 'urgent':
+          return 'bg-yellow-400 text-black';
+        case 'normal':
+        default:
+          return 'bg-zinc-200 text-black';
+      }
     }
   }
 }

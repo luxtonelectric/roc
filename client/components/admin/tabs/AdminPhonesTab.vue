@@ -112,8 +112,16 @@
                   </button>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.REC, PreparedCall.LEVELS.EMERGENCY)"
-                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
-                    title="Place an emergency Railway Emergency Call (REC)"
+                    :disabled="!hasValidLocationForREC(phone.id)"
+                    :class="[
+                      'px-2 py-1 rounded text-sm',
+                      hasValidLocationForREC(phone.id) 
+                        ? 'bg-red-500 hover:bg-red-600 text-white cursor-pointer' 
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+                    ]"
+                    :title="hasValidLocationForREC(phone.id) 
+                      ? 'Place an emergency Railway Emergency Call (REC)' 
+                      : 'Phone must have a valid location (simId and panelId) for REC calls'"
                   >
                     REC
                   </button>
@@ -222,8 +230,28 @@ export default {
       props.showSuccess
     )
     
+    const hasValidLocationForREC = (receiverPhoneId) => {
+      // Get the selected sender phone ID for this receiver
+      const selectedSenderPhoneId = phoneManagement.selectedPhone.value[receiverPhoneId]
+      if (!selectedSenderPhoneId) {
+        return false
+      }
+      
+      // Find the sender phone in myPhones
+      const senderPhone = props.myPhones[selectedSenderPhoneId]
+      if (!senderPhone) {
+        return false
+      }
+      
+      // Check if the sender phone has a valid location with both simId and panelId
+      return senderPhone.location && 
+             senderPhone.location.simId && 
+             senderPhone.location.panelId
+    }
+    
     return {
       PreparedCall, // Make PreparedCall available in template
+      hasValidLocationForREC,
       ...phoneManagement
     }
   }

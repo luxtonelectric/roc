@@ -221,7 +221,18 @@ export default class PhoneManager {
     
     // Find the location of the phone
     const sim = this.sims.find(s => s.id === phone.getLocation().simId);
+    if (!sim) {
+      console.error(chalk.red('getRECRecipientsForPhone'), 'Simulation not found:', phone.getLocation().simId, 'for phone:', phone.getId());
+      return [];
+    }
+    
     const panel = sim.getPanel(phone.getLocation().panelId);
+    if (!panel) {
+      console.error(chalk.red('getRECRecipientsForPhone'), 'Panel not found:', phone.getLocation().panelId, 
+        'in simulation:', phone.getLocation().simId, 'for phone:', phone.getId());
+      console.error(chalk.red('getRECRecipientsForPhone'), 'Available panels in simulation:', sim.panels.map(p => p.id));
+      return [];
+    }
 
     const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
 

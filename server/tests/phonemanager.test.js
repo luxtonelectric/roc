@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import PhoneManager from "../src/phonemanager";
 import Simulation from "../src/model/simulation";
 import Train from "../src/model/train";
@@ -467,5 +468,139 @@ describe('getRECRecipientsForPhone', () => {
     expect(hasControl).toBe(true);
     expect(hasNeighbors).toBe(true);
     expect(recipients.length).toBeGreaterThan(3); // 3 neighbors + control
+  });
+
+  // Error handling tests for the bug fix
+  test('handles phone with location referencing non-existent simulation', () => {
+    // Mock console.error to capture error messages
+    const originalError = console.error;
+    const mockError = jest.fn();
+    console.error = mockError;
+
+    try {
+      // Create a phone with location referencing a simulation that doesn't exist
+      const invalidPhone = new Phone('invalid_phone', 'Invalid Phone', Phone.TYPES.FIXED, new Location('nonexistent_sim', 'some_panel'));
+      
+      const recipients = phoneManager.getRECRecipientsForPhone(invalidPhone);
+
+      // Should return empty array instead of crashing
+      expect(recipients).toEqual([]);
+      
+      // Should log error message about simulation not found
+      expect(mockError).toHaveBeenCalledWith(
+        expect.stringContaining('getRECRecipientsForPhone'),
+        'Simulation not found:',
+        'nonexistent_sim',
+        'for phone:',
+        'invalid_phone'
+      );
+    } finally {
+      console.error = originalError;
+    }
+  });
+
+  test('handles phone with location referencing non-existent panel', () => {
+    // Mock console.error to capture error messages
+    const originalError = console.error;
+    const mockError = jest.fn();
+    console.error = mockError;
+
+    try {
+      // Create a phone with location referencing a panel that doesn't exist in the simulation
+      const invalidPhone = new Phone('invalid_panel_phone', 'Invalid Panel Phone', Phone.TYPES.FIXED, new Location(simId1, 'nonexistent_panel'));
+      
+      const recipients = phoneManager.getRECRecipientsForPhone(invalidPhone);
+
+      // Should return empty array instead of crashing
+      expect(recipients).toEqual([]);
+      
+      // Should log error message about panel not found
+      expect(mockError).toHaveBeenCalledWith(
+        expect.stringContaining('getRECRecipientsForPhone'),
+        'Panel not found:',
+        'nonexistent_panel',
+        'in simulation:',
+        simId1,
+        'for phone:',
+        'invalid_panel_phone'
+      );
+      
+      // Should also log available panels for debugging
+      expect(mockError).toHaveBeenCalledWith(
+        expect.stringContaining('getRECRecipientsForPhone'),
+        'Available panels in simulation:',
+        expect.arrayContaining(['cross', 'finsbury', 'palace', 'welwyn', 'hitchin'])
+      );
+    } finally {
+      console.error = originalError;
+    }
+  });
+
+  test('handles phone without location gracefully', () => {
+    // Mock console.error to capture error messages
+    const originalError = console.error;
+    const mockError = jest.fn();
+    console.error = mockError;
+
+    try {
+      // Create a phone without location (mobile phone)
+      const mobilePhone = new Phone('mobile123', 'Mobile Phone', Phone.TYPES.MOBILE, null);
+      
+      // This should throw an error when trying to access getLocation().simId
+      expect(() => {
+        phoneManager.getRECRecipientsForPhone(mobilePhone);
+      }).toThrow();
+    } finally {
+      console.error = originalError;
+    }
+  });
+
+  test('error logging provides detailed debugging information', () => {
+    // Mock console.error to capture error messages
+    const originalError = console.error;
+    const mockError = jest.fn();
+    console.error = mockError;
+
+    try {
+      // Create a phone with location referencing a panel that doesn't exist
+      const testPhone = new Phone('debug_test_phone', 'Debug Test Phone', Phone.TYPES.FIXED, new Location('test_sim', 'missing_panel'));
+      
+      // Add a mock simulation to the phone manager that has some panels but not the one we're looking for
+      const testSimData = {
+        "id": "test_sim",
+        "name": "Test Sim",
+        "panels": [
+          {"id": "panel1", "name": "Panel 1", "neighbours": []},
+          {"id": "panel2", "name": "Panel 2", "neighbours": []}
+        ]
+      };
+      const testSim = Simulation.fromSimData('test_sim', testSimData);
+      phoneManager.sims.push(testSim);
+      
+      const recipients = phoneManager.getRECRecipientsForPhone(testPhone);
+
+      // Should return empty array
+      expect(recipients).toEqual([]);
+      
+      // Should log the panel not found error with detailed debugging info
+      expect(mockError).toHaveBeenCalledWith(
+        expect.stringContaining('getRECRecipientsForPhone'),
+        'Panel not found:',
+        'missing_panel',
+        'in simulation:',
+        'test_sim',
+        'for phone:',
+        'debug_test_phone'
+      );
+      
+      // Should also log available panels for debugging
+      expect(mockError).toHaveBeenCalledWith(
+        expect.stringContaining('getRECRecipientsForPhone'),
+        'Available panels in simulation:',
+        ['panel1', 'panel2']
+      );
+    } finally {
+      console.error = originalError;
+    }
   });
 });

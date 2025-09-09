@@ -443,15 +443,30 @@
                   <div class="flex items-center space-x-2">
                     <select 
                       v-model="selectedPhone[phone.id]"
-                      class="block w-40 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      class="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
                       <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">{{myPhone?.name || key}}</option>
                     </select>
                     <button 
-                      @click="placeCall(phone.id)"
+                      @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.NORMAL)"
                       class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                      title="Place a normal priority P2P call"
                     >
                       Call
+                    </button>
+                    <button 
+                      @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.URGENT)"
+                      class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                      title="Place an urgent priority P2P call"
+                    >
+                      Urgent
+                    </button>
+                    <button 
+                      @click="placeCall(phone.id, PreparedCall.TYPES.REC, PreparedCall.LEVELS.EMERGENCY)"
+                      class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      title="Place an emergency Railway Emergency Call (REC)"
+                    >
+                      REC
                     </button>
                   </div>
                 </td>
@@ -614,6 +629,8 @@
 </template>
 
 <script>
+import { PreparedCall } from '~/models/PreparedCall';
+
 export default {
   name: "AdminControlPanel",
   props: ['socket', 'discordId'],
@@ -635,6 +652,7 @@ export default {
 
   data() {
     return {
+      PreparedCall, // Make PreparedCall available in template
       phoneSearchQuery: '',
       currentTab: 'hosts',
       tabs: [
@@ -698,7 +716,7 @@ export default {
       return Object.values(this.myPhones).reduce((total, phone) => {
         if (!phone.queue) return total;
         return total + phone.queue.filter(call => 
-          call.status === 'offered' || call.status === 'accepted'
+          call.status === PreparedCall.STATUS.OFFERED || call.status === PreparedCall.STATUS.ACCEPTED
         ).length;
       }, 0);
     },
@@ -722,6 +740,13 @@ export default {
     availableChannels: {
       handler(newChannels) {
         console.log('Voice channels changed:', newChannels);
+      },
+      immediate: true
+    },
+    'gameState.phones': {
+      handler(newPhones) {
+        if (!newPhones) return;
+        // No initialization needed for call types and levels since we use buttons now
       },
       immediate: true
     }
@@ -847,10 +872,10 @@ export default {
               // Update current call status
               this.currentCall = call;
               
-              if (call.status === 'accepted') {
+              if (call.status === PreparedCall.STATUS.ACCEPTED) {
                 this.inCall = true;
                 this.incomingCall = false;
-              } else if (call.status === 'offered') {
+              } else if (call.status === PreparedCall.STATUS.OFFERED) {
                 this.inCall = false;
                 this.incomingCall = true;
               }
@@ -1166,15 +1191,30 @@ export default {
         }
       });
     },
-    async placeCall(receiver, type = "p2p", level = "normal") {
+    async placeCall(receiver, type = PreparedCall.TYPES.P2P, level = PreparedCall.LEVELS.NORMAL) {
       const soc = this.socket;
       console.log('placeCall', receiver, type, level);
       console.log('this.selectedPhone', this.selectedPhone[receiver]);
+
+      // Validate call type
+      if (!Object.values(PreparedCall.TYPES).includes(type)) {
+        console.error('Invalid call type:', type);
+        this.showError('Invalid Call', `Call type "${type}" is not supported`);
+        return;
+      }
+
+      // Validate call level
+      if (!Object.values(PreparedCall.LEVELS).includes(level)) {
+        console.error('Invalid call level:', level);
+        this.showError('Invalid Call', `Call level "${level}" is not supported`);
+        return;
+      }
 
       const receiverPhone = this.gameState.phones.find(p => p.id === receiver);
       const senderPhone = this.gameState.phones.find(p => p.id === this.selectedPhone[receiver]);
       if (!senderPhone) {
         console.log("Refusing call: sender phone not selected/not found")
+        this.showError('Call Failed', 'Sender phone not selected or not found');
         return;
       }
 
@@ -1251,6 +1291,22 @@ export default {
       
       console.log('Left call successfully');
     },
+    getCallTypeDescription(type) {
+      const descriptions = {
+        [PreparedCall.TYPES.P2P]: 'Point-to-Point call between two users',
+        [PreparedCall.TYPES.GROUP]: 'Group call with multiple participants',
+        [PreparedCall.TYPES.REC]: 'Railway Emergency Call - highest priority'
+      };
+      return descriptions[type] || 'Unknown call type';
+    },
+    getLevelSelectClass(level) {
+      const levelClasses = {
+        [PreparedCall.LEVELS.NORMAL]: 'focus:ring-blue-500 focus:border-blue-500',
+        [PreparedCall.LEVELS.URGENT]: 'focus:ring-yellow-500 focus:border-yellow-500 bg-yellow-50',
+        [PreparedCall.LEVELS.EMERGENCY]: 'focus:ring-red-500 focus:border-red-500 bg-red-50'
+      };
+      return levelClasses[level] || 'focus:ring-indigo-500 focus:border-indigo-500';
+    }
   }
 }
 </script>

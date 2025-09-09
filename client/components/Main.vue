@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import { PreparedCall } from '~/models/PreparedCall';
 import SpeedDial from './SpeedDial.vue';
 
 export default {
@@ -93,11 +94,11 @@ export default {
     });
 
     this.socket.on('newCallInQueue', function (msg) {
-      if(msg.type === "p2p") {
+      if(msg.type === PreparedCall.TYPES.P2P) {
         that.callAudio.currentTime = 0;
         that.callAudio.play();
         that.myCalls.push(msg);      
-      } else if (msg.type === "REC") {
+      } else if (msg.type === PreparedCall.TYPES.REC) {
         that.callData = msg;
         that.incomingRec = true;
         that.recAudio.play();
@@ -128,7 +129,7 @@ export default {
     callNumber(){
       this.placeCall(this.phoneNumber);
     },
-    async placeCall(receiver,type="p2p",level="normal")
+    async placeCall(receiver, type = PreparedCall.TYPES.P2P, level = PreparedCall.LEVELS.NORMAL)
     {
       const soc = this.socket;
       const callId = await new Promise(resolve => {soc.emit("placeCall", {"receiver":receiver, "sender": this.selectedPhone, "type":type,"level": level}, response => resolve(response))});

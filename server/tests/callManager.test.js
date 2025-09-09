@@ -286,3 +286,77 @@ test('isPlayerOnRECCall should correctly identify if player is on REC call', () 
   // Should still correctly identify REC call participation
   expect(callManager.isPlayerOnRECCall('discord1')).toBe(true);
 });
+
+// Test: placeCall - P2P call with URGENT level should preserve level (BUG REPRODUCTION)
+test('placeCall should preserve URGENT level for P2P calls', () => {
+  const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
+  const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
+  
+  const mockPhoneManager = {
+    getPhone: (id) => id === 'phone1' ? senderPhone : receiverPhone
+  };
+  
+  const mockBot = {};
+  
+  let emittedEvents = [];
+  const mockIO = {
+    to: (discordId) => ({
+      emit: (event, data) => emittedEvents.push({ discordId, event, data })
+    })
+  };
+  
+  const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
+  
+  // Place a P2P call with URGENT level
+  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.URGENT, 'phone1', 'phone2');
+  
+  expect(result).toBeTruthy();
+  expect(typeof result).toBe('string');
+  expect(callManager.requestedCalls).toHaveLength(1);
+  
+  const call = callManager.requestedCalls[0];
+  expect(call.sender).toBe(senderPhone);
+  expect(call.getReceiver()).toBe(receiverPhone);
+  expect(call.type).toBe(CallRequest.TYPES.P2P);
+  expect(call.status).toBe(CallRequest.STATUS.OFFERED);
+  
+  // This is the bug - the call level should be URGENT but it's currently NORMAL
+  expect(call.level).toBe(CallRequest.LEVELS.URGENT);
+});
+
+// Test: placeCall - P2P call with EMERGENCY level should preserve level  
+test('placeCall should preserve EMERGENCY level for P2P calls', () => {
+  const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
+  const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
+  
+  const mockPhoneManager = {
+    getPhone: (id) => id === 'phone1' ? senderPhone : receiverPhone
+  };
+  
+  const mockBot = {};
+  
+  let emittedEvents = [];
+  const mockIO = {
+    to: (discordId) => ({
+      emit: (event, data) => emittedEvents.push({ discordId, event, data })
+    })
+  };
+  
+  const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
+  
+  // Place a P2P call with EMERGENCY level  
+  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.EMERGENCY, 'phone1', 'phone2');
+  
+  expect(result).toBeTruthy();
+  expect(typeof result).toBe('string');
+  expect(callManager.requestedCalls).toHaveLength(1);
+  
+  const call = callManager.requestedCalls[0];
+  expect(call.sender).toBe(senderPhone);
+  expect(call.getReceiver()).toBe(receiverPhone);
+  expect(call.type).toBe(CallRequest.TYPES.P2P);
+  expect(call.status).toBe(CallRequest.STATUS.OFFERED);
+  
+  // This should also preserve the EMERGENCY level
+  expect(call.level).toBe(CallRequest.LEVELS.EMERGENCY);
+});

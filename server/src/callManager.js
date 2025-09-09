@@ -102,7 +102,7 @@ export default class CallManager {
 
       if (sendingPlayerId !== receivingPlayerId) {
         //console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayerId, chalk.magentaBright("Reciever:"), receivingPlayerId);
-        callRequest = new CallRequest(sendingPhone, receivingPhone);
+        callRequest = new CallRequest(sendingPhone, receivingPhone, callType, callLevel);
       } else {
         console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to call themselves as was rejected."));
         return false

@@ -760,5 +760,96 @@ describe('ROCManager.addHost', () => {
       expect(rocManager.syncHostsWithConfig).toHaveBeenCalled();
       expect(rocManager.updateAdminUI).toHaveBeenCalled();
     });
+
+    describe('authentication integration (from validate-authentication.js)', () => {
+      test('should handle host with authentication through addHost workflow', async () => {
+        rocManager.hosts = [];
+        
+        const hostConfigWithAuth = {
+          sim: 'auth-test-sim',
+          host: 'localhost',
+          port: 8080,
+          channel: 'auth-test-channel',
+          enabled: false,
+          interfaceGateway: {
+            port: 55555,
+            enabled: false,
+            username: 'authuser',
+            password: 'authpassword'
+          }
+        };
+        
+        // Execute addHost
+        await rocManager.addHost(hostConfigWithAuth);
+        
+        // Verify host was added correctly
+        expect(rocManager.hosts).toHaveLength(1);
+        const addedHost = rocManager.hosts[0];
+        
+        // Verify authentication was properly set up
+        expect(addedHost.interfaceGateway.hasAuthentication()).toBe(true);
+        expect(addedHost.interfaceGateway.username).toBe('authuser');
+        expect(addedHost.interfaceGateway.getDecryptedPassword()).toBe('authpassword');
+        
+        // Verify client object security (passwords should not be exposed)
+        const clientObj = addedHost.toClientObject();
+        expect(clientObj.interfaceGateway.username).toBe('authuser');
+        expect(clientObj.interfaceGateway.hasPassword).toBe(true);
+        expect(clientObj.interfaceGateway.encryptedPassword).toBeUndefined();
+        expect(clientObj.interfaceGateway.password).toBeUndefined();
+        
+        // Verify configuration persistence (encrypted password should be saved)
+        const savedConfig = addedHost.toConfig();
+        expect(savedConfig.interfaceGateway.username).toBe('authuser');
+        expect(savedConfig.interfaceGateway.encryptedPassword).toBeDefined();
+        expect(savedConfig.interfaceGateway.password).toBeUndefined();
+      });
+
+      test('should handle authentication round-trip through configuration', async () => {
+        rocManager.hosts = [];
+        
+        // Add host with authentication
+        const hostConfig = {
+          sim: 'roundtrip-sim',
+          host: 'localhost',
+          port: 8080,
+          channel: 'roundtrip-channel',
+          interfaceGateway: {
+            port: 55555,
+            enabled: false,
+            username: 'roundtripuser',
+            password: 'roundtrippass'
+          }
+        };
+        
+        await rocManager.addHost(hostConfig);
+        const originalHost = rocManager.hosts[0];
+        
+        // Save configuration
+        const savedConfig = {
+          ...rocManager.config,
+          games: rocManager.hosts.map(h => h.toConfig())
+        };
+        
+        // Clear hosts and reload from saved config
+        rocManager.hosts = [];
+        mockConfigurationManager.setCachedConfig(savedConfig);
+        rocManager.load();
+        
+        // Verify authentication survived the round-trip
+        expect(rocManager.hosts).toHaveLength(1);
+        const restoredHost = rocManager.hosts[0];
+        
+        expect(restoredHost.interfaceGateway.hasAuthentication()).toBe(true);
+        expect(restoredHost.interfaceGateway.username).toBe('roundtripuser');
+        expect(restoredHost.interfaceGateway.getDecryptedPassword()).toBe('roundtrippass');
+      });
+    });
+  });
+
+  // Global cleanup for all ROCManager tests
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.clearAllTimers();
   });
 });

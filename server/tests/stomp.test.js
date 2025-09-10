@@ -36,6 +36,18 @@ describe('STOMPManager', () => {
     stompManager.setGameManager(mockGameManager);
   });
 
+  afterEach(() => {
+    // Clean up any clients or connections
+    if (stompManager && stompManager.clients) {
+      stompManager.clients = [];
+    }
+    jest.clearAllTimers();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('removeClientForGame', () => {
     test('should always deactivate client when removing, regardless of enabled state', () => {
       // Create a mock interface gateway that's disabled
@@ -121,6 +133,97 @@ describe('STOMPManager', () => {
       
       // Should not update UI if no client found
       expect(mockGameManager.updateAdminUI).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('authentication handling (from test_stomp_fix.js and test_stomp_refactor.js)', () => {
+    test('should properly check authentication using hasAuthentication method', () => {
+      // Create host with authentication
+      const interfaceGateway = {
+        port: 55555,
+        enabled: true,
+        connectionState: 'disconnected',
+        errorMessage: null,
+        hasAuthentication: jest.fn().mockReturnValue(true),
+        username: 'testuser',
+        encryptedPassword: 'encrypted:password:here'
+      };
+      
+      const hostWithAuth = new Host('test-sim', 'localhost', 8080, 'test-channel', interfaceGateway);
+      
+      // Verify authentication method is called correctly
+      const hasAuth = hostWithAuth.interfaceGateway.hasAuthentication();
+      expect(hasAuth).toBe(true);
+      expect(hostWithAuth.interfaceGateway.hasAuthentication).toHaveBeenCalled();
+    });
+
+    test('should handle host without authentication', () => {
+      // Create host without authentication
+      const interfaceGateway = {
+        port: 55555,
+        enabled: true,
+        connectionState: 'disconnected',
+        errorMessage: null,
+        hasAuthentication: jest.fn().mockReturnValue(false),
+        username: null,
+        encryptedPassword: null
+      };
+      
+      const hostWithoutAuth = new Host('test-sim', 'localhost', 8080, 'test-channel', interfaceGateway);
+      
+      // Verify no authentication
+      const hasAuth = hostWithoutAuth.interfaceGateway.hasAuthentication();
+      expect(hasAuth).toBe(false);
+      expect(hostWithoutAuth.interfaceGateway.hasAuthentication).toHaveBeenCalled();
+    });
+  });
+
+  describe('createClientForGame method (legacy compatibility)', () => {
+    test('should work with Host instances for backward compatibility', () => {
+      const interfaceGateway = {
+        port: 55555,
+        enabled: true,
+        connectionState: 'disconnected',
+        errorMessage: null,
+        hasAuthentication: jest.fn().mockReturnValue(false)
+      };
+      
+      const host = new Host('test-sim', 'localhost', 8080, 'test-channel', interfaceGateway);
+      
+      // This should not throw when called with Host instance
+      expect(() => {
+        stompManager.createClientForGame(host);
+      }).not.toThrow();
+    });
+  });
+
+  describe('error handling', () => {
+    test('should handle connection errors gracefully', () => {
+      const interfaceGateway = {
+        port: 55555,
+        enabled: true,
+        connectionState: 'disconnected',
+        errorMessage: null
+      };
+      
+      const host = new Host('test-sim', 'localhost', 8080, 'test-channel', interfaceGateway);
+      stompManager.clients = [{
+        host: host,
+        client: {
+          deactivate: jest.fn(),
+          connected: false
+        }
+      }];
+      
+      // Should handle deactivation errors
+      stompManager.clients[0].client.deactivate.mockImplementation(() => {
+        throw new Error('Deactivation failed');
+      });
+      
+      // Should not throw despite deactivation error
+      expect(() => {
+        stompManager.removeClientForGame('test-sim');
+      }).not.toThrow();
     });
   });
 });

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import io from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
+import type { Ref } from 'vue'
 import DialPad from '~/components/DialPad.vue';
 import PhoneBook from '~/components/PhoneBook.vue';
 import type { PreparedCall } from '~/models/PreparedCall';
@@ -8,6 +9,10 @@ import { useCallManager } from '~/composables/useCallManager'
 import CallDisplay from '~/components/shared/CallDisplay.vue'
 import CallStatus from '~/components/shared/CallStatus.vue'
 import CallButton from '~/components/shared/CallButton.vue'
+
+// Reusable CSS classes
+const buttonClasses = 'w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square'
+const emergencyButtonClasses = 'w-full bg-red-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square'
 
 const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
@@ -27,15 +32,15 @@ const hasPhones = ref(false)
 const showTab = ref("panelSelector");
 
 // Create a reactive socket reference
-const socketRef = ref(null)
+const socketRef: Ref<Socket | undefined> = ref(undefined)
 
 // Initialize unified call manager with client-specific options
 const callManager = useCallManager(
   socketRef, 
   gameData, 
   phoneData, 
-  (title: string, message: string) => console.error(title, message), 
-  (title: string, message: string) => console.log(title, message),
+  () => {}, // Error handler - silent in production
+  () => {}, // Info handler - silent in production
   {
     enableAudio: true,
     autoAcceptREC: true,
@@ -66,7 +71,6 @@ onMounted(() => {
   socket = io(runtimeConfig.public.socketServer)
   
   socket.on('connect', () => {
-    console.log('connected');
     connected.value = true;
     error.value = "";
     joinUser();
@@ -79,30 +83,25 @@ onMounted(() => {
   });
 
   socket.on("loggedIn", (msg: any) => {
-    console.log(msg);
     loggedIn.value = msg.loggedIn;
     error.value = msg.error;
   });
 
   socket.on("playerLocationUpdate", function (msg) {
-    console.log(msg);
+    // Player location updates handled silently
   });
 
   socket.on("gameInfo", function (msg) {
-    console.log('gameInfo', msg);
     gameData.value = msg;
   });
 
   socket.on("playerInfo", function (msg) {
-    console.log('playerInfo', msg);
     playerData.value = msg;
     if (typeof msg.phones !== 'undefined') {
       phoneData.value = msg.phones;
       if (msg.phones.length > 0) {
-        console.log(msg.phones.length);
         hasPhones.value = true;
-        msg.phones.forEach((phone) => {
-          console.log('requesting phone queue update', phone.id);
+        msg.phones.forEach((phone: any) => {
           socket?.emit("requestPhoneQueueUpdate", { id: phone.id });
         });
       } else {
@@ -112,13 +111,8 @@ onMounted(() => {
   });
 
   socket.on("phonebookUpdate", function (msg) {
-    console.log('phonebookUpdate', msg);
     phoneData.value = msg;
-    if (msg.length > 0) {
-      hasPhones.value = true;
-    } else {
-      hasPhones.value = false;
-    }
+    hasPhones.value = msg.length > 0;
   });
 
   socket.on('disconnect', function (reason) {
@@ -126,7 +120,6 @@ onMounted(() => {
     connected.value = false;
     setTimeout(() => {
       socket?.connect();
-      console.log('reconnecting...');
     }, 1000);
   });
 })
@@ -208,8 +201,7 @@ function prepareCall(call: PreparedCall) {
       </div>
       <div class="grid grid-cols-2 grid-rows-5 gap-4 ml-1 w-1/6 bg-zinc-200">
         <div class="">
-          <button @click="changeTab('panelSelector')"
-            class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button @click="changeTab('panelSelector')" :class="buttonClasses">
             <a>Panel Selection</a>
           </button>
         </div>
@@ -217,26 +209,22 @@ function prepareCall(call: PreparedCall) {
           <AuthenticationButton />
         </div>
         <div class="row-start-2">
-          <button v-if="hasPhones" @click="changeTab('phoneBook')"
-            class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" @click="changeTab('phoneBook')" :class="buttonClasses">
             <a>Phone Book</a>
           </button>
         </div>
         <div class="">
-          <button v-if="hasPhones" @click="changeTab('dialPad')"
-            class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" @click="changeTab('dialPad')" :class="buttonClasses">
             <a>Dial Pad</a>
           </button>
         </div>
         <div class="row-start-3">
-          <button v-if="hasPhones" @click="changeTab('incomingCalls')"
-            class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" @click="changeTab('incomingCalls')" :class="buttonClasses">
             <a>Incoming Calls</a>
           </button>
         </div>
         <div>
-          <button v-if="hasPhones" @click="changeTab('considerREC')"
-            class="w-full bg-red-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
+          <button v-if="hasPhones" @click="changeTab('considerREC')" :class="emergencyButtonClasses">
             <a>EMERGENCY</a>
           </button>
         </div>
@@ -256,19 +244,7 @@ function prepareCall(call: PreparedCall) {
             @reject-call="rejectCall"
           />
         </div>
-        <!--div class="row-start-5">
-          <MuteButton />
-        </div-->
-        <!--div class="row-start-6">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
-            <a>Join Lobby</a>
-          </button>
-        </div-->
-        <!--div class="row-start-6">
-          <button class="w-full bg-zinc-300 text-black py-1 px-3 text-lg border-4 border-zinc-400 hover:bg-zinc-400 hover:border-zinc-300 aspect-square">
-            <a>Mark AFK</a>
-          </button>
-        </div-->
+
       </div>
     </div>
     <div class="flex flex-row">
@@ -282,10 +258,7 @@ function prepareCall(call: PreparedCall) {
         <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
 
         </div>
-        <!-- TODO: Do we need this connecting message here?-->
-        <!--div class="w-full h-full bg-cyan-500 text-black py-2 px-3 text-lg border-4 border-zinc-400">
-          Connecting...
-        </div-->
+
       </div>
 
     </div>

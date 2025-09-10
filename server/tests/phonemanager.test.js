@@ -8,6 +8,15 @@ import Phone from "../src/model/phone";
 import Player from "../src/model/player";
 import SimulationLoader from "../src/services/SimulationLoader";
 
+// Mock chalk to prevent any potential issues
+jest.mock('chalk', () => ({
+  blue: jest.fn((msg) => msg),
+  green: jest.fn((msg) => msg),
+  yellow: jest.fn((msg) => msg),
+  red: jest.fn((msg) => msg),
+  white: jest.fn((msg) => msg)
+}));
+
 
 const simId1 = 'kingscross';
 const panelId1 = "hitchin";
@@ -603,4 +612,15 @@ describe('getRECRecipientsForPhone', () => {
       console.error = originalError;
     }
   });
+});
+
+// Global cleanup for phonemanager tests
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.clearAllTimers();
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+  jest.clearAllTimers();
 });

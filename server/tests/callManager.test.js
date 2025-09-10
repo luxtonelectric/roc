@@ -1,8 +1,18 @@
+import { jest } from '@jest/globals';
 import CallManager from '../src/callManager.js';
 import CallRequest from '../src/model/callrequest.js';
 import Phone from '../src/model/phone.js';
 import Player from '../src/model/player.js';
 import Location from '../src/model/location.js';
+
+// Mock chalk to prevent any potential issues
+jest.mock('chalk', () => ({
+  blue: jest.fn((msg) => msg),
+  green: jest.fn((msg) => msg),
+  yellow: jest.fn((msg) => msg),
+  red: jest.fn((msg) => msg),
+  white: jest.fn((msg) => msg)
+}));
 
 // Helper function to create test phone
 function createTestPhone(id, name, discordId = null) {
@@ -359,4 +369,15 @@ test('placeCall should preserve EMERGENCY level for P2P calls', () => {
   
   // This should also preserve the EMERGENCY level
   expect(call.level).toBe(CallRequest.LEVELS.EMERGENCY);
+});
+
+// Global cleanup for callManager tests
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.clearAllTimers();
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+  jest.clearAllTimers();
 });

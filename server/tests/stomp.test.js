@@ -39,13 +39,38 @@ describe('STOMPManager', () => {
   afterEach(() => {
     // Clean up any clients or connections
     if (stompManager && stompManager.clients) {
+      // Properly deactivate all clients before clearing the array
+      stompManager.clients.forEach(gameClient => {
+        try {
+          if (gameClient && gameClient.client && typeof gameClient.client.deactivate === 'function') {
+            gameClient.client.deactivate();
+          }
+        } catch (error) {
+          // Ignore errors during cleanup
+        }
+      });
       stompManager.clients = [];
     }
+    jest.clearAllMocks();
     jest.clearAllTimers();
   });
 
   afterAll(() => {
+    // Final cleanup - make sure all clients are deactivated
+    if (stompManager && stompManager.clients) {
+      stompManager.clients.forEach(gameClient => {
+        try {
+          if (gameClient && gameClient.client && typeof gameClient.client.deactivate === 'function') {
+            gameClient.client.deactivate();
+          }
+        } catch (error) {
+          // Ignore errors during cleanup
+        }
+      });
+      stompManager.clients = [];
+    }
     jest.restoreAllMocks();
+    jest.clearAllTimers();
   });
 
   describe('removeClientForGame', () => {

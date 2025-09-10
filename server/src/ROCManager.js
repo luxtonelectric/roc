@@ -13,6 +13,21 @@ import ConfigurationManager from './services/ConfigurationManager.js';
 /** @typedef {import("./stomp.js").default} STOMPManager */
 
 export default class ROCManager {
+  // Constants
+  static LOGIN_EVENTS = {
+    LOGGED_IN: 'loggedIn',
+    GAME_INFO: 'gameInfo',
+    PLAYER_INFO: 'playerInfo',
+    ADMIN_STATUS: 'adminStatus',
+    VOICE_CHANNELS_UPDATE: 'voiceChannelsUpdate',
+    AUTHD: 'authd'
+  };
+
+  static ERRORS = {
+    ROC_VC_DISCONNECTED: 'ROC_VC_DISCONNECTED',
+    INVALID_DISCORD_USERNAME: 'That isn\'t a discord username.'
+  };
+
   prospects = {};
   players = {};
   admins = {};
@@ -46,7 +61,6 @@ export default class ROCManager {
     this.stompManager = stompManager;
     this.simulationLoader = simulationLoader;
     this.configurationManager = configurationManager;
-    console.info(chalk.yellow("constructor"), `Welcome! Yum yum!`);
   }
 
   /**
@@ -140,8 +154,7 @@ export default class ROCManager {
     this.hosts.push(newHost);
 
     // Sync with config and save
-    this.syncHostsWithConfig();
-    await this.saveConfig(this.config);
+    await this.updateAndSave();
     
     // Reactivate if needed
     if (hostConfig.sim === originalSimId && preservedState) {
@@ -149,8 +162,6 @@ export default class ROCManager {
     } else if (wasEnabled) {
       await this.activateGame(newHost);
     }
-    
-    this.sendGameUpdateToPlayers();
   }
 
   /**
@@ -168,10 +179,7 @@ export default class ROCManager {
 
     // Remove from hosts array and sync with config
     this.hosts = this.hosts.filter(host => host.sim !== simId);
-    this.syncHostsWithConfig();
-    await this.saveConfig(this.config);
-    
-    this.sendGameUpdateToPlayers();
+    await this.updateAndSave();
   }
 
   /**
@@ -198,11 +206,20 @@ export default class ROCManager {
   }
 
   /**
+   * Helper method to update configuration, sync and save
+   */
+  async updateAndSave() {
+    this.syncHostsWithConfig();
+    await this.saveConfig(this.config);
+    this.updateAdminUI();
+    this.sendGameUpdateToPlayers();
+  }
+
+  /**
    * @param {Host|*} host The host instance or game configuration to activate
    * @param {object|null} preservedState Optional preserved state to restore
    */
   activateGame(host, preservedState = null) {
-    console.log(chalk.yellow('activateGame'), 'Activating game for', host.sim);
     // Convert to Host instance if needed
     const hostInstance = host instanceof Host ? host : Host.fromConfig(host);
     
@@ -218,14 +235,11 @@ export default class ROCManager {
     this.stompManager.createClientForHost(hostInstance);
     const sim = this.getSimData(hostInstance.sim, true) // true to load if not exists
     if (sim) {
-      //console.log(chalk.yellow('activateGame'), chalk.green('Loading phones for sim:'), chalk.white(hostInstance.sim));
-      
       // Generate phones for all panels in this sim (including neighbor phones)
       sim.panels = this.phoneManager.generatePhonesForSim(sim);
 
       // If we have preserved state, restore it
       if (preservedState) {
-        console.log(chalk.yellow('activateGame'), chalk.green('Restoring preserved state for sim:'), chalk.white(hostInstance.sim));
         sim.panels = preservedState.panels;
         sim.time = preservedState.time;
         sim.connectionsOpen = preservedState.connectionsOpen;
@@ -308,22 +322,17 @@ export default class ROCManager {
    */
   async notifyVoiceChannelUpdate() {
     const channels = await this.getAvailableVoiceChannels();
-    this.io.to('admins').emit('voiceChannelsUpdate', channels);
+    this.io.to('admins').emit(ROCManager.LOGIN_EVENTS.VOICE_CHANNELS_UPDATE, channels);
   }
 
   async enableHost(simId) {
     const host = this.getHostById(simId);
     if (host) {
       host.enable();
-      this.syncHostsWithConfig();
-      await this.saveConfig(this.config);
-      
       // Activate the game when enabled
-      console.log(chalk.yellow('enableHost'), 'Activating game for', simId);
       await this.activateGame(host);
+      await this.updateAndSave();
       
-      this.updateAdminUI();
-      this.sendGameUpdateToPlayers();
     }
   }
 
@@ -339,11 +348,7 @@ export default class ROCManager {
       await this.deactivateGame(simId);
       
       host.disable();
-      this.syncHostsWithConfig();
-      await this.saveConfig(this.config);
-      
-      this.updateAdminUI();
-      this.sendGameUpdateToPlayers();
+      await this.updateAndSave();
     }
   }
 
@@ -365,7 +370,6 @@ export default class ROCManager {
    * @param {string} discordId 
    */
   async registerWebUI(socket, discordId) {
-    console.log(chalk.yellow("registerWebUI"), discordId);
     if (typeof this.prospects[discordId] === 'undefined') {
       // This is an unknown prospect are they a player already?
       if (typeof this.players[discordId] === 'undefined') {
@@ -374,25 +378,22 @@ export default class ROCManager {
 
         const vc = await this.bot.getUserVoiceChannel(discordId);
         if (vc === null) {
-          console.log(chalk.yellow("registerWebUI"), discordId, "has no VC yet...");
           this.prospects[discordId] = p;
-          socket.emit("loggedIn", {
+          socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
             "loggedIn": false,
-            "error": "ROC_VC_DISCONNECTED"
+            "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
           });
         } else {
-          console.log(chalk.yellow("registerWebUI"), discordId, "adding player...");
           p.voiceChannelId = vc;
           this.addPlayer(p);
         }
       } else {
         // They're already a player...
-        console.log(chalk.yellow("registerWebUI"), discordId, "is already a player");
         this.players[discordId].socket = socket;
         socket.join(discordId);
         //@ts-expect-error
         socket.discordId = discordId;
-        socket.emit("loggedIn", {
+        socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": true,
           "error": ""
         });
@@ -401,19 +402,17 @@ export default class ROCManager {
       }
     } else {
       // They're a prospect already...
-      console.log(chalk.yellow("registerWebUI"), discordId, "is already a prospect");
       if (this.prospects[discordId].voiceChannelId !== null) {
         // They're in a VC and we now have a socket, process the new player
         this.prospects[discordId].socket = socket;
         this.addPlayer(this.prospects[discordId]);
       } else {
-        console.log(chalk.yellow("registerWebUI"), discordId, this.prospects[discordId].voiceChannelId);
         // They're refreshing? Update the socket and await both connections...
         this.prospects[discordId].socket = socket;
 
-        socket.emit("loggedIn", {
+        socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": false,
-          "error": "ROC_VC_DISCONNECTED"
+          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
         });
       }
     }
@@ -428,7 +427,7 @@ export default class ROCManager {
         this.prospects[discordId] = p;
       } else {
         // They're already a player...
-        this.io.to(discordId).emit("loggedIn", {
+        this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": true,
           "error": ""
         });
@@ -448,9 +447,9 @@ export default class ROCManager {
     if (discordId in this.players) {
       this.players[discordId].voiceChannelId = null;
       if (!this.players[discordId].socket.disconnected) {
-        this.io.to(discordId).emit("loggedIn", {
+        this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": false,
-          "error": "ROC_VC_DISCONNECTED"
+          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
         });
       } else {
         this.checkDisconnectingPlayer(this.players[discordId])
@@ -460,25 +459,20 @@ export default class ROCManager {
 
 
 
-  //takes player object
   async addPlayer(newPlayer) {
-    console.info(chalk.yellow("AddPlayer"), "New Player Joining");
     if (typeof newPlayer.discordId !== 'undefined' && newPlayer.discordId.length > 2) {
-      var channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
+      const channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
       if (channel) {
-        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is in a voice channel:`, chalk.magentaBright(channel));
-        
         if (this.players[newPlayer.discordId] !== undefined) {
           // This player has already logged in!
           const existingPlayer = this.players[newPlayer.discordId];
           
           if (existingPlayer.isConnected === false) {
-            console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is reconnecting after socket disconnect`);
             // They DCd and we caught it just let them back in
             if (existingPlayer.voiceChannelId === channel) {
-              //They're still in the same place they were before. Everything is good with the world
+              // They're still in the same place they were before
             } else {
-              //They're somehow changed rooms... guess we should update
+              // They've changed rooms, update their channel
               existingPlayer.voiceChannelId = channel;
             }
             
@@ -486,7 +480,7 @@ export default class ROCManager {
             existingPlayer.socket.join(existingPlayer.discordId);
             existingPlayer.socket.discordId = existingPlayer.discordId;
             existingPlayer.isConnected = true;
-            existingPlayer.socket.emit("loggedIn", {
+            existingPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
               "loggedIn": true,
               "error": ""
             });
@@ -495,12 +489,11 @@ export default class ROCManager {
             this.phoneManager.sendPhonebookUpdateToPlayer(existingPlayer.discordId);
             return true;
           } else {
-            // They're connecting twice for the same person?! This is sus. Follow normal login.
+            // They're connecting twice for the same person. Follow normal login.
           }
           
         } else {
           // Brand new Player
-          //console.log("Brand New Player!");
         }
         const member = await this.bot.getMember(newPlayer.discordId);
         const avatarURL = member.displayAvatarURL();
@@ -511,7 +504,7 @@ export default class ROCManager {
         this.players[newPlayer.discordId] = newPlayer;
         newPlayer.socket.join(newPlayer.discordId);
         newPlayer.socket.discordId = newPlayer.discordId;
-        newPlayer.socket.emit("loggedIn", {
+        newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": true,
           "error": ""
         });
@@ -519,18 +512,16 @@ export default class ROCManager {
         this.updatePlayerInfo(newPlayer);
 
       } else {
-        console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not in a voice channel:`);
-        newPlayer.socket.emit("loggedIn", {
+        newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
           "loggedIn": false,
-          "error": "ROC_VC_DISCONNECTED"
+          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
         });
         return false;
       }
     } else {
-      console.info(chalk.yellow("AddPlayer"), `User ${newPlayer.discordId} is not a discord username. What?`);
-      newPlayer.socket.emit("loggedIn", {
+      newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
         "loggedIn": false,
-        "error": "That isn't a discord username."
+        "error": ROCManager.ERRORS.INVALID_DISCORD_USERNAME
       });
     }
   }
@@ -541,12 +532,11 @@ export default class ROCManager {
   }
 
   /**
-   * 
    * @param {string} socketId 
    * @returns {Player}
    */
   findPlayerBySocketId(socketId) {
-    for (var [key, value] of Object.entries(this.players)) {
+    for (const [key, value] of Object.entries(this.players)) {
       if (value.socket.id === socketId) {
         return this.players[key];
       }
@@ -555,26 +545,17 @@ export default class ROCManager {
   }
 
   isPlayer(discordId) {
-    if(this.players[discordId]) {
-      return true;
-    }
-
-    return false;
+    return !!this.players[discordId];
   }
 
   isProspect(discordId) {
-    if(this.prospects[discordId]) {
-      return true;
-    }
-
-    return false;
+    return !!this.prospects[discordId];
   }
 
 
   /**
-   * 
    * @param {Player} player 
-   * @returns 
+   * @returns {boolean}
    */
   checkDisconnectingPlayer(player) {
     if (!player) {
@@ -583,37 +564,29 @@ export default class ROCManager {
 
     this.bot.getUserVoiceChannel(player.discordId).then((playerChannel) => {
       if (playerChannel === null && player.socket.disconnected) {
-        //The player is not in voice then assume they've left and delete them.
+        // Player is not in voice, assume they've left and delete them
         this.deletePlayer(player);
       } else {
-        console.log(chalk.yellow("checkDisconnectingPlayer"), player.discordId, chalk.white("has lost connection but is still in voice. Maintaining game state."));
-        //The player is still in voice then assume they're coming back and don't delete them but mark them away
+        // Player is still in voice, assume they're coming back and mark them away
         player.isConnected = false;
         this.sendGameUpdateToPlayers();
       }
     }
 
     );
-
-
   }
 
   /**
-   * 
    * @param {Player} player 
    */
   deletePlayer(player) {
-    console.log("Player wishes to leave:", player.discordId);
-    // Delete the player from the players list...
-
     this.phoneManager.unassignPhonesForDiscordId(player.discordId)
 
     // Unclaim any claimed panels
-    for (var skey of Object.keys(this.sims)) {
+    for (const skey of Object.keys(this.sims)) {
       if (typeof this.sims[skey].panels !== "undefined") {
-        for (var pkey of Object.keys(this.sims[skey].panels)) {
+        for (const pkey of Object.keys(this.sims[skey].panels)) {
           if (this.sims[skey].panels[pkey].player === player.discordId) {
-            console.log(chalk.yellow("Delete Player"), player.discordId, chalk.white("was removed as controlling panel"), pkey);
             this.sims[skey].panels[pkey].player = undefined;
           }
         }
@@ -650,10 +623,9 @@ export default class ROCManager {
       avatarURL: player.avatarURL
     };
     this.phoneManager.assignPhone(panel.phone, player)
-    //Update the panel's phone to be assigned to the player
+    // Update the panel's phone to be assigned to the player
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();
-    console.log(chalk.yellow('ClaimPanel'), user, 'claimed', requestedSim, requestedPanel);
   }
 
   releasePanel(user, requestedSim, requestedPanel) {
@@ -679,14 +651,12 @@ export default class ROCManager {
     this.phoneManager.unassignPhone(panel.phone);
     this.updatePlayerInfo(player);
     this.sendGameUpdateToPlayers();
-    console.log(chalk.yellow('ReleasePanel'), user, 'released', requestedSim, requestedPanel);
   }
 
 
   // ============================== END PLAYER CODE ==============================
 
   async movePlayerToVoiceChannel(playerId, channelId) {
-    console.log(chalk.blueBright("GameManager"), chalk.yellow("movePlayerToVoiceChannel"), playerId, channelId);
     this.players[playerId].voiceChannelId = channelId;
     await this.bot.setUserVoiceChannel(playerId, channelId);
   }
@@ -700,12 +670,10 @@ export default class ROCManager {
   async markPlayerAFK(socketId) {
     const player = this.findPlayerBySocketId(socketId);
     if (player === null) {
-      console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
       return false;
     }
     const channelId = this.channels.afk;
     if (channelId === null || typeof channelId === 'undefined') {
-      console.log(chalk.red("markPlayerAFK Invalid player at socket", socketId));
       return false;
     }
     await this.bot.setUserVoiceChannel(player.discordId, channelId);
@@ -721,20 +689,18 @@ export default class ROCManager {
 
   // Just updates the player UI for all players
   sendGameUpdateToPlayers() {
-    console.log('sendingGameUpdate');
-    this.io.emit("gameInfo", this.getGameState());
+    this.io.emit(ROCManager.LOGIN_EVENTS.GAME_INFO, this.getGameState());
     this.updateAdminUI();
   }
 
   sendGameUpdateToSocket(socket) {
-    socket.emit("gameInfo", this.getGameState());
+    socket.emit(ROCManager.LOGIN_EVENTS.GAME_INFO, this.getGameState());
   }
 
   sendGameUpdateToPlayer(player) {
     this.sendGameUpdateToSocket(player.socket);
   }
   /**
-   * 
    * @param {Player} player 
    */
   updatePlayerInfo(player) {
@@ -746,14 +712,12 @@ export default class ROCManager {
     const info = {};
     info.phones = phones.map(p => p.getPhoneBook());
     info.panels = myPanels;
-    player.socket.emit("playerInfo", info);
-    //console.log(chalk.yellow("updatePlayerInfo"), info);
+    player.socket.emit(ROCManager.LOGIN_EVENTS.PLAYER_INFO, info);
   }
 
   // ================================================= ADMIN STUFF ================================================= 
 
   async addAdminUser(data, socket) {
-    console.info(chalk.yellow('Adding Admin User'), data);
     this.admins[socket.id] = socket;
 
     if(!this.isPlayer(data.discordId)) {
@@ -772,18 +736,16 @@ export default class ROCManager {
     socket.join('admins');
     socket.join(data.discordId);
     socket.discordId = data.discordId;
-    socket.emit('authd', { "success": true });
+    socket.emit(ROCManager.LOGIN_EVENTS.AUTHD, { "success": true });
     this.updateAdminUI();
   }
 
 
   updateAdminUI() {
-    this.io.to('admins').emit('adminStatus', this.adminGameStatus());
+    this.io.to('admins').emit(ROCManager.LOGIN_EVENTS.ADMIN_STATUS, this.adminGameStatus());
   }
 
   adminGameStatus() {
-
-
     return {
       hostState: this.getHostState(),
       gameState: this.getGameState(),
@@ -832,7 +794,6 @@ export default class ROCManager {
     const preservePanelIds = new Set();
     
     if (!preservePhones) {
-      console.log(chalk.yellow('deactivateSimulation'), chalk.green('Checking neighbor panels for preservation...'));
       // Check each panel in the removed sim
       sim.panels.forEach(panel => {
         // First check if this panel is a neighbor of any active sim's panels
@@ -849,7 +810,6 @@ export default class ROCManager {
 
         if (isNeighborOfActive || hasActiveNeighbors) {
           preservePanelIds.add(panel.id);
-          console.log(chalk.yellow('deactivateSimulation'), chalk.green('Preserving phone for panel:'), chalk.white(panel.id));
         }
       });
     }
@@ -883,9 +843,6 @@ export default class ROCManager {
     this.stompManager.removeClientForGame(simId);
 
     return preservedState;
-
-    // Send updates
-    this.sendGameUpdateToPlayers();
   }
 
   /**
@@ -896,18 +853,16 @@ export default class ROCManager {
     // Create and validate the Host instance
     let newHost;
     try {
+      // Create host first
+      newHost = Host.fromConfig(hostConfig);
+      
       // Handle authentication if provided
       if (hostConfig.interfaceGateway?.username && hostConfig.interfaceGateway?.password) {
-        // Create host first
-        newHost = Host.fromConfig(hostConfig);
         // Set authentication (this will encrypt the password)
         newHost.interfaceGateway.setAuthentication(
           hostConfig.interfaceGateway.username,
           hostConfig.interfaceGateway.password
         );
-      } else {
-        // No authentication provided, create normally
-        newHost = Host.fromConfig(hostConfig);
       }
 
       // Ensure interfaceGateway is disabled by default
@@ -944,21 +899,16 @@ export default class ROCManager {
     
     try {
       // Sync with config and save first in case activation fails
-      this.syncHostsWithConfig();
-      await this.saveConfig(this.config);
+      await this.updateAndSave();
       
       // Activate the new game
       await this.activateGame(newHost);
-      
-      // Update all clients
-      this.sendGameUpdateToPlayers();
       
       return true;
     } catch (error) {
       // If activation fails, remove from hosts and save
       this.hosts = this.hosts.filter(host => host.sim !== newHost.sim);
-      this.syncHostsWithConfig();
-      await this.saveConfig(this.config);
+      await this.updateAndSave();
       throw error;
     }
   }

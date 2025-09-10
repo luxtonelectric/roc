@@ -12,6 +12,10 @@ import SimulationLoader from './services/SimulationLoader.js';
 /** @typedef {import("./model/player.js").default} Player */
 
 export default class PhoneManager {  
+  // Constants
+  static CONTROL_SUFFIX = '_control';
+  static PHONE_ID_SEPARATOR = '_';
+
   /** @type {Phone[]} */
   phones = [];
 
@@ -44,32 +48,22 @@ export default class PhoneManager {
     this.sims = this.sims.filter(s => s.id !== simId);
   }
   /**
-   * 
-   * @param {Simulation} sim 
-   */
-  /**
    * Generate phones for a simulation and its neighbors
    * @param {Simulation} sim The simulation to generate phones for
    * @param {Set<string>} [excludePanelIds] Optional set of panel IDs to exclude (already have phones)
    * @return {Panel[]} The panels that were processed (with phones assigned)
    */
   generatePhonesForSim(sim, excludePanelIds = new Set()) {
-    console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating phones for sim:'), chalk.white(sim.id));
-
     // Create a phone for each panel in the sim that doesn't already have one
     sim.panels.forEach((panel) => {
       // Skip if this panel already has a phone due to being a neighbor
       if (!excludePanelIds.has(panel.id)) {
         const phone = this.generatePhoneForPanel(sim, panel);
-        //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Added phone:'), chalk.white(phone.getId()));
         panel.phone = phone;
-      } else {
-        //console.log(chalk.yellow('generatePhonesForSim'), chalk.blue('Skipped existing phone for panel:'), chalk.white(panel.id));
       }
     });
 
     // Generate neighbor phones for all panels in this sim
-    //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Generating neighbor phones for sim:'), chalk.white(sim.id));
     sim.panels.forEach((panel) => {
       panel.neighbours.forEach((neighbour) => {
         // Skip if neighbor is in the same sim
@@ -80,26 +74,21 @@ export default class PhoneManager {
         // Load the neighbor sim data
         const neighbourSim = this.simulationLoader.loadSimulation(neighbour.simId);
         if (!neighbourSim) {
-          console.error(chalk.red('generatePhonesForSim: Failed to load neighbor sim:'), chalk.white(neighbour.simId));
           return;
         }
 
         // Check if neighbor panel exists
         const neighbourPanel = neighbourSim.getPanel(neighbour.panelId);
         if (!neighbourPanel) {
-          console.error(chalk.red('generatePhonesForSim: Neighbor panel not found:'), 
-            chalk.white(`${neighbour.panelId} in ${neighbour.simId}`));
           return;
         }
 
         // Check if phone already exists
-        const phoneId = neighbourSim.id + "_" + neighbourPanel.id;
+        const phoneId = neighbourSim.id + PhoneManager.PHONE_ID_SEPARATOR + neighbourPanel.id;
         const existingPhone = this.getPhone(phoneId);
         
         // Only create a phone if it doesn't exist
         if (!existingPhone) {
-          //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Creating neighbor phone for:'), 
-          //  chalk.white(`${neighbourPanel.id} in ${neighbourSim.id}`));
           const phone = this.generatePhoneForPanel(neighbourSim, neighbourPanel);
           neighbourPanel.phone = phone;
         }
@@ -108,15 +97,13 @@ export default class PhoneManager {
 
     // Create a phone for Control
     // TODO: Add ability to configure additional phones for the Sim.
-    this.phones.push(new Phone(sim.id + "_control", sim.name + ' Control', Phone.TYPES.FIXED, new Location(sim.id)));
+    this.phones.push(new Phone(sim.id + PhoneManager.CONTROL_SUFFIX, sim.name + ' Control', Phone.TYPES.FIXED, new Location(sim.id)));
 
     this.sims.push(sim);
-    //console.log(chalk.yellow('generatePhonesForSim'), chalk.green('Finished generating phones for sim:'), chalk.white(sim.id));
     return sim.panels;
   }
 
   /**
-   * 
    * @param {Train} train 
    * @returns {Phone}
    */
@@ -128,19 +115,15 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Simulation} sim
    * @param {Panel} panel 
    * @returns {Phone}
    */
   generatePhoneForPanel(sim, panel) {
-    const phoneId = sim.id + '_' + panel.id;
+    const phoneId = sim.id + PhoneManager.PHONE_ID_SEPARATOR + panel.id;
     // Check if phone already exists
     const existingPhone = this.getPhone(phoneId);
     if (existingPhone) {
-      console.log(chalk.yellow('generatePhoneForPanel'), 
-        chalk.red('Phone already exists:'), 
-        chalk.white(phoneId));
       return existingPhone;
     }
 
@@ -150,7 +133,6 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {string} number 
    * @param {string} name 
    * @param {string} type 
@@ -159,9 +141,7 @@ export default class PhoneManager {
    * @returns {Phone | undefined}
    */
   generatePhoneForPerson(number, name, type=Phone.TYPES.MOBILE, location = null, hidden=false) {
-    console.log(chalk.yellow('generatePhoneForPerson'), arguments)
     if(number && !this.phones.some(p => p.getId() === number)) {
-      console.log('created phone')
       const phone = new Phone(number, name, type, location, hidden)
       this.phones.push(phone);
       return phone;
@@ -172,7 +152,6 @@ export default class PhoneManager {
 
 
   /**
-   * 
    * @param {Phone} phone 
    * @returns {PhonebookEntry[]}
    */
@@ -184,15 +163,13 @@ export default class PhoneManager {
       if(sim) {
         const panel = sim.getPanel(phone.getLocation().panelId);
         if(panel) {
-          const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
-          phones = phones.concat(neighbourPhones);
+          const neighbourPhones = panel.neighbours.map(nb => this.getPhone(nb.simId + PhoneManager.PHONE_ID_SEPARATOR + nb.panelId));
+          phones.push(...neighbourPhones);
         }
-        const control = this.phones.filter(x => x.getId() === sim.id + "_control" && x.getId() !== phone.getId());
-        phones = phones.concat(control);
+        const control = this.phones.filter(x => x.getId() === sim.id + PhoneManager.CONTROL_SUFFIX && x.getId() !== phone.getId());
+        phones.push(...control);
       }
 
-    } else {
-      console.log("Phone has no location");
     }
 
     // Filter out any undefined phones before mapping
@@ -200,7 +177,6 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Phone} phone 
    * @returns {PhonebookEntry[]}
    */
@@ -212,7 +188,6 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Phone} phone 
    * @returns {Phone[]}
    */
@@ -234,24 +209,20 @@ export default class PhoneManager {
       return [];
     }
 
-    const neighbourPhones = panel.neighbours.map((nb) => {return this.getPhone(nb.simId + '_' + nb.panelId)},this);
+    const neighbourPhones = panel.neighbours.map(nb => this.getPhone(nb.simId + PhoneManager.PHONE_ID_SEPARATOR + nb.panelId));
 
-    phones = phones.concat(neighbourPhones);
-    console.log(chalk.redBright('REC neighbourphones'), neighbourPhones.length);
-    console.log(neighbourPhones);
+    phones.push(...neighbourPhones);
     
     // Include control
-    const control = this.phones.find(x => x.getId() === sim.id + "_control" && x.getDiscordId() !== null);
+    const control = this.phones.find(x => x.getId() === sim.id + PhoneManager.CONTROL_SUFFIX && x.getDiscordId() !== null);
     if(control) {
-      phones = phones.concat(control)
-      console.log(chalk.redBright('REC phones'), control.toSimple());
+      phones.push(control)
     }
     
     return phones;
   }
 
   /**
-   * 
    * @param {string} phoneId 
    * @returns {(Phone | undefined)}
    */
@@ -264,14 +235,12 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Phone} phone 
    * @param {Player} player 
    * @returns 
    */
   assignPhone(phone, player) {
     if (typeof phone === 'undefined') {
-      console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
     phone.setPlayer(player);
@@ -280,13 +249,11 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Phone} phone 
    * @returns 
    */
   unassignPhone(phone) {
     if (typeof phone === 'undefined') {
-      console.log(chalk.yellow('assignPhone'), 'Phone is undefined');
       return false;
     }
     const player = phone.getPlayer();
@@ -308,11 +275,8 @@ export default class PhoneManager {
    * @param {Simulation[]} activeSims Array of simulations that will remain active (not including the one being deactivated)
    */
   removeUnusedNeighbourPhones(getSimDataFn, simId, activeSims) {
-    console.log(chalk.yellow('removeUnusedNeighbourPhones'), 'Checking for unused neighbor phones in', chalk.white(simId));
-
     const sim = getSimDataFn(simId, true);
     if (!sim) {
-      console.log(chalk.yellow('removeUnusedNeighbourPhones'), chalk.red('Failed to load sim:'), chalk.white(simId));
       return;
     }
     
@@ -322,7 +286,7 @@ export default class PhoneManager {
         // Skip if neighbor is in the same sim
         if (neighbour.simId === simId) return;
         
-        const phoneId = `${neighbour.simId}_${neighbour.panelId}`;
+        const phoneId = neighbour.simId + PhoneManager.PHONE_ID_SEPARATOR + neighbour.panelId;
         neighborPhoneIds.add(phoneId);
       });
     });
@@ -331,15 +295,14 @@ export default class PhoneManager {
 
     const simToDeactivate = getSimDataFn(simId,false);
     if (!simToDeactivate) {
-      console.log(chalk.yellow('removeUnusedNeighbourPhones'), chalk.red('Failed to load sim:'), chalk.white(simId));
       return;
     }
 
     const addNeighborRelationship = (sim, panel) => {
-      const phoneId = `${sim.id}_${panel.id}`;
+      const phoneId = sim.id + PhoneManager.PHONE_ID_SEPARATOR + panel.id;
         
       panel.neighbours.forEach(neighbour => {
-        const neighborId = `${neighbour.simId}_${neighbour.panelId}`;
+        const neighborId = neighbour.simId + PhoneManager.PHONE_ID_SEPARATOR + neighbour.panelId;
 
         if (!neighborMap.has(phoneId)) neighborMap.set(phoneId, new Set());
         neighborMap.get(phoneId).add(neighborId);
@@ -375,7 +338,7 @@ export default class PhoneManager {
       const location = phone.getLocation();
       if (!location) return false;
       
-      const phoneId = `${location.simId}_${location.panelId}`;
+      const phoneId = location.simId + PhoneManager.PHONE_ID_SEPARATOR + location.panelId;
 
       if (location.simId === simId) {
         // Keep this phone if it's needed by a neighbor
@@ -391,10 +354,6 @@ export default class PhoneManager {
 
     // Remove the unused phones
     phonesToRemove.forEach(phone => {
-      console.log(chalk.yellow('removeUnusedNeighbourPhones'), 
-        chalk.green('Removing unused phone:'), 
-        chalk.white(`${phone.getId()} (${phone.getName()})`));
-      
       // Unassign any player first
       if (phone.getPlayer()) {
         this.unassignPhone(phone);
@@ -403,15 +362,9 @@ export default class PhoneManager {
       // Remove from phones array
       this.phones = this.phones.filter(p => p.getId() !== phone.getId());
     });
-
-    console.log(chalk.yellow('removeUnusedNeighbourPhones'), 
-      chalk.green('Removed'), 
-      chalk.white(phonesToRemove.length), 
-      chalk.green('unused phones'));
   }
 
   /**
-   * 
    * @param {string} discordId 
    * @returns 
    */
@@ -421,7 +374,6 @@ export default class PhoneManager {
   }
 
   /**
-   * 
    * @param {Player} player 
    */
   sendPhonebookUpdateToPlayer(player) {
@@ -429,10 +381,7 @@ export default class PhoneManager {
     phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
     const book = phones.map(p => p.getPhoneBook());
     if(player.socket) {
-      console.log('Sending phonebook update', book);
       player.socket.emit('phonebookUpdate', book);
-    } else {
-      console.log(chalk.magenta('sendPhonebookUpdateToPlayer'), 'No socket for player', player.discordId)
     }
   }
 }

@@ -57,6 +57,23 @@ interface CallManagerReturn {
   getCallPriorityClass: (call: CallDetails) => string
   getCallTypeClass: (call: CallDetails) => string
   getCallStatusClass: (call: CallDetails) => string
+  
+  // TASK-033: Group call methods for Phase 6
+  startGroupCall: (callData: PreparedCall) => Promise<any>
+  joinGroupCall: (groupId: string, phoneId: string) => Promise<boolean>
+  leaveGroupCall: (phoneId: string) => Promise<boolean>
+  terminateGroupCall: (phoneId: string) => Promise<boolean>
+  acceptGroupCall: (callRequest: any) => Promise<boolean>
+  requestGroupCallUpdate: () => void
+  
+  // TASK-022: REC call management
+  recModalVisible: Ref<boolean>
+  recCallInfo: Ref<any>
+  recCountdownActive: Ref<boolean>
+  handleRECCallOffer: (callInfo: any) => void
+  acceptRECCall: () => Promise<boolean>
+  declineRECCall: () => void
+  forceDisconnectFromCurrentCall: () => Promise<void>
 }
 
 /**
@@ -83,6 +100,11 @@ export function useCallManager(
   const callQueue: Ref<CallDetails[]> = ref([])
   const inCall = ref(false)
   const incomingCall = ref(false)
+
+  // REC call state (TASK-022)
+  const recModalVisible = ref(false)
+  const recCallInfo: Ref<any> = ref(undefined)
+  const recCountdownActive = ref(false)
 
   // Audio elements (only created if audio is enabled)
   let callAudio = null
@@ -305,30 +327,190 @@ export function useCallManager(
     showSuccess('Call Ended', 'You have left the call')
   }
 
-  const endCall = (callId: string): Promise<boolean> => {
-    console.log('Ending call:', callId)
-    
+  const endCall = async (callId: string): Promise<boolean> => {
     if (!socketRef.value) {
-      showError('Call Failed', 'Socket connection not available')
-      return Promise.resolve(false)
+      console.error('Socket is not available for ending call')
+      return false
     }
-    
+
     return new Promise((resolve) => {
       socketRef.value.emit('endCall', { id: callId }, (response) => {
-        if (response?.success || response === true) {
+        console.log('End call response:', response)
+        
+        if (response && response.success) {
+          // Clean up local state
           if (currentCall.value && currentCall.value.id === callId) {
             currentCall.value = undefined
+            preparedCall.value = undefined
+            inCall.value = false
+            incomingCall.value = false
           }
-          inCall.value = false
-          incomingCall.value = false
-          showSuccess('Call Ended', 'Call has been ended')
+          
+          // Remove from queue
+          callQueue.value = callQueue.value.filter(call => call.id !== callId)
+          
+          stopCallAudio()
+          showSuccess('Call Ended', 'Call has been ended successfully')
           resolve(true)
         } else {
-          showError('Call Error', 'Failed to end call')
+          console.error('Failed to end call:', response)
+          showError('End Call Failed', 'Unable to end the call')
           resolve(false)
         }
       })
     })
+  }
+
+  // TASK-033: Group call management methods for Phase 6
+  
+  /**
+   * Start a group call (primarily for REC calls)
+   * @param callData - Group call data
+   */
+  const startGroupCall = async (callData: PreparedCall): Promise<any> => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for starting group call')
+      return false
+    }
+
+    return new Promise((resolve) => {
+      socketRef.value.emit('startGroupCall', {
+        type: callData.type,
+        level: callData.level,
+        senderPhoneId: callData.sender.id
+      }, (response) => {
+        console.log('Start group call response:', response)
+        resolve(response)
+      })
+    })
+  }
+
+  /**
+   * Join a group call
+   * @param groupId - Group call ID
+   * @param phoneId - Phone ID to join with
+   */
+  const joinGroupCall = async (groupId: string, phoneId: string): Promise<boolean> => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for joining group call')
+      return false
+    }
+
+    return new Promise((resolve) => {
+      socketRef.value.emit('joinGroupCall', {
+        groupId,
+        phoneId
+      }, (response) => {
+        console.log('Join group call response:', response)
+        resolve(response || false)
+      })
+    })
+  }
+
+  /**
+   * Leave a group call
+   * @param phoneId - Phone ID to leave with
+   */
+  const leaveGroupCall = async (phoneId: string): Promise<boolean> => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for leaving group call')
+      return false
+    }
+
+    return new Promise((resolve) => {
+      socketRef.value.emit('leaveGroupCall', {
+        phoneId
+      }, (response) => {
+        console.log('Leave group call response:', response)
+        
+        if (response) {
+          // Clean up local state
+          if (currentCall.value) {
+            currentCall.value = undefined
+            preparedCall.value = undefined
+            inCall.value = false
+            incomingCall.value = false
+          }
+          stopCallAudio()
+        }
+        
+        resolve(response || false)
+      })
+    })
+  }
+
+  /**
+   * Terminate a group call (end for all participants)
+   * @param phoneId - Phone ID of terminator
+   */
+  const terminateGroupCall = async (phoneId: string): Promise<boolean> => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for terminating group call')
+      return false
+    }
+
+    return new Promise((resolve) => {
+      socketRef.value.emit('terminateGroupCall', {
+        phoneId
+      }, (response) => {
+        console.log('Terminate group call response:', response)
+        
+        if (response) {
+          // Clean up local state
+          if (currentCall.value) {
+            currentCall.value = undefined
+            preparedCall.value = undefined
+            inCall.value = false
+            incomingCall.value = false
+          }
+          stopCallAudio()
+          showSuccess('Group Call Ended', 'Group call has been terminated')
+        }
+        
+        resolve(response || false)
+      })
+    })
+  }
+
+  /**
+   * Accept a group call (primarily for REC calls)
+   * @param callRequest - Call request object
+   */
+  const acceptGroupCall = async (callRequest: any): Promise<boolean> => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for accepting group call')
+      return false
+    }
+
+    return new Promise((resolve) => {
+      socketRef.value.emit('acceptGroupCall', {
+        type: callRequest.type || 'REC',
+        callRequest
+      }, (response) => {
+        console.log('Accept group call response:', response)
+        
+        if (response) {
+          inCall.value = true
+          incomingCall.value = false
+          stopCallAudio()
+          showSuccess('Joined Group Call', 'Successfully joined the group call')
+        }
+        
+        resolve(response || false)
+      })
+    })
+  }
+
+  /**
+   * Request group call update from server
+   */
+  const requestGroupCallUpdate = () => {
+    if (!socketRef.value) {
+      console.error('Socket is not available for requesting group call update')
+      return
+    }
+
+    socketRef.value.emit('requestGroupCallUpdate', {})
   }
 
   const selectCall = (call: CallDetails): void => {
@@ -341,24 +523,30 @@ export function useCallManager(
 
   // Audio management functions
   const playCallAudio = () => {
+    console.log('playCallAudio called, enableAudio:', enableAudio, 'callAudio exists:', !!callAudio)
     if (enableAudio && callAudio) {
       callAudio.currentTime = 0
       callAudio.play().then(() => {
-        console.log('Call audio played')
+        console.log('Call audio played successfully')
       }).catch((error) => {
-        console.log('Call audio error:', error)
+        console.error('Call audio error:', error)
       })
+    } else {
+      console.warn('Call audio not played - enableAudio:', enableAudio, 'callAudio:', !!callAudio)
     }
   }
 
   const playRejectedAudio = () => {
+    console.log('playRejectedAudio called, enableAudio:', enableAudio, 'rejectedAudio exists:', !!rejectedAudio)
     if (enableAudio && rejectedAudio) {
       rejectedAudio.currentTime = 0
       rejectedAudio.play().then(() => {
-        console.log('Rejected audio played')
+        console.log('Rejected audio played successfully')
       }).catch((error) => {
-        console.log('Rejected audio error:', error)
+        console.error('Rejected audio error:', error)
       })
+    } else {
+      console.warn('Rejected audio not played - enableAudio:', enableAudio, 'rejectedAudio:', !!rejectedAudio)
     }
   }
 
@@ -454,6 +642,7 @@ export function useCallManager(
               acceptCall(call.id)
             } else {
               currentCall.value = call
+              playCallAudio() // Play ring tone for outgoing calls while waiting for answer
             }
           } else {
             // Incoming call
@@ -475,39 +664,35 @@ export function useCallManager(
       return
     }
     
-    socketRef.value.on('callOffered', (call: CallDetails) => {
-      console.log('Call offered:', call)
-      currentCall.value = call
-      incomingCall.value = true
-      inCall.value = false
+    // Handle new calls in queue (server emits 'newCallInQueue')
+    socketRef.value.on('newCallInQueue', (call: CallDetails) => {
+      console.log('New call in queue:', call)
+      
+      // Check if this is an incoming call for us (we're a receiver)
+      const myPhoneIds = myPhones.value ? Object.keys(myPhones.value) : []
+      const isIncomingCall = call.receivers?.some(receiver => 
+        myPhoneIds.includes(receiver.id)
+      )
+      
+      if (isIncomingCall && call.status === CallDetails.STATUS.OFFERED) {
+        currentCall.value = call
+        incomingCall.value = true
+        inCall.value = false
+        playCallAudio() // Play incoming call sound
+      }
     })
 
-    socketRef.value.on('callAccepted', (call: CallDetails) => {
-      console.log('Call accepted:', call)
-      if (currentCall.value && currentCall.value.id === call.id) {
+    // Handle call acceptance confirmation (server emits 'joinedCall')
+    socketRef.value.on('joinedCall', (msg: { success: boolean }) => {
+      console.log('Joined call:', msg)
+      if (msg.success && currentCall.value) {
         inCall.value = true
         incomingCall.value = false
+        stopCallAudio() // Stop call sounds when call connects
       }
     })
 
-    socketRef.value.on('callEnded', (call: CallDetails) => {
-      console.log('Call ended:', call)
-      if (currentCall.value && currentCall.value.id === call.id) {
-        currentCall.value = undefined
-        inCall.value = false
-        incomingCall.value = false
-      }
-    })
-
-    socketRef.value.on('callRejected', (call: CallDetails) => {
-      console.log('Call rejected:', call)
-      if (currentCall.value && currentCall.value.id === call.id) {
-        currentCall.value = undefined
-        inCall.value = false
-        incomingCall.value = false
-      }
-    })
-
+    // Handle being kicked from calls (server emits 'kickedFromCall')
     socketRef.value.on('kickedFromCall', (msg: any) => {
       console.log('Kicked from call:', msg)
       if (currentCall.value) {
@@ -517,6 +702,213 @@ export function useCallManager(
         incomingCall.value = false
         stopCallAudio()
       }
+    })
+
+    // Handle VGCS group call notifications (for REC calls)
+    socketRef.value.on('groupCallNotification', (msg: any) => {
+      console.log('Group call notification:', msg)
+      // Handle VGCS-based REC call notifications
+      if (msg.callType === 'REC' && autoAcceptREC) {
+        // Auto-accept REC calls if configured
+        console.log('Auto-accepting REC call:', msg.groupId)
+        socketRef.value?.emit('acceptCall', { id: msg.groupId })
+      }
+    })
+
+    // Handle REC call active status (server emits 'recCallActive')
+    socketRef.value.on('recCallActive', (msg: any) => {
+      console.log('REC call active:', msg)
+      // Update UI to show active REC call state
+      if (msg.success) {
+        inCall.value = true
+        incomingCall.value = false
+        
+        // Set currentCall for REC if we have REC call info
+        if (recCallInfo.value) {
+          currentCall.value = {
+            id: recCallInfo.value.id || msg.groupId || '',
+            type: 'REC',
+            status: 'accepted',
+            sender: recCallInfo.value.callerInfo || { name: 'Emergency Call', id: 'rec', type: 'emergency' },
+            receivers: [],
+            level: 'emergency',
+            timePlaced: Date.now()
+          }
+        } else if (msg.groupId) {
+          // Fallback if no recCallInfo available
+          currentCall.value = {
+            id: msg.groupId,
+            type: 'REC',
+            status: 'accepted',
+            sender: { name: 'Emergency Call', id: 'rec', type: 'emergency' },
+            receivers: [],
+            level: 'emergency',
+            timePlaced: Date.now()
+          }
+        }
+      }
+    })
+
+    // TASK-033: Group call event handlers for Phase 6 socket integration
+    
+    // Handle group call initiated notifications
+    socketRef.value.on('groupCallInitiated', (msg: any) => {
+      console.log('Group call initiated:', msg)
+      if (msg.type === 'REC') {
+        // Handle REC call initiation - create minimal call details for UI
+        const dummyPhone = { id: msg.originatorPhoneId, name: 'REC Caller' } as Phone
+        currentCall.value = new CallDetails(
+          msg.groupId,
+          msg.timestamp || Date.now(),
+          msg.level || 'emergency',
+          'offered',
+          dummyPhone,
+          [],
+          'REC'
+        )
+        incomingCall.value = true
+        inCall.value = false
+        playCallAudio()
+      }
+    })
+
+    // Handle REC notifications with admin/player differentiation
+    socketRef.value.on('recNotification', (msg: any) => {
+      console.log('REC notification (player):', msg)
+      if (msg.showModal) {
+        // Show REC modal with countdown for players
+        // The autoAcceptREC setting controls auto-join behavior within the modal
+        handleRECCallOffer(msg)
+        console.log('Should show REC modal with countdown:', msg.autoJoinCountdown)
+      }
+    })
+
+    // Handle REC audio notifications for admins
+    socketRef.value.on('recAudioNotification', (msg: any) => {
+      console.log('REC audio notification (admin):', msg)
+      // Play audio notification without modal for admins
+      if (enableAudio) {
+        playCallAudio()
+        // Audio plays but no modal or auto-join for admins
+      }
+    })
+
+    // Handle group call status updates
+    socketRef.value.on('groupCallStatusUpdate', (msg: any) => {
+      console.log('Group call status update:', msg)
+      if (currentCall.value && currentCall.value.id === msg.groupId) {
+        // Update current call status
+        currentCall.value.status = msg.status
+        if (msg.status === 'active') {
+          inCall.value = true
+          incomingCall.value = false
+        }
+      }
+    })
+
+    // Handle group call active notifications
+    socketRef.value.on('groupCallActive', (msg: any) => {
+      console.log('Group call active:', msg)
+      
+      // Update call state for group calls
+      if (msg.groupId) {
+        inCall.value = true
+        incomingCall.value = false
+        stopCallAudio()
+        
+        // If this is a REC call and we don't have currentCall set, create it
+        if (msg.type === 'REC' && !currentCall.value) {
+          currentCall.value = {
+            id: msg.groupId,
+            type: 'REC',
+            status: 'accepted',
+            sender: { name: 'Emergency Call', id: 'rec', type: 'emergency' },
+            receivers: [],
+            level: 'emergency',
+            timePlaced: Date.now()
+          }
+        }
+        // Update existing currentCall if IDs match
+        else if (currentCall.value && currentCall.value.id === msg.groupId) {
+          currentCall.value.status = 'accepted'
+          inCall.value = true
+        }
+      }
+    })
+
+    // Handle group call terminated notifications
+    socketRef.value.on('groupCallTerminated', (msg: any) => {
+      console.log('Group call terminated:', msg)
+      if (currentCall.value && currentCall.value.id === msg.groupId) {
+        currentCall.value = undefined
+        preparedCall.value = undefined
+        inCall.value = false
+        incomingCall.value = false
+        stopCallAudio()
+      }
+    })
+
+    // Handle participant updates
+    socketRef.value.on('groupCallParticipantJoined', (msg: any) => {
+      console.log('Participant joined group call:', msg)
+      // Update participant count or list if needed
+    })
+
+    socketRef.value.on('groupCallParticipantLeft', (msg: any) => {
+      console.log('Participant left group call:', msg)
+      // Update participant count or list if needed
+    })
+
+    // Handle force disconnect for REC priority
+    socketRef.value.on('forceDisconnect', (msg: any) => {
+      console.log('Force disconnect for REC priority:', msg)
+      // Disconnect from current call and join REC call
+      if (currentCall.value) {
+        leaveCall(currentCall.value.id)
+      }
+      
+      // Auto-join the new REC call if configured
+      if (autoAcceptREC && msg.newGroupId) {
+        setTimeout(() => {
+          socketRef.value?.emit('acceptGroupCall', { 
+            type: 'REC',
+            callRequest: { id: msg.newGroupId }
+          })
+        }, 100)
+      }
+    })
+
+    // Handle REC auto-join
+    socketRef.value.on('recAutoJoin', (msg: any) => {
+      console.log('REC auto-join:', msg)
+      if (msg.forceJoin && msg.groupId) {
+        // Force join the REC call
+        socketRef.value?.emit('acceptGroupCall', {
+          type: 'REC',
+          callRequest: { id: msg.groupId }
+        })
+      }
+    })
+
+    // Handle group call errors
+    socketRef.value.on('groupCallError', (msg: any) => {
+      console.error('Group call error:', msg)
+      showError('Group Call Error', msg.error)
+      
+      // Clean up call state on error
+      if (currentCall.value && currentCall.value.id === msg.groupId) {
+        currentCall.value = undefined
+        preparedCall.value = undefined
+        inCall.value = false
+        incomingCall.value = false
+        stopCallAudio()
+      }
+    })
+
+    // Handle VGCS errors
+    socketRef.value.on('vgcsError', (msg: any) => {
+      console.error('VGCS error:', msg)
+      showError('VGCS Error', msg.error)
     })
 
     // Queue management events (for client UI)
@@ -533,11 +925,26 @@ export function useCallManager(
       return
     }
     
-    socketRef.value.off('callOffered')
-    socketRef.value.off('callAccepted')
-    socketRef.value.off('callEnded')
-    socketRef.value.off('callRejected')
+    // Remove existing event listeners
+    socketRef.value.off('newCallInQueue')
+    socketRef.value.off('joinedCall')
     socketRef.value.off('kickedFromCall')
+    socketRef.value.off('groupCallNotification')
+    socketRef.value.off('recCallActive')
+    
+    // TASK-033: Remove group call event listeners for Phase 6
+    socketRef.value.off('groupCallInitiated')
+    socketRef.value.off('recNotification')
+    socketRef.value.off('recAudioNotification')
+    socketRef.value.off('groupCallStatusUpdate')
+    socketRef.value.off('groupCallActive')
+    socketRef.value.off('groupCallTerminated')
+    socketRef.value.off('groupCallParticipantJoined')
+    socketRef.value.off('groupCallParticipantLeft')
+    socketRef.value.off('forceDisconnect')
+    socketRef.value.off('recAutoJoin')
+    socketRef.value.off('groupCallError')
+    socketRef.value.off('vgcsError')
     
     if (enableQueueManagement) {
       socketRef.value.off('callQueueUpdate')
@@ -588,6 +995,159 @@ export function useCallManager(
     }
   }
 
+  // TASK-022: REC call management methods
+  const handleRECCallOffer = (callInfo: any) => {
+    console.log('REC call offer received:', callInfo)
+    
+    // Play REC audio notification
+    if (recAudio) {
+      recAudio.play().catch(console.error)
+    }
+    
+    // Transform server data to match RECModal component expectations
+    const transformedCallInfo = {
+      ...callInfo,
+      callerInfo: {
+        name: callInfo.originatorName || 'Unknown Caller',
+        location: callInfo.originatorLocation || 'Unknown Location',
+        id: callInfo.originatorPhoneId || callInfo.phoneId
+      },
+      countdown: callInfo.autoJoinCountdown !== undefined ? callInfo.autoJoinCountdown : 5,
+      isOriginator: callInfo.isOriginator || false,
+      message: callInfo.message || undefined
+    }
+    
+    // Show REC modal with appropriate countdown
+    recCallInfo.value = transformedCallInfo
+    recModalVisible.value = true
+    recCountdownActive.value = !transformedCallInfo.isOriginator // No countdown for originator
+    
+    // Auto-accept after countdown if enabled and not originator
+    if (autoAcceptREC && !transformedCallInfo.isOriginator && transformedCallInfo.countdown > 0) {
+      setTimeout(() => {
+        if (recCountdownActive.value && recModalVisible.value) {
+          acceptRECCall()
+        }
+      }, transformedCallInfo.countdown * 1000)
+    }
+  }
+
+  const acceptRECCall = async (): Promise<boolean> => {
+    if (!recCallInfo.value || !socketRef.value) {
+      return false
+    }
+
+    recCountdownActive.value = false
+    
+    // If this is the originator, set up their call state and dismiss the modal
+    if (recCallInfo.value.isOriginator) {
+      console.log('Originator accepting REC modal - setting up call state')
+      
+      // Set up the originator's current call state
+      currentCall.value = {
+        id: recCallInfo.value.id,
+        type: 'REC',
+        status: 'accepted',
+        sender: recCallInfo.value.callerInfo || { name: 'Emergency Call', id: 'rec', type: 'emergency' },
+        receivers: [],
+        level: 'emergency',
+        timePlaced: Date.now()
+      }
+      
+      // Set call state flags
+      inCall.value = true
+      incomingCall.value = false
+      
+      // Dismiss the modal
+      recModalVisible.value = false
+      
+      console.log('Originator currentCall state set:', currentCall.value)
+      console.log('inCall:', inCall.value, 'currentCall type:', currentCall.value?.type)
+      console.log('REC controls should be visible:', inCall.value && currentCall.value?.type === 'REC')
+      return true
+    }
+    
+    try {
+      // Force disconnect from current call if in one
+      await forceDisconnectFromCurrentCall()
+      
+      // Join the REC call
+      const result = await new Promise<boolean>((resolve) => {
+        if (!socketRef.value || !recCallInfo.value) {
+          resolve(false)
+          return
+        }
+        
+        socketRef.value.emit('acceptGroupCall', {
+          id: recCallInfo.value.id,
+          phoneId: recCallInfo.value.receiverPhone?.id
+        }, (response: any) => {
+          resolve(response && response !== false)
+        })
+      })
+
+      if (result) {
+        showSuccess('Emergency Call', 'Joined Railway Emergency Call')
+        
+        // Set current call immediately upon successful join
+        if (recCallInfo.value) {
+          currentCall.value = {
+            id: recCallInfo.value.id,
+            type: 'REC',
+            status: 'accepted',
+            sender: recCallInfo.value.callerInfo || { name: 'Emergency Call', id: 'rec', type: 'emergency' },
+            receivers: [],
+            level: 'emergency',
+            timePlaced: Date.now()
+          }
+          inCall.value = true
+        }
+        
+        recModalVisible.value = false
+        // Note: Keep recCallInfo available for potential future use rather than clearing immediately
+      } else {
+        showError('Emergency Call Failed', 'Could not join Railway Emergency Call')
+      }
+
+      return result
+    } catch (error) {
+      console.error('Error accepting REC call:', error)
+      showError('Emergency Call Failed', 'Error joining Railway Emergency Call')
+      return false
+    }
+  }
+
+  const declineRECCall = () => {
+    recCountdownActive.value = false
+    recModalVisible.value = false
+    
+    if (recCallInfo.value && socketRef.value) {
+      socketRef.value.emit('rejectGroupCall', {
+        id: recCallInfo.value.id,
+        phoneId: recCallInfo.value.receiverPhone?.id
+      })
+    }
+    
+    recCallInfo.value = undefined
+  }
+
+  const forceDisconnectFromCurrentCall = async (): Promise<void> => {
+    if (!currentCall.value) return
+
+    try {
+      if (currentCall.value.type === 'group' || currentCall.value.type === PreparedCall.TYPES.REC) {
+        // Leave group call - use any available phone ID
+        const phoneId = Object.keys(myPhones.value)[0] || ''
+        await leaveGroupCall(phoneId)
+      } else {
+        // End P2P call
+        await endCall(currentCall.value.id)
+      }
+    } catch (error) {
+      console.error('Error disconnecting from current call:', error)
+    }
+  }
+
   return {
     // State
     currentCall,
@@ -623,6 +1183,23 @@ export function useCallManager(
     // Event handling
     setupCallEventListeners,
     removeCallEventListeners,
+    
+    // TASK-033: Group call methods for Phase 6
+    startGroupCall,
+    joinGroupCall,
+    leaveGroupCall,
+    terminateGroupCall,
+    acceptGroupCall,
+    requestGroupCallUpdate,
+    
+    // TASK-022: REC call management
+    recModalVisible,
+    recCallInfo,
+    recCountdownActive,
+    handleRECCallOffer,
+    acceptRECCall,
+    declineRECCall,
+    forceDisconnectFromCurrentCall,
     
     // Utilities
     getCallPriorityClass,

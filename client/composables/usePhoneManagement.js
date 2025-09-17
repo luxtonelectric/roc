@@ -34,16 +34,16 @@ export function usePhoneManagement(socket, gameState, showError, showSuccess) {
     }
   }
 
-  const createPhone = () => {
+  const createPhone = (resetForm = true) => {
     console.log('createPhone')
     
     // Validate required fields
-    if (!newPhone.value.name.trim()) {
+    if (!newPhone.value.name || !newPhone.value.name.toString().trim()) {
       showError('Validation Error', 'Phone name is required')
       return
     }
     
-    if (!newPhone.value.number.trim()) {
+    if (!newPhone.value.number || !newPhone.value.number.toString().trim()) {
       showError('Validation Error', 'Phone number is required')
       return
     }
@@ -55,11 +55,13 @@ export function usePhoneManagement(socket, gameState, showError, showSuccess) {
     
     socket.emit("createPhone", phone)
     
-    // Reset the form after successful submission
-    newPhone.value = {
-      name: "",
-      number: "",
-      type: "mobile"
+    // Reset the form after successful submission (optional)
+    if (resetForm) {
+      newPhone.value = {
+        name: "",
+        number: "",
+        type: "mobile"
+      }
     }
     
     showSuccess('Phone Created', `Phone "${phone.name}" has been created successfully`)
@@ -76,6 +78,8 @@ export function usePhoneManagement(socket, gameState, showError, showSuccess) {
   const placeCall = async (receiver, type = PreparedCall.TYPES.P2P, level = PreparedCall.LEVELS.NORMAL) => {
     console.log('placeCall', receiver, type, level)
     console.log('selectedPhone', selectedPhone.value[receiver])
+    console.log('gameState.phones:', gameState.value.phones?.map(p => ({ id: p.id, name: p.name })))
+    console.log('selectedPhone full object:', selectedPhone.value)
 
     // Validate call type
     if (!Object.values(PreparedCall.TYPES).includes(type)) {
@@ -92,10 +96,21 @@ export function usePhoneManagement(socket, gameState, showError, showSuccess) {
     }
 
     const receiverPhone = gameState.value.phones.find(p => p.id === receiver)
-    const senderPhone = gameState.value.phones.find(p => p.id === selectedPhone.value[receiver])
+    // Handle string/number conversion for phone ID lookup
+    const selectedPhoneId = selectedPhone.value[receiver]
+    const senderPhone = gameState.value.phones.find(p => 
+      p.id === selectedPhoneId || 
+      p.id === String(selectedPhoneId) || 
+      String(p.id) === String(selectedPhoneId)
+    )
+    
+    console.log('receiverPhone found:', receiverPhone ? `${receiverPhone.id} (${receiverPhone.name})` : 'NOT FOUND')
+    console.log('senderPhone found:', senderPhone ? `${senderPhone.id} (${senderPhone.name})` : 'NOT FOUND')
     
     if (!senderPhone) {
       console.log("Refusing call: sender phone not selected/not found")
+      console.log("Looking for sender phone ID:", selectedPhone.value[receiver])
+      console.log("Available phone IDs in gameState:", gameState.value.phones?.map(p => p.id))
       showError('Call Failed', 'Sender phone not selected or not found')
       return
     }

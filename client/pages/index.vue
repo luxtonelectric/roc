@@ -4,6 +4,8 @@ import type { Socket } from 'socket.io-client'
 import type { Ref } from 'vue'
 import DialPad from '~/components/DialPad.vue';
 import PhoneBook from '~/components/PhoneBook.vue';
+import RECModal from '~/components/RECModal.vue';
+import RECCallControls from '~/components/RECCallControls.vue';
 import type { PreparedCall } from '~/models/PreparedCall';
 import { useCallManager } from '~/composables/useCallManager'
 import CallDisplay from '~/components/shared/CallDisplay.vue'
@@ -64,13 +66,39 @@ const {
   leaveCall,
   selectCall,
   setupCallEventListeners,
-  removeCallEventListeners
+  removeCallEventListeners,
+  // REC call properties
+  recModalVisible,
+  recCallInfo,
+  recCountdownActive,
+  acceptRECCall,
+  declineRECCall,
+  // Group call functions
+  leaveGroupCall,
+  terminateGroupCall
 } = callManager
 
+// Computed property to convert phoneData to array format for CallButton
+const phoneDataArray = computed(() => {
+  if (!phoneData.value) return [];
+  
+  if (Array.isArray(phoneData.value)) {
+    return phoneData.value;
+  } else if (typeof phoneData.value === 'object') {
+    return Object.values(phoneData.value);
+  }
+  
+  return [];
+})
+
 onMounted(() => {
+  console.log('DEBUGGING: Socket server URL:', runtimeConfig.public.socketServer);
+  console.log('DEBUGGING: Session:', session);
+  
   socket = io(runtimeConfig.public.socketServer)
   
   socket.on('connect', () => {
+    console.log('DEBUGGING: Socket connected successfully');
     connected.value = true;
     error.value = "";
     joinUser();
@@ -82,7 +110,12 @@ onMounted(() => {
     setupCallEventListeners();
   });
 
+  socket.on('connect_error', (error) => {
+    console.error('DEBUGGING: Socket connection error:', error);
+  });
+
   socket.on("loggedIn", (msg: any) => {
+    console.log('DEBUGGING: Received loggedIn event:', msg);
     loggedIn.value = msg.loggedIn;
     error.value = msg.error;
   });
@@ -130,8 +163,8 @@ onUnmounted(() => {
 })
 
 function joinUser() {
-  username.value = session.sub;
-  socket?.emit("newPlayer", { discordId: session?.sub });
+  username.value = session?.sub || "testuser";
+  socket?.emit("newPlayer", { discordId: session?.sub || "123456789" });
 }
 
 function changeTab(tab: string) {
@@ -140,6 +173,66 @@ function changeTab(tab: string) {
 
 function prepareCall(call: PreparedCall) {
   preparedCall.value = call;
+}
+
+// REC Call Control Handlers
+function handleRECDropOut() {
+  // Find current phone ID from the REC call or player's claimed phones
+  const phoneId = findCurrentPhoneId();
+  if (phoneId) {
+    leaveGroupCall(phoneId);
+  } else {
+    console.error('Cannot drop out: No phone ID found');
+  }
+}
+
+function handleRECEndCall() {
+  // Find current phone ID for terminating the call
+  const phoneId = findCurrentPhoneId();
+  if (phoneId) {
+    terminateGroupCall(phoneId);
+  } else {
+    console.error('Cannot end call: No phone ID found');
+  }
+}
+
+function findCurrentPhoneId(): string | null {
+  // For REC calls, we need to find the current player's phone, not the originator's
+  // REC calls are group calls where participants use their own phones
+  
+  // Fallback: find any claimed phone from phoneData that belongs to this player
+  if (phoneData.value) {
+    // phoneData might be an array or object with phone entries
+    let phones: any[] = [];
+    
+    if (Array.isArray(phoneData.value)) {
+      phones = phoneData.value;
+    } else if (typeof phoneData.value === 'object') {
+      phones = Object.values(phoneData.value);
+    }
+    
+    // Find the first phone that belongs to this player
+    // In a REC call context, players use their own phones to participate
+    const phone = phones.find(p => p && p.id);
+    if (phone?.id) {
+      console.log('findCurrentPhoneId: Using player phone:', phone.id);
+      return phone.id;
+    }
+  }
+  
+  // Last resort: try to get from current call, but this is usually the originator
+  if (currentCall.value?.sender?.id) {
+    console.warn('findCurrentPhoneId: Falling back to call sender ID (may not be correct for participants):', currentCall.value.sender.id);
+    return currentCall.value.sender.id;
+  }
+  
+  console.error('findCurrentPhoneId: No phone ID found in', { 
+    currentCall: currentCall.value, 
+    recCallInfo: recCallInfo.value, 
+    phoneData: phoneData.value 
+  });
+  
+  return null;
 }
 
 </script>
@@ -237,6 +330,7 @@ function prepareCall(call: PreparedCall) {
             :prepared-call="preparedCall"
             :in-call="inCall"
             :incoming-call="incomingCall"
+            :phone-data="phoneDataArray"
             @change-tab="changeTab"
             @place-call="placeCall"
             @accept-call="acceptCall"
@@ -248,19 +342,42 @@ function prepareCall(call: PreparedCall) {
       </div>
     </div>
     <div class="flex flex-row">
-      <div class="grid grid-cols-3 gap-2 pt-2 w-5/6 pr-2.5">
-        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
-
-        </div>
-        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
-
-        </div>
-        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
-
-        </div>
-
+      <!-- REC Call Controls - Show when in REC call -->
+      <div v-if="inCall && currentCall?.type === 'REC'" class="w-5/6 pr-2.5 pt-2">
+        <RECCallControls 
+          :caller-info="currentCall?.sender"
+          :participants="undefined"
+          :start-time="currentCall?.timePlaced ? new Date(currentCall.timePlaced) : undefined"
+          :call-id="currentCall?.id"
+          @drop-out="handleRECDropOut"
+          @end-call="handleRECEndCall"
+        />
       </div>
+      
+      <!-- Default bottom section when not in REC call -->
+      <div v-else class="grid grid-cols-3 gap-2 pt-2 w-5/6 pr-2.5">
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
 
+        </div>
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+
+        </div>
+        <div class="w-full h-full bg-zinc-300 text-black py-2 px-3 text-lg border-4 border-zinc-400">
+
+        </div>
+      </div>
     </div>
+
+    <!-- Railway Emergency Call Modal (TASK-024) -->
+    <RECModal 
+      :is-visible="recModalVisible"
+      :caller-info="recCallInfo?.callerInfo"
+      :initial-countdown="recCallInfo?.countdown !== undefined ? recCallInfo.countdown : 5"
+      :allow-decline="!recCallInfo?.isOriginator"
+      @accept="acceptRECCall"
+      @decline="declineRECCall"
+      @timeout="acceptRECCall"
+      @close="declineRECCall"
+    />
   </div>
 </template>

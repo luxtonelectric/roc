@@ -1,6 +1,25 @@
 <template>
   <div class="my-1">
-    <h1 class="text-3xl font-bold">Phones</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Phones</h1>
+      <button 
+        @click="openAddPhoneModal"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add New Phone
+      </button>
+    </div>
+
+    <!-- Add Phone Modal -->
+    <AddPhoneModal
+      :isVisible="isModalVisible"
+      :validatePhoneNumberInput="validatePhoneNumberInput"
+      @close="closeModal"
+      @submit="handlePhoneSubmit"
+    />
     
     <!-- Debug info -->
     <div class="mb-4 p-2 bg-yellow-100 text-sm">
@@ -90,38 +109,53 @@
                   <select 
                     v-model="selectedPhone[phone.id]"
                     class="block w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    :disabled="Object.keys(myPhones).length === 0"
                   >
-                    <option value="">Select Phone</option>
+                    <option value="">{{ Object.keys(myPhones).length === 0 ? 'No claimed phones' : 'Select Phone' }}</option>
                     <option v-for="(myPhone, key) in myPhones" :key="key" :value="key">
                       {{ myPhone?.name || key }}
                     </option>
                   </select>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.NORMAL)"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm"
-                    title="Place a normal priority P2P call"
+                    :disabled="!selectedPhone[phone.id]"
+                    :class="[
+                      'px-2 py-1 rounded text-sm',
+                      selectedPhone[phone.id] 
+                        ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer' 
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+                    ]"
+                    :title="selectedPhone[phone.id] ? 'Place a normal priority P2P call' : 'Select a sender phone first'"
                   >
                     Call
                   </button>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.URGENT)"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-sm"
-                    title="Place an urgent priority P2P call"
+                    :disabled="!selectedPhone[phone.id]"
+                    :class="[
+                      'px-2 py-1 rounded text-sm',
+                      selectedPhone[phone.id] 
+                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer' 
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+                    ]"
+                    :title="selectedPhone[phone.id] ? 'Place an urgent priority P2P call' : 'Select a sender phone first'"
                   >
                     Urgent
                   </button>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.REC, PreparedCall.LEVELS.EMERGENCY)"
-                    :disabled="!hasValidLocationForREC(phone.id)"
+                    :disabled="!selectedPhone[phone.id] || !hasValidLocationForREC(phone.id)"
                     :class="[
                       'px-2 py-1 rounded text-sm',
-                      hasValidLocationForREC(phone.id) 
+                      (selectedPhone[phone.id] && hasValidLocationForREC(phone.id))
                         ? 'bg-red-500 hover:bg-red-600 text-white cursor-pointer' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                     ]"
-                    :title="hasValidLocationForREC(phone.id) 
-                      ? 'Place an emergency Railway Emergency Call (REC)' 
-                      : 'Phone must have a valid location (simId and panelId) for REC calls'"
+                    :title="!selectedPhone[phone.id] 
+                      ? 'Select a sender phone first'
+                      : hasValidLocationForREC(phone.id) 
+                        ? 'Place an emergency Railway Emergency Call (REC)' 
+                        : 'Sender phone must have a valid location (simId and panelId) for REC calls'"
                   >
                     REC
                   </button>
@@ -132,61 +166,6 @@
         </table>
       </div>
     </template>
-
-    <!-- Create Phone Form -->
-    <div class="mt-8 bg-white shadow-sm rounded-lg p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">Create New Phone</h2>
-      <form @submit.prevent="createPhone" class="space-y-4">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label for="newphone_name" class="block text-sm font-medium text-gray-700">Name</label>
-            <input 
-              v-model="newPhone.name" 
-              id="newphone_name" 
-              type="text" 
-              placeholder="Phone name"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              required
-            />
-          </div>
-          <div>
-            <label for="newphone_number" class="block text-sm font-medium text-gray-700">Number</label>
-            <input 
-              v-model="newPhone.number" 
-              id="newphone_number" 
-              type="number" 
-              min="1" 
-              step="1"
-              pattern="[0-9]+" 
-              title="Phone number (numbers only)" 
-              placeholder="Phone number"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              @input="validatePhoneNumberInput"
-              required
-            />
-          </div>
-          <div>
-            <label for="newphone_type" class="block text-sm font-medium text-gray-700">Type</label>
-            <select 
-              v-model="newPhone.type" 
-              id="newphone_type"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="mobile">Mobile</option>
-              <option value="fixed">Fixed</option>
-            </select>
-          </div>
-        </div>
-        <div class="flex justify-end">
-          <button 
-            type="submit"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Create Phone
-          </button>
-        </div>
-      </form>
-    </div>
   </div>
 </template>
 
@@ -194,9 +173,13 @@
 import { toRefs } from 'vue'
 import { PreparedCall } from '~/models/PreparedCall'
 import { usePhoneManagement } from '~/composables/usePhoneManagement'
+import AddPhoneModal from '../AddPhoneModal.vue'
 
 export default {
   name: 'AdminPhonesTab',
+  components: {
+    AddPhoneModal
+  },
   props: {
     socket: {
       type: Object,
@@ -253,6 +236,35 @@ export default {
       PreparedCall, // Make PreparedCall available in template
       hasValidLocationForREC,
       ...phoneManagement
+    }
+  },
+  
+  data() {
+    return {
+      isModalVisible: false
+    }
+  },
+  
+  methods: {
+    openAddPhoneModal() {
+      this.isModalVisible = true
+    },
+    
+    closeModal() {
+      this.isModalVisible = false
+    },
+    
+    handlePhoneSubmit(phoneData) {
+      // Update the composable's newPhone with the submitted data
+      this.newPhone.name = phoneData.name
+      this.newPhone.number = phoneData.number
+      this.newPhone.type = phoneData.type
+      
+      // Call the createPhone method from composable
+      this.createPhone(true) // Reset form after creation
+      
+      // Close modal after successful submission
+      this.closeModal()
     }
   }
 }

@@ -8,6 +8,7 @@ import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
 /** @typedef {import("./bot.js").default} DiscordBot */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
+/** @typedef {import("./callManager.js").default} CallManager */
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("socket.io").Socket} Socket */
 /** @typedef {import("./stomp.js").default} STOMPManager */
@@ -41,6 +42,8 @@ export default class ROCManager {
   bot = null;
   phoneManager = null;
   stompManager = null;
+  /** @type {CallManager} */
+  callManager = null;
   /** @type {SimulationLoader} */
   simulationLoader = null;
   /** @type {ConfigurationManager} */
@@ -51,14 +54,16 @@ export default class ROCManager {
    * @param {DiscordBot} bot 
    * @param {PhoneManager} phoneManager
    * @param {STOMPManager} stompManager 
+   * @param {CallManager} callManager
    * @param {SimulationLoader} simulationLoader
    * @param {ConfigurationManager} configurationManager
    */
-  constructor(io, bot, phoneManager, stompManager, simulationLoader, configurationManager) {
+  constructor(io, bot, phoneManager, stompManager, callManager, simulationLoader, configurationManager) {
     this.io = io;
     this.bot = bot;
     this.phoneManager = phoneManager;
     this.stompManager = stompManager;
+    this.callManager = callManager;
     this.simulationLoader = simulationLoader;
     this.configurationManager = configurationManager;
   }
@@ -354,12 +359,12 @@ export default class ROCManager {
 
   enableConnections(simId) {
     this.getSimById(simId).connectionsOpen = true;
-    this.updateAdminUI();
+    this.sendGameUpdateToPlayers();
   }
 
   disableConnections(simId) {
     this.getSimById(simId).connectionsOpen = false;
-    this.updateAdminUI();
+    this.sendGameUpdateToPlayers();
   }
 
   // ============================ BEGIN PLAYER CODE ============================
@@ -746,12 +751,41 @@ export default class ROCManager {
   }
 
   adminGameStatus() {
-    return {
+    const adminStatus = {
       hostState: this.getHostState(),
       gameState: this.getGameState(),
       phones: this.phoneManager.getAllPhones(),
+      groupCalls: [],
+      privateCalls: {}
       //playerState: this.players.map(p => p.toSimple())
+    };
+    
+    // Add call manager data for admin interface
+    if (this.callManager) {
+      // Add private calls from CallManager (P2P and GROUP calls)
+      adminStatus.privateCalls = this.callManager.getAllPrivateCalls();
+      
+      // Add group call information from GroupCallManager (REC calls)
+      if (this.callManager.groupCallManager) {
+        const activeGroupCalls = this.callManager.groupCallManager.getAllActiveGroupCalls();
+        adminStatus.groupCalls = activeGroupCalls.map(groupCall => ({
+          id: groupCall.groupId,
+          type: groupCall.type,
+          level: groupCall.level,
+          originatorPhoneId: groupCall.originator.getId(),
+          participantCount: groupCall.participants.size,
+          status: groupCall.status,
+          timePlaced: groupCall.timePlaced,
+          channelId: groupCall.channel?.id || null,
+          participants: Array.from(groupCall.participants).map(phone => ({
+            phoneId: phone.getId(),
+            discordId: phone.getDiscordId()
+          }))
+        }));
+      }
     }
+    
+    return adminStatus;
   }
 
   updateSimTime(clockMsg) {

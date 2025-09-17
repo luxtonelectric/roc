@@ -290,4 +290,310 @@ export default class DiscordBot {
       channel.reserved = false;
     }
   }
+
+  // TASK-007: Enhanced Channel Request System
+  /**
+   * Request a voice channel for a group call with priority-based allocation
+   * @param {string} callType - Type of call ('REC', 'GROUP', 'EMERGENCY')
+   * @param {string} callId - Unique identifier for the group call
+   * @param {string} originatorId - Discord ID of the call originator
+   * @param {Array<string>} participantIds - Array of Discord IDs for participants
+   * @param {Object} options - Additional options for channel allocation
+   * @returns {Promise<Object|null>} Channel allocation result or null if none available
+   */
+  async requestCallChannel(callType, callId, originatorId, participantIds = [], options = {}) {
+    try {
+      // Priority mapping: EMERGENCY > REC > GROUP
+      const priorityMap = {
+        'EMERGENCY': 1,
+        'REC': 2, 
+        'GROUP': 3
+      };
+
+      const priority = priorityMap[callType] || 3;
+      
+      // Find available channel with priority consideration
+      let selectedChannel = null;
+      
+      // For high priority calls, try to preempt lower priority channels if needed
+      if (priority <= 2 && !this._hasAvailableChannel()) {
+        selectedChannel = await this._preemptLowerPriorityChannel(priority);
+      } else {
+        selectedChannel = this._findAvailableChannel();
+      }
+
+      if (!selectedChannel) {
+        console.warn(chalk.red("No channels available for call:"), callType, callId);
+        return null;
+      }
+
+      // Reserve channel and track usage
+      const channelData = this.privateCallChannels.find(c => c.id === selectedChannel.id);
+      if (channelData) {
+        channelData.reserved = true;
+        channelData.inUse = true;
+        channelData.callType = callType;
+        channelData.callId = callId;
+        channelData.priority = priority;
+        channelData.originatorId = originatorId;
+        channelData.participantIds = [...participantIds];
+        channelData.startTime = new Date();
+        channelData.lastActivity = new Date();
+      }
+
+      console.info(chalk.green("Channel allocated:"), callType, callId, selectedChannel.id);
+      
+      return {
+        channelId: selectedChannel.id,
+        channelName: selectedChannel.name,
+        priority: priority,
+        callType: callType,
+        callId: callId
+      };
+      
+    } catch (error) {
+      console.error(chalk.red("Error requesting call channel:"), error);
+      return null;
+    }
+  }
+
+  // TASK-008: Channel Usage Tracking and Reporting
+  /**
+   * Get comprehensive usage information for channels
+   * @param {string} channelId - Optional specific channel ID to query
+   * @returns {Object} Channel usage statistics and current allocations
+   */
+  getChannelUsageInfo(channelId = null) {
+    try {
+      if (channelId) {
+        // Get info for specific channel
+        const channel = this.privateCallChannels.find(c => c.id === channelId);
+        if (!channel) {
+          return { error: 'Channel not found', channelId };
+        }
+
+        return {
+          channelId: channel.id,
+          status: channel.inUse ? 'IN_USE' : (channel.reserved ? 'RESERVED' : 'AVAILABLE'),
+          callType: channel.callType || null,
+          callId: channel.callId || null,
+          priority: channel.priority || null,
+          originatorId: channel.originatorId || null,
+          participantCount: channel.participantIds ? channel.participantIds.length : 0,
+          participantIds: channel.participantIds || [],
+          startTime: channel.startTime || null,
+          lastActivity: channel.lastActivity || null,
+          duration: channel.startTime ? Date.now() - channel.startTime.getTime() : null
+        };
+      } else {
+        // Get overview of all channels
+        const stats = {
+          totalChannels: this.privateCallChannels.length,
+          available: 0,
+          reserved: 0,
+          inUse: 0,
+          byType: { REC: 0, GROUP: 0, EMERGENCY: 0 },
+          byPriority: { 1: 0, 2: 0, 3: 0 },
+          channels: []
+        };
+
+        this.privateCallChannels.forEach(channel => {
+          if (channel.inUse) {
+            stats.inUse++;
+            if (channel.callType) stats.byType[channel.callType]++;
+            if (channel.priority) stats.byPriority[channel.priority]++;
+          } else if (channel.reserved) {
+            stats.reserved++;
+          } else {
+            stats.available++;
+          }
+
+          stats.channels.push({
+            channelId: channel.id,
+            status: channel.inUse ? 'IN_USE' : (channel.reserved ? 'RESERVED' : 'AVAILABLE'),
+            callType: channel.callType || null,
+            callId: channel.callId || null,
+            priority: channel.priority || null,
+            participantCount: channel.participantIds ? channel.participantIds.length : 0,
+            duration: channel.startTime ? Date.now() - channel.startTime.getTime() : null
+          });
+        });
+
+        return stats;
+      }
+    } catch (error) {
+      console.error(chalk.red("Error getting channel usage info:"), error);
+      return { error: 'Internal error getting channel usage info' };
+    }
+  }
+
+  // TASK-009: Automated Termination Capabilities  
+  /**
+   * Terminate a group call and release the associated channel
+   * @param {string} channelId - Channel ID to terminate
+   * @param {string} requestorId - Discord ID of who is requesting termination
+   * @param {string} reason - Reason for termination ('COMPLETED', 'PREEMPTED', 'TIMEOUT', 'ERROR')
+   * @returns {Promise<boolean>} Success status
+   */
+  async terminateCallForChannel(channelId, requestorId = null, reason = 'COMPLETED') {
+    try {
+      const channel = this.privateCallChannels.find(c => c.id === channelId);
+      if (!channel) {
+        console.warn(chalk.yellow("Terminate call - channel not found:"), channelId);
+        return false;
+      }
+
+      if (!channel.inUse && !channel.reserved) {
+        console.warn(chalk.yellow("Terminate call - channel not in use:"), channelId);
+        return false;
+      }
+
+      // Validate termination authority
+      if (requestorId && channel.originatorId && requestorId !== channel.originatorId) {
+        // Only originator or system can terminate (unless emergency preemption)
+        if (reason !== 'PREEMPTED' && reason !== 'TIMEOUT') {
+          console.warn(chalk.yellow("Terminate call - unauthorized:"), requestorId, "not originator:", channel.originatorId);
+          return false;
+        }
+      }
+
+      // Get Discord voice channel to move users out
+      const discordChannel = await this.getVoiceChannelById(channelId);
+      if (discordChannel && discordChannel.members) {
+        // Move all users back to their original channels or default  
+        const members = discordChannel.members instanceof Map ? 
+          Array.from(discordChannel.members.values()) : 
+          Array.from(discordChannel.members.cache.values());
+        const movePromises = members.map(async (member) => {
+          try {
+            const playerId = member.id;
+            const originalChannel = this.gameManager.players[playerId]?.voiceChannelId;
+            
+            if (originalChannel && originalChannel !== channelId) {
+              await member.voice.setChannel(originalChannel);
+              console.info(chalk.blue("Moved user back to original channel:"), playerId, originalChannel);
+            } else {
+              // Move to default channel or disconnect
+              await member.voice.setChannel(null);
+              console.info(chalk.blue("Disconnected user from terminated channel:"), playerId);
+            }
+          } catch (error) {
+            console.warn(chalk.yellow("Failed to move user during termination:"), member.id, error.message);
+          }
+        });
+
+        await Promise.allSettled(movePromises);
+      }
+
+      // Release channel and clear metadata
+      const callId = channel.callId;
+      const callType = channel.callType;
+      
+      channel.reserved = false;
+      channel.inUse = false;
+      delete channel.callType;
+      delete channel.callId;
+      delete channel.priority;
+      delete channel.originatorId;
+      delete channel.participantIds;
+      delete channel.startTime;
+      delete channel.lastActivity;
+
+      console.info(chalk.green("Channel terminated:"), callType, callId, channelId, "Reason:", reason);
+      
+      // Notify game manager of termination (if method exists)
+      if (this.gameManager && 'handleChannelTermination' in this.gameManager) {
+        // @ts-ignore - Optional method for enhanced channel management
+        this.gameManager.handleChannelTermination(channelId, callId, reason);
+      }
+
+      return true;
+      
+    } catch (error) {
+      console.error(chalk.red("Error terminating call for channel:"), channelId, error);
+      return false;
+    }
+  }
+
+  // TASK-010: Priority-based Allocation Logic (Helper Methods)
+  /**
+   * Check if any channels are available
+   * @returns {boolean}
+   * @private
+   */
+  _hasAvailableChannel() {
+    return this.privateCallChannels.some(c => !c.reserved && !c.inUse);
+  }
+
+  /**
+   * Find an available channel
+   * @returns {Object|null}
+   * @private
+   */
+  _findAvailableChannel() {
+    const availableChannel = this.privateCallChannels.find(c => !c.reserved && !c.inUse);
+    return availableChannel ? { id: availableChannel.id, name: `Channel-${availableChannel.id}` } : null;
+  }
+
+  /**
+   * Preempt a lower priority channel for higher priority call
+   * @param {number} requestPriority - Priority of the requesting call
+   * @returns {Promise<Object|null>}
+   * @private
+   */
+  async _preemptLowerPriorityChannel(requestPriority) {
+    try {
+      // Find channels with lower priority (higher number)
+      const preemptableChannels = this.privateCallChannels
+        .filter(c => c.inUse && c.priority > requestPriority)
+        .sort((a, b) => b.priority - a.priority); // Lowest priority first
+
+      if (preemptableChannels.length === 0) {
+        return null;
+      }
+
+      const channelToPreempt = preemptableChannels[0];
+      console.warn(chalk.yellow("Preempting lower priority call:"), 
+        channelToPreempt.callType, channelToPreempt.callId, 
+        "Priority:", channelToPreempt.priority, "for priority:", requestPriority);
+
+      // Terminate the existing call
+      await this.terminateCallForChannel(channelToPreempt.id, null, 'PREEMPTED');
+
+      return { id: channelToPreempt.id, name: `Channel-${channelToPreempt.id}` };
+      
+    } catch (error) {
+      console.error(chalk.red("Error during channel preemption:"), error);
+      return null;
+    }
+  }
+
+  /**
+   * Update channel activity timestamp
+   * @param {string} channelId - Channel to update
+   */
+  updateChannelActivity(channelId) {
+    const channel = this.privateCallChannels.find(c => c.id === channelId);
+    if (channel && channel.inUse) {
+      channel.lastActivity = new Date();
+    }
+  }
+
+  /**
+   * Get channels that have been inactive for specified duration
+   * @param {number} timeoutMs - Timeout in milliseconds
+   * @returns {Array} List of inactive channels
+   */
+  getInactiveChannels(timeoutMs = 300000) { // Default 5 minutes
+    const now = Date.now();
+    return this.privateCallChannels
+      .filter(c => c.inUse && c.lastActivity && (now - c.lastActivity.getTime()) > timeoutMs)
+      .map(c => ({
+        channelId: c.id,
+        callId: c.callId,
+        callType: c.callType,
+        inactiveDuration: now - c.lastActivity.getTime(),
+        originatorId: c.originatorId
+      }));
+  }
 }

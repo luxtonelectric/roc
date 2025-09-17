@@ -1,5 +1,24 @@
 <template>
   <div class="my-4">
+            <!-- Active Group Calls Section -->
+        <div v-if="(gameState.groupCalls || []).length > 0" class="mt-8">
+          <CallDisplay
+            :calls="gameState.groupCalls || []"
+            title="Active Group Calls"
+            :display-mode="'table'"
+            :show-queue="false"
+            :show-count="false"
+            :show-actions="true"
+            :show-empty="false"
+            :my-phones="myPhones"
+            :is-group-call="true"
+            @end-call="endCall"
+            @join-group-call="joinGroupCall"
+            @leave-group-call="leaveGroupCall"
+          />
+        </div>
+        
+    <!-- Voice Calls Container -->
     <div class="bg-white shadow-sm rounded-lg overflow-hidden">
       <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
         <h1 class="text-3xl font-bold text-gray-900">Voice Calls</h1>
@@ -36,6 +55,24 @@
           />
         </div>
 
+        <!-- Active Group Calls Section (VGCS) -->
+        <div v-if="Object.keys(gameState.groupCalls || {}).length > 0" class="mt-8">
+          <CallDisplay
+            :calls="Object.values(gameState.groupCalls || {})"
+            title="Active Group Calls (VGCS)"
+            :display-mode="'table'"
+            :show-queue="false"
+            :show-count="true"
+            :show-actions="true"
+            :show-empty="false"
+            :my-phones="myPhones"
+            :is-group-call="true"
+            @end-call="endCall"
+            @join-group-call="joinGroupCall"
+            @leave-group-call="leaveGroupCall"
+          />
+        </div>
+
         <!-- Active Private Calls Section -->
         <div v-if="Object.keys(gameState.privateCalls || {}).length > 0" class="mt-8">
           <CallDisplay
@@ -47,13 +84,16 @@
             :show-actions="true"
             :show-empty="false"
             :my-phones="myPhones"
+            :is-group-call="false"
             @end-call="endCall"
           />
         </div>
 
         <!-- No Active Calls Message -->
         <CallDisplay
-          v-if="!Object.keys(gameState.privateCalls || {}).length && !Object.values(myPhones).some(phone => phone.queue?.length)"
+          v-if="!Object.keys(gameState.privateCalls || {}).length && 
+                !(gameState.groupCalls || []).length && 
+                !Object.values(myPhones).some(phone => phone.queue?.length)"
           :calls="[]"
           :show-queue="false" 
           :show-empty="true"
@@ -124,8 +164,25 @@ export default {
       }
     )
     
+    // Group call management methods
+    const joinGroupCall = (groupId) => {
+      console.log('Admin joining group call:', groupId)
+      if (socketRef.value) {
+        socketRef.value.emit('joinGroupCall', { groupId })
+      }
+    }
+
+    const leaveGroupCall = (groupId) => {
+      console.log('Admin leaving group call:', groupId)
+      if (socketRef.value) {
+        socketRef.value.emit('leaveGroupCall', { groupId })
+      }
+    }
+
     return {
-      ...callManager
+      ...callManager,
+      joinGroupCall,
+      leaveGroupCall
     }
   },
   

@@ -12,47 +12,111 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ isGroupCall ? 'Group ID' : 'From' }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ isGroupCall ? 'Participants' : 'To' }}
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ isGroupCall ? 'VGCS State' : 'Priority' }}
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th v-if="showActions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-for="call in calls" :key="call.id" class="hover:bg-gray-50">
+              <!-- Column 1: Group ID or From -->
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {{ call.sender?.name || 'Unknown' }}
+                <template v-if="isGroupCall">
+                  <div>{{ call.groupId || call.id }}</div>
+                  <div class="text-xs text-gray-500">{{ call.sender?.name || 'Unknown' }}</div>
+                </template>
+                <template v-else>
+                  {{ call.sender?.name || 'Unknown' }}
+                </template>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ call.receivers?.[0]?.name || 'Unknown' }}
+              
+              <!-- Column 2: Participants or To -->
+              <td class="px-6 py-4 text-sm text-gray-500">
+                <template v-if="isGroupCall">
+                  <div class="max-w-xs">
+                    <div class="font-medium">{{ call.participants?.length || 0 }} participants</div>
+                    <div class="text-xs truncate">
+                      {{ call.participants?.map(p => p.name).join(', ') || 'No participants' }}
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  {{ call.receivers?.[0]?.name || 'Unknown' }}
+                </template>
               </td>
+              
+              <!-- Column 3: Type -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getCallTypeClass(call)]">
                   {{ call.type }}
                 </span>
               </td>
+              
+              <!-- Column 4: VGCS State or Priority -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getCallLevelClass(call)]">
-                  {{ call.level }}
-                </span>
+                <template v-if="isGroupCall">
+                  <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getVGCSStateClass(call)]">
+                    {{ call.vgcsState || call.status }}
+                  </span>
+                </template>
+                <template v-else>
+                  <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getCallLevelClass(call)]">
+                    {{ call.level }}
+                  </span>
+                </template>
               </td>
+              
+              <!-- Column 5: Status -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getCallStatusClass(call)]">
                   {{ call.status }}
                 </span>
               </td>
+              
+              <!-- Column 6: Actions -->
               <td v-if="showActions" class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <CallActionButtons 
-                  :call="call" 
-                  :compact="true"
-                  :my-phones="myPhones"
-                  @accept="$emit('acceptCall', call.id)"
-                  @reject="$emit('rejectCall', call.id)"
-                  @leave="$emit('leaveCall', call.id)"
-                  @end="$emit('endCall', call.id)"
-                />
+                <template v-if="isGroupCall">
+                  <!-- Group Call Actions -->
+                  <button 
+                    @click="$emit('joinGroupCall', call.groupId || call.id)"
+                    class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                  >
+                    Join
+                  </button>
+                  <button 
+                    @click="$emit('leaveGroupCall', call.groupId || call.id)"
+                    class="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700"
+                  >
+                    Leave
+                  </button>
+                  <button 
+                    @click="$emit('endCall', call.id)"
+                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                  >
+                    End
+                  </button>
+                </template>
+                <template v-else>
+                  <!-- Regular Call Actions -->
+                  <CallActionButtons 
+                    :call="call" 
+                    :compact="true"
+                    :my-phones="myPhones"
+                    @accept="$emit('acceptCall', call.id)"
+                    @reject="$emit('rejectCall', call.id)"
+                    @leave="$emit('leaveCall', call.id)"
+                    @end="$emit('endCall', call.id)"
+                  />
+                </template>
               </td>
             </tr>
           </tbody>
@@ -191,6 +255,10 @@ export default {
     myPhones: {
       type: Object,
       default: () => ({})
+    },
+    isGroupCall: {
+      type: Boolean,
+      default: false
     }
   },
   emits: [
@@ -198,7 +266,9 @@ export default {
     'acceptCall',
     'rejectCall',
     'leaveCall',
-    'endCall'
+    'endCall',
+    'joinGroupCall',
+    'leaveGroupCall'
   ],
   methods: {
     getCallTypeClass(call) {
@@ -254,6 +324,30 @@ export default {
         case 'normal':
         default:
           return 'bg-zinc-200 text-black border-zinc-400'
+      }
+    },
+
+    getVGCSStateClass(call) {
+      // VGCS FSM State styling
+      switch (call.vgcsState || call.status) {
+        case 'N0_NULL':
+          return 'bg-gray-100 text-gray-800'
+        case 'N1_INITIATED':
+          return 'bg-blue-100 text-blue-800'
+        case 'N3_ESTABLISHING':
+          return 'bg-yellow-100 text-yellow-800'
+        case 'N2_ACTIVE':
+          return 'bg-green-100 text-green-800'
+        case 'N4_TERMINATING':
+          return 'bg-red-100 text-red-800'
+        case 'ACTIVE':
+        case 'ACCEPTED':
+          return 'bg-green-100 text-green-800'
+        case 'OFFERED':
+        case 'INITIATED':
+          return 'bg-blue-100 text-blue-800'
+        default:
+          return 'bg-gray-100 text-gray-800'
       }
     }
   }

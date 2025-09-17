@@ -1,115 +1,31 @@
 <template>
   <div class="my-1">
-    <h1 class="text-3xl font-bold">Hosts</h1>
-    <div class="my-4">
-      <form @submit.prevent="submitHostForm" class="max-w-lg mx-auto bg-gray-100 p-4 rounded-lg">
-        <h2 class="text-xl font-semibold mb-4">{{ formMode === 'add' ? 'Add New Host' : 'Edit Host' }}</h2>
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Simulation</label>
-            <select v-model="newHost.sim" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-              <option value="">Select a simulation</option>
-              <option v-for="sim in availableSimulations" :key="sim.id" :value="sim.id">
-                {{ sim.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Host URL/IP</label>
-            <input v-model="newHost.host" required type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., localhost or 192.168.1.100"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Host Port</label>
-            <input 
-              v-model="newHost.port" 
-              required 
-              type="number" 
-              min="1" 
-              max="65535" 
-              step="1"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="e.g., 51515"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Voice Channel</label>
-            <select v-model="newHost.channel" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-              <option value="">{{ hasVoiceChannels ? 'Select a voice channel' : 'Loading channels...' }}</option>
-              <option v-for="channel in availableChannels" :key="channel.id" :value="channel.name">
-                {{ channel.name }}
-              </option>
-            </select>
-            <div v-if="!hasVoiceChannels" class="mt-1 text-sm text-gray-500">
-              Waiting for voice channels to load...
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Interface Gateway Port</label>
-            <input 
-              v-model="newHost.interfaceGateway.port" 
-              required 
-              type="number" 
-              min="1" 
-              max="65535" 
-              step="1"
-              pattern="[0-9]+"
-              @input="validatePortInput"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="e.g., 51515"
-            />
-          </div>
-          <!-- Interface Gateway Authentication (Optional) -->
-          <div class="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
-            <h3 class="text-sm font-medium text-gray-700 mb-3">Interface Gateway Authentication (Optional)</h3>
-            <div class="grid grid-cols-1 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input 
-                  v-model="newHost.interfaceGateway.username" 
-                  type="text" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="Optional username for STOMP authentication"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input 
-                  v-model="newHost.interfaceGateway.password" 
-                  type="password" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  :placeholder="formMode === 'edit' && newHost.interfaceGateway.hasPassword ? 'Leave blank to keep existing password' : 'Optional password for STOMP authentication'"
-                />
-                <div v-if="formMode === 'edit' && newHost.interfaceGateway.hasPassword" class="mt-1 text-sm text-gray-500">
-                  Current password is set. Enter new password to change it, or leave blank to keep existing.
-                </div>
-              </div>
-              <div v-if="newHost.interfaceGateway.password" class="grid grid-cols-1 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                  <input 
-                    v-model="passwordConfirmation" 
-                    type="password" 
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Confirm the password"
-                  />
-                  <div v-if="newHost.interfaceGateway.password && passwordConfirmation && newHost.interfaceGateway.password !== passwordConfirmation" class="mt-1 text-sm text-red-600">
-                    Passwords do not match
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex justify-between">
-            <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-              {{ formMode === 'add' ? 'Add Host' : 'Update Host' }}
-            </button>
-            <button v-if="formMode === 'edit'" type="button" @click="cancelEdit" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-              Cancel
-            </button>
-          </div>
-        </div>
-      </form>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Hosts</h1>
+      <button 
+        @click="openAddHostModal"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add New Host
+      </button>
     </div>
+
+    <!-- Add Host Modal -->
+    <AddHostModal
+      :isVisible="isModalVisible"
+      :formMode="formMode"
+      v-model:newHost="newHost"
+      v-model:passwordConfirmation="passwordConfirmation"
+      :availableSimulations="availableSimulations"
+      :availableChannels="availableChannels"
+      :validatePortInput="validatePortInput"
+      :submitHostForm="submitHostForm"
+      @close="closeModal"
+    />
+
     <template v-if="gameState.hostState">
       <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
@@ -192,7 +108,7 @@
               >
                 {{ host.interfaceGateway.enabled ? 'Disable IG' : 'Enable IG' }}
               </button>
-              <button class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 shadow-sm" @click="editHost(host, availableSimulations)">Edit</button>
+              <button class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 shadow-sm" @click="editHostModal(host, availableSimulations)">Edit</button>
               <button class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600 shadow-sm" @click="confirmDelete(host)">Delete</button>
             </td>
           </tr>
@@ -205,9 +121,13 @@
 
 <script>
 import { useHostManagement } from '~/composables/useHostManagement'
+import AddHostModal from '../AddHostModal.vue'
 
 export default {
   name: 'AdminHostsTab',
+  components: {
+    AddHostModal
+  },
   props: {
     socket: {
       type: Object,
@@ -241,9 +161,44 @@ export default {
       ...hostManagement
     }
   },
+  data() {
+    return {
+      isModalVisible: false
+    }
+  },
   computed: {
     hasVoiceChannels() {
       return this.availableChannels && this.availableChannels.length > 0
+    }
+  },
+  watch: {
+    // Close modal when form is reset (indicating successful submission)
+    formMode(newMode) {
+      if (newMode === 'add' && this.isModalVisible) {
+        // If formMode changed to 'add' while modal is visible, it means
+        // the form was successfully submitted and reset
+        this.isModalVisible = false
+      }
+    }
+  },
+  methods: {
+    openAddHostModal() {
+      this.formMode = 'add'
+      this.resetForm()
+      this.isModalVisible = true
+    },
+    closeModal() {
+      this.isModalVisible = false
+      if (this.formMode === 'edit') {
+        this.cancelEdit()
+      }
+    },
+    // Override the editHost method to open modal
+    editHostModal(host, availableSimulations) {
+      // Call the original editHost method from composable
+      this.editHost(host, availableSimulations)
+      // Open the modal
+      this.isModalVisible = true
     }
   }
 }

@@ -12,7 +12,7 @@
         </div>
         <div class="bg-neutral-200 overflow-scroll overscroll-contain h-se2">
           <div class="text-center text-lg w-full">
-            <template v-for="sim in gameData">
+            <template v-for="sim in gameData.simulations || gameData">
               <template v-for="panel in sim.panels">
                 <h3 v-if="!panel.player" class="border-b border-black p-2" @click="claimPanel(sim.id, panel.id)"><button class="font-mono underline border-2 border-green-800 p-1 rounded decoration-dotted text-sm">{{sim.name}}</button> {{panel.name}}</h3>
               </template>
@@ -26,7 +26,7 @@
         </div>
         <div class="bg-neutral-200 overflow-scroll overscroll-contain h-se2">
           <div class="text-center text-lg w-full">
-            <template v-for="sim in gameData">
+            <template v-for="sim in gameData.simulations || gameData">
               <template v-for="panel in sim.panels">
                 <h3 v-if="panel.player === username" class="border-b border-black p-2" @click="releasePanel(sim.id, panel.id)"><button class="font-mono underline border-2 border-green-800 p-1 rounded decoration-dotted text-sm">{{sim.name}}</button> {{panel.name}}</h3>
               </template>

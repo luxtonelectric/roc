@@ -188,8 +188,10 @@ export default class PhoneManager {
   }
 
   /**
+   * Get REC recipients for a phone with Discord ID deduplication
+   * Enhanced for Phase 3 VGCS integration - deduplicates by Discord ID while preserving phone information
    * @param {Phone} phone 
-   * @returns {Phone[]}
+   * @returns {Phone[]} Array of unique recipient phones (by Discord ID)
    */
   getRECRecipientsForPhone(phone) {
     let phones = [];
@@ -209,17 +211,80 @@ export default class PhoneManager {
       return [];
     }
 
-    const neighbourPhones = panel.neighbours.map(nb => this.getPhone(nb.simId + PhoneManager.PHONE_ID_SEPARATOR + nb.panelId));
+    // Get neighbor phones (filter out null results from missing phones)
+    const neighbourPhones = panel.neighbours
+      .map(nb => this.getPhone(nb.simId + PhoneManager.PHONE_ID_SEPARATOR + nb.panelId))
+      .filter(phone => phone !== undefined);
 
     phones.push(...neighbourPhones);
     
-    // Include control
+    // Include control phone if it has a Discord ID
     const control = this.phones.find(x => x.getId() === sim.id + PhoneManager.CONTROL_SUFFIX && x.getDiscordId() !== null);
     if(control) {
-      phones.push(control)
+      phones.push(control);
     }
+
+    // Phase 3 Enhancement: Deduplicate by Discord ID while preserving phone information
+    // This ensures each player receives only one REC notification even if they have multiple phones
+    const discordIdMap = new Map();
+    const deduplicatedPhones = [];
+
+    phones.forEach(phone => {
+      if (phone) {
+        const discordId = phone.getDiscordId();
+        
+        if (discordId) {
+          // Phone has Discord ID - apply deduplication
+          if (!discordIdMap.has(discordId)) {
+            // First phone for this Discord ID - add it
+            discordIdMap.set(discordId, phone);
+            deduplicatedPhones.push(phone);
+          } else {
+            // Duplicate Discord ID - prefer the phone with higher priority
+            const existingPhone = discordIdMap.get(discordId);
+            const preferredPhone = this._selectPreferredPhoneForREC(existingPhone, phone);
+            
+            if (preferredPhone !== existingPhone) {
+              // Replace with higher priority phone
+              const index = deduplicatedPhones.findIndex(p => p === existingPhone);
+              if (index !== -1) {
+                deduplicatedPhones[index] = preferredPhone;
+                discordIdMap.set(discordId, preferredPhone);
+              }
+            }
+          }
+        } else {
+          // Phone has no Discord ID - include for backward compatibility
+          deduplicatedPhones.push(phone);
+        }
+      }
+    });
+
+    console.log(chalk.green('getRECRecipientsForPhone'), 
+      `Found ${phones.length} total recipients, ${deduplicatedPhones.length} unique by Discord ID for phone:`, phone.getId());
     
-    return phones;
+    return deduplicatedPhones;
+  }
+
+  /**
+   * Select preferred phone for REC calls when multiple phones have same Discord ID
+   * Priority: Control > Panel phones (alphabetical by panel ID for consistency)
+   * @param {Phone} phone1 
+   * @param {Phone} phone2 
+   * @returns {Phone} The preferred phone
+   * @private
+   */
+  _selectPreferredPhoneForREC(phone1, phone2) {
+    // Prefer control phones over panel phones
+    const isPhone1Control = phone1.getId().endsWith(PhoneManager.CONTROL_SUFFIX);
+    const isPhone2Control = phone2.getId().endsWith(PhoneManager.CONTROL_SUFFIX);
+    
+    if (isPhone1Control && !isPhone2Control) return phone1;
+    if (isPhone2Control && !isPhone1Control) return phone2;
+    
+    // If both are control or both are panel phones, prefer alphabetically first
+    // This ensures consistent behavior across calls
+    return phone1.getId().localeCompare(phone2.getId()) <= 0 ? phone1 : phone2;
   }
 
   /**
@@ -227,7 +292,12 @@ export default class PhoneManager {
    * @returns {(Phone | undefined)}
    */
   getPhone(phoneId) {
-    return this.phones.find(p => p.getId() === phoneId);
+    // Handle string/number conversion for phone ID lookup
+    return this.phones.find(p => 
+      p.getId() === phoneId || 
+      p.getId() === String(phoneId) || 
+      String(p.getId()) === String(phoneId)
+    );
   }
 
   getAllPhones() {

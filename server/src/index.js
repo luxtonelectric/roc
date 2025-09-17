@@ -16,6 +16,7 @@ import { adminSockets } from './adminSockets.js';
 import STOMPManager from './stomp.js';
 import PhoneManager from './phonemanager.js';
 import CallManager from './callManager.js';
+import GroupCallManager from './groupCallManager.js';
 import TrainManager from './trainManager.js';
 import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
@@ -74,8 +75,16 @@ const trainManager = new TrainManager();
 trainManager.setPhoneManager(phoneManager);
 const stompManager = new STOMPManager();
 stompManager.setTrainManager (trainManager);
+
+// TASK-019: Initialize GroupCallManager and integrate with CallManager for Phase 4 REC delegation
+const groupCallManager = new GroupCallManager(phoneManager, discordBot, io);
 const callManager = new CallManager(phoneManager,discordBot,io);
-const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, simulationLoader, configurationManager);
+
+// Set up cross-references for Phase 4 VGCS integration
+callManager.setGroupCallManager(groupCallManager);
+groupCallManager.setCallManager(callManager);
+
+const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, callManager, simulationLoader, configurationManager);
 rocManager.load();
 
 await discordBot.setUpBot().then(() => {
@@ -85,6 +94,7 @@ await discordBot.setUpBot().then(() => {
 
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
+  console.log("DEBUGGING: Socket connected from", socket.handshake.address, "with headers:", socket.handshake.headers);
   rocSockets(socket, rocManager,callManager);
   adminSockets(socket, rocManager, phoneManager,config);
 });

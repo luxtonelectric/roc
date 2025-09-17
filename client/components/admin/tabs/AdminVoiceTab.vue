@@ -164,6 +164,24 @@ export default {
       }
     )
     
+    // Override REC notification handling for admin users (REQ-004)
+    // Admins should receive audio notification only, no modal or auto-join
+    watch(() => socketRef.value, (socket) => {
+      if (socket) {
+        // Override the default recNotification handler to prevent modal
+        socket.off('recNotification') // Remove default handler
+        socket.on('recNotification', (msg) => {
+          console.log('Admin REC notification (audio only):', msg)
+          // Play audio notification without showing modal
+          // This satisfies REQ-004: "Admins receive REC audio notification but no auto-join or special modal"
+          if (callManager.enableAudio) {
+            callManager.playCallAudio()
+          }
+          // Explicitly do NOT show modal or trigger auto-join for admin users
+        })
+      }
+    }, { immediate: true })
+    
     // Group call management methods
     const joinGroupCall = (groupId) => {
       console.log('Admin joining group call:', groupId)
@@ -194,6 +212,11 @@ export default {
   beforeUnmount() {
     // Clean up call event listeners when component unmounts
     this.removeCallEventListeners()
+    
+    // Clean up admin-specific REC notification override
+    if (this.socketRef) {
+      this.socketRef.off('recNotification')
+    }
   }
 }
 </script>

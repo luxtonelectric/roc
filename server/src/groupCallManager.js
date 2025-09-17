@@ -850,26 +850,93 @@ export default class GroupCallManager {
   terminateGroupCall(socketId, phoneId) {
     console.log(chalk.yellow('GroupCallManager.terminateGroupCall'), `Socket: ${socketId}, Phone: ${phoneId}`);
     
-    const groupId = this.phoneToGroupMap.get(phoneId);
-    if (!groupId) {
+    const phone = this.phoneManager.getPhone(phoneId);
+    if (!phone) {
+      console.log(chalk.red('GroupCallManager.terminateGroupCall'), 'Phone not found');
+      return false;
+    }
+
+    // BUGFIX: First try to find group ID via phoneToGroupMap, but if not found,
+    // search through all active group calls to find one where this phone is the originator.
+    // This handles cases where cleanup has already removed the mapping.
+    let groupId = this.phoneToGroupMap.get(phoneId);
+    let groupCall = null;
+
+    if (groupId) {
+      groupCall = this.activeGroupCalls.get(groupId);
+    }
+
+    // If not found via mapping, search through active calls for this phone as originator
+    // OR for REC calls where this phone belongs to the same Discord user as the originator
+    if (!groupCall) {
+      console.log(chalk.yellow('GroupCallManager.terminateGroupCall'), 
+        'Phone mapping not found, searching active calls for originator or same Discord user');
+      
+      const terminatingDiscordId = phone.getDiscordId();
+      
+      for (const [searchGroupId, searchGroupCall] of this.activeGroupCalls.entries()) {
+        if (searchGroupCall.isOriginator(phone)) {
+          // Direct originator match
+          groupId = searchGroupId;
+          groupCall = searchGroupCall;
+          console.log(chalk.green('GroupCallManager.terminateGroupCall'), 
+            `Found group call ${groupId} where phone ${phoneId} is originator`);
+          break;
+        } else if (searchGroupCall.type === GroupCallRequest.TYPES.REC && 
+                   terminatingDiscordId && 
+                   searchGroupCall.originator.getDiscordId() === terminatingDiscordId) {
+          // REC call where terminating phone belongs to same Discord user as originator
+          groupId = searchGroupId;
+          groupCall = searchGroupCall;
+          console.log(chalk.green('GroupCallManager.terminateGroupCall'), 
+            `Found REC call ${groupId} where phone ${phoneId} belongs to same Discord user as originator`);
+          break;
+        }
+      }
+    }
+
+    if (!groupCall) {
       console.log(chalk.red('GroupCallManager.terminateGroupCall'), 'Phone not in any group call');
       return false;
     }
 
-    const groupCall = this.activeGroupCalls.get(groupId);
-    if (!groupCall) {
-      console.log(chalk.red('GroupCallManager.terminateGroupCall'), 'Group call not found');
-      return false;
+    // ENHANCED AUTHORIZATION: For REC calls, allow any phone belonging to the same Discord user 
+    // to terminate the call, not just the exact originating phone.
+    // This supports players with multiple phones/panels.
+    let isAuthorized = false;
+    
+    if (groupCall.isOriginator(phone)) {
+      // Direct originator - always authorized
+      isAuthorized = true;
+    } else if (groupCall.type === GroupCallRequest.TYPES.REC) {
+      // For REC calls, check if the terminating phone belongs to the same Discord user as the originator
+      const terminatingDiscordId = phone.getDiscordId();
+      const originatorDiscordId = groupCall.originator.getDiscordId();
+      
+      if (terminatingDiscordId && originatorDiscordId && terminatingDiscordId === originatorDiscordId) {
+        isAuthorized = true;
+        console.log(chalk.green('GroupCallManager.terminateGroupCall'), 
+          `Allowing termination: phone ${phoneId} belongs to same Discord user as originator`);
+      }
     }
-
-    // Check if phone is the originator
-    const phone = this.phoneManager.getPhone(phoneId);
-    if (!phone || !groupCall.isOriginator(phone)) {
+    
+    if (!isAuthorized) {
       console.log(chalk.red('GroupCallManager.terminateGroupCall'), 'Not authorized to terminate call');
       return false;
     }
 
-    const mobileStation = this.mobileStations.get(phoneId);
+    // ENHANCED MOBILE STATION LOOKUP: For REC calls where termination is from a different phone
+    // than the originator, use the originator's mobile station to perform the termination
+    let terminatingMobileStationPhoneId = phoneId;
+    
+    if (groupCall.type === GroupCallRequest.TYPES.REC && !groupCall.isOriginator(phone)) {
+      // Use originator's phone ID for mobile station lookup
+      terminatingMobileStationPhoneId = groupCall.originator.getId();
+      console.log(chalk.cyan('GroupCallManager.terminateGroupCall'), 
+        `Using originator's mobile station (${terminatingMobileStationPhoneId}) for termination by ${phoneId}`);
+    }
+
+    const mobileStation = this.mobileStations.get(terminatingMobileStationPhoneId);
     if (!mobileStation) {
       console.log(chalk.red('GroupCallManager.terminateGroupCall'), 'Mobile station not found');
       return false;
@@ -1070,42 +1137,45 @@ export default class GroupCallManager {
     console.log(chalk.cyan('GroupCallManager._cleanupGroupCall'), `GroupId: ${groupId}`);
     
     const groupCall = this.activeGroupCalls.get(groupId);
-    if (groupCall) {
-      // Remove phone mappings
-      groupCall.getAllParticipants().forEach(phone => {
-        this.phoneToGroupMap.delete(phone.getId());
-      });
-      
-      // Terminate call and move players back to original channels
-      if (groupCall.channel) {
-        const originatorPhone = groupCall.originator;
-        const originatorDiscordId = originatorPhone ? originatorPhone.getDiscordId() : null;
-        
-        console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 
-          `Terminating call channel ${groupCall.channel} for group ${groupId}`);
-        
-        // Use proper termination method that moves players back to original channels
-        this.bot.terminateCallForChannel(groupCall.channel, originatorDiscordId, 'COMPLETED')
-          .then(success => {
-            if (success) {
-              console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 
-                'Channel terminated and players moved back to original channels');
-            } else {
-              console.warn(chalk.yellow('GroupCallManager._cleanupGroupCall'), 
-                'Failed to terminate channel properly');
-            }
-          })
-          .catch(error => {
-            console.error(chalk.red('GroupCallManager._cleanupGroupCall'), 
-              'Error terminating channel:', error);
-          });
-      }
-      
-      // Remove from active calls
-      this.activeGroupCalls.delete(groupId);
-      
-      console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 'Group call cleaned up');
+    if (!groupCall) {
+      console.log(chalk.yellow('GroupCallManager._cleanupGroupCall'), 'Group call already cleaned up or not found');
+      return;
     }
+
+    // Remove phone mappings
+    groupCall.getAllParticipants().forEach(phone => {
+      this.phoneToGroupMap.delete(phone.getId());
+    });
+    
+    // Remove from active calls first to prevent duplicate cleanup
+    this.activeGroupCalls.delete(groupId);
+    
+    // Terminate call and move players back to original channels
+    if (groupCall.channel) {
+      const originatorPhone = groupCall.originator;
+      const originatorDiscordId = originatorPhone ? originatorPhone.getDiscordId() : null;
+      
+      console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 
+        `Terminating call channel ${groupCall.channel} for group ${groupId}`);
+      
+      // Use proper termination method that moves players back to original channels
+      this.bot.terminateCallForChannel(groupCall.channel, originatorDiscordId, 'COMPLETED')
+        .then(success => {
+          if (success) {
+            console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 
+              'Channel terminated and players moved back to original channels');
+          } else {
+            console.warn(chalk.yellow('GroupCallManager._cleanupGroupCall'), 
+              'Failed to terminate channel properly');
+          }
+        })
+        .catch(error => {
+          console.error(chalk.red('GroupCallManager._cleanupGroupCall'), 
+            'Error terminating channel:', error);
+        });
+    }
+    
+    console.log(chalk.green('GroupCallManager._cleanupGroupCall'), 'Group call cleaned up');
   }
 
   /**

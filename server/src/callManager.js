@@ -9,9 +9,6 @@ import CallRequest from './model/callrequest.js';
 
 export default class CallManager {
 
-  privateCalls = {};
-  //callQueue = {};
-
   /** @type {CallRequest[]} */
   requestedCalls = [];
   /** @type {CallRequest[]} */
@@ -19,22 +16,19 @@ export default class CallManager {
   /** @type {CallRequest[]} */
   pastCalls = [];
 
-  // TASK-014: Call priority hierarchy for Phase 3 integration
-  // Priority order: REC > P2P EMERGENCY > P2P URGENT > P2P NORMAL (lower number = higher priority)
   static CALL_PRIORITIES = {
-    [CallRequest.TYPES.REC]: 1,                    // Highest priority
+    [CallRequest.TYPES.REC]: 1,
     [CallRequest.TYPES.P2P + '_' + CallRequest.LEVELS.EMERGENCY]: 2,
     [CallRequest.TYPES.P2P + '_' + CallRequest.LEVELS.URGENT]: 3,  
-    [CallRequest.TYPES.P2P + '_' + CallRequest.LEVELS.NORMAL]: 4   // Lowest priority
+    [CallRequest.TYPES.P2P + '_' + CallRequest.LEVELS.NORMAL]: 4
   };
 
 
   /**
-   * 
    * @param {PhoneManager} phoneManager 
    * @param {DiscordBot} bot 
    * @param {Server} io 
-   * @param {import("./groupCallManager.js").default} groupCallManager - Optional GroupCallManager for REC call delegation
+   * @param {import("./groupCallManager.js").default} groupCallManager
    */
   constructor(phoneManager, bot, io, groupCallManager = null) {
     this.phoneManager = phoneManager;
@@ -51,7 +45,6 @@ export default class CallManager {
    */
   setGroupCallManager(groupCallManager) {
     this.groupCallManager = groupCallManager;
-    console.log(chalk.green('CallManager'), 'GroupCallManager reference set for REC call delegation');
   }
 
   /**
@@ -61,29 +54,23 @@ export default class CallManager {
   getAllPrivateCalls() {
     const activeCalls = {};
     
-    // Add all requested calls (calls that are offered but not yet accepted/rejected)
     this.requestedCalls.forEach(call => {
       if (call.type === CallRequest.TYPES.P2P || call.type === CallRequest.TYPES.GROUP) {
         activeCalls[call.id] = call.toEmittable();
       }
     });
     
-    // Add all ongoing calls (calls that are currently active)
     this.ongoingCalls.forEach(call => {
       if (call.type === CallRequest.TYPES.P2P || call.type === CallRequest.TYPES.GROUP) {
         activeCalls[call.id] = call.toEmittable();
       }
     });
     
-    // Note: We don't include pastCalls here as they are not "active" calls
-    // The admin interface expects to see current/active calls in privateCalls
-    
     return activeCalls;
   }
 
 
   /**
-   * 
    * @param {Phone} phone 
    * @returns {CallRequest[]}
    */
@@ -92,10 +79,7 @@ export default class CallManager {
     const ongoingCalls = this.ongoingCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)));
     const pastCalls = this.pastCalls.filter((c) => (c.isForPhone(phone) || c.isFromPhone(phone)));
     
-    // Get current calls (requested + ongoing)
     const toNowCalls = requestedCalls.concat(ongoingCalls);
-
-    // Add last 10 past calls
     const last10PastCalls = pastCalls.slice(-10);
     toNowCalls.push(...last10PastCalls);
 
@@ -349,72 +333,46 @@ export default class CallManager {
       const receivingPlayerId = receivingPhone.getDiscordId();
 
       if (sendingPlayerId !== receivingPlayerId) {
-        //console.info(chalk.yellow("Placing Call"), chalk.magentaBright("Caller:"), sendingPlayerId, chalk.magentaBright("Reciever:"), receivingPlayerId);
         callRequest = new CallRequest(sendingPhone, receivingPhone, callType, callLevel);
       } else {
-        console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to call themselves as was rejected."));
         return false
       }
     } else if (callType === CallRequest.TYPES.REC) {
-      // TASK-019: Delegate REC calls to GroupCallManager for VGCS-based handling
       if (this.groupCallManager) {
-        console.log(chalk.green('placeCall'), 'Delegating REC call to GroupCallManager for VGCS handling');
-        
-        // REC calls must be EMERGENCY level only
         if (callLevel !== CallRequest.LEVELS.EMERGENCY) {
-          console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to place REC call with non-EMERGENCY level:"), callLevel);
           return false;
         }
         
-        // Delegate to GroupCallManager
         const recCallId = await this.groupCallManager.placeRECCall(socketId, senderPhoneId);
         if (!recCallId) {
-          console.info(chalk.yellow('placeCall'), chalk.yellow("GroupCallManager failed to place REC call for player:"), sendingPlayerId);
           return false;
         }
         
-        console.log(chalk.green('placeCall'), 'REC call successfully placed via GroupCallManager:', recCallId);
         return recCallId;
       } else {
-        // TASK-023: Enhanced fallback for legacy REC handling
-        // NOTE: GroupCallManager should always be available in current architecture (see index.js:80-84)
-        // This fallback path provides defensive programming for edge cases or testing scenarios
-        console.warn(chalk.yellow('placeCall'), 'UNEXPECTED: GroupCallManager not available, using legacy REC handling');
-        console.warn(chalk.yellow('placeCall'), 'This indicates a configuration issue - GroupCallManager should always be initialized');
+        console.warn(chalk.yellow('placeCall'), 'GroupCallManager not available, using legacy REC handling');
         
-        // REC calls must be EMERGENCY level only
         if (callLevel !== CallRequest.LEVELS.EMERGENCY) {
-          console.error(chalk.red('placeCall'), `Invalid REC call level from player ${sendingPlayerId}: ${callLevel} (must be EMERGENCY)`);
           return false;
         }
         
         try {
           const recPhones = this.phoneManager.getRECRecipientsForPhone(sendingPhone);
           if (recPhones && recPhones.length > 0) {
-            console.log(chalk.blue('placeCall'), `Legacy REC handling: Found ${recPhones.length} recipients for phone ${sendingPhone.getId()}`);
             callRequest = new CallRequest(sendingPhone, recPhones, CallRequest.TYPES.REC, CallRequest.LEVELS.EMERGENCY);
           } else {
-            console.error(chalk.red('placeCall'), `No REC recipients found for player ${sendingPlayerId} on phone ${sendingPhone.getId()}`);
             return false;
           }
         } catch (error) {
-          console.error(chalk.red('placeCall'), 'Legacy REC handling failed:', error.message);
           return false;
         }
       }
     } else {
-      console.info(chalk.yellow('placeCall'), chalk.yellow("A player ("), sendingPlayerId, chalk.yellow(") tried to place an invalid call type."), callType);
       return false;
     }
 
     this.requestedCalls.push(callRequest);
-
-    console.log(chalk.yellow("Placing call"), callRequest.toEmittable());
-
-    // Send new call notifications
     this.sendNewCallNotifications(callRequest);
-
-    // Update call queues
     this.sendCallQueueUpdateToPhones(callRequest.getReceivers());
     this.sendCallQueueUpdateToPhones([callRequest.sender]);
 
@@ -721,24 +679,19 @@ export default class CallManager {
   }
 
   /**
-   * 
    * @param {string} discordId 
    * @param {string} call 
    * @returns 
    */
   async movePlayerToCall(discordId, call) {
-    console.log(chalk.blueBright("callManager"), chalk.yellow("movePlayerToCall"), discordId, call);
-    const result = await this.bot.setUserVoiceChannel(discordId, call);
-    return result;
+    return await this.bot.setUserVoiceChannel(discordId, call);
   }
 
   /**
-   * 
    * @param {string} socketId 
    * @param {string} callId 
    */
   async leaveCall(socketId, callId) {
-    console.log('leaving', callId);
     const call = this.ongoingCalls.find(c => c.id === callId);
     if (typeof call !== 'undefined') {
       //@ts-expect-error
@@ -787,31 +740,20 @@ export default class CallManager {
 
   /**
    * Handle leaving a REC call with last-person-leaves termination logic
-   * TASK-023: Delegates to GroupCallManager (VGCS-based) with enhanced fallback handling
-   * NOTE: GroupCallManager should always be available in current architecture
    * @param {string} socketId 
    * @param {CallRequest} call 
    * @param {string} leaversDiscordId 
    */
   async leaveRECCall(socketId, call, leaversDiscordId) {
-    // Delegate to GroupCallManager if available (VGCS-based)
     if (this.groupCallManager) {
-      console.log(chalk.blue('leaveRECCall'), 'Delegating REC call termination to GroupCallManager');
       try {
-        const result = await this.groupCallManager.leaveRECCall(socketId, call, leaversDiscordId);
-        return result;
+        return await this.groupCallManager.leaveRECCall(socketId, call, leaversDiscordId);
       } catch (error) {
-        console.error(chalk.red('leaveRECCall'), 'GroupCallManager delegation failed:', error.message);
-        console.warn(chalk.yellow('leaveRECCall'), 'Falling back to legacy REC call termination for call:', call.id);
         // Fall through to legacy handling
       }
     } else {
-      console.warn(chalk.yellow('leaveRECCall'), 'UNEXPECTED: GroupCallManager not available, using legacy REC handling');
-      console.warn(chalk.yellow('leaveRECCall'), 'This indicates a configuration issue - GroupCallManager should always be initialized');
+      console.warn(chalk.yellow('leaveRECCall'), 'GroupCallManager not available, using legacy REC handling');
     }
-
-    // TASK-023: Enhanced legacy REC call termination logic
-    console.log(chalk.blue('leaveRECCall'), 'Executing legacy REC termination for call:', call.id, 'leaver:', leaversDiscordId);
     
     try {
       // Move the leaving player back to their original channel
@@ -825,54 +767,23 @@ export default class CallManager {
 
       console.log(chalk.blue('leaveRECCall'), `Legacy termination: ${remainingParticipants.length} participants remaining in call ${call.id}`);
 
-      // If this was the last person, terminate the call
       if (remainingParticipants.length === 0) {
-        console.log(chalk.blue('leaveRECCall'), 'Last person left, terminating legacy REC call:', call.id);
-        
         call.status = CallRequest.STATUS.ENDED;
         this.ongoingCalls = this.ongoingCalls.filter(c => c.id !== call.id);
         this.pastCalls.push(call);
 
-        // Release the channel and move players back to original channels
         if (call.channel) {
           const senderId = call.sender ? call.sender.getDiscordId() : null;
-          this.bot.terminateCallForChannel(call.channel, senderId, 'COMPLETED')
-            .then(success => {
-              if (success) {
-                console.log(chalk.green('leaveRECCall'), 'Channel terminated and players moved back for legacy REC call:', call.channel);
-              } else {
-                console.warn(chalk.yellow('leaveRECCall'), 'Failed to properly terminate channel for legacy REC call:', call.channel);
-              }
-            })
-            .catch(error => {
-              console.error(chalk.red('leaveRECCall'), 'Error terminating channel for legacy REC call:', error);
-            });
+          this.bot.terminateCallForChannel(call.channel, senderId, 'COMPLETED').catch(() => {});
         }
       }
 
-      // Update call queues for all phones
       this.sendCallQueueUpdateToPhones(call.getReceivers());
       this.sendCallQueueUpdateToPhones([call.sender]);
 
-      console.log(chalk.green('leaveRECCall'), 'Legacy REC termination completed for player:', leaversDiscordId, 'call:', call.id);
       return true;
     } catch (error) {
-      console.error(chalk.red('leaveRECCall'), 'Legacy REC termination failed:', error.message, 'call:', call.id);
       return false;
     }
-  }
-
-
-  // =============================== END CALL CODE ===============================
-
-  // REc
-  playerJoinREC(playerId, channelId) {
-    console.log(chalk.yellow("Player joining REC:"), chalk.white(playerId));
-    this.movePlayerToCall(playerId, channelId);
-    this.io.to(playerId).emit("joinedCall", { "success": true });
-  }
-
-  kickUserFromCall(discordId) {
-    console.log(discordId);
   }
 }

@@ -109,10 +109,6 @@ export function rocSockets (socket, gameManager, callManager) {
     callManager.leaveCall(socket.id, msg.id);
   });
 
-  socket.on("joinREC", function(msg){
-    callManager.playerJoinREC(msg.user, msg.channel);
-  });
-
   // TASK-031: Group call event handlers for Phase 6 socket integration
   socket.on("startGroupCall", async function(msg, callback) {
     console.log(chalk.yellow('startGroupCall'), msg);

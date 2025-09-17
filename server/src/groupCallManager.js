@@ -47,51 +47,40 @@ export default class GroupCallManager {
     
     console.log(chalk.green('GroupCallManager'), 'Group Call Manager initialized');
     
-    // TASK-034: Initialize Phase 6 enhancements
     this.setupErrorHandling();
     this.initializeVGCSBridge();
   }
 
   /**
-   * TASK-034: Set up error handling for VGCS message failures and socket disconnections
+   * Set up error handling for VGCS message failures and socket disconnections
    */
   setupErrorHandling() {
-    // Set up global error handler for VGCS operations
     process.on('uncaughtException', (error) => {
       if (error.message && error.message.includes('VGCS')) {
-        console.error(chalk.red('GroupCallManager VGCS Error'), error);
         this.handleVGCSError(error);
       }
     });
 
-    // Set up socket disconnection handling
     if (this.io && typeof this.io.on === 'function') {
       this.io.on('disconnect', (socket) => {
-        // Handle disconnection cleanup asynchronously
-        this.handleSocketDisconnection(socket).catch(error => {
-          console.error(chalk.red('GroupCallManager'), 'Error during socket disconnection cleanup:', error);
-        });
+        this.handleSocketDisconnection(socket).catch(() => {});
       });
     }
   }
 
   /**
-   * TASK-034: Initialize VGCS Socket Bridge integration
+   * Initialize VGCS Socket Bridge integration
    */
   initializeVGCSBridge() {
     if (!this.socketBridge) {
-      console.warn(chalk.yellow('GroupCallManager'), 'VGCSSocketBridge not initialized');
       return;
     }
 
-    // Connect socket bridge to VGCS bus for message integration
     this.vgcsBus.setSocketBridge(this.socketBridge);
-
-    console.log(chalk.green('GroupCallManager'), 'VGCS Socket Bridge initialized');
   }
 
   /**
-   * TASK-034: Handle VGCS system errors with recovery strategies
+   * Handle VGCS system errors with recovery strategies
    * @param {Error} error - The error that occurred
    * @param {string} [groupId] - Optional group call ID
    * @param {string} [phoneId] - Optional phone ID
@@ -99,16 +88,13 @@ export default class GroupCallManager {
   handleVGCSError(error, groupId = null, phoneId = null) {
     const errorData = {
       error: error.message,
-      errorCode: error.code || 'VGCS_ERROR',
+      errorCode: 'VGCS_ERROR',
       groupId,
       phoneId,
       recoverable: this.isRecoverableError(error),
       timestamp: Date.now()
     };
 
-    console.error(chalk.red('GroupCallManager.handleVGCSError'), errorData);
-
-    // Emit error through socket bridge
     if (this.socketBridge) {
       this.socketBridge.processStandardVGCSMessage({
         type: 'VGCS_ERROR',
@@ -119,7 +105,6 @@ export default class GroupCallManager {
       });
     }
 
-    // Attempt recovery if error is recoverable
     if (errorData.recoverable && groupId) {
       this.attemptErrorRecovery(groupId, error);
     }
@@ -263,25 +248,19 @@ export default class GroupCallManager {
 
   /**
    * Handle socket disconnection cleanup
-   * @param {import('socket.io').Socket} socket - Disconnected socket
+   * @param {any} socket - Disconnected socket
    */
   async handleSocketDisconnection(socket) {
     if (!socket.discordId) return;
 
-    console.log(chalk.yellow('GroupCallManager.handleSocketDisconnection'), `Socket ${socket.id} disconnected`);
-
-    // Find phones associated with this Discord ID
     const userPhones = Array.from(this.phoneToGroupMap.keys()).filter(phoneId => {
       const phone = this.phoneManager.getPhone(phoneId);
       return phone && phone.getDiscordId() === socket.discordId;
     });
 
-    // Remove user from any active group calls
     for (const phoneId of userPhones) {
       const groupId = this.phoneToGroupMap.get(phoneId);
       if (groupId) {
-        console.log(chalk.blue('GroupCallManager'), `Removing disconnected user from group call ${groupId}`);
-        // This will be handled by the existing leave logic
         await this.leaveGroupCall(socket.id, phoneId);
       }
     }
@@ -293,7 +272,6 @@ export default class GroupCallManager {
    */
   setCallManager(callManager) {
     this.callManager = callManager;
-    console.log(chalk.green('GroupCallManager'), 'CallManager reference set for channel integration');
   }
 
   /**
@@ -303,52 +281,31 @@ export default class GroupCallManager {
    * @returns {Promise<string|false>} Call ID or false if failed
    */
   async placeRECCall(socketId, senderPhoneId) {
-    console.log(chalk.yellow('GroupCallManager.placeRECCall'), `Socket: ${socketId}, Phone: ${senderPhoneId}`);
-    
     const senderPhone = this.phoneManager.getPhone(senderPhoneId);
-    if (!senderPhone) {
-      console.log(chalk.red('GroupCallManager.placeRECCall'), 'Sender phone not found');
+    if (!senderPhone || !senderPhone.getPlayer()) {
       return false;
     }
 
-    if (!senderPhone.getPlayer()) {
-      console.log(chalk.red('GroupCallManager.placeRECCall'), 'Sender phone not assigned to player');
-      return false;
-    }
-
-    // Check if sender is already in an active REC call - prevent double calls
     const existingMS = this.mobileStations.get(senderPhoneId);
     if (existingMS && existingMS.state === 'ACTIVE' && existingMS.groupId) {
       const existingGroup = this.activeGroupCalls.get(existingMS.groupId);
       if (existingGroup && existingGroup.type === GroupCallRequest.TYPES.REC) {
-        console.log(chalk.yellow('GroupCallManager.placeRECCall'), 
-          `Sender ${senderPhoneId} already in active REC call: ${existingMS.groupId}`);
         return false;
       }
     }
 
-    // Get REC recipients with deduplication
     const recPhones = this.phoneManager.getRECRecipientsForPhone(senderPhone);
     if (recPhones.length === 0) {
-      console.log(chalk.red('GroupCallManager.placeRECCall'), 'No REC recipients found');
       return false;
     }
 
-    // Check if any recipients are actually connected (have players assigned)
     const connectedRecipients = recPhones.filter(phone => 
       phone.getPlayer() && phone.getDiscordId()
     );
     
     if (connectedRecipients.length === 0) {
-      console.log(chalk.red('GroupCallManager.placeRECCall'), 
-        `No connected recipients found. Total phones: ${recPhones.length}, Connected: ${connectedRecipients.length}`);
-      console.log(chalk.yellow('GroupCallManager.placeRECCall'), 
-        'REC call rejected - no players available to respond to emergency');
       return false;
     }
-
-    console.log(chalk.green('GroupCallManager.placeRECCall'), 
-      `Found ${connectedRecipients.length} connected recipients out of ${recPhones.length} total REC recipients`);
 
     // Create group call request
     const groupId = `REC-${senderPhoneId}-${Date.now()}`;
@@ -364,7 +321,6 @@ export default class GroupCallManager {
       }
     );
 
-    // Add deduplicated recipients (only connected ones)
     const addedDiscordIds = new Set();
     connectedRecipients.forEach(phone => {
       if (phone.getDiscordId() && !addedDiscordIds.has(phone.getDiscordId())) {
@@ -373,18 +329,12 @@ export default class GroupCallManager {
       }
     });
 
-    console.log(chalk.green('GroupCallManager.placeRECCall'), 
-      `Created REC call with ${groupCall.getParticipantCount()} unique recipients`);
-
-    // Store the group call
     this.activeGroupCalls.set(groupId, groupCall);
     
-    // Create mobile station for originator if it doesn't exist
-    this._ensureMobileStation(senderPhoneId, false); // Originator doesn't auto-answer
+    this._ensureMobileStation(senderPhoneId, false);
     
-    // Create mobile stations for all participants with auto-answer enabled
     groupCall.participants.forEach(phone => {
-      this._ensureMobileStation(phone.getId(), true); // Participants auto-answer REC
+      this._ensureMobileStation(phone.getId(), true);
     });
 
     // Allocate Discord voice channel using enhanced channel management
@@ -742,11 +692,8 @@ export default class GroupCallManager {
    * @returns {Promise<boolean>}
    */
   async leaveGroupCall(socketId, phoneId) {
-    console.log(chalk.yellow('GroupCallManager.leaveGroupCall'), `Socket: ${socketId}, Phone: ${phoneId}`);
-    
     const groupId = this.phoneToGroupMap.get(phoneId);
     if (!groupId) {
-      console.log(chalk.red('GroupCallManager.leaveGroupCall'), 'Phone not in any group call');
       return false;
     }
 
@@ -1085,7 +1032,7 @@ export default class GroupCallManager {
         originatorName: groupCall.originator.getName(),
         level: groupCall.level,
         autoJoinCountdown: 5,
-        adminUsers: [], // TODO: Add admin user detection logic if needed
+        adminUsers: [],
         timestamp: Date.now()
       };
       

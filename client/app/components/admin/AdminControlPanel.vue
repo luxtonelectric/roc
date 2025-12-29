@@ -78,8 +78,8 @@
 
 <script>
 import { PreparedCall } from '~/models/PreparedCall'
-import { useNotifications } from '~/composables/useNotifications'
-import { useAdminSocket } from '~/composables/useAdminSocket'
+import { useNotifications } from '../../../composables/useNotifications'
+import { useAdminSocket } from '../../../composables/useAdminSocket'
 import AdminNotification from './AdminNotification.vue'
 import AdminHostsTab from './tabs/AdminHostsTab.vue'
 import AdminGamesTab from './tabs/AdminGamesTab.vue'

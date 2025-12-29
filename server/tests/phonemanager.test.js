@@ -450,15 +450,13 @@ describe('getRECRecipientsForPhone', () => {
     const brokenPhone = phoneManager.getPhone('broken_broken_panel');
     const recipients = phoneManager.getRECRecipientsForPhone(brokenPhone);
 
-    // The current implementation includes undefined neighbors, so we need to filter them
-    const validRecipients = recipients.filter(p => p !== undefined);
-    const neighbourIds = validRecipients.map(p => p.getId()).filter(id => !id.includes('_control'));
+    // Phase 3 Enhancement: The enhanced implementation now correctly filters out undefined neighbors
+    const neighbourIds = recipients.map(p => p.getId()).filter(id => !id.includes('_control'));
     
     expect(neighbourIds).toContain(`${simId1}_hitchin`);
     expect(neighbourIds).not.toContain('nonexistent_fake_panel');
-    // Note: The current implementation does not filter undefined neighbors automatically
-    // This test documents the current behavior where undefined neighbors are included in the array
-    expect(recipients.some(p => p === undefined)).toBe(true);
+    // Enhanced implementation filters undefined neighbors automatically - this is the correct behavior
+    expect(recipients.some(p => p === undefined)).toBe(false);
   });
 
   test('returns both neighbors and control when both conditions are met', () => {

@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import CallManager from '../src/callManager.js';
+import CallManager from '../src/UnifiedCallManager.js';
 import CallRequest from '../src/model/callrequest.js';
 import Phone from '../src/model/phone.js';
 import Player from '../src/model/player.js';
@@ -26,23 +26,27 @@ function createTestPhone(id, name, discordId = null) {
 }
 
 // Test: CallManager constructor
-test('CallManager should initialize with empty call arrays', () => {
+test('CallManager should initialize with empty call maps', () => {
   const mockPhoneManager = {};
   const mockBot = {};
-  const mockIO = {};
+  const mockIO = {
+      emit: jest.fn(),
+      to: jest.fn(() => ({ emit: jest.fn() })),
+      on: jest.fn()
+    };
   
   const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
   
-  expect(callManager.requestedCalls).toEqual([]);
-  expect(callManager.ongoingCalls).toEqual([]);
-  expect(callManager.pastCalls).toEqual([]);
+  expect(callManager.requestedCalls.size).toBe(0);
+  expect(callManager.activeCalls.size).toBe(0);
+  expect(callManager.pastCalls.size).toBe(0);
   expect(callManager.phoneManager).toBe(mockPhoneManager);
   expect(callManager.bot).toBe(mockBot);
   expect(callManager.io).toBe(mockIO);
 });
 
 // Test: placeCall - P2P call success
-test('placeCall should successfully place a valid P2P call', () => {
+test('placeCall should successfully place a valid P2P call', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
   
@@ -61,13 +65,13 @@ test('placeCall should successfully place a valid P2P call', () => {
   
   const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
   
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.NORMAL, 'phone1', 'phone2');
+  const result = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.NORMAL, receiver: 'phone2' });
   
   expect(result).toBeTruthy();
   expect(typeof result).toBe('string');
-  expect(callManager.requestedCalls).toHaveLength(1);
+  expect(callManager.requestedCalls.size).toBe(1);
   
-  const call = callManager.requestedCalls[0];
+  const call = Array.from(callManager.requestedCalls.values())[0];
   expect(call.sender).toBe(senderPhone);
   expect(call.getReceiver()).toBe(receiverPhone);
   expect(call.type).toBe(CallRequest.TYPES.P2P);
@@ -75,53 +79,66 @@ test('placeCall should successfully place a valid P2P call', () => {
 });
 
 // Test: placeCall - reject self-call
-test('placeCall should reject call when player tries to call themselves', () => {
+test('placeCall should reject call when player tries to call themselves', async () => {
   const selfPhone = createTestPhone('self-phone', 'Self Phone', 'same-discord-id');
   
   const mockPhoneManager = {
     getPhone: () => selfPhone
   };
+    const mockIo = {
+      emit: jest.fn(),
+      to: jest.fn(() => ({ emit: jest.fn() })),
+      on: jest.fn()
+    };
+
+  const callManager = new CallManager(mockPhoneManager, {}, mockIo);
   
-  const callManager = new CallManager(mockPhoneManager, {}, {});
-  
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.NORMAL, 'self-phone', 'self-phone');
+  const result = await callManager.placeCall({ senderPhoneId: 'self-phone', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.NORMAL, receiver: 'self-phone' });
   
   expect(result).toBe(false);
-  expect(callManager.requestedCalls).toHaveLength(0);
+  expect(callManager.requestedCalls.size).toBe(0);
 });
 
 // Test: placeCall - invalid sender phone
-test('placeCall should reject call when sender phone does not exist', () => {
+test('placeCall should reject call when sender phone does not exist', async () => {
   const mockPhoneManager = {
     getPhone: () => undefined
   };
+    const mockIo = {
+      emit: jest.fn(),
+      to: jest.fn(() => ({ emit: jest.fn() })),
+      on: jest.fn()
+    };
+  const callManager = new CallManager(mockPhoneManager, {}, mockIo);
   
-  const callManager = new CallManager(mockPhoneManager, {}, {});
-  
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.NORMAL, 'invalid-phone', 'phone2');
+  const result = await callManager.placeCall({ senderPhoneId: 'invalid-phone', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.NORMAL, receiver: 'phone2' });
   
   expect(result).toBe(false);
-  expect(callManager.requestedCalls).toHaveLength(0);
+  expect(callManager.requestedCalls.size).toBe(0);
 });
 
 // Test: placeCall - unassigned sender phone
-test('placeCall should reject call when sender phone is not assigned to a player', () => {
+test('placeCall should reject call when sender phone is not assigned to a player', async () => {
   const unassignedPhone = createTestPhone('unassigned', 'Unassigned Phone'); // No discordId
   
   const mockPhoneManager = {
     getPhone: () => unassignedPhone
   };
+    const mockIo = {
+      emit: jest.fn(),
+      to: jest.fn(() => ({ emit: jest.fn() })),
+      on: jest.fn()
+    };
+  const callManager = new CallManager(mockPhoneManager, {}, mockIo);
   
-  const callManager = new CallManager(mockPhoneManager, {}, {});
-  
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.NORMAL, 'unassigned', 'phone2');
+  const result = await callManager.placeCall({ senderPhoneId: 'unassigned', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.NORMAL, receiver: 'phone2' });
   
   expect(result).toBe(false);
-  expect(callManager.requestedCalls).toHaveLength(0);
+  expect(callManager.requestedCalls.size).toBe(0);
 });
 
 // Test: placeCall - REC call with EMERGENCY level (this should work)
-test('placeCall should successfully place REC call with EMERGENCY level', () => {
+test('placeCall should successfully place REC call with EMERGENCY level', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const recPhone1 = createTestPhone('rec1', 'REC Phone 1', 'discord3');
   const recPhone2 = createTestPhone('rec2', 'REC Phone 2', 'discord4');
@@ -140,12 +157,12 @@ test('placeCall should successfully place REC call with EMERGENCY level', () => 
   
   const callManager = new CallManager(mockPhoneManager, {}, mockIO);
   
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.REC, CallRequest.LEVELS.EMERGENCY, 'phone1');
+  const result = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.REC, callLevel: CallRequest.LEVELS.EMERGENCY });
   
   expect(result).toBeTruthy();
-  expect(callManager.requestedCalls).toHaveLength(1);
+  expect(callManager.requestedCalls.size).toBe(1);
   
-  const call = callManager.requestedCalls[0];
+  const call = Array.from(callManager.requestedCalls.values())[0];
   expect(call.sender).toBe(senderPhone);
   expect(call.getReceivers()).toEqual([recPhone1, recPhone2]);
   expect(call.type).toBe(CallRequest.TYPES.REC);
@@ -153,7 +170,7 @@ test('placeCall should successfully place REC call with EMERGENCY level', () => 
 });
 
 // Test: placeCall - REC call with non-EMERGENCY level (this should fail based on requirements)
-test('placeCall should reject REC call with non-EMERGENCY level', () => {
+test('placeCall should reject REC call with non-EMERGENCY level', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const recPhone1 = createTestPhone('rec1', 'REC Phone 1', 'discord3');
   const recPhone2 = createTestPhone('rec2', 'REC Phone 2', 'discord4');
@@ -162,18 +179,22 @@ test('placeCall should reject REC call with non-EMERGENCY level', () => {
     getPhone: () => senderPhone,
     getRECRecipientsForPhone: () => [recPhone1, recPhone2] // Recipients available but wrong level
   };
+  const mockIO = {
+    emit: jest.fn(),
+    to: jest.fn(() => ({ emit: jest.fn() })),
+    on: jest.fn()
+  };
+  const callManager = new CallManager(mockPhoneManager, {}, mockIO);
   
-  const callManager = new CallManager(mockPhoneManager, {}, {});
-  
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.REC, CallRequest.LEVELS.NORMAL, 'phone1');
+  const result = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.REC, callLevel: CallRequest.LEVELS.NORMAL });
   
   // This should fail because REC calls should require EMERGENCY level
   expect(result).toBe(false);
-  expect(callManager.requestedCalls).toHaveLength(0);
+  expect(callManager.requestedCalls.size).toBe(0);
 });
 
 // Test: rejectCall - successful rejection
-test('rejectCall should successfully reject a call', () => {
+test('rejectCall should successfully reject a call', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
   
@@ -195,24 +216,29 @@ test('rejectCall should successfully reject a call', () => {
   const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
   
   // Place a call first
-  const callId = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.NORMAL, 'phone1', 'phone2');
+  const callId = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.NORMAL, receiver: 'phone2' });
   
-  // Reject the call
-  const result = callManager.rejectCall('socket123', callId);
+  // Reject the call (await the Promise)
+  const result = await callManager.rejectCall('socket123', callId);
   
   expect(result).toBe(true);
-  expect(callManager.requestedCalls).toHaveLength(0);
-  expect(callManager.pastCalls).toHaveLength(1);
+  expect(callManager.requestedCalls.size).toBe(0);
+  expect(callManager.pastCalls.size).toBe(1);
   
-  const rejectedCall = callManager.pastCalls[0];
+  const rejectedCall = Array.from(callManager.pastCalls.values())[0];
   expect(rejectedCall.status).toBe(CallRequest.STATUS.REJECTED);
 });
 
 // Test: rejectCall - non-existent call
-test('rejectCall should return false when trying to reject non-existent call', () => {
-  const callManager = new CallManager({}, {}, {});
+test('rejectCall should return false when trying to reject non-existent call', async () => {
+    const mockIO = {
+    emit: jest.fn(),
+    to: jest.fn(() => ({ emit: jest.fn() })),
+    on: jest.fn()
+  };
+  const callManager = new CallManager({}, {}, mockIO);
   
-  const result = callManager.rejectCall('socket123', 'non-existent-call-id');
+  const result = await callManager.rejectCall('socket123', 'non-existent-call-id');
   
   expect(result).toBe(false);
 });
@@ -225,24 +251,28 @@ test('getCallQueueForPhone should show requested, ongoing and last 10 past calls
   const mockPhoneManager = {
     getPhone: (id) => id === 'phone1' ? senderPhone : receiverPhone
   };
-  
-  const callManager = new CallManager(mockPhoneManager, {}, {});
+    const mockIO = {
+    emit: jest.fn(),
+    to: jest.fn(() => ({ emit: jest.fn() })),
+    on: jest.fn()
+  };
+  const callManager = new CallManager(mockPhoneManager, {}, mockIO);
   
   // Create 1 requested call
   const requestedCall = new CallRequest(senderPhone, receiverPhone);
-  callManager.requestedCalls.push(requestedCall);
+  callManager.requestedCalls.set(requestedCall.id, requestedCall);
   
-  // Create 1 ongoing call
+  // Create 1 ongoing call (activeCalls Map)
   const ongoingCall = new CallRequest(receiverPhone, senderPhone);
   ongoingCall.status = CallRequest.STATUS.ACCEPTED;
-  callManager.ongoingCalls.push(ongoingCall);
+  callManager.activeCalls.set(ongoingCall.id, ongoingCall);
   
   // Create 15 past calls (should only show last 10)
   const pastCallIds = [];
   for (let i = 0; i < 15; i++) {
     const pastCall = new CallRequest(senderPhone, receiverPhone);
     pastCall.status = CallRequest.STATUS.ENDED;
-    callManager.pastCalls.push(pastCall);
+    callManager.pastCalls.set(pastCall.id, pastCall);
     pastCallIds.push(pastCall.id);
   }
   
@@ -268,8 +298,12 @@ test('getCallQueueForPhone should show requested, ongoing and last 10 past calls
 test('isPlayerOnRECCall should correctly identify if player is on REC call', () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const recPhone = createTestPhone('rec1', 'REC Phone 1', 'discord3');
-  
-  const callManager = new CallManager({}, {}, {});
+    const mockIO = {
+    emit: jest.fn(),
+    to: jest.fn(() => ({ emit: jest.fn() })),
+    on: jest.fn()
+  };
+  const callManager = new CallManager({}, {}, mockIO);
   
   // No calls initially
   expect(callManager.isPlayerOnRECCall('discord1')).toBe(false);
@@ -298,7 +332,7 @@ test('isPlayerOnRECCall should correctly identify if player is on REC call', () 
 });
 
 // Test: placeCall - P2P call with URGENT level should preserve level (BUG REPRODUCTION)
-test('placeCall should preserve URGENT level for P2P calls', () => {
+test('placeCall should preserve URGENT level for P2P calls', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
   
@@ -318,24 +352,24 @@ test('placeCall should preserve URGENT level for P2P calls', () => {
   const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
   
   // Place a P2P call with URGENT level
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.URGENT, 'phone1', 'phone2');
+  const result = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.URGENT, receiver: 'phone2' });
   
   expect(result).toBeTruthy();
   expect(typeof result).toBe('string');
-  expect(callManager.requestedCalls).toHaveLength(1);
+  expect(callManager.requestedCalls.size).toBe(1);
   
-  const call = callManager.requestedCalls[0];
+  const call = Array.from(callManager.requestedCalls.values())[0];
   expect(call.sender).toBe(senderPhone);
   expect(call.getReceiver()).toBe(receiverPhone);
   expect(call.type).toBe(CallRequest.TYPES.P2P);
   expect(call.status).toBe(CallRequest.STATUS.OFFERED);
   
-  // This is the bug - the call level should be URGENT but it's currently NORMAL
+  // This is the bug - the call level should be URGENT
   expect(call.level).toBe(CallRequest.LEVELS.URGENT);
 });
 
 // Test: placeCall - P2P call with EMERGENCY level should preserve level  
-test('placeCall should preserve EMERGENCY level for P2P calls', () => {
+test('placeCall should preserve EMERGENCY level for P2P calls', async () => {
   const senderPhone = createTestPhone('phone1', 'Phone 1', 'discord1');
   const receiverPhone = createTestPhone('phone2', 'Phone 2', 'discord2');
   
@@ -355,13 +389,13 @@ test('placeCall should preserve EMERGENCY level for P2P calls', () => {
   const callManager = new CallManager(mockPhoneManager, mockBot, mockIO);
   
   // Place a P2P call with EMERGENCY level  
-  const result = callManager.placeCall('socket123', CallRequest.TYPES.P2P, CallRequest.LEVELS.EMERGENCY, 'phone1', 'phone2');
+  const result = await callManager.placeCall({ senderPhoneId: 'phone1', callType: CallRequest.TYPES.P2P, callLevel: CallRequest.LEVELS.EMERGENCY, receiver: 'phone2' });
   
   expect(result).toBeTruthy();
   expect(typeof result).toBe('string');
-  expect(callManager.requestedCalls).toHaveLength(1);
+  expect(callManager.requestedCalls.size).toBe(1);
   
-  const call = callManager.requestedCalls[0];
+  const call = Array.from(callManager.requestedCalls.values())[0];
   expect(call.sender).toBe(senderPhone);
   expect(call.getReceiver()).toBe(receiverPhone);
   expect(call.type).toBe(CallRequest.TYPES.P2P);

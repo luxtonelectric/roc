@@ -106,40 +106,40 @@
                   </select>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.NORMAL)"
-                    :disabled="!selectedPhone[phone.id]"
+                    :disabled="!selectedPhone[phone.id] || !phone.player"
                     :class="[
                       'px-2 py-1 rounded text-sm',
-                      selectedPhone[phone.id] 
+                      (selectedPhone[phone.id] && phone.player) 
                         ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                     ]"
-                    :title="selectedPhone[phone.id] ? 'Place a normal priority P2P call' : 'Select a sender phone first'"
+                    :title="!selectedPhone[phone.id] ? 'Select a sender phone first' : (!phone.player ? 'Receiver phone must be claimed' : 'Place a normal priority P2P call')"
                   >
                     Call
                   </button>
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.P2P, PreparedCall.LEVELS.URGENT)"
-                    :disabled="!selectedPhone[phone.id]"
+                    :disabled="!selectedPhone[phone.id] || !phone.player"
                     :class="[
                       'px-2 py-1 rounded text-sm',
-                      selectedPhone[phone.id] 
+                      (selectedPhone[phone.id] && phone.player) 
                         ? 'bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                     ]"
-                    :title="selectedPhone[phone.id] ? 'Place an urgent priority P2P call' : 'Select a sender phone first'"
+                    :title="!selectedPhone[phone.id] ? 'Select a sender phone first' : (!phone.player ? 'Receiver phone must be claimed' : 'Place an urgent priority P2P call')"
                   >
                     Urgent
-                  </button>
+                  </button> 
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.REC, PreparedCall.LEVELS.EMERGENCY)"
-                    :disabled="!selectedPhone[phone.id] || !hasValidLocationForREC(phone.id)"
+                    :disabled="!selectedPhone[phone.id] || !hasValidLocationForREC(phone.id) || !phone.player"
                     :class="[
                       'px-2 py-1 rounded text-sm',
-                      (selectedPhone[phone.id] && hasValidLocationForREC(phone.id))
+                      (selectedPhone[phone.id] && hasValidLocationForREC(phone.id) && phone.player)
                         ? 'bg-red-500 hover:bg-red-600 text-white cursor-pointer' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                     ]"
-                    :title="(selectedPhone[phone.id] && hasValidLocationForREC(phone.id)) ? 'Place a Railway Emergency Call' : (!selectedPhone[phone.id] ? 'Select a sender phone first' : 'Sender phone must have valid location (simId and panelId) for REC calls')"
+                    :title="!selectedPhone[phone.id] ? 'Select a sender phone first' : (!phone.player ? 'Receiver phone must be claimed' : (!hasValidLocationForREC(phone.id) ? 'Sender phone must have valid location (simId and panelId) for REC calls' : 'Place a Railway Emergency Call'))"
                   >
                     REC
                   </button>
@@ -260,6 +260,13 @@ export default {
       if (!receiverPhone) {
         console.log("Refusing call: receiver phone not found")
         props.showError('Call Failed', 'Receiver phone not found')
+        return
+      }
+
+      // Prevent calling a receiver phone that is not claimed/assigned
+      if (!receiverPhone.player) {
+        console.log("Refusing call: receiver phone not claimed")
+        props.showError('Call Failed', 'Receiver phone must be claimed before placing calls')
         return
       }
 

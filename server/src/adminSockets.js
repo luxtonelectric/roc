@@ -19,7 +19,6 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
         try {
           // Get initial voice channels
           const voiceChannels = await gameManager.getAvailableVoiceChannels();
-          console.log(chalk.yellow('adminLogin'), chalk.green('Voice channels:'), voiceChannels?.length || 0);
           
           callback({
             success: true,
@@ -41,7 +40,6 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
   socket.on("getAvailableVoiceChannels", async function (msg, callback) {
     try {
       const voiceChannels = await gameManager.getAvailableVoiceChannels();
-      console.log(chalk.yellow('getAvailableVoiceChannels'), chalk.green('Channels:'), voiceChannels?.length || 0);
       callback({
         success: true,
         voiceChannels
@@ -111,49 +109,42 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
   });
 
   socket.on("createPhone", function (msg) {
-    console.log(chalk.yellow('createPhone'), msg)
     try {
       phoneManager.generatePhoneForPerson(msg.number, msg.name, msg.type, msg.location, msg.hidden)
       gameManager.sendGameUpdateToPlayers();
     } catch (error) {
-      console.log(chalk.red('ERROR creating phone.'));
+      console.error(chalk.red('ERROR creating phone.'));
     }
   });
 
   socket.on('claimPhone', function (msg) {
-    console.log('adminSockets claimPhone', msg.phoneId)
     const phone = phoneManager.getPhone(msg.phoneId);
     const user = gameManager.findUserBySocketId(socket.id);
     if(phone && user) {
-      console.log(phone.toAdminView(), user.toSimple());
       phoneManager.assignPhone(phone,user);
       gameManager.sendGameUpdateToPlayers();
       gameManager.updateAdminUI();
     } else {
-      console.log('ADMIN SOCKET claimPhone error');
+      console.error('ADMIN SOCKET claimPhone error');
     }
   });
 
   socket.on('unclaimPhone', function (msg) {
-    console.log('adminSockets unclaimPhone', msg.phoneId)
     const phone = phoneManager.getPhone(msg.phoneId);
     if(phone) {
-      console.log(phone.toAdminView());
       phoneManager.unassignPhone(phone);
       gameManager.sendGameUpdateToPlayers();
       gameManager.updateAdminUI();
     } else {
-      console.log('ADMIN SOCKET unclaimPhone error');
+      console.error('ADMIN SOCKET unclaimPhone error');
     }
   })
 
   socket.on("releasePanel", function (msg) {
-    console.log(chalk.yellow('releasePanel'), msg);
     gameManager.releasePanel(msg.player, msg.sim, msg.panel);
   });
 
   socket.on("enableInterfaceGateway", function (msg, callback) {
-    console.log(chalk.yellow('enableInterfaceGateway'), msg)
     try {
       if (!config.superUsers.some(u => u === socket.discordId)) {
         throw new Error("Not authorized");
@@ -169,7 +160,6 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     }
   });
   socket.on("disableInterfaceGateway", function (msg, callback) {
-    console.log(chalk.yellow('disableInterfaceGateway'), msg)
     try {
       if (!config.superUsers.some(u => u === socket.discordId)) {
         throw new Error("Not authorized");
@@ -186,11 +176,9 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
   });
 
   socket.on("enableConnections", function (msg) {
-    console.log(chalk.yellow('enableConnections'), msg)
     gameManager.enableConnections(msg.simId);
   });
   socket.on("disableConnections", function (msg) {
-    console.log(chalk.yellow('disableConnections'), msg)
     gameManager.disableConnections(msg.simId);
   });
 
@@ -198,7 +186,6 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     if (!config.superUsers.some(u => u === socket.discordId)) {
       return;
     }
-    console.log(chalk.yellow('enableHost'), msg)
     await gameManager.enableHost(msg.simId);
   });
 
@@ -206,7 +193,6 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
     if (!config.superUsers.some(u => u === socket.discordId)) {
       return;
     }
-    console.log(chalk.yellow('disableHost'), msg)
     await gameManager.disableHost(msg.simId);
   });
 

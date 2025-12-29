@@ -48,11 +48,8 @@ export default class TrainManager{
    * @param {TrainLocationMessage} message 
    */
   handleTrainLocationMessage(message) {
-    console.log(chalk.magenta('handleTrainLocationMessage'), message.getSUID())
     const train = this.#trains.find(t => t.getSUID() === message.getSUID())
     if(train) {
-      console.log('We know this train...')
-
       if(train.getHeadcode() !== message.getHeadcode()) {
         console.log('Headcode has changed updating train');
         train.setHeadcode(message.getHeadcode());
@@ -62,16 +59,6 @@ export default class TrainManager{
 
       const panel = this.getPanelFromLocation(message.getSimId(), message.getLocation())
       if (panel && panel !== train.getLocation()?.panelId) {
-        console.log(
-          "setting location for",
-          train.getHeadcode(),
-          "suid",
-          train.getSUID(),
-          "because it reported at",
-          message.getLocation(),
-          "so its new panel is",
-          panel
-        );
         train.setLocation(new Location(message.getSimId(), panel))
       }
 

@@ -41,7 +41,6 @@ export default class STOMPManager {
   }
 
   createClientForHost(host) {
-    console.log('createClientForHost called for', host.sim);
     if (!host.enabled) {
       console.info(chalk.yellow('createClientForHost'), chalk.red("Host is disabled, skipping Interface Gateway setup for", host.sim));
       return false;
@@ -55,25 +54,19 @@ export default class STOMPManager {
     let clientConnectHeaders = new StompHeaders();
     clientConnectHeaders.ack = 'auto';
 
-    // Use new authentication from InterfaceGateway
-    console.log('Checking authentication for', host.sim);
     if (host.interfaceGateway.hasAuthentication()) {
-      console.log('Using authentication for', host.sim);
       const username = host.interfaceGateway.username;
       const password = host.interfaceGateway.getDecryptedPassword();
       if (username && password) {
-        console.log(chalk.green('Using credentials to login as'), username);
         clientConnectHeaders.login = username;
         clientConnectHeaders.passcode = password;
       }
     }
     // Fallback to legacy authentication for backwards compatibility
     else if (host.interfaceGateway.login) {
-      console.log(chalk.green('Using legacy credential to login'), host.interfaceGateway.login);
       clientConnectHeaders.login = host.interfaceGateway.login;
       clientConnectHeaders.passcode = host.interfaceGateway.password;
     }
-    console.log('Client connect headers:', clientConnectHeaders);
     // Set initial state to disconnected
     host.interfaceGateway.connectionState = 'disconnected';
     host.interfaceGateway.errorMessage = null;
@@ -112,13 +105,13 @@ export default class STOMPManager {
         );
       },
       onStompError: (frame) => {
-        console.log(chalk.bgRed(host.sim), "STOMP StompError", frame.body);
+        console.error(chalk.bgRed(host.sim), "STOMP StompError", frame.body);
         host.interfaceGateway.connectionState = 'error';
         host.interfaceGateway.errorMessage = frame.body;
         this.gameManager.updateAdminUI();
       },
       onWebSocketError: (event) => {
-        console.log(chalk.bgRed(host.sim),"STOMP WebSocketError", event);
+        console.error(chalk.bgRed(host.sim),"STOMP WebSocketError", event);
         host.interfaceGateway.connectionState = 'error';
         // Extract error message from the event
         let errorMessage = 'Unknown error';
@@ -140,9 +133,6 @@ export default class STOMPManager {
         this.gameManager.updateAdminUI();
       },
     });
-    // client.debug = function (str) {
-    //   console.log(str);
-    // };
 
     console.info(chalk.yellow('createClientForHost'), chalk.white("Created Interface Gateway configuration for", host.host));
     if (host.interfaceGateway.enabled === true) {

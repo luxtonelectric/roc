@@ -23,8 +23,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("placeCall", async function(msg, callback) {
-    console.log(chalk.yellow('placeCall'), 'Processing call placement request:', msg);
-    
     // Extract sender phone ID from object or use directly
     const senderPhoneId = typeof msg.sender === 'object' ? msg.sender.id : msg.sender;
     
@@ -60,8 +58,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("rejectCall", async function(msg, callback) {
-    console.log(chalk.yellow('rejectCall'), 'Processing call rejection:', msg);
-    
     try {
       // Use new standardized signature with callback: rejectCall(socketId, callId, callback)
       const result = await unifiedCallManager.rejectCall(socket.id, msg.id, callback);
@@ -74,8 +70,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
   
   socket.on("acceptCall", async function(msg, callback) {
-    console.log(chalk.yellow('acceptCall'), 'Processing call acceptance:', msg);
-    
     try {
       // Use new standardized signature with callback: acceptCall(socketId, callId, callback)
       const response = await unifiedCallManager.acceptCall(socket.id, msg.id, callback);
@@ -88,8 +82,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("leaveCall", async function(msg, callback) {
-    console.log(chalk.yellow('leaveCall'), 'Processing leave call request:', msg);
-    
     try {
       const result = await unifiedCallManager.leaveCall(socket.id, msg.id);
       
@@ -106,8 +98,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
 
   // Group call handlers - all delegated to UnifiedCallManager
   socket.on("startGroupCall", async function(msg, callback) {
-    console.log(chalk.yellow('startGroupCall'), 'Processing group call start:', msg);
-    
     try {
       // Use new UnifiedCallManager object-based API
       const response = await unifiedCallManager.placeCall({
@@ -130,8 +120,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("joinGroupCall", async function(msg, callback) {
-    console.log(chalk.yellow('joinGroupCall'), 'Processing group call join:', msg);
-    
     try {
       // Use new standardized signature: acceptCall(socketId, callId)
       const response = await unifiedCallManager.acceptCall(socket.id, msg.groupId);
@@ -148,14 +136,11 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("leaveGroupCall", async function(msg, callback) {
-    console.log(chalk.yellow('leaveGroupCall'), 'Processing group call leave:', msg);
-    
     try {
       // Look up callId from phoneId if not provided directly
       let callId = msg.callId || msg.groupId;
       if (!callId && msg.phoneId) {
         callId = unifiedCallManager.phoneToCallMap.get(msg.phoneId);
-        console.log(chalk.blue('leaveGroupCall'), `Looked up callId ${callId} for phoneId ${msg.phoneId}`);
       }
       
       if (!callId) {
@@ -177,14 +162,11 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("terminateGroupCall", async function(msg, callback) {
-    console.log(chalk.yellow('terminateGroupCall'), 'Processing group call termination:', msg);
-    
     try {
       // Look up callId from phoneId if not provided directly
       let callId = msg.callId || msg.groupId;
       if (!callId && msg.phoneId) {
         callId = unifiedCallManager.phoneToCallMap.get(msg.phoneId);
-        console.log(chalk.blue('terminateGroupCall'), `Looked up callId ${callId} for phoneId ${msg.phoneId}`);
       }
       
       if (!callId) {
@@ -206,8 +188,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("acceptGroupCall", async function(msg, callback) {
-    console.log(chalk.yellow('acceptGroupCall'), 'Processing group call acceptance:', msg);
-    
     try {
       let callId = msg.callId;
       
@@ -231,8 +211,6 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
   });
 
   socket.on("requestGroupCallUpdate", function(msg) {
-    console.log(chalk.yellow('requestGroupCallUpdate'), 'Processing group call update request:', msg);
-    
     try {
       // Send current group call state to requesting client
       // Note: UnifiedCallManager doesn't have getAllActiveGroupCalls - use alternative approach

@@ -243,12 +243,6 @@ export default class CallManager {
           }
           
           disconnectedPlayers.push(discordId);
-          
-          console.log(chalk.green('forceDisconnectFromLowerPriorityCall'), 
-            `Successfully disconnected ${discordId} from lower priority call`);
-        } else {
-          console.log(chalk.blue('forceDisconnectFromLowerPriorityCall'), 
-            `Player ${discordId} in equal/higher priority call (${currentCallType}:${currentCallLevel}), not disconnecting`);
         }
       }
       

@@ -64,7 +64,7 @@
         <div class="w-full border-b-2 border-zinc-400">
           <h2 class="text-center text-xl font-bold ">Global Directory</h2>
         </div>
-        <div class="bg-neutral-200 overflow-scroll overscroll-contain">
+        <div class="bg-neutral-200 overflow-scroll overscroll-contain h-pb">
           <div class="text-center text-lg w-full">
             <table class="w-full">
               <thead class="border-b border-zinc-400 p-2 bg-zinc-300 text-xl">

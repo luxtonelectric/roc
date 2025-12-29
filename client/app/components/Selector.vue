@@ -4,13 +4,13 @@
       <h1 class="text-center text-3xl font-bold">Claim Panels</h1>
     </div>
   </div>
-  <div class="flex p-2 h-4/5">
+  <div class="flex p-2 h-se1">
     <div class="grid grid-cols-2 gap-2 w-full">
       <div class="w-full border-2 border-zinc-400">
         <div class="w-full border-b-2 border-zinc-400">
           <h2 class="text-center text-xl font-bold ">Available Panels</h2>
         </div>
-        <div class="bg-neutral-200 overflow-scroll overscroll-contain">
+        <div class="bg-neutral-200 overflow-scroll overscroll-contain h-se2">
           <div class="text-center text-lg w-full">
             <template v-for="sim in gameData">
               <template v-for="panel in sim.panels">
@@ -24,7 +24,7 @@
         <div class="w-full border-b-2 border-zinc-400">
           <h2 class="text-center text-xl font-bold">Claimed Panels</h2>
         </div>
-        <div class="bg-neutral-200 overflow-scroll overscroll-contain h-99">
+        <div class="bg-neutral-200 overflow-scroll overscroll-contain h-se2">
           <div class="text-center text-lg w-full">
             <template v-for="sim in gameData">
               <template v-for="panel in sim.panels">

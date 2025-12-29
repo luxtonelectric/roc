@@ -186,4 +186,32 @@ describe('E2E REC call flow', () => {
     // Wait a little longer to allow any background VGCS messages to finish before test exit
     await new Promise(resolve => setTimeout(resolve, 250));
   });
+
+  test('REC call from unassigned phone is rejected and user notified', async () => {
+    // Create an unassigned phone
+    const phone3 = new Phone('sim1_panelC', 'Panel C', Phone.TYPES.FIXED, new Location('sim1', 'panelC'));
+    phoneManager.phones.push(phone3);
+
+    // Try to place REC call from the unassigned phone
+    const result = await new Promise(resolve => socketA.trigger('placeCall', {
+      sender: 'sim1_panelC',
+      receiver: {},
+      type: BaseCall.TYPES.REC,
+      level: BaseCall.LEVELS.EMERGENCY
+    }, (res) => resolve(res)));
+
+    // Should be rejected (null returned)
+    expect(result).toBeNull();
+
+    // No requested call should be created for the unassigned phone
+    const foundCall = Array.from(ucm.requestedCalls.values()).some(c => c.originator && c.originator.getId && c.originator.getId() === 'sim1_panelC');
+    expect(foundCall).toBe(false);
+
+    // The client socket should have received a callError notification
+    const errorEvent = ioMock.events.find(e => e.ev === 'callError' && e.to === 'socketA');
+    expect(errorEvent).toBeDefined();
+    expect(errorEvent.data).toBeDefined();
+    expect(errorEvent.data.error).toEqual(expect.stringContaining('Sender phone not assigned'));
+  });
+
 });

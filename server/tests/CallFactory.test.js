@@ -407,4 +407,27 @@ describe('CallFactory', () => {
       }).not.toThrow();
     });
   });
+
+  describe('Placeholder / ID checks', () => {
+    test('created calls should not use the placeholder id "mock-call-id" and should be unique', () => {
+      const p2pA = CallFactory.createP2PCall(mockPhone1, mockPhone2);
+      const p2pB = CallFactory.createP2PCall(mockPhone1, mockPhone3);
+
+      expect(p2pA.id).toBeDefined();
+      expect(p2pA.id).not.toBe('mock-call-id');
+      expect(p2pB.id).toBeDefined();
+      expect(p2pB.id).not.toBe('mock-call-id');
+      expect(p2pA.id).not.toBe(p2pB.id);
+    });
+
+    test('GROUP and REC calls should not have placeholder ids', () => {
+      const group = CallFactory.createGroupCall(mockPhone1, 'group-xyz');
+      const rec = CallFactory.createRECCall(mockPhone1);
+
+      expect(group.id).toBeDefined();
+      expect(group.id).not.toBe('mock-call-id');
+      expect(rec.id).toBeDefined();
+      expect(rec.id).not.toBe('mock-call-id');
+    });
+  });
 });

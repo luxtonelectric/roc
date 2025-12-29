@@ -311,7 +311,12 @@ export default class CallFactory {
 
     // Create a minimal ICall-compliant object  
     const call = ICall.createMock();
-    
+
+    // Ensure the placeholder has a real unique id and timestamp instead of the static mock id
+    const generateId = () => `${callData.type}-${Date.now()}-${Math.random().toString(36).substr(2,9)}`;
+    call.id = generateId();
+    call.timePlaced = Date.now();
+
     // Override with call-specific data
     call.type = callData.type;
     call.level = callData.level;

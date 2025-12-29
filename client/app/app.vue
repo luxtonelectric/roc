@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth, useRoute, useFetch, useRequestHeaders } from '#imports'
+import { useAuth, useFetch, useHead, useRequestHeaders } from '#imports'
 
 const { data, status, lastRefreshedAt, getCsrfToken, getProviders, signIn, signOut, getSession } = useAuth()
 
@@ -14,7 +14,7 @@ useHead({
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' }
+      { name: 'description', content: '' }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }

@@ -1,6 +1,7 @@
 // @ts-check
 import { jest } from '@jest/globals';
 import path from 'path';
+import fs from 'fs';
 import ConfigurationManager from '../../src/services/ConfigurationManager.js';
 
 // Mock chalk
@@ -29,11 +30,6 @@ afterAll(() => {
   console.log = originalConsole.log;
   console.info = originalConsole.info;
   console.error = originalConsole.error;
-  
-  // Clear all mocks and timers
-  jest.clearAllMocks();
-  jest.clearAllTimers();
-  jest.restoreAllMocks();
 });
 
 describe('ConfigurationManager', () => {
@@ -62,11 +58,10 @@ describe('ConfigurationManager', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    jest.clearAllTimers();
+    
+    // Mock console methods
+    console.log = jest.fn();
+    console.error = jest.fn();
   });
 
   afterEach(() => {
@@ -131,12 +126,67 @@ describe('ConfigurationManager', () => {
   });
 
   describe('interface gateway state updates', () => {
+    test('should handle updateInterfaceGatewayState method', () => {
+      const manager = new ConfigurationManager();
+      
+      expect(() => {
+        manager.updateInterfaceGatewayState('test-sim', true, 'connected', null, mockConfig);
+      }).not.toThrow();
+    });
+
     test('should throw error when updating non-existent sim', () => {
       const manager = new ConfigurationManager();
       
       expect(() => {
         manager.updateInterfaceGatewayState('non-existent', true, 'connected', null, mockConfig);
       }).toThrow("Host with simulation ID 'non-existent' not found");
+    });
+  });
+
+  describe('loadConfig validation', () => {
+    const sampleConfigBase = {
+      games: [
+        {
+          sim: 'test-sim',
+          host: 'localhost',
+          port: 55555,
+          channel: '/topic/TRAIN_MVT_ALL_TOC',
+          enabled: true,
+          interfaceGateway: {
+            port: 8000,
+            enabled: false,
+            connectionState: 'disconnected',
+            errorMessage: null
+          }
+        }
+      ],
+      server: { port: 8080 },
+      token: 'test-token',
+      prefix: '!',
+      guild: 'test-guild'
+    };
+
+    test('loadConfig throws when encryptionKey is missing', () => {
+      const tempPath = path.join(process.cwd(), 'test-config-no-key.json');
+      const invalidConfig = { ...sampleConfigBase };
+      fs.writeFileSync(tempPath, JSON.stringify(invalidConfig, null, 2), 'utf8');
+
+      const manager = new ConfigurationManager(tempPath);
+      expect(() => manager.loadConfig()).toThrow(/encryptionKey/);
+
+      fs.unlinkSync(tempPath);
+    });
+
+    test('loadConfig succeeds when encryptionKey is present', () => {
+      const tempPath = path.join(process.cwd(), 'test-config-with-key.json');
+      const validConfig = { ...sampleConfigBase, encryptionKey: 'test-key-123' };
+      fs.writeFileSync(tempPath, JSON.stringify(validConfig, null, 2), 'utf8');
+
+      const manager = new ConfigurationManager(tempPath);
+      expect(() => manager.loadConfig()).not.toThrow();
+
+      // Cleanup
+      fs.unlinkSync(tempPath);
     });
   });
 });

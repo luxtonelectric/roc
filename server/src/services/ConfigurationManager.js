@@ -259,7 +259,7 @@ export default class ConfigurationManager {
     }
 
     // Validate required top-level properties
-    const requiredProperties = ['games', 'server', 'token', 'prefix', 'guild'];
+    const requiredProperties = ['games', 'server', 'token', 'prefix', 'guild', 'encryptionKey'];
     for (const prop of requiredProperties) {
       if (!(prop in config)) {
         throw new Error(`Configuration missing required property: ${prop}`);
@@ -277,6 +277,11 @@ export default class ConfigurationManager {
     
     if (typeof config.server.port !== 'number') {
       throw new Error('Configuration.server.port must be a number');
+    }
+
+    // Ensure encryption key is present and valid (must be non-empty string)
+    if (!config.encryptionKey || typeof config.encryptionKey !== 'string' || config.encryptionKey.trim() === '') {
+      throw new Error('Configuration.encryptionKey must be a non-empty string');
     }
 
     // Validate each game host

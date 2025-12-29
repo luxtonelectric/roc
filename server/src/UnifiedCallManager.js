@@ -642,11 +642,69 @@ export default class UnifiedCallManager {
             throw new Error(`Call group not found: ${request.receiver}`);
           }
           call = this.callFactory.createGroupCall(senderPhone, callGroup.id, request.callLevel, request.options);
+
+          // Attempt to resolve concrete participant phones from the CallGroup members
+          try {
+            const memberEntries = typeof callGroup.getAvailableMembers === 'function'
+              ? callGroup.getAvailableMembers()
+              : (callGroup.members || []);
+
+            if (!call.participants) call.participants = new Set();
+
+            const originDiscordId = senderPhone.getDiscordId();
+
+            for (const member of memberEntries) {
+              const memberId = member.id || member;
+              const phone = this.phoneManager.getPhone(memberId);
+              if (!phone) continue;
+              // Exclude originator's own phone and any phones owned by same discord user
+              if (phone.getId() === senderPhone.getId()) continue;
+              if (originDiscordId && phone.getDiscordId && phone.getDiscordId() === originDiscordId) continue;
+              // Only include claimed phones (must have discordId)
+              if (!phone.getDiscordId()) continue;
+
+              call.participants.add(phone);
+            }
+          } catch (err) {
+            console.warn(chalk.yellow('UnifiedCallManager'), 'Failed to resolve GROUP participants:', err && err.message ? err.message : err);
+          }
+
+          // If no participants were resolved, reject the group placement as invalid
+          if (!call.participants || call.participants.size === 0) {
+            throw new Error(`No available group recipients for originator: ${senderPhone.getId()}`);
+          }
           break;
           
         case BaseCall.TYPES.REC:
           // REC calls: participants determined by originator's location; REC calls are always EMERGENCY
           call = this.callFactory.createRECCall(senderPhone, null, request.options);
+
+          // Auto-resolve REC participants using phoneManager helper if available
+          try {
+            if (this.phoneManager && typeof this.phoneManager.getRECRecipientsForPhone === 'function') {
+              const recipients = this.phoneManager.getRECRecipientsForPhone(senderPhone) || [];
+              if (!call.participants) call.participants = new Set();
+              recipients.forEach(p => call.participants.add(p));
+
+              // Remove any recipients that belong to the same Discord user as the originator
+              const originDiscordId = senderPhone.getDiscordId();
+              if (originDiscordId) {
+                for (const p of Array.from(call.participants)) {
+                  if (p.getDiscordId && p.getDiscordId() === originDiscordId) {
+                    call.participants.delete(p);
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            console.warn(chalk.yellow('UnifiedCallManager'), 'Failed to auto-resolve REC participants:', err && err.message ? err.message : err);
+          }
+
+          // If no recipients were resolved (or all were filtered out), reject the REC placement as invalid
+          if (!call.participants || call.participants.size === 0) {
+            throw new Error(`No available REC recipients for originator: ${senderPhone.getId()}`);
+          }
+
           break;
           
         default:

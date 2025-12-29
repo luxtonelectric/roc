@@ -223,9 +223,10 @@ export default class PhoneManager {
     }
 
     // Get neighbor phones (filter out null results from missing phones)
+    // Only include neighbour phones that are claimed (have a Discord ID)
     const neighbourPhones = panel.neighbours
       .map(nb => this.getPhone(nb.simId + PhoneManager.PHONE_ID_SEPARATOR + nb.panelId))
-      .filter(phone => phone !== undefined);
+      .filter(phone => phone !== undefined && phone.getDiscordId());
 
     phones.push(...neighbourPhones);
     

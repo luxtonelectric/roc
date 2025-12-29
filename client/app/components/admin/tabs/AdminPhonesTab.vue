@@ -132,14 +132,14 @@
                   </button> 
                   <button 
                     @click="placeCall(phone.id, PreparedCall.TYPES.REC, PreparedCall.LEVELS.EMERGENCY)"
-                    :disabled="!selectedPhone[phone.id] || !hasValidLocationForREC(phone.id) || !phone.player"
+                    :disabled="!selectedPhone[phone.id] || !hasValidLocationForREC(phone.id)"
                     :class="[
                       'px-2 py-1 rounded text-sm',
-                      (selectedPhone[phone.id] && hasValidLocationForREC(phone.id) && phone.player)
+                      (selectedPhone[phone.id] && hasValidLocationForREC(phone.id))
                         ? 'bg-red-500 hover:bg-red-600 text-white cursor-pointer' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                     ]"
-                    :title="!selectedPhone[phone.id] ? 'Select a sender phone first' : (!phone.player ? 'Receiver phone must be claimed' : (!hasValidLocationForREC(phone.id) ? 'Sender phone must have valid location (simId and panelId) for REC calls' : 'Place a Railway Emergency Call'))"
+                    :title="!selectedPhone[phone.id] ? 'Select a sender phone first' : (!hasValidLocationForREC(phone.id) ? 'Selected sender must have valid location (simId and panelId) for REC calls' : 'Place a Railway Emergency Call')"
                   >
                     REC
                   </button>
@@ -257,17 +257,26 @@ export default {
         return
       }
 
-      if (!receiverPhone) {
-        console.log("Refusing call: receiver phone not found")
-        props.showError('Call Failed', 'Receiver phone not found')
-        return
-      }
+      // For REC calls the backend determines recipients by sender location; receiver is optional
+      if (type !== PreparedCall.TYPES.REC) {
+        if (!receiverPhone) {
+          console.log("Refusing call: receiver phone not found")
+          props.showError('Call Failed', 'Receiver phone not found')
+          return
+        }
 
-      // Prevent calling a receiver phone that is not claimed/assigned
-      if (!receiverPhone.player) {
-        console.log("Refusing call: receiver phone not claimed")
-        props.showError('Call Failed', 'Receiver phone must be claimed before placing calls')
-        return
+        // Prevent calling a receiver phone that is not claimed/assigned
+        if (!receiverPhone.player) {
+          console.log("Refusing call: receiver phone not claimed")
+          props.showError('Call Failed', 'Receiver phone must be claimed before placing calls')
+          return
+        }
+      } else {
+        // For REC calls ensure the selected sender has a valid location (checked in UI too)
+        if (!senderPhone || !senderPhone.location || !senderPhone.location.simId || !senderPhone.location.panelId) {
+          props.showError('Call Failed', 'Selected sender must have a valid location (simId and panelId) for REC calls')
+          return
+        }
       }
 
       try {

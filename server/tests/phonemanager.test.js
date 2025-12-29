@@ -321,6 +321,14 @@ describe('getRECRecipientsForPhone', () => {
     const palacePhone = phoneManager.getPhone(`${simId1}_${panelId2}`);
     expect(palacePhone).toBeDefined();
 
+    // Assign mock players to neighbours so they are considered claimed and available
+    const finsbury = phoneManager.getPhone(`${simId1}_finsbury`);
+    const cross = phoneManager.getPhone(`${simId1}_cross`);
+    const welwyn = phoneManager.getPhone(`${simId1}_welwyn`);
+    phoneManager.assignPhone(finsbury, new Player(null, 'discord-finsbury', null));
+    phoneManager.assignPhone(cross, new Player(null, 'discord-cross', null));
+    phoneManager.assignPhone(welwyn, new Player(null, 'discord-welwyn', null));
+
     const recipients = phoneManager.getRECRecipientsForPhone(palacePhone);
 
     // Should get the 3 neighbour phones
@@ -377,6 +385,11 @@ describe('getRECRecipientsForPhone', () => {
     phoneManager.generatePhonesForSim(minimalSim);
 
     const panel1Phone = phoneManager.getPhone('minimal_panel1');
+
+    // Assign the neighbor a player so it is considered claimed
+    const panel2 = phoneManager.getPhone('minimal_panel2');
+    phoneManager.assignPhone(panel2, new Player(null, 'discord-panel2', null));
+
     const recipients = phoneManager.getRECRecipientsForPhone(panel1Phone);
 
     // Should only get the one neighbor (plus potentially control if assigned)
@@ -404,6 +417,11 @@ describe('getRECRecipientsForPhone', () => {
     // Should only potentially include control (if assigned), no neighbors
     const neighbourIds = recipients.map(p => p.getId()).filter(id => id !== 'isolated_control');
     expect(neighbourIds.length).toBe(0);
+
+    // If a control phone is unassigned, it should not be included either
+    const controlPhone = phoneManager.getPhone('isolated_control');
+    expect(controlPhone.getDiscordId()).toBeNull();
+    expect(recipients.some(p => p.getId() === 'isolated_control')).toBe(false);
   });
 
   test('handles cross-simulation neighbors', () => {
@@ -423,12 +441,41 @@ describe('getRECRecipientsForPhone', () => {
     phoneManager.generatePhonesForSim(crossSim);
 
     const crossPhone = phoneManager.getPhone('crosssim_cross_panel');
+
+    // Assign players to cross-simulation neighbors so they are considered claimed
+    const hitchin = phoneManager.getPhone(`${simId1}_hitchin`);
+    const welwyn = phoneManager.getPhone(`${simId1}_welwyn`);
+    phoneManager.assignPhone(hitchin, new Player(null, 'discord-hitchin', null));
+    phoneManager.assignPhone(welwyn, new Player(null, 'discord-welwyn', null));
+
     const recipients = phoneManager.getRECRecipientsForPhone(crossPhone);
 
     // Should get the cross-simulation neighbor phones
     const neighbourIds = recipients.map(p => p.getId()).filter(id => !id.includes('_control'));
     expect(neighbourIds).toContain(`${simId1}_hitchin`);
     expect(neighbourIds).toContain(`${simId1}_welwyn`);
+  });
+
+  test('excludes unassigned neighbour phones (must have discord IDs)', () => {
+    // Ensure neighbours exist but are unassigned
+    const palacePhone = phoneManager.getPhone(`${simId1}_${panelId2}`);
+    expect(palacePhone).toBeDefined();
+
+    // Ensure neighbours have no discord IDs initially
+    const finsbury = phoneManager.getPhone(`${simId1}_finsbury`);
+    const cross = phoneManager.getPhone(`${simId1}_cross`);
+    const welwyn = phoneManager.getPhone(`${simId1}_welwyn`);
+    expect(finsbury.getDiscordId()).toBeNull();
+    expect(cross.getDiscordId()).toBeNull();
+    expect(welwyn.getDiscordId()).toBeNull();
+
+    const recipients = phoneManager.getRECRecipientsForPhone(palacePhone);
+
+    // None of the unassigned neighbours should be included
+    const neighbourIds = recipients.map(p => p.getId()).filter(id => id !== `${simId1}_control`);
+    expect(neighbourIds).not.toContain(`${simId1}_finsbury`);
+    expect(neighbourIds).not.toContain(`${simId1}_cross`);
+    expect(neighbourIds).not.toContain(`${simId1}_welwyn`);
   });
 
   test('filters out undefined neighbors when referenced phone does not exist', () => {
@@ -448,6 +495,11 @@ describe('getRECRecipientsForPhone', () => {
     phoneManager.generatePhonesForSim(brokenSim);
 
     const brokenPhone = phoneManager.getPhone('broken_broken_panel');
+
+    // Assign a player to the hitchin neighbor to make it eligible
+    const hitchin = phoneManager.getPhone(`${simId1}_hitchin`);
+    phoneManager.assignPhone(hitchin, new Player(null, 'discord-hitchin', null));
+
     const recipients = phoneManager.getRECRecipientsForPhone(brokenPhone);
 
     // Phase 3 Enhancement: The enhanced implementation now correctly filters out undefined neighbors
@@ -463,6 +515,11 @@ describe('getRECRecipientsForPhone', () => {
     // Assign control phone
     const controlPhone = phoneManager.getPhone(`${simId1}_control`);
     phoneManager.assignPhone(controlPhone, mockPlayer);
+
+    // Assign neighbors
+    phoneManager.assignPhone(phoneManager.getPhone(`${simId1}_finsbury`), new Player(null, 'discord-finsbury', null));
+    phoneManager.assignPhone(phoneManager.getPhone(`${simId1}_cross`), new Player(null, 'discord-cross', null));
+    phoneManager.assignPhone(phoneManager.getPhone(`${simId1}_welwyn`), new Player(null, 'discord-welwyn', null));
 
     // Get a phone with neighbors
     const palacePhone = phoneManager.getPhone(`${simId1}_${panelId2}`);

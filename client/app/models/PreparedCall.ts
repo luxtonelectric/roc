@@ -71,14 +71,14 @@ export class PreparedCall implements ICall {
     
     // Clean, unified properties - no more target vs receivers confusion!
     sender: Phone;
-    receiver: CallReceiver;  // Either Phone (P2P) or CallGroup (GROUP/REC)
+    receiver?: CallReceiver | null;  // Either Phone (P2P) or CallGroup (GROUP/REC) - optional for REC
     
-    constructor(sender: Phone, receiver: CallReceiver, type: string = PreparedCall.TYPES.P2P, level: string = PreparedCall.LEVELS.NORMAL, id?: string) {
+    constructor(sender: Phone, receiver?: CallReceiver | null, type: string = PreparedCall.TYPES.P2P, level: string = PreparedCall.LEVELS.NORMAL, id?: string) {
       // ID should be assigned by server, only generate temporary ID if not provided
       this.id = id || `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       this.timePlaced = Date.now();
       this.sender = sender;
-      this.receiver = receiver;
+      this.receiver = receiver || null;
       this.type = type;
       this.level = level;
       this.status = PreparedCall.STATUS.OFFERED;
@@ -128,7 +128,10 @@ export class PreparedCall implements ICall {
       // Check sender
       if (this.sender.id === phone.id) return true;
       
-      // Check receiver
+      // If receiver is not set (e.g., REC call created without recipients), only sender is included
+      if (!this.receiver) return false;
+      
+      // Check receiver phone
       if (this.receiver instanceof Phone) {
         return this.receiver.id === phone.id;
       }
@@ -138,9 +141,13 @@ export class PreparedCall implements ICall {
     }
 
     getAllPhones(): Phone[] {
-      // P2P call: sender + receiver phone
+      // If receiver is not set (REC created without recipients), return only sender
+      if (!this.receiver) {
+        return [this.sender];
+      }
+
+      // GROUP/REC call: sender + all group members
       if (this.receiver instanceof CallGroupClass) {
-        // GROUP/REC call: sender + all group members (converted to Phone objects)
         const groupMembers = this.receiver.members.map(member => ({
           id: member.id,
           name: member.name,
@@ -158,6 +165,9 @@ export class PreparedCall implements ICall {
      * Get display name for the receiver (Phone name or Group name)
      */
     getReceiverDisplayName(): string {
+      if (!this.receiver) {
+        return this.type === PreparedCall.TYPES.REC ? 'Railway Emergency' : 'Unknown';
+      }
       if (this.receiver instanceof CallGroupClass) {
         return this.receiver.getDisplayName();
       }
@@ -168,6 +178,9 @@ export class PreparedCall implements ICall {
      * Get all receiver names for UI display
      */
     getReceiverNames(): string {
+      if (!this.receiver) {
+        return this.type === PreparedCall.TYPES.REC ? 'Railway Emergency' : 'Unknown';
+      }
       if (this.receiver instanceof CallGroupClass) {
         return this.receiver.getMemberNames();
       }
@@ -175,22 +188,23 @@ export class PreparedCall implements ICall {
     }
 
     toEmittable(): any {
-      return {
+      const base: any = {
         id: this.id,
         timePlaced: this.timePlaced,
         level: this.level,
         status: this.status,
         type: this.type,
         channel: this.channel,
-        sender: this.sender,
-        receiver: this.receiver instanceof CallGroupClass 
-          ? this.receiver.toSimple() 
-          : this.receiver
+        sender: this.sender
       };
+      if (this.receiver) {
+        base.receiver = this.receiver instanceof CallGroupClass ? this.receiver.toSimple() : this.receiver;
+      }
+      return base;
     }
 
     toString(): string {
-      const receiverName = this.getReceiverDisplayName();
+      const receiverName = this.receiver ? this.getReceiverDisplayName() : (this.type === PreparedCall.TYPES.REC ? 'Railway Emergency' : 'None');
       return `PreparedCall[${this.id}] ${this.type} ${this.status} from ${this.sender.name} to ${receiverName}`;
     }
 }

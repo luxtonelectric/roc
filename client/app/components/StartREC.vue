@@ -62,9 +62,9 @@ export default {
     {
       console.log("Starting REC from phone:", phone.name);
       const preparedCall = new PreparedCall(
-        phone, 
-        [{name: "Railway Emergency Call", number: "10101"}], 
-        PreparedCall.TYPES.REC, 
+        phone,
+        undefined,
+        PreparedCall.TYPES.REC,
         PreparedCall.LEVELS.EMERGENCY
       );
       console.log("Prepared REC Call:", preparedCall);

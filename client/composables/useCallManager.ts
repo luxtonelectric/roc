@@ -229,8 +229,8 @@ export function useCallManager(
     return CallFactory.createGroupCall(sender, receiver, level)
   }
 
-  const createRECCall = (sender: Phone, receiver: CallGroup): IRECCall => {
-    return CallFactory.createRECCall(sender, receiver)
+  const createRECCall = (sender: Phone): IRECCall => {
+    return CallFactory.createRECCall(sender)
   }
 
   // Enhanced call operations with unified interface support
@@ -252,7 +252,7 @@ export function useCallManager(
     
     // Validate call data using unified interface
     const allPhones = unifiedCall.getAllPhones()
-    if (allPhones.length < 2) {
+    if (unifiedCall.type !== PreparedCall.TYPES.REC && allPhones.length < 2) {
       showError('Call Failed', 'Invalid call data: insufficient participants')
       return false
     }

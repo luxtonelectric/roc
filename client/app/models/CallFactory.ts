@@ -96,27 +96,27 @@ export class CallFactory {
    */
   static createRECCall(
     sender: Phone,
-    receiver: CallGroup,
     options: CallFactoryOptions = {}
   ): IRECCall {
+    // Create REC call without an assigned receiver - backend will determine recipients based on sender location
     const call = new PreparedCall(
-      sender, 
-      receiver, 
-      PreparedCall.TYPES.REC, 
+      sender,
+      undefined,
+      PreparedCall.TYPES.REC,
       PreparedCall.LEVELS.EMERGENCY // REC calls are always emergency level
     );
-    
+
     // Set appropriate initial status for VGCS calls
     if (!options.status) {
       call.updateStatus(PreparedCall.STATUS.N1_INITIATED);
     }
-    
+
     // Apply options if provided
     if (options.id) call.id = options.id;
     if (options.timePlaced) call.timePlaced = options.timePlaced;
     if (options.status) call.updateStatus(options.status);
     if (options.channel !== undefined) call.setChannel(options.channel);
-    
+    console.log('Created REC call:', call);
     return call as IRECCall;
   }
 
@@ -130,8 +130,8 @@ export class CallFactory {
       throw new Error('Call data must include type');
     }
 
-    if (!data.sender || !data.receiver) {
-      throw new Error('Call data must include sender and receiver');
+    if (!data.sender) {
+      throw new Error('Call data must include sender');
     }
 
     const options: CallFactoryOptions = {
@@ -141,11 +141,14 @@ export class CallFactory {
       channel: data.channel
     };
 
-    // Parse receiver based on call type
-    let receiver: CallReceiver;
-    
+    // Parse based on call type
+    let receiver: CallReceiver | undefined;
+
     if (data.type === PreparedCall.TYPES.P2P) {
-      // P2P calls have Phone receiver
+      // P2P calls must include a Phone receiver
+      if (!data.receiver) {
+        throw new Error('P2P call data must include receiver');
+      }
       receiver = data.receiver as Phone;
       return CallFactory.createP2PCall(
         data.sender,
@@ -153,26 +156,30 @@ export class CallFactory {
         data.level || PreparedCall.LEVELS.NORMAL,
         options
       );
-    } else {
-      // GROUP/REC calls have CallGroup receiver
-      const callGroup = CallGroupClass.fromSimple(data.receiver);
-      
-      if (data.type === PreparedCall.TYPES.GROUP) {
-        return CallFactory.createGroupCall(
-          data.sender,
-          callGroup,
-          data.level || PreparedCall.LEVELS.NORMAL,
-          options
-        );
-      } else if (data.type === PreparedCall.TYPES.REC) {
-        return CallFactory.createRECCall(
-          data.sender,
-          callGroup,
-          options
-        );
-      } else {
-        throw new Error(`Unknown call type: ${data.type}`);
+    } else if (data.type === PreparedCall.TYPES.GROUP) {
+      if (!data.receiver) {
+        throw new Error('GROUP call data must include receiver');
       }
+      const callGroup = CallGroupClass.fromSimple(data.receiver);
+      return CallFactory.createGroupCall(
+        data.sender,
+        callGroup,
+        data.level || PreparedCall.LEVELS.NORMAL,
+        options
+      );
+    } else if (data.type === PreparedCall.TYPES.REC) {
+      // REC calls may not include a receiver in emitted data – backend determines recipients by location.
+      const call = CallFactory.createRECCall(
+        data.sender,
+        options
+      );
+      if (data.receiver) {
+        // If server included a resolved receiver, attach it to the call instance for client convenience
+        call.receiver = CallGroupClass.fromSimple(data.receiver);
+      }
+      return call;
+    } else {
+      throw new Error(`Unknown call type: ${data.type}`);
     }
   }
 
@@ -186,9 +193,9 @@ export class CallFactory {
    */
   static validateCallData(
     sender: Phone,
-    receiver: CallReceiver,
-    type: string,
-    level: string
+    receiver?: CallReceiver | null,
+    type?: string,
+    level?: string
   ): boolean {
     // Validate sender
     if (!sender || !sender.id) {
@@ -196,20 +203,20 @@ export class CallFactory {
       return false;
     }
 
-    // Validate receiver
-    if (!receiver) {
+    // Validate receiver (REC calls may omit a receiver)
+    if (type !== PreparedCall.TYPES.REC && !receiver) {
       console.error('Invalid receiver');
       return false;
     }
 
     // Validate type
-    if (!Object.values(PreparedCall.TYPES).includes(type)) {
+    if (!type || !Object.values(PreparedCall.TYPES).includes(type)) {
       console.error(`Invalid call type: ${type}`);
       return false;
     }
 
     // Validate level
-    if (!Object.values(PreparedCall.LEVELS).includes(level)) {
+    if (!level || !Object.values(PreparedCall.LEVELS).includes(level)) {
       console.error(`Invalid call level: ${level}`);
       return false;
     }
@@ -218,7 +225,7 @@ export class CallFactory {
     switch (type) {
       case PreparedCall.TYPES.P2P:
         // P2P calls must have Phone receiver (no members property)
-        if ('members' in receiver) {
+        if (!receiver || 'members' in receiver) {
           console.error('P2P calls require a Phone receiver, not CallGroup');
           return false;
         }
@@ -230,18 +237,14 @@ export class CallFactory {
 
       case PreparedCall.TYPES.GROUP:
         // GROUP calls must have CallGroup receiver (has members property)
-        if (!('members' in receiver)) {
+        if (!receiver || !('members' in receiver)) {
           console.error('GROUP calls require a CallGroup receiver, not Phone');
           return false;
         }
         break;
 
       case PreparedCall.TYPES.REC:
-        // REC calls must have CallGroup receiver (has members property)
-        if (!('members' in receiver)) {
-          console.error('REC calls require a CallGroup receiver, not Phone');
-          return false;
-        }
+        // REC calls do NOT require a receiver on the client side; the backend determines recipients by sender location
         // REC calls must be emergency level
         if (level !== PreparedCall.LEVELS.EMERGENCY) {
           console.error('REC calls must be emergency level');

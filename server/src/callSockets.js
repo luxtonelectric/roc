@@ -1,5 +1,6 @@
 // @ts-check
 import chalk from 'chalk';
+import BaseCall from './model/BaseCall.js';
 
 /** @typedef {import("./UnifiedCallManager.js").default} UnifiedCallManager */
 /** @typedef {import("./ROCManager.js").default} ROCManager */
@@ -28,7 +29,8 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
     
     // Extract receiver from message - unified architecture
     const receiver = msg.receiver || msg.target; // Support both new and legacy property names
-    if (!receiver) {
+    // Allow missing receiver for REC calls (client may not include a receiver field)
+    if (!receiver && String(msg.type || '') !== BaseCall.TYPES.REC) {
       console.error('No receiver specified in call placement request');
       if (callback && typeof callback === 'function') {
         callback(false);

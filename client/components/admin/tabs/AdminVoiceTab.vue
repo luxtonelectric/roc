@@ -137,6 +137,10 @@ export default {
     showSuccess: {
       type: Function,
       required: true
+    },
+    enableAudio: {
+      type: Boolean,
+      default: true
     }
   },
   
@@ -158,11 +162,16 @@ export default {
       props.showError,
       props.showSuccess,
       {
-        enableAudio: true,
+        enableAudio: props.enableAudio,
         autoAcceptREC: false,
         enableQueueManagement: true
       }
     )
+
+    // Keep call manager audio setting in sync with prop
+    watch(() => props.enableAudio, (val) => {
+      callManager.setEnableAudio?.(val)
+    }, { immediate: true })
     
     // Override REC notification handling for admin users (REQ-004)
     // Admins should receive audio notification only, no modal or auto-join
@@ -174,9 +183,7 @@ export default {
           console.log('Admin REC notification (audio only):', msg)
           // Play audio notification without showing modal
           // This satisfies REQ-004: "Admins receive REC audio notification but no auto-join or special modal"
-          if (callManager.enableAudio) {
-            callManager.playCallAudio()
-          }
+          callManager.playCallAudio()
           // Explicitly do NOT show modal or trigger auto-join for admin users
         })
       }
@@ -214,8 +221,8 @@ export default {
     this.removeCallEventListeners()
     
     // Clean up admin-specific REC notification override
-    if (this.socketRef) {
-      this.socketRef.off('recNotification')
+    if (this.socket) {
+      this.socket.off('recNotification')
     }
   }
 }

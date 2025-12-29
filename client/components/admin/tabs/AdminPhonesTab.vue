@@ -189,6 +189,10 @@ export default {
     showSuccess: {
       type: Function,
       required: true
+    },
+    enableAudio: {
+      type: Boolean,
+      default: true
     }
   },
   
@@ -218,11 +222,16 @@ export default {
       props.showError,
       props.showSuccess,
       {
-        enableAudio: true,           // No audio for admin call placement
+        enableAudio: props.enableAudio,           // Controlled by Admin ringer toggle
         autoAcceptREC: false,         // No auto-accept for admin
         enableQueueManagement: true  // Admin doesn't need queue management for placement
       }
     )
+
+    // Keep call manager audio setting in sync with prop
+    watch(() => props.enableAudio, (val) => {
+      callManager.setEnableAudio?.(val)
+    }, { immediate: true })
     
     // Enhanced placeCall that uses callManager with proper PreparedCall objects
     const placeCall = async (receiverId, type, level) => {

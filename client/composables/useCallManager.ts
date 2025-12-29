@@ -77,6 +77,8 @@ interface UnifiedCallManagerReturn {
   playCallAudio: () => void
   playRejectedAudio: () => void
   stopCallAudio: () => void
+  enableAudio: Ref<boolean>
+  setEnableAudio: (value: boolean) => void
   
   // Event management
   setupCallEventListeners: () => void
@@ -129,6 +131,9 @@ export function useCallManager(
     enableUnifiedInterface = true
   } = options
 
+  // Reactive runtime audio flag so callers can enable/disable audio at runtime
+  const enableAudioFlag = ref(enableAudio)
+
   // Enhanced call state with unified interface support
   const currentCall: Ref<ICall | undefined> = ref(undefined)
   const nextCall: Ref<ICall | undefined> = ref(undefined)
@@ -148,7 +153,7 @@ export function useCallManager(
   let rejectedAudio: HTMLAudioElement | null = null
   let recAudio: HTMLAudioElement | null = null
 
-  if (enableAudio && typeof Audio !== 'undefined') {
+  if (enableAudioFlag.value && typeof Audio !== 'undefined') {
     callAudio = new Audio('/audio/telephone-ring.mp3')
     rejectedAudio = new Audio('/audio/rejected.mp3')
     recAudio = new Audio('/audio/rec.mp3')
@@ -486,7 +491,7 @@ export function useCallManager(
       recCallInfo.value = call as IRECCall
       recModalVisible.value = true
       
-      if (recAudio && enableAudio) {
+      if (recAudio && enableAudioFlag.value) {
         recAudio.play().catch(console.error)
       }
     }
@@ -571,23 +576,52 @@ export function useCallManager(
 
   // Audio management
   const playCallAudio = (): void => {
-    if (callAudio && enableAudio) {
+    if (callAudio && enableAudioFlag.value) {
       callAudio.currentTime = 0
       callAudio.play().catch(console.error)
     }
   }
 
   const playRejectedAudio = (): void => {
-    if (rejectedAudio && enableAudio) {
+    if (rejectedAudio && enableAudioFlag.value) {
       rejectedAudio.currentTime = 0
       rejectedAudio.play().catch(console.error)
     }
   }
 
   const stopCallAudio = (): void => {
-    if (callAudio && enableAudio) {
+    if (callAudio) {
       callAudio.pause()
       callAudio.currentTime = 0
+    }
+  }
+
+  // Allow toggling audio at runtime; will create or tear down audio elements as needed
+  const setEnableAudio = (value: boolean): void => {
+    if (enableAudioFlag.value === value) return
+    enableAudioFlag.value = value
+
+    if (value && typeof Audio !== 'undefined') {
+      if (!callAudio) {
+        callAudio = new Audio('/audio/telephone-ring.mp3')
+        callAudio.loop = true
+      }
+      if (!rejectedAudio) rejectedAudio = new Audio('/audio/rejected.mp3')
+      if (!recAudio) recAudio = new Audio('/audio/rec.mp3')
+    } else {
+      // Stop any playing audio immediately
+      if (callAudio) {
+        callAudio.pause()
+        callAudio.currentTime = 0
+      }
+      if (recAudio) {
+        recAudio.pause()
+        recAudio.currentTime = 0
+      }
+      if (rejectedAudio) {
+        rejectedAudio.pause()
+        rejectedAudio.currentTime = 0
+      }
     }
   }
 
@@ -630,7 +664,7 @@ export function useCallManager(
       console.log('NextCall toEmittable:', nextCall.value.toEmittable())
       
       // Play audio notification for new incoming calls
-      if (enableAudio) {
+      if (enableAudioFlag.value) {
         playCallAudio()
       }
     } else {
@@ -760,7 +794,7 @@ export function useCallManager(
       recCallInfo.value = recCall
       recModalVisible.value = true
       
-      if (recAudio && enableAudio) {
+      if (recAudio && enableAudioFlag.value) {
         recAudio.play().catch(console.error)
       }
     } catch (error) {
@@ -870,6 +904,8 @@ export function useCallManager(
     playCallAudio,
     playRejectedAudio,
     stopCallAudio,
+    enableAudio: enableAudioFlag,
+    setEnableAudio,
     
     // Events
     setupCallEventListeners,

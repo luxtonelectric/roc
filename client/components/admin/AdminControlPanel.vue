@@ -3,9 +3,14 @@
     <div class="flex-grow py-1 text-center">
       <h1 class="text-6xl">ROC Administration Centre</h1>
     </div>
-    
-    <!-- Error/Success Notification -->
-    <AdminNotification :notification="notification" @close="hideNotification" />
+    <div class="flex justify-center mt-2">
+      <button
+        @click="toggleRinger"
+        :class="['inline-flex items-center px-3 py-1 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2', enableRinger ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
+      >
+        Ringer: {{ enableRinger ? 'On' : 'Off' }}
+      </button>
+    </div>
     
     <!-- Tab Navigation -->
     <div class="flex border-b border-gray-200 mb-4">
@@ -55,6 +60,7 @@
         :my-phones="myPhones"
         :show-error="showError"
         :show-success="showSuccess"
+        :enable-audio="enableRinger"
       />
       
       <AdminVoiceTab 
@@ -64,6 +70,7 @@
         :my-phones="myPhones"
         :show-error="showError"
         :show-success="showSuccess"
+        :enable-audio="enableRinger"
       />
     </div>
   </div>
@@ -122,6 +129,7 @@ export default {
     return {
       PreparedCall, // Make PreparedCall available in template
       currentTab: 'hosts',
+      enableRinger: true,
       tabs: [
         { id: 'hosts', name: 'Hosts' },
         { id: 'games', name: 'Games' },
@@ -150,6 +158,13 @@ export default {
     }
   },
   
+  methods: {
+    toggleRinger() {
+      this.enableRinger = !this.enableRinger
+      this.showSuccess('Ringer', `Ringer ${this.enableRinger ? 'enabled' : 'disabled'}`)
+    }
+  },
+
   watch: {
     availableChannels: {
       handler(newChannels) {

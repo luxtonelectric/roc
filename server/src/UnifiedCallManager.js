@@ -624,9 +624,9 @@ export default class UnifiedCallManager {
       switch (request.callType) {
         case BaseCall.TYPES.P2P:
           // P2P calls: resolve receiver to Phone object (string ID or Phone object)
-          const receiverPhone = typeof request.receiver === 'string'
-            ? this.phoneManager.getPhone(request.receiver)
-            : request.receiver;
+          const receiverPhone = this.phoneManager.getPhone(typeof request.receiver === 'string'
+            ? request.receiver
+            : request.receiver.id);
           if (!receiverPhone) {
             throw new Error(`Receiver phone not found: ${request.receiver}`);
           }

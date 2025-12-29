@@ -912,15 +912,36 @@ export default class UnifiedCallManager {
     
     // Move participants to voice channel using existing bot method
     const allPhones = call.getAllPhones();
+    let moveFailed = false;
     for (const phone of allPhones) {
       const discordId = phone.getDiscordId();
       if (discordId) {
         try {
-          await this.bot.setUserVoiceChannel(discordId, call.channel);
+          const moved = await this.bot.setUserVoiceChannel(discordId, call.channel);
+          if (!moved) {
+            console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${phone.getId()} to channel (returned false)`);
+            moveFailed = true;
+            break;
+          }
         } catch (error) {
           console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${phone.getId()} to channel:`, error);
+          moveFailed = true;
+          break;
         }
       }
+    }
+
+    if (moveFailed) {
+      // Release reservation and move to past calls as an ended call
+      if (call.channel) {
+        this.bot.releasePrivateCallChannelReservation(call.channel);
+      }
+      // Move call to past which will set an appropriate final status (ENDED for P2P)
+      this.moveCallToPast(call);
+      // Update phone call queues
+      this.updatePhoneCallQueues(allPhones);
+      console.info(chalk.magenta('UnifiedCallManager'), `acceptP2PCall failed and moved to past: ${call.id}`);
+      return false;
     }
     
     // Update phone call queues
@@ -986,9 +1007,23 @@ export default class UnifiedCallManager {
     // Move accepting phone to voice channel
     if (call.channel) {
       try {
-        await this.bot.setUserVoiceChannel(acceptingPhone.getDiscordId(), call.channel);
+        const moved = await this.bot.setUserVoiceChannel(acceptingPhone.getDiscordId(), call.channel);
+        if (!moved) {
+          console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${acceptingPhone.getId()} to channel (returned false)`);
+          // Release reservation and roll back call state for group calls as well
+          this.bot.releasePrivateCallChannelReservation(call.channel);
+          call.updateStatus(BaseCall.STATUS.N4_TERMINATING);
+          this.activeCalls.delete(call.id);
+          this.requestedCalls.set(call.id, call);
+          return false;
+        }
       } catch (error) {
         console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${acceptingPhone.getId()} to channel:`, error);
+        // Rollback similarly
+        this.bot.releasePrivateCallChannelReservation(call.channel);
+        call.updateStatus(BaseCall.STATUS.N4_TERMINATING);
+        this.activeCalls.delete(call.id);
+        this.requestedCalls.set(call.id, call);
         return false;
       }
     }

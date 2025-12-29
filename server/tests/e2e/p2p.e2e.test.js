@@ -94,8 +94,39 @@ describe('E2E P2P call flow', () => {
     roc.users.discordB.socket = socketB;
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
+  afterEach(async () => {
+    // Terminate any active or requested calls to ensure VGCS timers are cleared
+    try {
+      for (const callId of Array.from(ucm.activeCalls.keys())) {
+        await ucm.terminateCall(null, callId, 'TEST_CLEANUP');
+      }
+      for (const callId of Array.from(ucm.requestedCalls.keys())) {
+        try {
+          await ucm.terminateCall(null, callId, 'TEST_CLEANUP');
+        } catch (e) {
+          // ignore errors during cleanup
+        }
+      }
+
+      // Clear any mobile station timers
+      for (const ms of ucm.mobileStations.values()) {
+        if (ms._presentTimer) clearTimeout(ms._presentTimer);
+        if (ms._idleTimer) clearTimeout(ms._idleTimer);
+      }
+
+      // Clear any network timers via vgcs bus networks
+      if (ucm.vgcsBus && ucm.vgcsBus.networks) {
+        for (const network of ucm.vgcsBus.networks.values()) {
+          if (network._presentTimer) clearTimeout(network._presentTimer);
+          if (network._setupTimer) clearTimeout(network._setupTimer);
+          if (network._idleTimer) clearTimeout(network._idleTimer);
+        }
+      }
+    } catch (err) {
+      // Best-effort cleanup
+    } finally {
+      jest.restoreAllMocks();
+    }
   });
 
   test('players place, accept and terminate a P2P call', async () => {

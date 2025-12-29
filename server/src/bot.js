@@ -415,6 +415,7 @@ export default class DiscordBot {
       return null;
     }
     channel.reserved = true;
+    channel.reservedAt = Date.now();
     console.info(chalk.magenta('getAvailableCallChannel PCC'), this.privateCallChannels);
     return channel.id;
   }
@@ -423,7 +424,28 @@ export default class DiscordBot {
     const channel = this.privateCallChannels.find(c => c.id === channelId && c.reserved === true);
     if(typeof channel !== 'undefined') {
       channel.reserved = false;
+      delete channel.reservedAt;
+      channel.inUse = false;
     }
+  }
+
+  /**
+   * Release reserved channels that have been stale (reserved but not in use) longer than ttlMs
+   * @param {number} ttlMs - time in milliseconds after which a reserved channel is considered stale
+   * @returns {Array<string>} list of channel ids that were released
+   */
+  releaseStaleReservedChannels(ttlMs = 60000) {
+    const now = Date.now();
+    const released = [];
+    for (const ch of this.privateCallChannels) {
+      if (ch.reserved === true && ch.inUse === false && ch.reservedAt && (now - ch.reservedAt) > ttlMs) {
+        ch.reserved = false;
+        delete ch.reservedAt;
+        released.push(ch.id);
+        console.info(chalk.magenta('releaseStaleReservedChannels released:'), ch.id);
+      }
+    }
+    return released;
   }
 
   // TASK-007: Enhanced Channel Request System

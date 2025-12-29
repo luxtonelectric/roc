@@ -107,7 +107,7 @@
 
 <script>
 import { toRefs, ref, watch } from 'vue'
-import { useCallManager } from '~/composables/useCallManager'
+import { useCallManager } from '../../../../composables/useCallManager'
 import CallDisplay from '~/components/shared/CallDisplay.vue'
 import CallStatus from '~/components/shared/CallStatus.vue'
 

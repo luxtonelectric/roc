@@ -159,8 +159,8 @@
 
 <script>
 import { toRefs, ref, watch } from 'vue'
-import { usePhoneManagement } from '~/composables/usePhoneManagement'
-import { useCallManager } from '~/composables/useCallManager'
+import { usePhoneManagement } from '../../../../composables/usePhoneManagement'
+import { useCallManager } from '../../../../composables/useCallManager'
 import { PreparedCall } from '~/models/PreparedCall'
 import AddPhoneModal from '~/components/admin/AddPhoneModal.vue'
 

@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { useHostManagement } from '~/composables/useHostManagement'
+import { useHostManagement } from '../../../../composables/useHostManagement'
 import AddHostModal from '../AddHostModal.vue'
 
 export default {

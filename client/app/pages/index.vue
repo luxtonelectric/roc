@@ -2,7 +2,7 @@
 import io from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 import type { PreparedCall } from '~/models/PreparedCall';
-import { useCallManager } from '~/composables/useCallManager'
+import { useCallManager } from '../../composables/useCallManager'
 import CallDisplay from '~/components/shared/CallDisplay.vue'
 import CallStatus from '~/components/shared/CallStatus.vue'
 import CallButton from '~/components/shared/CallButton.vue'

@@ -120,15 +120,25 @@ onMounted(() => {
     joinUser();
     socketRef.value = socket;
     callManager.setupCallEventListeners?.();
+    socket.emit('requestGameUpdate');
   });
 
-  socket.on('connect_error', () => {
+  socket.on('connect_error', (error) => {
     error.value = "Connection failed";
   });
 
   socket.on("loggedIn", (msg: any) => {
     loggedIn.value = msg.loggedIn;
     error.value = msg.error;
+  });
+
+  // Server sends AUTHD when an admin authenticates — treat this as logged in for the player UI
+  socket.on("authd", (msg: any) => {
+    // authd payload: { success, error }
+    if (msg && typeof msg.success !== 'undefined') {
+      loggedIn.value = !!msg.success;
+      error.value = msg.error || "";
+    }
   });
 
   socket.on("playerLocationUpdate", () => {

@@ -4,6 +4,7 @@ import ROCManager from '../src/ROCManager.js';
 import Player from '../src/model/player.js';
 import Simulation from '../src/model/simulation.js';
 import Phone from '../src/model/phone.js';
+import Host from '../src/model/host.js';
 
 // Mock dependencies
 // @ts-ignore
@@ -36,6 +37,14 @@ class MockSocket {
   join() {}
   disconnected = false;
   get id() { return 'mock-socket-id'; }
+}
+
+// @ts-ignore
+class MockCallManager {
+  privateCalls = {};
+  groupCallManager = {
+    getAllActiveGroupCalls() { return []; }
+  };
 }
 
 // @ts-ignore
@@ -147,12 +156,12 @@ describe('ROCManager.releasePanel', () => {
     };
 
     // Create ROCManager instance with mocked dependencies
-    rocManager = new ROCManager(mockIo, mockDiscordBot, mockPhoneManager, mockSTOMPManager);
+    rocManager = new ROCManager(mockIo, mockDiscordBot, mockPhoneManager, mockSTOMPManager, new MockCallManager());
     rocManager.config = mockConfig;
     
     // Setup test player
     const testPlayer = new Player(mockSocket, 'test-user', 'test-channel');
-    rocManager.players['test-user'] = testPlayer;
+    rocManager.users['test-user'] = testPlayer;
 
     // Setup test simulation
     const testSim = Simulation.fromSimData('test-sim', {
@@ -211,14 +220,14 @@ describe('ROCManager.releasePanel', () => {
   });
 
   test('updates player info after releasing panel', () => {
-    // Spy on updatePlayerInfo method
-    jest.spyOn(rocManager, 'updatePlayerInfo');
+    // Spy on updateUserInfo method
+    jest.spyOn(rocManager, 'updateUserInfo');
 
     // Execute
     rocManager.releasePanel('test-user', 'test-sim', 'test-panel');
 
-    // Verify player info is updated
-    expect(rocManager.updatePlayerInfo).toHaveBeenCalledWith(rocManager.players['test-user']);
+    // Verify user info is updated
+    expect(rocManager.updateUserInfo).toHaveBeenCalledWith(rocManager.users['test-user']);
   });
 });
 
@@ -698,6 +707,166 @@ describe('ROCManager.addHost', () => {
       expect(addedHost.interfaceGateway.encryptedPassword).toBeUndefined();
     });
 
+  describe('updateHost defensive behavior', () => {
+    test('should update host without changing sim and preserve IG state', async () => {
+      const originalHostConfig = {
+        sim: 'up-sim',
+        host: 'original-host.example.com',
+        port: 8080,
+        channel: 'original-channel',
+        enabled: true,
+        interfaceGateway: { port: 51515, enabled: true }
+      };
+
+      // Start with an existing host
+      rocManager.hosts = [Host.fromConfig(originalHostConfig)];
+
+      // Mock deactivateGame to return preserved state
+      jest.spyOn(rocManager, 'deactivateGame').mockResolvedValue({ panels: [], time: {}, connectionsOpen: false });
+      const updateSpy = jest.spyOn(rocManager, 'updateAndSave').mockResolvedValue();
+      const activateSpy = jest.spyOn(rocManager, 'activateGame').mockImplementation(jest.fn());
+
+      const newHostConfig = {
+        sim: 'up-sim', // same sim
+        host: 'new-host.example.com',
+        port: 9090,
+        channel: 'new-channel',
+        interfaceGateway: { port: 52525, enabled: false }
+      };
+
+      await rocManager.updateHost('up-sim', newHostConfig);
+
+      // Verify host replaced and IG enabled preserved
+      const added = rocManager.hosts.find(h => h.sim === 'up-sim');
+      expect(added).toBeDefined();
+      expect(added.host).toBe('new-host.example.com');
+      expect(added.interfaceGateway.enabled).toBe(true); // preserved
+      expect(updateSpy).toHaveBeenCalled();
+      expect(activateSpy).toHaveBeenCalled();
+    });
+
+    test('should prevent updating to a sim that already has a host', async () => {
+      // Setup: two hosts already exist
+      const first = Host.fromConfig({ sim: 'first', host: 'a', port: 1, channel: 'c', interfaceGateway: { port: 111, enabled: false } });
+      const second = Host.fromConfig({ sim: 'second', host: 'b', port: 2, channel: 'c2', interfaceGateway: { port: 222, enabled: false } });
+      rocManager.hosts = [first, second];
+
+      const updateAttempt = {
+        sim: 'second', // target sim already exists
+        host: 'newb',
+        port: 3,
+        channel: 'c3',
+        interfaceGateway: { port: 333, enabled: false }
+      };
+
+      await expect(rocManager.updateHost('first', updateAttempt)).rejects.toThrow(/already exists/);
+
+      // Ensure hosts unchanged
+      expect(rocManager.hosts).toHaveLength(2);
+      expect(rocManager.hosts.find(h => h.sim === 'first')).toBeDefined();
+      expect(rocManager.hosts.find(h => h.sim === 'second')).toBeDefined();
+    });
+
+    test('should rollback and restore original host if updateAndSave fails', async () => {
+      const originalHostConfig = {
+        sim: 'rollback-original',
+        host: 'orig.example.com',
+        port: 8080,
+        channel: 'orig-channel',
+        enabled: true,
+        interfaceGateway: { port: 51515, enabled: true }
+      };
+      rocManager.hosts = [Host.fromConfig(originalHostConfig)];
+
+      // deactivateGame succeeds
+      jest.spyOn(rocManager, 'deactivateGame').mockResolvedValue({ panels: [], time: {}, connectionsOpen: false });
+
+      // First updateAndSave fails, then the rollback save succeeds
+      const updateMock = jest.spyOn(rocManager, 'updateAndSave')
+        .mockRejectedValueOnce(new Error('disk write failed'))
+        .mockResolvedValueOnce();
+
+      const newConfig = {
+        sim: 'rollback-original',
+        host: 'new.example.com',
+        port: 9090,
+        channel: 'new-channel',
+        interfaceGateway: { port: 52525, enabled: false }
+      };
+
+      await expect(rocManager.updateHost('rollback-original', newConfig)).rejects.toThrow(/Failed to save config/);
+
+      // Original host should be restored
+      expect(rocManager.hosts.find(h => h.sim === 'rollback-original').host).toBe('orig.example.com');
+    });
+
+    test('should rollback and restore if activateGame fails and reactivate original host', async () => {
+      const originalHostConfig = {
+        sim: 'act-fail-original',
+        host: 'orig2.example.com',
+        port: 8080,
+        channel: 'orig-channel-2',
+        enabled: true,
+        interfaceGateway: { port: 51515, enabled: true }
+      };
+      rocManager.hosts = [Host.fromConfig(originalHostConfig)];
+
+      jest.spyOn(rocManager, 'deactivateGame').mockResolvedValue({ panels: [], time: {}, connectionsOpen: false });
+
+      // updateAndSave succeeds
+      jest.spyOn(rocManager, 'updateAndSave').mockResolvedValue();
+
+      // activateGame throws when activating the new host but succeeds for the old host
+      jest.spyOn(rocManager, 'activateGame').mockImplementation(async (host) => {
+        if (host.sim === 'act-fail-original') {
+          throw new Error('activation failed for new host');
+        }
+        return Promise.resolve();
+      });
+
+      const newConfig = {
+        sim: 'act-fail-original',
+        host: 'new2.example.com',
+        port: 9090,
+        channel: 'new-channel-2',
+        interfaceGateway: { port: 52525, enabled: false }
+      };
+
+      await expect(rocManager.updateHost('act-fail-original', newConfig)).rejects.toThrow(/Failed to activate host/);
+
+      // Original host should be restored
+      expect(rocManager.hosts.find(h => h.sim === 'act-fail-original').host).toBe('orig2.example.com');
+    });
+
+    test('should prevent concurrent updates for the same simulation', async () => {
+      const originalHostConfig = {
+        sim: 'concurrent-update',
+        host: 'concurrent.orig',
+        port: 8080,
+        channel: 'orig-channel',
+        enabled: true,
+        interfaceGateway: { port: 51515, enabled: true }
+      };
+      rocManager.hosts = [Host.fromConfig(originalHostConfig)];
+
+      // Make activateGame delay to simulate long running activation
+      jest.spyOn(rocManager, 'deactivateGame').mockResolvedValue({ panels: [], time: {}, connectionsOpen: false });
+      jest.spyOn(rocManager, 'updateAndSave').mockResolvedValue();
+      jest.spyOn(rocManager, 'activateGame').mockImplementation(() => new Promise(res => setTimeout(res, 50)));
+
+      const newConfig = { sim: 'concurrent-update', host: 'new.concurrent', port: 9090, channel: 'c', interfaceGateway: { port: 52525, enabled: false } };
+
+      // start first update
+      const p1 = rocManager.updateHost('concurrent-update', newConfig);
+
+      // second should reject due to lock
+      await expect(rocManager.updateHost('concurrent-update', newConfig)).rejects.toThrow(/already in progress|Operation already in progress/i);
+
+      await p1;
+      expect(rocManager.hosts.find(h => h.sim === 'concurrent-update')).toBeDefined();
+    });
+  });
+
     test('should never include passwords in client object', async () => {
       rocManager.hosts = [];
       
@@ -757,7 +926,8 @@ describe('ROCManager.addHost', () => {
       // Verify it calls removeClientForGame, not just deactivate
       expect(mockRemoveClient).toHaveBeenCalledWith('test-sim');
       expect(rocManager.hosts[0].disableInterfaceGateway).toHaveBeenCalled();
-      expect(rocManager.syncHostsWithConfig).toHaveBeenCalled();
+      // Should not persist transient IG state; do not save to config here
+      expect(rocManager.syncHostsWithConfig).not.toHaveBeenCalled();
       expect(rocManager.updateAdminUI).toHaveBeenCalled();
     });
 
@@ -845,6 +1015,58 @@ describe('ROCManager.addHost', () => {
         expect(restoredHost.interfaceGateway.getDecryptedPassword()).toBe('roundtrippass');
       });
     });
+  });
+
+  test('should rollback when activateGame fails and persist cleanup', async () => {
+    rocManager.hosts = [];
+
+    // Make activateGame throw to simulate activation failure
+    jest.spyOn(rocManager, 'activateGame').mockImplementation(() => { throw new Error('activation failed'); });
+
+    const updateSpy = jest.spyOn(rocManager, 'updateAndSave');
+
+    const hostConfig = {
+      sim: 'rollback-sim',
+      host: 'localhost',
+      port: 8080,
+      channel: 'rollback-channel',
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+
+    await expect(rocManager.addHost(hostConfig)).rejects.toThrow(/Failed to activate host|activation failed/);
+
+    // Host should have been rolled back
+    expect(rocManager.hosts.filter(h => h.sim === 'rollback-sim')).toHaveLength(0);
+
+    // Ensure that updateAndSave was attempted for cleanup
+    expect(updateSpy).toHaveBeenCalled();
+  });
+
+  test('should prevent concurrent add operations for the same simulation', async () => {
+    rocManager.hosts = [];
+
+    // Activate will delay to simulate long-running activation
+    jest.spyOn(rocManager, 'activateGame').mockImplementation(() => new Promise(res => setTimeout(res, 50)));
+
+    const hostConfig = {
+      sim: 'concurrent-sim',
+      host: 'localhost',
+      port: 8080,
+      channel: 'concurrent-channel',
+      interfaceGateway: { port: 51515, enabled: false }
+    };
+
+    // Start first addHost (will be pending)
+    const p1 = rocManager.addHost(hostConfig);
+
+    // Second immediate attempt should be rejected due to lock
+    await expect(rocManager.addHost(hostConfig)).rejects.toThrow(/already in progress|Add operation already in progress/i);
+
+    // Wait for first to finish
+    await p1;
+
+    // First should have succeeded and host present
+    expect(rocManager.hosts.find(h => h.sim === 'concurrent-sim')).toBeDefined();
   });
 
   // Global cleanup for all ROCManager tests

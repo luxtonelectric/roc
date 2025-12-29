@@ -35,6 +35,18 @@ export default class ROCManager {
   sims = [];
   /** @type {Host[]} */
   hosts = [];
+  /**
+   * Locks for concurrent addHost operations keyed by sim id
+   * @type {Set<string>}
+   */
+  hostAddLocks = new Set();
+
+  /**
+   * Locks for concurrent updateHost operations keyed by sim id(s)
+   * @type {Set<string>}
+   */
+  hostUpdateLocks = new Set();
+
   config = null;
   channels = null;
   io = null;
@@ -150,41 +162,122 @@ export default class ROCManager {
   }
 
   /**
-   * Update an existing host configuration
+   * Update an existing host configuration (defensive: locking, validation, rollback)
    * @param {string} originalSimId The original simulation ID
    * @param {object} hostConfig The new host configuration
    */
   async updateHost(originalSimId, hostConfig) {
-    const existingHost = this.getHostById(originalSimId);
-    if (!existingHost) {
-      throw new Error("Host not found");
+    if (!originalSimId) {
+      throw new Error('Original simulation id is required');
     }
 
-    // Save old connection state
-    const wasEnabled = existingHost.interfaceGateway.enabled;
-    
-    // If sim ID hasn't changed, we need to preserve phones
-    const preservePhones = hostConfig.sim === originalSimId;
-    
-    // Deactivate the old simulation, preserving state if not changing sims
-    const preservedState = await this.deactivateGame(originalSimId, preservePhones, hostConfig.sim === originalSimId);
-    
-    // Remove existing host from hosts array
-    this.hosts = this.hosts.filter(host => host.sim !== originalSimId);
-    
-    // Create new host instance, preserving IG state
-    const newHost = Host.fromConfig(hostConfig);
-    newHost.interfaceGateway.enabled = wasEnabled;
-    this.hosts.push(newHost);
+    // Defensive clone
+    const cfg = (typeof structuredClone === 'function') ? structuredClone(hostConfig) : JSON.parse(JSON.stringify(hostConfig));
+    const targetSimId = cfg?.sim || originalSimId;
 
-    // Sync with config and save
-    await this.updateAndSave();
-    
-    // Reactivate if needed
-    if (hostConfig.sim === originalSimId && preservedState) {
-      await this.activateGame(newHost, preservedState);
-    } else if (wasEnabled) {
-      await this.activateGame(newHost);
+    // Determine locks to acquire (unique, sorted to avoid deadlocks)
+    const locksToAcquire = Array.from(new Set([originalSimId, targetSimId])).sort();
+
+    // Ensure no conflicting operations in progress on these sims
+    for (const id of locksToAcquire) {
+      if (this.hostAddLocks.has(id) || this.hostUpdateLocks.has(id)) {
+        throw new Error(`Operation already in progress for simulation '${id}'`);
+      }
+    }
+
+    // Acquire locks
+    locksToAcquire.forEach(id => this.hostUpdateLocks.add(id));
+
+    let existingHost;
+    let preservedState = null;
+
+    try {
+      existingHost = this.getHostById(originalSimId);
+      if (!existingHost) {
+        throw new Error(`Host '${originalSimId}' not found`);
+      }
+
+      // Save old connection state so it can be preserved on the new host
+      const wasIGEnabled = existingHost.interfaceGateway.enabled;
+
+      // If changing target sim, ensure target simulation exists and isn't already claimed by another host
+      if (targetSimId !== originalSimId) {
+        const targetSim = this.getSimData(targetSimId, true);
+        if (!targetSim) {
+          throw new Error(`Simulation '${targetSimId}' not found`);
+        }
+        const conflictingHost = this.hosts.find(h => h.sim === targetSimId);
+        if (conflictingHost) {
+          throw new Error(`A host for simulation '${targetSimId}' already exists. Only one host per simulation is allowed.`);
+        }
+      }
+
+      // If sim ID hasn't changed, preserve phones and state
+      const preservePhones = targetSimId === originalSimId;
+      preservedState = await this.deactivateGame(originalSimId, preservePhones, preservePhones);
+
+      // Remove the existing host from in-memory list (we'll re-add the new or rollback)
+      const oldHostCopy = existingHost;
+      this.hosts = this.hosts.filter(h => h.sim !== originalSimId);
+
+      // Build and validate new host
+      let newHost;
+      try {
+        newHost = Host.fromConfig(cfg);
+
+        // Preserve IG state and clear transient fields
+        newHost.interfaceGateway.enabled = wasIGEnabled;
+        newHost.interfaceGateway.connectionState = 'disconnected';
+        newHost.interfaceGateway.errorMessage = undefined;
+
+      } catch (err) {
+        // Invalid new host config - rollback and re-activate original host if necessary
+        this.hosts.push(oldHostCopy);
+        try { await this.updateAndSave(); } catch (cleanupErr) { console.error(chalk.red('Failed to persist rollback after invalid update:'), cleanupErr); }
+        if (wasIGEnabled) {
+          try { await this.activateGame(oldHostCopy, preservedState); } catch (reactErr) { console.error(chalk.red('Failed to reactivate original host after invalid update:'), reactErr); }
+        }
+        throw new Error(`Invalid host configuration: ${err.message}`);
+      }
+
+      // Temporarily add the new host and persist
+      this.hosts.push(newHost);
+
+      try {
+        await this.updateAndSave();
+      } catch (saveErr) {
+        // Persist failed: rollback to original host
+        this.hosts = this.hosts.filter(h => h.sim !== newHost.sim);
+        this.hosts.push(oldHostCopy);
+        try { await this.updateAndSave(); } catch (cleanupErr) { console.error(chalk.red('Failed to persist rollback after save error:'), cleanupErr); }
+        if (wasIGEnabled) {
+          try { await this.activateGame(oldHostCopy, preservedState); } catch (reactErr) { console.error(chalk.red('Failed to reactivate original host after save rollback:'), reactErr); }
+        }
+        throw new Error(`Failed to save config after updating host '${originalSimId}': ${saveErr.message}`);
+      }
+
+      // Activate the new host as appropriate, rolling back on activation failure
+      try {
+        if (targetSimId === originalSimId && preservedState) {
+          await this.activateGame(this.getHostById(targetSimId), preservedState);
+        } else if (wasIGEnabled) {
+          await this.activateGame(this.getHostById(targetSimId));
+        }
+      } catch (activateErr) {
+        // Rollback host change
+        const newlyAddedHostSim = targetSimId;
+        this.hosts = this.hosts.filter(h => h.sim !== newlyAddedHostSim);
+        this.hosts.push(oldHostCopy);
+        try { await this.updateAndSave(); } catch (cleanupErr) { console.error(chalk.red('Failed to persist rollback after activation failure:'), cleanupErr); }
+        if (wasIGEnabled) {
+          try { await this.activateGame(oldHostCopy, preservedState); } catch (reactErr) { console.error(chalk.red('Failed to reactivate original host after activation failure:'), reactErr); }
+        }
+        throw new Error(`Failed to activate host '${targetSimId}': ${activateErr.message}`);
+      }
+
+    } finally {
+      // Always release locks
+      locksToAcquire.forEach(id => this.hostUpdateLocks.delete(id));
     }
   }
 
@@ -298,8 +391,7 @@ export default class ROCManager {
       // Activate the Interface Gateway client
       const result = this.stompManager.activateClientForGame(simId);
       
-      // Sync with config and update UI
-      this.syncHostsWithConfig();
+      // Update UI to reflect transient IG change (do not persist IG runtime state)
       this.updateAdminUI();
       return result;
     } catch (error) {
@@ -314,11 +406,11 @@ export default class ROCManager {
       const host = this.getHostById(simId);
       if (host) {
         host.disableInterfaceGateway();
-        this.syncHostsWithConfig();
       }
       
       // Remove client completely instead of just deactivating
       this.stompManager.removeClientForGame(simId);
+      // Update UI only; do not persist transient IG state
       this.updateAdminUI();
     } catch (error) {
       console.error(chalk.red("Failed to disable Interface Gateway:"), error);
@@ -336,7 +428,7 @@ export default class ROCManager {
     const host = this.getHostById(simId);
     if (host) {
       host.updateInterfaceGatewayState(state, errorMessage);
-      this.syncHostsWithConfig();
+      // Update UI only; do not persist transient IG connection state
       this.updateAdminUI();
     }
   }
@@ -1103,70 +1195,89 @@ export default class ROCManager {
   }
 
   /**
-   * Add a new host and activate it immediately
+   * Add a new host and activate it immediately (defensive: locks, validations, rollback)
    * @param {*} hostConfig The new host configuration
    */
   async addHost(hostConfig) {
-    // Create and validate the Host instance
+    // Defensive clone to avoid mutating the caller's object
+    const cfg = (typeof structuredClone === 'function') ? structuredClone(hostConfig) : JSON.parse(JSON.stringify(hostConfig));
+    const simId = cfg?.sim;
+
+    if (!simId) {
+      throw new Error('Invalid host configuration: missing sim id');
+    }
+
+    // Prevent concurrent adds for the same simulation
+    if (this.hostAddLocks.has(simId)) {
+      throw new Error(`Add operation already in progress for simulation '${simId}'`);
+    }
+
+    this.hostAddLocks.add(simId);
+
     let newHost;
     try {
-      // Create host first
-      newHost = Host.fromConfig(hostConfig);
-      
-      // Handle authentication if provided
-      if (hostConfig.interfaceGateway?.username && hostConfig.interfaceGateway?.password) {
-        // Set authentication (this will encrypt the password)
-        newHost.interfaceGateway.setAuthentication(
-          hostConfig.interfaceGateway.username,
-          hostConfig.interfaceGateway.password
-        );
+      // Fail-fast: ensure simulation exists before mutating state
+      try {
+        const testSim = this.getSimData(simId, true);
+        if (!testSim) {
+          throw new Error(`Simulation ${simId} not found`);
+        }
+      } catch (err) {
+        throw new Error(`Failed to load simulation '${simId}': ${err.message}`);
       }
 
-      // Ensure interfaceGateway is disabled by default
-      if (hostConfig.interfaceGateway) {
-        hostConfig.interfaceGateway.enabled = false;
+      // Prevent duplicates
+      const existingHost = this.hosts.find(h => h.sim === simId);
+      if (existingHost) {
+        throw new Error(`A host for simulation '${simId}' already exists. Only one host per simulation is allowed.`);
       }
-      newHost.interfaceGateway.enabled = false;
-      
-      // Force new hosts to be disabled by default for security and operational safety
-      newHost.enabled = false;
-      newHost.validate();
-    } catch (error) {
-      throw new Error(`Invalid host configuration: ${error.message}`);
-    }
 
-    // Check if simulation file exists
-    try {
-      const testSim = this.getSimData(newHost.sim, true);
-      if (!testSim) {
-        throw new Error(`Simulation ${newHost.sim} not found`);
+      // Build Host instance and validate
+      try {
+        newHost = Host.fromConfig(cfg);
+
+        // If auth provided, set it securely (do not log credentials)
+        if (cfg.interfaceGateway?.username && cfg.interfaceGateway?.password) {
+          newHost.interfaceGateway.setAuthentication(cfg.interfaceGateway.username, cfg.interfaceGateway.password);
+        }
+
+        // Ensure interface gateway is disabled by default and host is disabled
+        newHost.interfaceGateway.enabled = false;
+        newHost.interfaceGateway.connectionState = 'disconnected';
+        newHost.interfaceGateway.errorMessage = undefined;
+        newHost.enabled = false;
+
+        newHost.validate();
+      } catch (err) {
+        throw new Error(`Invalid host configuration: ${err.message}`);
       }
-    } catch (error) {
-      throw new Error(`Failed to load simulation ${newHost.sim}: ${error.message}`);
-    }
 
-    // Check if a host with the same simulation ID already exists
-    const existingHost = this.hosts.find(host => host.sim === newHost.sim);
-    if (existingHost) {
-      throw new Error(`A host for simulation '${newHost.sim}' already exists. Only one host per simulation is allowed.`);
-    }
+      // Persist host to in-memory list and save config
+      this.hosts.push(newHost);
 
-    // Add to hosts array
-    this.hosts.push(newHost);
-    
-    try {
-      // Sync with config and save first in case activation fails
-      await this.updateAndSave();
-      
-      // Activate the new game
-      await this.activateGame(newHost);
-      
+      try {
+        await this.updateAndSave();
+      } catch (saveErr) {
+        // Rollback addition and attempt to persist rollback; surface the original save error
+        this.hosts = this.hosts.filter(h => h.sim !== newHost.sim);
+        try { await this.updateAndSave(); } catch (cleanupErr) { console.error(chalk.red('Failed to rollback after save error:'), cleanupErr); }
+        throw new Error(`Failed to save config after adding host '${simId}': ${saveErr.message}`);
+      }
+
+      // Activate the new game (activation errors trigger rollback)
+      try {
+        await this.activateGame(newHost);
+      } catch (activateErr) {
+        // Rollback host from in-memory and attempt to persist; don't swallow original activation error
+        this.hosts = this.hosts.filter(h => h.sim !== newHost.sim);
+        try { await this.updateAndSave(); } catch (cleanupErr) { console.error(chalk.red('Failed to persist removal after activation failure:'), cleanupErr); }
+        throw new Error(`Failed to activate host '${simId}': ${activateErr.message}`);
+      }
+
       return true;
-    } catch (error) {
-      // If activation fails, remove from hosts and save
-      this.hosts = this.hosts.filter(host => host.sim !== newHost.sim);
-      await this.updateAndSave();
-      throw error;
+    } finally {
+      // Always release the lock
+      this.hostAddLocks.delete(simId);
     }
   }
 

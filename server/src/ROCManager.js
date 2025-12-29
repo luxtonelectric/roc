@@ -398,8 +398,32 @@ export default class ROCManager {
       const user = this.users[discordId];
       
       if (voiceChannelId === null) {
-        // User left voice channel - they will be disconnected if socket also disconnected
+        // User left voice channel - before clearing their voice state, attempt to remove them from any active calls
+        try {
+          if (this.callManager) {
+            const phones = this.phoneManager.getPhonesForDiscordId(discordId) || [];
+            for (const phone of phones) {
+              for (const call of Array.from(this.callManager.activeCalls.values())) {
+                if (call.includesPhone && call.includesPhone(phone)) {
+                  const socketId = user.socket?.id;
+                  if (socketId) {
+                    // @ts-ignore - leaveCall returns Promise<boolean>
+                    await this.callManager.leaveCall(socketId, call.id).catch((err) => {
+                      console.warn('Error forcing leaveCall after voice disconnect:', err?.message || err);
+                    });
+                  }
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('handleVoiceStateUpdate: error checking calls for voice leave', err?.message || err);
+        }
+
+        // Now clear the user's voice state
         user.updateVoiceChannel(null);
+
+        // If user left voice while still connected via socket, notify client
         if (!user.socket.disconnected) {
           this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
             "loggedIn": false,
@@ -408,6 +432,7 @@ export default class ROCManager {
         } else {
           this.checkDisconnectingUser(user);
         }
+
       } else {
         // User joined/changed voice channel
         user.updateVoiceChannel(voiceChannelId);

@@ -15,13 +15,23 @@ export default class DiscordBot {
   /** @type {Array} */
   voiceChannels = [];
 
-  constructor (token, prefix, guildId)
+  /**
+   * @param {string} token
+   * @param {string} prefix
+   * @param {string} guildId
+   * @param {import('discord.js').Client} [client] - Optional injected client (useful for tests)
+   */
+  constructor (token, prefix, guildId, client = null)
   {
-    this.client = new Client({intents:[GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences]});
+    // Allow dependency injection of the Client for tests; otherwise create a real Client
+    this.client = client || new Client({intents:[GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences]});
     this.token = token;
     this.prefix = prefix;
     this.guildId = guildId;
     this.gameManager = null;
+
+    // Internal state to manage handler attachment
+    this.handlersAttached = false;
   }
   
   /**
@@ -33,22 +43,97 @@ export default class DiscordBot {
     this.gameManager = gameManager;
   }
 
-  async setUpBot()
-  {
-    this.client.on('ready', async () => {
-      console.info(chalk.blueBright("Discord.js"), chalk.yellow("Ready"), chalk.green("Logged in as:", chalk.white(this.client.user.tag)));
-      // Initial channel load
+  /**
+   * Attach default event handlers to the managed Discord client.
+   * This is extracted so tests can call handlers directly or attach a mock client.
+   */
+  attachEventHandlers() {
+    if (this.handlersAttached) return;
+
+    // Production-correct event names for discord.js v14
+
+    // store references so we can remove them in tests
+    this._onReady = () => { void this.onClientReady(); };
+    this._onMessage = msg => { void this.onMessage(msg); };
+    this._onChannelCreate = channel => { void this.onChannelCreate(channel); };
+    this._onChannelDelete = channel => { void this.onChannelDelete(channel); };
+    this._onChannelUpdate = (oldChannel, newChannel) => { void this.onChannelUpdate(oldChannel, newChannel); };
+    this._onVoiceStateUpdate = (oldState, newState) => { void this.onVoiceStateUpdate(oldState, newState); };
+
+    this.client.on('clientReady', this._onReady);
+    this.client.on('messageCreate', this._onMessage);
+    this.client.on('channelCreate', this._onChannelCreate);
+    this.client.on('channelDelete', this._onChannelDelete);
+    this.client.on('channelUpdate', this._onChannelUpdate);
+    this.client.on('voiceStateUpdate', this._onVoiceStateUpdate);
+
+    this.handlersAttached = true;
+  }
+
+  /**
+   * Detach event handlers (useful for tests to avoid interference)
+   */
+  detachEventHandlers() {
+    if (!this.handlersAttached) return;
+
+    if (this._onReady) this.client.off('ready', this._onReady);
+    if (this._onMessage) this.client.off('messageCreate', this._onMessage);
+    if (this._onChannelCreate) this.client.off('channelCreate', this._onChannelCreate);
+    if (this._onChannelDelete) this.client.off('channelDelete', this._onChannelDelete);
+    if (this._onChannelUpdate) this.client.off('channelUpdate', this._onChannelUpdate);
+    if (this._onVoiceStateUpdate) this.client.off('voiceStateUpdate', this._onVoiceStateUpdate);
+
+    delete this._onReady;
+    delete this._onMessage;
+    delete this._onChannelCreate;
+    delete this._onChannelDelete;
+    delete this._onChannelUpdate;
+    delete this._onVoiceStateUpdate;
+
+    this.handlersAttached = false;
+  }
+
+  /**
+   * Register and start the bot (login and attach handlers). Returned promise resolves when login completes.
+   */
+  async setUpBot() {
+    // Ensure handlers are attached before login so tests can mock and emit events
+    this.attachEventHandlers();
+
+    try {
+      await this.client.login(this.token);
+      console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"));
+    } catch (x) {
+      console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString());
+    }
+  }
+
+  /**
+   * The following methods are the bound handlers for discord events. Tests can call these directly.
+   */
+  async onClientReady() {
+    console.info(chalk.blueBright("Discord.js"), chalk.yellow("Ready"), chalk.green("Logged in as:", chalk.white(this.client?.user?.tag || 'unknown')));
+    // Initial channel load
+    try {
       await this.updateVoiceChannels();
-    });
-    
-    this.client.on('message', msg => {
+    } catch (err) {
+      console.warn(chalk.yellow('updateVoiceChannels failed during ready handler'), err?.message || err);
+    }
+  }
+
+  onMessage(msg) {
+    try {
+      if (!msg || !msg.content) return;
       if (msg.content === `${this.prefix}ping`) {
         msg.reply('Pong!');
       }
-    });
+    } catch (err) {
+      console.warn(chalk.red('onMessage handler error'), err?.message || err);
+    }
+  }
 
-    // Monitor voice channel changes
-    this.client.on('channelCreate', async channel => {
+  async onChannelCreate(channel) {
+    try {
       if (channel.isVoiceBased?.()) {
         let channelName = 'Unknown';
         if (channel instanceof VoiceChannel || channel instanceof StageChannel) {
@@ -56,11 +141,17 @@ export default class DiscordBot {
         }
         console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.green("Created voice channel:", chalk.white(channelName)));
         await this.updateVoiceChannels();
-        this.gameManager.notifyVoiceChannelUpdate();
+        if (this.gameManager && typeof this.gameManager.notifyVoiceChannelUpdate === 'function') {
+          this.gameManager.notifyVoiceChannelUpdate();
+        }
       }
-    });
+    } catch (err) {
+      console.warn(chalk.red('onChannelCreate handler error'), err?.message || err);
+    }
+  }
 
-    this.client.on('channelDelete', async channel => {
+  async onChannelDelete(channel) {
+    try {
       if (channel.isVoiceBased?.()) {
         let channelName = 'Unknown';
         if (channel instanceof VoiceChannel || channel instanceof StageChannel) {
@@ -68,15 +159,21 @@ export default class DiscordBot {
         }
         console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.red("Deleted voice channel:", chalk.white(channelName)));
         await this.updateVoiceChannels();
-        this.gameManager.notifyVoiceChannelUpdate();
+        if (this.gameManager && typeof this.gameManager.notifyVoiceChannelUpdate === 'function') {
+          this.gameManager.notifyVoiceChannelUpdate();
+        }
       }
-    });
+    } catch (err) {
+      console.warn(chalk.red('onChannelDelete handler error'), err?.message || err);
+    }
+  }
 
-    this.client.on('channelUpdate', async (oldChannel, newChannel) => {
+  async onChannelUpdate(oldChannel, newChannel) {
+    try {
       if (oldChannel.isVoiceBased?.() || newChannel.isVoiceBased?.()) {
         let oldName = 'Unknown';
         let newName = 'Unknown';
-        
+
         if (oldChannel instanceof VoiceChannel || oldChannel instanceof StageChannel) {
           oldName = oldChannel.name;
         }
@@ -86,53 +183,92 @@ export default class DiscordBot {
 
         console.info(chalk.blueBright("Discord.js"), chalk.yellow("Channel"), chalk.green("Updated voice channel:", chalk.white(`${oldName} → ${newName}`)));
         await this.updateVoiceChannels();
-        this.gameManager.notifyVoiceChannelUpdate();
+        if (this.gameManager && typeof this.gameManager.notifyVoiceChannelUpdate === 'function') {
+          this.gameManager.notifyVoiceChannelUpdate();
+        }
       }
-    });
+    } catch (err) {
+      console.warn(chalk.red('onChannelUpdate handler error'), err?.message || err);
+    }
+  }
 
-    this.client.on('voiceStateUpdate', (oldState, newState) => {
-      
-      if(!this.gameManager.isUser(newState.id)) {
+  async onVoiceStateUpdate(oldState, newState) {
+    try {
+      if (!this.gameManager || typeof this.gameManager.isUser !== 'function') {
+        return; // Game manager not set or not ready
+      }
+
+      if (!this.gameManager.isUser(newState.id)) {
         //Only handle voiceStateUpdates for existing users.
         return;
       }
-      if(oldState.channel === null && newState.channel !== null) {
-        // This is a someone joining voice...
-        console.info(chalk.blueBright("Discord.js"), "someone joined voice...",newState.id, newState.channelId);
-        this.gameManager.handleVoiceStateUpdate(newState.id, newState.channelId);
-      } else if(newState.channel === null && oldState.channel !== null) {
-        // This is someone leaving voice...
+
+      if (oldState.channel === null && newState.channel !== null) {
+        // Someone joining voice
+        console.info(chalk.blueBright("Discord.js"), "someone joined voice...", newState.id, newState.channelId);
+        if (typeof this.gameManager.handleVoiceStateUpdate === 'function') {
+          this.gameManager.handleVoiceStateUpdate(newState.id, newState.channelId);
+        }
+      } else if (newState.channel === null && oldState.channel !== null) {
+        // Someone leaving voice
         console.info(chalk.blueBright("Discord.js"), "someone left voice...", newState.id);
-        this.gameManager.handleVoiceStateUpdate(newState.id, null);
-      } else{
+        if (typeof this.gameManager.handleVoiceStateUpdate === 'function') {
+          this.gameManager.handleVoiceStateUpdate(newState.id, null);
+        }
+      } else {
         const oldStatePrivateCall = this.privateCallChannels.find(c => c.id === oldState.channelId);
         const newStatePrivateCall = this.privateCallChannels.find(c => c.id === newState.channelId);
-        
-        if(newStatePrivateCall) {
+
+        if (newStatePrivateCall) {
           newStatePrivateCall.inUse = true;
 
-          if(!(oldStatePrivateCall)) {
+          if (!oldStatePrivateCall) {
             // New Channel is private call, old is not.
             // This means they've left a chat and should go back to that when they leave a private call.
-            this.gameManager.users[newState.id].voiceChannelId = oldState.channelId;
+            if (this.gameManager.users?.[newState.id]) {
+              this.gameManager.users[newState.id].voiceChannelId = oldState.channelId;
+            }
           }
 
           console.info(chalk.magenta('voiceStateUpdate PCC'), this.privateCallChannels);
         }
-        
-        if(oldStatePrivateCall) {
+
+        if (oldStatePrivateCall) {
           // Someone has left a privateCallChannel
-          if(oldState.channel.members.size === 0) {
+          const membersSize = oldState.channel && typeof oldState.channel.members !== 'undefined' ? (oldState.channel.members.size ?? (oldState.channel.members?.cache?.size ?? 0)) : 0;
+          if (membersSize === 0) {
             oldStatePrivateCall.reserved = false;
             oldStatePrivateCall.inUse = false;
             console.info(chalk.magenta('voiceStateUpdate PCC'), this.privateCallChannels);
           }
+
+          // If the user moved out of a private call into a non-private channel, treat this as leaving the call
+          if (!newStatePrivateCall) {
+            try {
+              if (this.gameManager && this.gameManager.callManager) {
+                const user = this.gameManager.users?.[newState.id];
+                const socketId = user?.socket?.id;
+                if (socketId) {
+                  const phones = this.gameManager.phoneManager.getPhonesForDiscordId(newState.id) || [];
+                  for (const phone of phones) {
+                    for (const call of Array.from(this.gameManager.callManager.activeCalls.values())) {
+                      if (call.includesPhone && call.includesPhone(phone)) {
+                        // Best-effort leave; don't block the handler
+                        void this.gameManager.callManager.leaveCall(socketId, call.id).catch(err => console.warn('Error forcing leaveCall on channel move', err?.message || err));
+                      }
+                    }
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('onVoiceStateUpdate: error forcing leave on channel move', err?.message || err);
+            }
+          }
         }
-      } 
-
-    }); 
-
-    await this.client.login(this.token).then(() =>{console.info(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.green("Login Successful!"))}).catch((x)=>{console.error(chalk.blueBright("Discord.js"), chalk.yellow("Login"), chalk.red("Login Error"), x.toString())});
+      }
+    } catch (err) {
+      console.warn(chalk.red('onVoiceStateUpdate handler error'), err?.message || err);
+    }
   }
 
   /**
@@ -174,7 +310,6 @@ export default class DiscordBot {
         console.warn(chalk.red("Static Channel"), channel, chalk.red("does not exist for this Guild"));
       }
     }
-    console.log(chalk.yellow('configureVoiceChannels'), this.gameManager.channels);
 
     for(const sim of Object.keys(this.gameManager.sims)) {
       if("channel" in this.gameManager.sims[sim]) {

@@ -1,6 +1,7 @@
 // @ts-check
 import { CALL_TYPES, CALL_LEVELS, isValidCallType, isValidCallLevel, isLevelAllowedForType } from './model/CallConstants.js';
 import { ICall } from './model/ICall.js';
+import CallRequest from './model/callrequest.js';
 /** @typedef {import("./model/phone.js").default} Phone */
 
 /**
@@ -102,20 +103,16 @@ export default class CallFactory {
    * @throws {Error} If invalid parameters
    */
   static createP2PCall(sender, receivers, level = CALL_LEVELS.NORMAL, options = {}) {
-    // For now, return a placeholder that will be replaced with actual P2P call class in TASK-007
-    const callData = {
-      type: CALL_TYPES.P2P,
-      sender,
-      receivers: Array.isArray(receivers) ? receivers : [receivers],
-      level,
-      options: {
-        allowCallWaiting: true,
-        enableAutoAnswer: false,
-        ...options
-      }
+    // Create an actual CallRequest instance for P2P calls so state transitions work correctly
+    const receiverList = Array.isArray(receivers) ? receivers : [receivers];
+    const call = new CallRequest(sender, receiverList, level, CALL_TYPES.P2P);
+    // Attach options if present
+    call.options = {
+      allowCallWaiting: true,
+      enableAutoAnswer: false,
+      ...options
     };
-
-    return CallFactory._createPlaceholderCall(callData);
+    return call;
   }
 
   /**

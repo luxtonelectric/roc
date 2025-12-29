@@ -7,299 +7,11 @@ import CallGroup from './model/CallGroup.js';
 import VGCSBus from './vgcs/VGCSBus.js';
 import MobileStationVGCS from './vgcs/MobileStationVGCS.js';
 import VGCSSocketBridge from './vgcs/VGCSSocketBridge.js';
+import CallFactory from './CallFactory.js';
+import CallValidator from './CallValidator.js';
 
 // Ensure BaseCall constants are available
 const { TYPES, LEVELS, STATUS } = BaseCall;
-
-/**
- * Factory for creating type-specific calls with streamlined logic
- */
-class CallFactory {
-  constructor(phoneManager) {
-    this.phoneManager = phoneManager;
-  }
-
-  /**
-   * Create a P2P call
-   * @param {Phone} senderPhone - Sender phone object
-   * @param {string} receiverPhoneId - Receiver phone ID (string only)
-   * @param {string} callLevel - Call level 
-   * @param {Object} options - Additional options
-   * @returns {CallRequest} P2P call instance
-   */
-  createP2PCall(senderPhone, receiverPhoneId, callLevel, options = {}) {
-    const receiverPhone = this.phoneManager.getPhone(receiverPhoneId);
-    if (!receiverPhone) {
-      throw new Error(`Receiver phone not found: ${receiverPhoneId}`);
-    }
-    return new CallRequest(senderPhone, receiverPhone, callLevel, BaseCall.TYPES.P2P);
-  }
-
-  /**
-   * Create a GROUP call
-   * @param {Phone} originatorPhone - Originator phone object
-   * @param {CallGroup} callGroup - CallGroup object containing group information
-   * @param {string} callLevel - Call level
-   * @param {Object} options - Additional options
-   * @returns {GroupCallRequest} Group call instance
-   */
-  createGroupCall(originatorPhone, callGroup, callLevel, options = {}) {
-    // Use CallGroup ID as group identifier for compatibility
-    return new GroupCallRequest(originatorPhone, callGroup.id, BaseCall.TYPES.GROUP, callLevel, options);
-  }
-
-  /**
-   * Create a REC call with location-based participants
-   * @param {Phone} originatorPhone - Originator phone object
-   * @param {string} callLevel - Call level (should be EMERGENCY for REC)
-   * @param {Object} options - Additional options
-   * @returns {GroupCallRequest} REC call instance
-   */
-  createRECCall(originatorPhone, callLevel, options = {}) {
-    // Create unique REC group ID
-    const groupId = `REC_${originatorPhone.getId()}_${Date.now()}`;
-    const call = new GroupCallRequest(originatorPhone, groupId, BaseCall.TYPES.REC, callLevel, options);
-    
-    // Get originator's location
-    const location = this.phoneManager.getPhoneLocation ? 
-      this.phoneManager.getPhoneLocation(originatorPhone.getId()) : 
-      originatorPhone.getLocation();
-    
-    if (!location || !location.sim || !location.panel) {
-      throw new Error(`Cannot determine location for REC call originator: ${originatorPhone.getId()}`);
-    }
-    
-    // Collect all REC participants based on location
-    const participants = new Set();
-    
-    // Add originator
-    participants.add(originatorPhone);
-    
-    // Add phones in same location (sim + panel)
-    if (this.phoneManager.getPhonesInSameLocation) {
-      const sameLocationPhones = this.phoneManager.getPhonesInSameLocation(location);
-      sameLocationPhones.forEach(phone => participants.add(phone));
-    }
-    
-    // Add phones in neighboring panels
-    if (this.phoneManager.getNeighboringPanelPhones) {
-      const neighboringPhones = this.phoneManager.getNeighboringPanelPhones(location);
-      neighboringPhones.forEach(phone => participants.add(phone));
-    }
-    
-    // Add control phone for the sim
-    if (this.phoneManager.getControlPhoneForSim) {
-      const controlPhone = this.phoneManager.getControlPhoneForSim(location.sim);
-      if (controlPhone) {
-        participants.add(controlPhone);
-      }
-    }
-    
-    // Add all participants to the call
-    participants.forEach(phone => {
-      if (phone.getId() !== originatorPhone.getId()) { // Don't add originator twice
-        call.addParticipant(phone);
-      }
-    });
-    
-    return call;
-  }
-}
-
-/**
- * Validator for call requests with unified validation pipeline
- */
-class CallValidator {
-  constructor(phoneManager, bot) {
-    this.phoneManager = phoneManager;
-    this.bot = bot;
-  }
-
-  /**
-   * Validate call request parameters
-   * @param {Object} request - Call request object
-   * @throws {Error} If validation fails
-   */
-  validateInput(request) {
-    if (!request.senderPhoneId) {
-      throw new Error('Sender phone ID is required');
-    }
-    
-    if (!Object.values(BaseCall.TYPES).includes(request.callType)) {
-      throw new Error(`Invalid call type: ${request.callType}. Must be one of: ${Object.values(BaseCall.TYPES).join(', ')}`);
-    }
-    
-    if (!Object.values(BaseCall.LEVELS).includes(request.callLevel)) {
-      throw new Error(`Invalid call level: ${request.callLevel}. Must be one of: ${Object.values(BaseCall.LEVELS).join(', ')}`);
-    }
-
-    // Receiver validation - REC calls determine receiver by location
-    if (request.callType === BaseCall.TYPES.REC) {
-      // REC calls don't need a receiver - it's determined by the sender's location
-      // Receiver can be null or undefined for REC calls
-    } else if (!request.receiver) {
-      throw new Error('Receiver is required');
-    }
-
-    // Validate receiver format based on call type
-    if (request.callType === BaseCall.TYPES.P2P) {
-      // P2P calls can receive either a phone ID string or Phone object
-      if (typeof request.receiver !== 'string' && 
-          (typeof request.receiver !== 'object' || !request.receiver.id)) {
-        throw new Error('P2P calls require receiver to be a phone ID string or Phone object');
-      }
-    }
-    
-    if (request.callType === BaseCall.TYPES.GROUP) {
-      // GROUP calls require CallGroup ID string or CallGroup object (has members property)
-      if (typeof request.receiver !== 'string' && 
-          (typeof request.receiver !== 'object' || !request.receiver.members)) {
-        throw new Error('GROUP calls require receiver to be a CallGroup ID string or CallGroup object');
-      }
-    }
-    
-    if (request.callType === BaseCall.TYPES.REC) {
-      // REC calls determine receiver by location - no receiver validation needed
-    }
-  }
-
-  /**
-   * Validate phone existence and connectivity
-   * @param {Object} request - Call request object
-   * @throws {Error} If validation fails
-   */
-  async validatePhones(request) {
-    // Validate sender phone
-    const senderPhone = this.phoneManager.getPhone(request.senderPhoneId);
-    if (!senderPhone) {
-      throw new Error(`Sender phone not found: ${request.senderPhoneId}`);
-    }
-    
-    if (!senderPhone.getDiscordId()) {
-      throw new Error(`Sender phone not assigned to Discord authenticated user: ${request.senderPhoneId}`);
-    }
-
-    // Check sender voice connection
-    await this._validateVoiceConnection(senderPhone, 'Sender');
-
-    // Validate receiver phones based on call type
-    if (request.callType === BaseCall.TYPES.P2P) {
-      // P2P: receiver should be phone ID string
-      const receiverPhoneId = typeof request.receiver === 'string' ? request.receiver : request.receiver.id;
-      const receiverPhone = this.phoneManager.getPhone(receiverPhoneId);
-      if (!receiverPhone) {
-        throw new Error(`Receiver phone not found: ${receiverPhoneId}`);
-      }
-      
-      if (!receiverPhone.getDiscordId()) {
-        throw new Error(`Receiver phone not connected to Discord: ${receiverPhoneId}`);
-      }
-
-      await this._validateVoiceConnection(receiverPhone, 'Receiver');
-
-      // Prevent self-calling
-      if (senderPhone.getId() === receiverPhone.getId()) {
-        throw new Error('Cannot call yourself');
-      }
-
-      // Prevent calling between phones owned by the same user
-      if (senderPhone.getDiscordId() === receiverPhone.getDiscordId()) {
-        throw new Error('Cannot call between phones you control');
-      }
-    } else if (request.callType === BaseCall.TYPES.REC) {
-      // REC calls determine participants by sender's location
-      // Validate that sender phone has a valid location
-      if (!senderPhone.hasValidLocation || !senderPhone.hasValidLocation()) {
-        throw new Error(`Sender phone must have valid location (sim and panel) to initiate REC call: ${request.senderPhoneId}`);
-      }
-
-      // Get sender location for participant determination
-      const senderLocation = this.phoneManager.getPhoneLocation ? 
-        this.phoneManager.getPhoneLocation(request.senderPhoneId) : 
-        senderPhone.getLocation();
-      
-      if (!senderLocation || !senderLocation.sim || !senderLocation.panel) {
-        throw new Error(`Sender phone location is invalid for REC call: ${request.senderPhoneId}`);
-      }
-
-      // Validate that location-based methods exist in phone manager
-      if (!this.phoneManager.getPhonesInSameLocation || 
-          !this.phoneManager.getNeighboringPanelPhones || 
-          !this.phoneManager.getControlPhoneForSim) {
-        throw new Error('PhoneManager missing required location-based methods for REC calls');
-      }
-
-    } else if (request.callType === BaseCall.TYPES.GROUP) {
-      // GROUP: receiver should be CallGroup ID string or CallGroup object
-      let callGroup;
-      if (typeof request.receiver === 'string') {
-        // CallGroup ID - look it up
-        callGroup = this.phoneManager.getCallGroup(request.receiver);
-        if (!callGroup) {
-          throw new Error(`CallGroup not found: ${request.receiver}`);
-        }
-      } else {
-        // CallGroup object passed directly
-        callGroup = request.receiver;
-      }
-
-      // Validate CallGroup has available members
-      if (!callGroup.hasAvailableMembers()) {
-        throw new Error(`CallGroup has no available members: ${callGroup.name}`);
-      }
-    }
-  }
-
-  /**
-   * Validate Discord voice connection for a phone
-   * @param {Phone} phone - Phone to validate
-   * @param {string} label - Description for error messages
-   * @throws {Error} If not connected to voice
-   * @private
-   */
-  async _validateVoiceConnection(phone, label) {
-    const discordId = phone.getDiscordId();
-    if (!discordId) return;
-
-    try {
-      const voiceChannel = await this.bot.getUserVoiceChannel(discordId);
-      if (!voiceChannel) {
-        throw new Error(`${label} not connected to Discord voice: ${phone.getId()}`);
-      }
-    } catch (error) {
-      console.error(chalk.red('CallValidator'), `Error checking ${label} voice status:`, error.message);
-      throw new Error(`Cannot verify ${label} voice connection: ${phone.getId()}`);
-    }
-  }
-
-  /**
-   * Validate permissions for call type
-   * @param {Object} request - Call request object
-   * @throws {Error} If validation fails
-   */
-  validatePermissions(request) {
-    // Add permission checks here as needed
-    // For example, check if user can place REC calls, etc.
-    
-    if (request.callType === BaseCall.TYPES.REC) {
-      // Could add REC permission validation here
-      // For now, allow all authenticated users to place REC calls
-    }
-  }
-
-  /**
-   * Validate system resources (channels, etc.)
-   * @param {Object} request - Call request object
-   * @throws {Error} If validation fails
-   */
-  validateResources(request) {
-    // Could add resource validation here
-    // For example, check if channels are available for the call
-    
-    // For now, resource allocation is handled during call acceptance
-    // This is a placeholder for future resource validation
-  }
-}
 
 /** @typedef {import("./model/phone.js").default} Phone */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
@@ -387,7 +99,8 @@ export default class UnifiedCallManager {
     this.rocManager = rocManager;
     
     // Initialize streamlined call creation components
-    this.callFactory = new CallFactory(phoneManager);
+    // Use the shared CallFactory module (static factory methods)
+    this.callFactory = CallFactory;
     this.callValidator = new CallValidator(phoneManager, bot);
     
     // Initialize VGCS components for group calls
@@ -836,47 +549,50 @@ export default class UnifiedCallManager {
    */
   selectChannelToTerminate(requiredCallType, requiredCallLevel) {
     const channelStats = this.bot.getChannelUsageInfo();
-    
+
     if (!channelStats || !channelStats.channels) {
       return null;
     }
-    
-    const activeChannels = channelStats.channels.filter(channel => 
-      channel.memberCount > 0 && channel.callType && channel.callLevel
+
+    // Active channels should have participants and associated call metadata
+    const activeChannels = channelStats.channels.filter(channel =>
+      (channel.participantCount || 0) > 0 && channel.callType
     );
-    
+
     if (activeChannels.length === 0) {
       return null;
     }
-    
+
     const requiredPriority = this.getCallPriority(requiredCallType, requiredCallLevel);
-    
-    // Find channels with lower priority calls
+
+    // Find channels with lower priority calls (higher numeric priority value)
     const preemptibleChannels = activeChannels.filter(channel => {
-      const channelPriority = this.getCallPriority(channel.callType, channel.callLevel);
+      const channelPriority = (typeof channel.priority === 'number') ? channel.priority : this.getCallPriority(channel.callType, channel.callLevel || 'normal');
       return channelPriority > requiredPriority;
     });
-    
+
     if (preemptibleChannels.length === 0) {
       return null;
     }
-    
-    // Select the best channel to terminate (lowest priority, fewest participants)
+
+    // Select the best channel to terminate:
+    // 1) prefer higher numeric priority (i.e., lower real priority)
+    // 2) then fewer participants
+    // 3) then longer running (larger duration)
     return preemptibleChannels.sort((a, b) => {
-      const priorityA = this.getCallPriority(a.callType, a.callLevel);
-      const priorityB = this.getCallPriority(b.callType, b.callLevel);
-      
+      const priorityA = (typeof a.priority === 'number') ? a.priority : this.getCallPriority(a.callType, a.callLevel || 'normal');
+      const priorityB = (typeof b.priority === 'number') ? b.priority : this.getCallPriority(b.callType, b.callLevel || 'normal');
+
       if (priorityA !== priorityB) {
-        return priorityB - priorityA; // Higher number = lower priority = better to terminate
+        return priorityB - priorityA; // higher numeric -> lower priority -> better to terminate
       }
-      
-      // Same priority, prefer fewer participants
-      if (a.participantCount !== b.participantCount) {
-        return a.participantCount - b.participantCount;
+
+      if ((a.participantCount || 0) !== (b.participantCount || 0)) {
+        return (a.participantCount || 0) - (b.participantCount || 0);
       }
-      
-      // Tie-breaker: prefer older calls
-      return new Date(a.startTime || 0).getTime() - new Date(b.startTime || 0).getTime();
+
+      // prefer longer duration (older calls)
+      return (b.duration || 0) - (a.duration || 0);
     })[0];
   }
 
@@ -907,24 +623,30 @@ export default class UnifiedCallManager {
       let call;
       switch (request.callType) {
         case BaseCall.TYPES.P2P:
-          // P2P calls: extract phone ID from receiver (string or Phone object)
-          const receiverPhoneId = typeof request.receiver === 'string' 
-            ? request.receiver 
-            : request.receiver.id;
-          call = this.callFactory.createP2PCall(senderPhone, receiverPhoneId, request.callLevel, request.options);
+          // P2P calls: resolve receiver to Phone object (string ID or Phone object)
+          const receiverPhone = typeof request.receiver === 'string'
+            ? this.phoneManager.getPhone(request.receiver)
+            : request.receiver;
+          if (!receiverPhone) {
+            throw new Error(`Receiver phone not found: ${request.receiver}`);
+          }
+          call = this.callFactory.createP2PCall(senderPhone, receiverPhone, request.callLevel, request.options);
           break;
           
         case BaseCall.TYPES.GROUP:
           // GROUP calls: resolve receiver to CallGroup object
-          const callGroup = typeof request.receiver === 'string' 
+          const callGroup = typeof request.receiver === 'string'
             ? this.phoneManager.getCallGroup(request.receiver)
             : request.receiver;
-          call = this.callFactory.createGroupCall(senderPhone, callGroup, request.callLevel, request.options);
+          if (!callGroup) {
+            throw new Error(`Call group not found: ${request.receiver}`);
+          }
+          call = this.callFactory.createGroupCall(senderPhone, callGroup.id, request.callLevel, request.options);
           break;
           
         case BaseCall.TYPES.REC:
-          // REC calls: participants determined by originator's location
-          call = this.callFactory.createRECCall(senderPhone, request.callLevel, request.options);
+          // REC calls: participants determined by originator's location; REC calls are always EMERGENCY
+          call = this.callFactory.createRECCall(senderPhone, null, request.options);
           break;
           
         default:
@@ -947,6 +669,7 @@ export default class UnifiedCallManager {
       
     } catch (error) {
       console.error(chalk.red('UnifiedCallManager'), 'Call placement failed:', error.message);
+      console.error(chalk.red('UnifiedCallManager'), error.stack || error);
       
       // Notify user via socket if available
       if (request.options?.socketId && this.io) {
@@ -1158,6 +881,7 @@ export default class UnifiedCallManager {
     
     // Update call status
     call.updateStatus(BaseCall.STATUS.ACCEPTED);
+    console.info(chalk.magenta('UnifiedCallManager'), `acceptP2PCall after updateStatus: ${call.id} status=${call.status}`);
     
     // Allocate Discord channel using existing bot method
     const channelId = this.bot.getAvailableCallChannel();
@@ -1183,6 +907,7 @@ export default class UnifiedCallManager {
       }
     } else {
       call.channel = channelId;
+      console.info(chalk.magenta('UnifiedCallManager'), `acceptP2PCall channel assigned: ${call.id} channel=${call.channel} status=${call.status}`);
     }
     
     // Move participants to voice channel using existing bot method
@@ -1200,7 +925,7 @@ export default class UnifiedCallManager {
     
     // Update phone call queues
     this.updatePhoneCallQueues(allPhones);
-    
+    console.info(chalk.magenta('UnifiedCallManager'), `acceptP2PCall completed: ${call.id} status=${call.status}`);
     //console.log(chalk.green('UnifiedCallManager'), `P2P call ${call.id} accepted by ${acceptingPhone.getId()}`);
     return true;
   }
@@ -1429,16 +1154,19 @@ export default class UnifiedCallManager {
    * @returns {Promise<boolean>} True if successful
    */
   async terminateCall(socketId, callId, reason = 'COMPLETED', callback = null) {
-    // Check phone ID from socket for error handling
-    const phoneId = this.getPhoneIdFromSocket(socketId);
-    if (!phoneId) {
-      const error = `Could not determine phone ID for socket: ${socketId}`;
-      console.error(chalk.red('UnifiedCallManager'), error);
-      this.emitCallError(socketId, error, 'INVALID_SOCKET');
-      if (callback) callback(false);
-      return false;
+    // Allow system-initiated terminations where socketId may be null or 'SYSTEM'
+    let phoneId = null;
+    if (socketId) {
+      phoneId = this.getPhoneIdFromSocket(socketId);
+      if (!phoneId) {
+        const error = `Could not determine phone ID for socket: ${socketId}`;
+        console.error(chalk.red('UnifiedCallManager'), error);
+        this.emitCallError(socketId, error, 'INVALID_SOCKET');
+        if (callback) callback(false);
+        return false;
+      }
     }
-    
+
     const call = this.activeCalls.get(callId) || this.requestedCalls.get(callId);
     if (!call) {
       console.error(chalk.red('UnifiedCallManager'), `Call not found for termination: ${callId}`);
@@ -1565,11 +1293,13 @@ _cleanupVGCSResources(call) {
  */
 _setFinalCallStatus(call) {
   if (call.type === BaseCall.TYPES.P2P) {
-    if (call.status !== BaseCall.STATUS.REJECTED) {
+    if (![BaseCall.STATUS.REJECTED, BaseCall.STATUS.ENDED].includes(call.status)) {
       call.updateStatus(BaseCall.STATUS.ENDED);
     }
   } else {
-    call.updateStatus(BaseCall.STATUS.N0_NULL);
+    if (call.status !== BaseCall.STATUS.N0_NULL) {
+      call.updateStatus(BaseCall.STATUS.N0_NULL);
+    }
   }
 }
 
@@ -1813,7 +1543,8 @@ _finalCallCleanup(call, reason) {
     // Find call using this channel
     for (const call of this.activeCalls.values()) {
       if (call.channel === channelId) {
-        return await this.terminateCall(call.id, 'CHANNEL_TERMINATE');
+        // Use system-initiated termination (no socket) so we pass null as socketId
+        return await this.terminateCall(null, call.id, 'CHANNEL_TERMINATE');
       }
     }
     return false;

@@ -189,4 +189,45 @@ describe('ConfigurationManager', () => {
       fs.unlinkSync(tempPath);
     });
   });
+
+  describe('async saveConfig behavior', () => {
+    const sampleSaveConfig = {
+      games: [],
+      server: { port: 3000 },
+      token: 'abc',
+      prefix: '!',
+      guild: 'g',
+      encryptionKey: 'k'
+    };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete process.env.ROC_CONFIG_SAVE_TIMEOUT_MS;
+    });
+
+    test('saveConfig times out when writeFile never resolves', async () => {
+      const manager = new ConfigurationManager('/tmp/test-config.json');
+
+      // Simulate file exists for backup
+      jest.spyOn(fs.promises, 'access').mockResolvedValue();
+      jest.spyOn(fs.promises, 'copyFile').mockResolvedValue();
+      // writeFile never resolves
+      jest.spyOn(fs.promises, 'writeFile').mockImplementation(() => new Promise(() => {}));
+
+      process.env.ROC_CONFIG_SAVE_TIMEOUT_MS = '50';
+
+      await expect(manager.saveConfig(sampleSaveConfig)).rejects.toThrow(/timed out/);
+    });
+
+    test('saveConfig succeeds when writeFile resolves', async () => {
+      const manager = new ConfigurationManager('/tmp/test-config.json');
+
+      jest.spyOn(fs.promises, 'access').mockResolvedValue();
+      jest.spyOn(fs.promises, 'copyFile').mockResolvedValue();
+      jest.spyOn(fs.promises, 'writeFile').mockResolvedValue();
+
+      await expect(manager.saveConfig(sampleSaveConfig)).resolves.toBeUndefined();
+      expect(manager.getCachedConfig()).toEqual(sampleSaveConfig);
+    });
+  });
 });

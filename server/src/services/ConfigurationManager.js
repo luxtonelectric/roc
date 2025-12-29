@@ -5,6 +5,9 @@ import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import Host from '../model/host.js';
 
+// Default timeout for configuration save operations (ms)
+const DEFAULT_SAVE_TIMEOUT_MS = parseInt(process.env.ROC_CONFIG_SAVE_TIMEOUT_MS) || 2000;
+
 /**
  * Service for managing application configuration
  * Handles loading, saving, and validation of configuration files
@@ -64,20 +67,31 @@ export default class ConfigurationManager {
    * @param {object} config The configuration object to save
    * @throws {Error} If configuration cannot be saved
    */
+  async _withTimeout(promise, ms, message = 'Operation timed out') {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))
+    ]);
+  }
+
   async saveConfig(config) {
     try {
       // Validate config before saving
       this.#validateConfig(config);
-      
-      // Create backup of current config
-      await this.#createBackup();
-      
-      // Write to file with pretty formatting
-      fs.writeFileSync(this.#configPath, JSON.stringify(config, null, 2), 'utf8');
-      
+
+      const timeoutMs = parseInt(process.env.ROC_CONFIG_SAVE_TIMEOUT_MS) || DEFAULT_SAVE_TIMEOUT_MS;
+
+      console.log(chalk.blue('ConfigurationManager'), 'Starting backup and save (timeout:', timeoutMs, 'ms)');
+
+      // Create backup of current config with timeout
+      await this._withTimeout(this.#createBackup(), timeoutMs, `Configuration backup timed out after ${timeoutMs}ms`);
+
+      // Write to file with pretty formatting (async)
+      await this._withTimeout(fs.promises.writeFile(this.#configPath, JSON.stringify(config, null, 2), 'utf8'), timeoutMs, `Configuration write timed out after ${timeoutMs}ms`);
+
       // Update cached config
       this.#cachedConfig = config;
-      
+
       console.log(chalk.green('Configuration saved successfully to'), this.#configPath);
     } catch (error) {
       console.error(chalk.red('Error saving configuration:'), error);
@@ -379,15 +393,18 @@ export default class ConfigurationManager {
    * Create a backup of the current configuration
    */
   async #createBackup() {
-    if (!fs.existsSync(this.#configPath)) {
+    try {
+      // Check existence using async API
+      await fs.promises.access(this.#configPath);
+    } catch (err) {
       return; // No config to backup
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupPath = `${this.#configPath}.backup.${timestamp}`;
-    
+
     try {
-      fs.copyFileSync(this.#configPath, backupPath);
+      await fs.promises.copyFile(this.#configPath, backupPath);
       console.log(chalk.blue('Configuration backup created:'), backupPath);
     } catch (error) {
       console.warn(chalk.yellow('Warning: Could not create configuration backup:'), error.message);
@@ -401,12 +418,10 @@ export default class ConfigurationManager {
    */
   async restoreFromBackup(backupPath) {
     try {
-      if (!fs.existsSync(backupPath)) {
-        throw new Error(`Backup file not found at ${backupPath}`);
-      }
+      await fs.promises.access(backupPath);
 
       // Validate backup before restoring
-      const backupData = fs.readFileSync(backupPath, 'utf8');
+      const backupData = await fs.promises.readFile(backupPath, 'utf8');
       const backupConfig = JSON.parse(backupData);
       this.#validateConfig(backupConfig);
 
@@ -414,7 +429,7 @@ export default class ConfigurationManager {
       await this.#createBackup();
 
       // Restore from backup
-      fs.copyFileSync(backupPath, this.#configPath);
+      await fs.promises.copyFile(backupPath, this.#configPath);
       
       // Reload configuration
       this.loadConfig();

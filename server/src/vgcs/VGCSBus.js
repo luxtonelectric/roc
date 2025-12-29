@@ -18,19 +18,63 @@ export default class VGCSBus {
     this.groupSubscriptions = new Map(); // groupId -> Set(msId)
     /** @type {Set<string>} */
     this.online = new Set();
-    /** @type {import('./VGCSSocketBridge.js').default|null} */
-    this.socketBridge = null;
+    /** @type {Map<string, Set<Function>>} */
+    this.subscribers = new Map(); // topic -> Set(callback functions)
     
-    console.log(chalk.green('VGCSBus'), 'VGCS Bus initialized');
+    console.log(chalk.green('VGCSBus'), 'Phase 6 VGCS Bus initialized with subscription system');
   }
 
   /**
-   * Set the socket bridge for UI/Discord integration
-   * @param {import('./VGCSSocketBridge.js').default} bridge 
+   * Subscribe to standardized VGCS messages
+   * @param {string} topic - Subscription topic (e.g., 'SOCKET_BRIDGE', 'ADMIN_PANEL')
+   * @param {Function} callback - Callback function to receive messages
    */
-  setSocketBridge(bridge) {
-    this.socketBridge = bridge;
-    console.log(chalk.green('VGCSBus.setSocketBridge'), 'Socket bridge set');
+  subscribe(topic, callback) {
+    if (!this.subscribers.has(topic)) {
+      this.subscribers.set(topic, new Set());
+    }
+    
+    this.subscribers.get(topic).add(callback);
+    console.log(chalk.green('VGCSBus.subscribe'), `Subscribed to topic: ${topic}`);
+  }
+
+  /**
+   * Unsubscribe from standardized VGCS messages
+   * @param {string} topic - Subscription topic
+   * @param {Function} callback - Callback function to remove
+   */
+  unsubscribe(topic, callback) {
+    if (this.subscribers.has(topic)) {
+      this.subscribers.get(topic).delete(callback);
+      if (this.subscribers.get(topic).size === 0) {
+        this.subscribers.delete(topic);
+      }
+      console.log(chalk.yellow('VGCSBus.unsubscribe'), `Unsubscribed from topic: ${topic}`);
+    }
+  }
+
+  /**
+   * Publish standardized message to subscribers
+   * @param {string} topic - Topic to publish to
+   * @param {Object} message - Standardized message object
+   * @param {string} message.type - Message type
+   * @param {Object} message.data - Message data
+   * @param {string} message.groupId - Group call ID
+   * @param {string} [message.phoneId] - Phone ID
+   * @param {string[]} [message.recipients] - Recipients list
+   */
+  publish(topic, message) {
+    if (this.subscribers.has(topic)) {
+      console.log(chalk.blue('VGCSBus.publish'), `Publishing ${message.type} to ${this.subscribers.get(topic).size} subscribers on topic: ${topic}`);
+      this.subscribers.get(topic).forEach(callback => {
+        try {
+          callback(message);
+        } catch (error) {
+          console.error(chalk.red('VGCSBus.publish'), 
+            `Error in subscriber callback for topic ${topic}:`, error);
+        }
+      });
+    }
   }
 
   /**
@@ -38,7 +82,7 @@ export default class VGCSBus {
    * @param {import('./MobileStationVGCS.js').default} client 
    */
   registerClient(client) {
-    console.log(chalk.yellow('VGCSBus.registerClient'), `Registering MS: ${client.id}`);
+    //console.log(chalk.yellow('VGCSBus.registerClient'), `Registering MS: ${client.id}`);
     this.clients.set(client.id, client);
     this.online.add(client.id);
   }
@@ -48,7 +92,7 @@ export default class VGCSBus {
    * @param {string} clientId 
    */
   unregisterClient(clientId) {
-    console.log(chalk.yellow('VGCSBus.unregisterClient'), `Unregistering MS: ${clientId}`);
+    //console.log(chalk.yellow('VGCSBus.unregisterClient'), `Unregistering MS: ${clientId}`);
     this.clients.delete(clientId);
     this.online.delete(clientId);
     
@@ -66,7 +110,7 @@ export default class VGCSBus {
    * @param {string} controllerId 
    */
   addController(controllerId) {
-    console.log(chalk.yellow('VGCSBus.addController'), `Adding controller: ${controllerId}`);
+    //console.log(chalk.yellow('VGCSBus.addController'), `Adding controller: ${controllerId}`);
     this.controllers.add(controllerId);
   }
 
@@ -75,7 +119,7 @@ export default class VGCSBus {
    * @param {string} controllerId 
    */
   removeController(controllerId) {
-    console.log(chalk.yellow('VGCSBus.removeController'), `Removing controller: ${controllerId}`);
+    //console.log(chalk.yellow('VGCSBus.removeController'), `Removing controller: ${controllerId}`);
     this.controllers.delete(controllerId);
   }
 
@@ -108,7 +152,7 @@ export default class VGCSBus {
     } else {
       this.online.delete(id);
     }
-    console.log(chalk.cyan('VGCSBus.setOnlineStatus'), `MS: ${id}, Online: ${online}`);
+    // console.log(chalk.cyan('VGCSBus.setOnlineStatus'), `MS: ${id}, Online: ${online}`);
   }
 
   /**
@@ -118,7 +162,7 @@ export default class VGCSBus {
    */
   _getNetworkForGroup(groupId) {
     if (!this.networks.has(groupId)) {
-      console.log(chalk.cyan('VGCSBus._getNetworkForGroup'), `Creating NetworkGCC for group: ${groupId}`);
+      // console.log(chalk.cyan('VGCSBus._getNetworkForGroup'), `Creating NetworkGCC for group: ${groupId}`);
       this.networks.set(groupId, new NetworkGCC(this));
     }
     return this.networks.get(groupId);
@@ -129,7 +173,7 @@ export default class VGCSBus {
    * @param {string} groupId 
    */
   _removeNetworkForGroup(groupId) {
-    console.log(chalk.cyan('VGCSBus._removeNetworkForGroup'), `Removing NetworkGCC for group: ${groupId}`);
+    // console.log(chalk.cyan('VGCSBus._removeNetworkForGroup'), `Removing NetworkGCC for group: ${groupId}`);
     this.networks.delete(groupId);
     this.groupSubscriptions.delete(groupId);
   }
@@ -140,11 +184,11 @@ export default class VGCSBus {
    * @param {Object} payload 
    */
   sendFrom(msId, payload) {
-    console.log(chalk.blue('VGCSBus.sendFrom'), `From: ${msId}, Type: ${payload.type}`);
+    // console.log(chalk.blue('VGCSBus.sendFrom'), `From: ${msId}, Type: ${payload.type}`);
     
     const groupId = payload.groupId;
     if (!groupId) {
-      console.log(chalk.red('VGCSBus.sendFrom'), `No groupId provided for message type: ${payload.type}`);
+      console.error(chalk.red('VGCSBus.sendFrom'), `No groupId provided for message type: ${payload.type}`);
       return;
     }
 
@@ -182,17 +226,12 @@ export default class VGCSBus {
    * @param {Object} payload 
    */
   sendTo(msId, payload) {
-    console.log(chalk.blue('VGCSBus.sendTo'), `To: ${msId}, Type: ${payload.type}`);
+    // console.log(chalk.blue('VGCSBus.sendTo'), `To: ${msId}, Type: ${payload.type}`);
     
     const client = this.clients.get(msId);
     if (client) {
-      // Update VGCS mobile station state
+      // Update VGCS mobile station state only
       client.onMessage(payload);
-      
-      // Also notify socket bridge for UI/Discord integration
-      if (this.socketBridge) {
-        this.socketBridge.handleVGCSMessage(msId, payload);
-      }
     } else {
       console.log(chalk.red('VGCSBus.sendTo'), `Client not found: ${msId}`);
     }
@@ -204,7 +243,7 @@ export default class VGCSBus {
    * @param {Object} payload 
    */
   broadcast(groupId, payload) {
-    console.log(chalk.blue('VGCSBus.broadcast'), `GroupId: ${groupId}, Type: ${payload.type}`);
+    // console.log(chalk.blue('VGCSBus.broadcast'), `GroupId: ${groupId}, Type: ${payload.type}`);
     
     // For NOTIFICATION messages, broadcast to all clients (area notification)
     if (payload.type === MSG.NOTIFICATION) {
@@ -218,7 +257,7 @@ export default class VGCSBus {
     
     // For other messages, broadcast only to group subscribers
     const subscribers = this.groupSubscriptions.get(groupId) || new Set();
-    console.log(chalk.cyan('VGCSBus.broadcast'), `Broadcasting to ${subscribers.size} subscribers`);
+    // console.log(chalk.cyan('VGCSBus.broadcast'), `Broadcasting to ${subscribers.size} subscribers`);
     
     for (const msId of subscribers) {
       this.sendTo(msId, payload);
@@ -277,7 +316,7 @@ export default class VGCSBus {
    * @param {string} reason 
    */
   forceTerminate(groupId, reason = "admin-termination") {
-    console.log(chalk.red('VGCSBus.forceTerminate'), `GroupId: ${groupId}, Reason: ${reason}`);
+    // console.log(chalk.red('VGCSBus.forceTerminate'), `GroupId: ${groupId}, Reason: ${reason}`);
     
     const network = this.networks.get(groupId);
     if (network) {
@@ -322,5 +361,21 @@ export default class VGCSBus {
       this.groupSubscriptions.set(groupId, new Set());
     }
     return this.groupSubscriptions.get(groupId);
+  }
+
+  /**
+   * Get all mobile station IDs for standardized message recipients
+   * Note: These are phone IDs that will be resolved to Discord IDs by the socket bridge
+   * @returns {string[]} Array of mobile station/phone IDs
+   */
+  _getAllOnlineDiscordIds() {
+    const phoneIds = [];
+    for (const [msId, client] of this.clients) {
+      if (this.online.has(msId)) {
+        // Mobile station IDs are phone IDs - socket bridge will resolve Discord IDs
+        phoneIds.push(msId);
+      }
+    }
+    return phoneIds;
   }
 }

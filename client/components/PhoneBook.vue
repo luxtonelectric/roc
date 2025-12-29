@@ -168,7 +168,7 @@ export default {
       if (this.selectedReceiver !== receiverId || this.selectedPhone !== senderId) {
         const sender = this.phoneData.find((p) => p.id === senderId);
         const receiver = sender.speedDial.find((sd) => sd.id === receiverId);
-        const call = new PreparedCall(sender, [receiver]);
+        const call = new PreparedCall(sender, receiver);
         this.selectedPhone = senderId;
         this.selectedReceiver = receiverId;
         this.$emit("prepareCall", call);

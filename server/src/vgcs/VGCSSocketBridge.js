@@ -1,6 +1,7 @@
 // @ts-check
 import chalk from 'chalk';
 import { MSG } from './NetworkGCC.js';
+import PhoneManager from '../phonemanager.js';
 
 /**
  * VGCSSocketBridge - Bridges VGCS messages with socket.io events
@@ -8,61 +9,17 @@ import { MSG } from './NetworkGCC.js';
  */
 export default class VGCSSocketBridge {
   /**
-   * @param {import('../groupCallManager.js').default} groupCallManager 
    * @param {import('socket.io').Server} io 
+   * @param {PhoneManager} phoneManager 
+   * @param {import('../bot.js').default} bot 
    */
-  constructor(groupCallManager, io) {
-    this.groupCallManager = groupCallManager;
+  constructor(callManager, io, phoneManager, bot) {
+    this.callManager = callManager;
     this.io = io;
+    this.phoneManager = phoneManager;
+    this.bot = bot;
     
     console.log(chalk.green('VGCSSocketBridge'), 'VGCS Socket Bridge initialized');
-  }
-
-  /**
-   * Handle VGCS message and convert to socket.io event
-   * @param {string} phoneId 
-   * @param {Object} vgcsMessage 
-   */
-  handleVGCSMessage(phoneId, vgcsMessage) {
-    console.log(chalk.blue('VGCSSocketBridge.handleVGCSMessage'), 
-      `Phone: ${phoneId}, Type: ${vgcsMessage.type}`);
-    
-    const phone = this.groupCallManager.phoneManager.getPhone(phoneId);
-    if (!phone || !phone.getDiscordId()) {
-      console.log(chalk.red('VGCSSocketBridge'), 'Phone or Discord ID not found');
-      return;
-    }
-
-    const discordId = phone.getDiscordId();
-    
-    switch (vgcsMessage.type) {
-      case MSG.NOTIFICATION:
-        this._handleNotification(discordId, vgcsMessage);
-        break;
-        
-      case MSG.START_ACK:
-        this._handleStartAck(discordId, vgcsMessage);
-        break;
-        
-      case MSG.JOIN_ACCEPT:
-        this._handleJoinAccept(discordId, vgcsMessage);
-        break;
-        
-      case MSG.CHANNEL_ASSIGN:
-        this._handleChannelAssign(discordId, vgcsMessage);
-        break;
-        
-      case MSG.WITHDRAWN:
-        this._handleWithdrawn(discordId, vgcsMessage);
-        break;
-        
-      case MSG.RELEASE:
-        this._handleRelease(discordId, vgcsMessage);
-        break;
-        
-      default:
-        console.log(chalk.yellow('VGCSSocketBridge'), `Unhandled VGCS message type: ${vgcsMessage.type}`);
-    }
   }
 
   /**
@@ -72,7 +29,7 @@ export default class VGCSSocketBridge {
    * @returns {Object|null} VGCS message or null if not convertible
    */
   socketEventToVGCS(eventName, eventData) {
-    console.log(chalk.blue('VGCSSocketBridge.socketEventToVGCS'), `Event: ${eventName}`);
+    //console.log(chalk.blue('VGCSSocketBridge.socketEventToVGCS'), `Event: ${eventName}`);
     
     switch (eventName) {
       case 'startGroupCall':
@@ -109,144 +66,17 @@ export default class VGCSSocketBridge {
     }
   }
 
-  // --- Internal event handlers ---
-
-  /**
-   * Handle NOTIFICATION message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  _handleNotification(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleNotification'), `To: ${discordId}`);
-    
-    this.io.to(discordId).emit('groupCallNotification', {
-      groupId: message.groupId,
-      priority: message.priority,
-      autoAnswer: message.autoAnswer,
-      type: 'notification'
-    });
-  }
-
-  /**
-   * Handle START_ACK message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  _handleStartAck(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleStartAck'), `To: ${discordId}`);
-    
-    this.io.to(discordId).emit('groupCallStartAcknowledged', {
-      groupId: message.groupId,
-      type: 'start_ack'
-    });
-  }
-
-  /**
-   * Handle JOIN_ACCEPT message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  _handleJoinAccept(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleJoinAccept'), `To: ${discordId}`);
-    
-    this.io.to(discordId).emit('groupCallJoinAccepted', {
-      groupId: message.groupId,
-      type: 'join_accept'
-    });
-  }
-
-  /**
-   * Handle CHANNEL_ASSIGN message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  async _handleChannelAssign(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleChannelAssign'), `To: ${discordId}`);
-    
-    // Get the group call to find the allocated Discord channel
-    const groupCall = this.groupCallManager.activeGroupCalls.get(message.groupId);
-    if (!groupCall) {
-      console.log(chalk.red('VGCSSocketBridge._handleChannelAssign'), `Group call not found: ${message.groupId}`);
-      return;
-    }
-
-    // Get the allocated Discord voice channel ID from the group call
-    const discordChannelId = groupCall.channel;
-    if (!discordChannelId) {
-      console.log(chalk.red('VGCSSocketBridge._handleChannelAssign'), `No channel allocated for group: ${message.groupId}`);
-      return;
-    }
-    
-    // Move user to Discord voice channel
-    if (this.groupCallManager.bot) {
-      try {
-        console.log(chalk.green('VGCSSocketBridge._handleChannelAssign'), 
-          `Moving user ${discordId} to Discord channel ${discordChannelId}`);
-        await this.groupCallManager.bot.setUserVoiceChannel(discordId, discordChannelId);
-      } catch (error) {
-        console.error(chalk.red('VGCSSocketBridge._handleChannelAssign'), 
-          `Failed to move user to Discord channel:`, error);
-      }
-    }
-
-    // Send UI update
-    this.io.to(discordId).emit('groupCallChannelAssigned', {
-      groupId: message.groupId,
-      channelId: discordChannelId,
-      type: 'channel_assign'
-    });
-
-    // If this is a REC call, trigger client-side join logic
-    if (groupCall && groupCall.type === 'REC') {
-      this.io.to(discordId).emit('recCallActive', {
-        groupId: message.groupId,
-        channelId: discordChannelId,
-        groupCall: groupCall.toEmittable()
-      });
-    }
-  }
-
-  /**
-   * Handle WITHDRAWN message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  _handleWithdrawn(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleWithdrawn'), `To: ${discordId}`);
-    
-    this.io.to(discordId).emit('groupCallWithdrawn', {
-      groupId: message.groupId,
-      reason: message.reason,
-      type: 'withdrawn'
-    });
-  }
-
-  /**
-   * Handle RELEASE message
-   * @param {string} discordId 
-   * @param {Object} message 
-   */
-  _handleRelease(discordId, message) {
-    console.log(chalk.cyan('VGCSSocketBridge._handleRelease'), `To: ${discordId}`);
-    
-    this.io.to(discordId).emit('groupCallReleased', {
-      groupId: message.groupId,
-      reason: message.reason,
-      type: 'release'
-    });
-  }
-
   /**
    * Send group call status update to all participants
    * @param {string} groupId 
    * @param {Object} statusUpdate 
    */
   broadcastGroupCallStatus(groupId, statusUpdate) {
-    console.log(chalk.blue('VGCSSocketBridge.broadcastGroupCallStatus'), `GroupId: ${groupId}`);
+    //console.log(chalk.blue('VGCSSocketBridge.broadcastGroupCallStatus'), `GroupId: ${groupId}`);
     
-    const groupCall = this.groupCallManager.activeGroupCalls.get(groupId);
+    const groupCall = this.callManager.activeGroupCalls.get(groupId);
     if (!groupCall) {
-      console.log(chalk.red('VGCSSocketBridge'), 'Group call not found for status update');
+      console.error(chalk.red('VGCSSocketBridge'), 'Group call not found for status update');
       return;
     }
 
@@ -269,12 +99,12 @@ export default class VGCSSocketBridge {
    * @param {Object} participantInfo 
    */
   broadcastParticipantUpdate(groupId, participantAction, participantInfo) {
-    console.log(chalk.blue('VGCSSocketBridge.broadcastParticipantUpdate'), 
-      `GroupId: ${groupId}, Action: ${participantAction}`);
+    //console.log(chalk.blue('VGCSSocketBridge.broadcastParticipantUpdate'), 
+      // `GroupId: ${groupId}, Action: ${participantAction}`);
     
-    const groupCall = this.groupCallManager.activeGroupCalls.get(groupId);
+    const groupCall = this.callManager.activeGroupCalls.get(groupId);
     if (!groupCall) {
-      console.log(chalk.red('VGCSSocketBridge'), 'Group call not found for participant update');
+      console.error(chalk.red('VGCSSocketBridge'), 'Group call not found for participant update');
       return;
     }
 
@@ -306,40 +136,41 @@ export default class VGCSSocketBridge {
     const { type, data, groupId, phoneId, recipients } = message;
     
     console.log(chalk.blue('VGCSSocketBridge.processStandardVGCSMessage'), 
-      `Type: ${type}, Group: ${groupId}, Phone: ${phoneId || 'N/A'}`);
+      `Type: ${type}, Group: ${groupId}, Phone: ${phoneId || 'N/A'}, Recipients: ${recipients?.length || 0}`);
+    
+    // Convert phone IDs to Discord IDs for recipients
+    const discordIds = this._resolveDiscordIds(recipients);
     
     try {
       switch (type) {
         case 'GROUP_CALL_INITIATED':
-          this._emitGroupCallInitiated(data, groupId, recipients);
+          this._emitGroupCallInitiated(data, groupId, discordIds);
           break;
           
         case 'GROUP_CALL_ACTIVE':
-          this._emitGroupCallActive(data, groupId, recipients);
+          this._emitGroupCallActive(data, groupId, discordIds);
           break;
           
         case 'GROUP_CALL_TERMINATED':
-          this._emitGroupCallTerminated(data, groupId, recipients);
+          this._emitGroupCallTerminated(data, groupId, discordIds);
           break;
           
-        case 'REC_NOTIFICATION':
-          this._emitRECNotification(data, groupId, phoneId, recipients);
-          break;
+        // REC_NOTIFICATION removed - REC calls now use unified callUpdate events
           
         case 'FORCE_DISCONNECT':
-          this._emitForceDisconnect(data, recipients);
+          this._emitForceDisconnect(data, discordIds);
           break;
           
         case 'PARTICIPANT_JOINED':
-          this._emitParticipantJoined(data, groupId, recipients);
+          this._emitParticipantJoined(data, groupId, discordIds);
           break;
           
         case 'PARTICIPANT_LEFT':
-          this._emitParticipantLeft(data, groupId, recipients);
+          this._emitParticipantLeft(data, groupId, discordIds);
           break;
           
         case 'VGCS_ERROR':
-          this._emitVGCSError(data, groupId, phoneId, recipients);
+          this._emitVGCSError(data, groupId, phoneId, discordIds);
           break;
           
         default:
@@ -439,74 +270,8 @@ export default class VGCSSocketBridge {
     });
   }
 
-  /**
-   * Emit REC notification with admin/player differentiation
-   * @param {Object} data - REC notification data
-   * @param {string} groupId - Group call ID
-   * @param {string} phoneId - Originator phone ID
-   * @param {string[]} recipients - Recipients list
-   */
-  _emitRECNotification(data, groupId, phoneId, recipients) {
-    // Get originator phone information for caller details
-    const originatorPhone = this.groupCallManager.phoneManager.getPhone(phoneId);
-    const originatorDiscordId = originatorPhone ? originatorPhone.getDiscordId() : null;
-    
-    // Get location information
-    let originatorLocation = 'Unknown Location';
-    if (originatorPhone && originatorPhone.getLocation()) {
-      const location = originatorPhone.getLocation();
-      originatorLocation = location.simId;
-      if (location.panelId) {
-        originatorLocation += ` - ${location.panelId}`;
-      }
-    }
-    
-    const eventData = {
-      groupId,
-      originatorPhoneId: phoneId,
-      originatorName: data.originatorName || (originatorPhone ? originatorPhone.getName() : 'Unknown'),
-      originatorLocation: originatorLocation,
-      level: data.level,
-      autoJoinCountdown: data.autoJoinCountdown || 5,
-      timestamp: Date.now()
-    };
-
-    // Emit to recipients with different handling for admins vs players vs originator
-    if (recipients && recipients.length > 0) {
-      recipients.forEach(discordId => {
-        const isAdmin = data.adminUsers && data.adminUsers.includes(discordId);
-        const isOriginator = discordId === originatorDiscordId;
-        
-        if (isAdmin) {
-          // Admin gets notification without modal - TASK-027 requirement
-          this.io.to(discordId).emit('recAudioNotification', {
-            ...eventData,
-            showModal: false,
-            autoAccept: false,
-            isOriginator: false
-          });
-        } else if (isOriginator) {
-          // Originator gets REC modal but without countdown and with different messaging
-          this.io.to(discordId).emit('recNotification', {
-            ...eventData,
-            showModal: true,
-            autoAccept: false, // Originator doesn't auto-accept
-            autoJoinCountdown: 0, // No countdown for originator
-            isOriginator: true,
-            message: 'REC call initiated - waiting for responders'
-          });
-        } else {
-          // Recipients get full REC modal with countdown
-          this.io.to(discordId).emit('recNotification', {
-            ...eventData,
-            showModal: true,
-            autoAccept: true,
-            isOriginator: false
-          });
-        }
-      });
-    }
-  }
+  // _emitRECNotification method removed - REC calls now use unified callUpdate events
+  // All modal/countdown behavior is handled client-side based on call.type === 'REC'
 
   /**
    * Emit force disconnect event for REC priority
@@ -641,9 +406,31 @@ export default class VGCSSocketBridge {
   registerWithVGCSBus(vgcsBus) {
     if (vgcsBus && typeof vgcsBus.subscribe === 'function') {
       vgcsBus.subscribe('SOCKET_BRIDGE', this.processStandardVGCSMessage.bind(this));
-      console.log(chalk.green('VGCSSocketBridge'), 'Registered with VGCS Bus for Phase 6 integration');
+      console.log(chalk.green('VGCSSocketBridge'), 'Successfully registered with VGCS Bus for Phase 6 standardized messages');
     } else {
-      console.warn(chalk.yellow('VGCSSocketBridge'), 'VGCS Bus not available for registration');
+      console.error(chalk.red('VGCSSocketBridge'), 'VGCS Bus subscribe method not available - Phase 6 integration failed');
+      throw new Error('VGCSBus subscription system not properly implemented');
     }
+  }
+
+  /**
+   * Resolve phone IDs to Discord IDs for message recipients
+   * @param {string[]} phoneIds - Array of phone IDs
+   * @returns {string[]} Array of Discord IDs
+   * @private
+   */
+  _resolveDiscordIds(phoneIds) {
+    if (!phoneIds || !Array.isArray(phoneIds)) {
+      return [];
+    }
+
+    const discordIds = [];
+    for (const phoneId of phoneIds) {
+      const phone = this.phoneManager.getPhone(phoneId);
+      if (phone && phone.getDiscordId()) {
+        discordIds.push(phone.getDiscordId());
+      }
+    }
+    return discordIds;
   }
 }

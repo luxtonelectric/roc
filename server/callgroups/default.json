@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "description": "CallGroup configurations for ROC system",
+  "groups": [
+    {
+      "id": "default_controllers",
+      "name": "Area Controllers",
+      "description": "General area controller group for multi-panel communications",
+      "type": "group",
+      "simId": "*",
+      "autoMembers": {
+        "pattern": "*_control",
+        "includeAllPanels": true
+      }
+    },
+    {
+      "id": "emergency_response",
+      "name": "Emergency Response Team",
+      "description": "Primary emergency response group for REC calls",
+      "type": "REC",
+      "simId": "*",
+      "autoMembers": {
+        "pattern": "*_control",
+        "maxMembers": 5
+      }
+    }
+  ]
+}

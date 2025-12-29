@@ -63,6 +63,19 @@ export default class iLocatable {
   }
 
   /**
+   * Check if this locatable object has a valid location for location-based operations
+   * @returns {boolean} True if object has a location with both sim and panel IDs
+   */
+  hasValidLocation() {
+    const location = this.getLocation();
+    return location !== null && 
+           location.simId !== null && 
+           location.simId !== undefined &&
+           location.panelId !== null && 
+           location.panelId !== undefined;
+  }
+
+  /**
  * 
  * @param {iLocatable} carrier 
  */

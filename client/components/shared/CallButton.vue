@@ -129,11 +129,24 @@ export default {
     },
     
     updateDisplay() {
+      // Debug logging to understand call objects structure
+      if (this.currentCall) {
+        console.log('CallButton - currentCall:', this.currentCall);
+        console.log('CallButton - currentCall methods:', {
+          hasGetReceiverDisplayName: typeof this.currentCall.getReceiverDisplayName === 'function',
+          hasReceivers: !!this.currentCall.receivers,
+          type: typeof this.currentCall,
+          status: this.currentCall.status
+        });
+      }
+      
       if (this.inCall && this.currentCall) {
         this.title = "End Call";
         this.line1 = "From: " + (this.currentCall.sender?.name || 'Unknown');
         this.line2 = " ↔ ";
-        this.line3 = "To: " + (this.currentCall.receivers?.[0]?.name || 'Unknown');
+        // Use unified architecture method for active call receiver display
+        const receiverName = this.currentCall.getReceiverDisplayName?.() || 'Unknown';
+        this.line3 = "To: " + receiverName;
       } else if (this.currentCall && 
                  this.currentCall.status === 'offered' && 
                  this.phoneData.some((p) => p.id === this.currentCall.sender.id)) {
@@ -141,7 +154,9 @@ export default {
         this.title = "Cancel Call";
         this.line1 = "From: " + (this.currentCall.sender?.name || 'Unknown');
         this.line2 = " → ";
-        this.line3 = "To: " + (this.currentCall.receivers?.[0]?.name || 'Unknown');
+        // Use unified architecture method for currentCall receiver display
+        const receiverName = this.currentCall.getReceiverDisplayName?.() || 'Unknown';
+        this.line3 = "To: " + receiverName;
       } else if (this.preparedCall) {
         if (this.preparedCall.level === 'emergency') {
           this.title = "Place Emergency Call";
@@ -152,13 +167,19 @@ export default {
           this.title = "Place Call";
           this.line1 = "From: " + (this.preparedCall.sender?.name || 'Unknown');
           this.line2 = " → ";
-          this.line3 = "To: " + (this.preparedCall.receivers?.[0]?.name || 'Unknown');
+          // Use the unified receiver architecture and getReceiverDisplayName method
+          const targetName = this.preparedCall.getReceiverDisplayName?.() || 
+                            this.preparedCall.receiver?.name || 
+                            (typeof this.preparedCall.receiver === 'string' ? this.preparedCall.receiver : 'Unknown');
+          this.line3 = "To: " + targetName;
         }
       } else if (this.nextCall) {
         this.title = "Answer Call";
         this.line1 = "From: " + (this.nextCall.sender?.name || 'Unknown');
         this.line2 = " → ";
-        this.line3 = "To: " + (this.nextCall.receivers?.[0]?.name || 'Unknown');
+        // Use unified architecture method for nextCall receiver display
+        const receiverName = this.nextCall.getReceiverDisplayName?.() || 'Unknown';
+        this.line3 = "To: " + receiverName;
       } else {
         this.title = "Call";
         this.line1 = "";

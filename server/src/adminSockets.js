@@ -14,7 +14,7 @@ import fs from 'fs';
 export function adminSockets(socket, gameManager, phoneManager, config) {
   socket.on("adminLogin", async function (msg, callback) {
     if (config.superUsers.some(u => u === msg.discordId)) {
-      gameManager.addAdminUser(msg, socket);
+      await gameManager.registerUser(socket, msg.discordId, 'admin');
       if (callback) {
         try {
           // Get initial voice channels
@@ -123,10 +123,10 @@ export function adminSockets(socket, gameManager, phoneManager, config) {
   socket.on('claimPhone', function (msg) {
     console.log('adminSockets claimPhone', msg.phoneId)
     const phone = phoneManager.getPhone(msg.phoneId);
-    const player = gameManager.findPlayerBySocketId(socket.id);
-    if(phone && player) {
-      console.log(phone.toAdminView(), player.toSimple());
-      phoneManager.assignPhone(phone,player);
+    const user = gameManager.findUserBySocketId(socket.id);
+    if(phone && user) {
+      console.log(phone.toAdminView(), user.toSimple());
+      phoneManager.assignPhone(phone,user);
       gameManager.sendGameUpdateToPlayers();
       gameManager.updateAdminUI();
     } else {

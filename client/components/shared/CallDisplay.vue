@@ -92,17 +92,20 @@
                   >
                     Join
                   </button>
+                  <!-- Only show Leave button for participants (non-originators) -->
                   <button 
+                    v-if="!isCallOriginator(call)"
                     @click="$emit('leaveGroupCall', call.groupId || call.id)"
                     class="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700"
                   >
                     Leave
                   </button>
+                  <!-- Show Terminate for All button -->
                   <button 
                     @click="$emit('endCall', call.id)"
                     class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                   >
-                    End
+                    {{ isCallOriginator(call) ? 'Terminate for All' : 'End' }}
                   </button>
                 </template>
                 <template v-else>
@@ -349,6 +352,15 @@ export default {
         default:
           return 'bg-gray-100 text-gray-800'
       }
+    },
+
+    isCallOriginator(call) {
+      // Check if the current user owns the sender phone (making them the originator)
+      if (call.sender && this.myPhones) {
+        const senderPhoneId = call.sender.id
+        return !!this.myPhones[senderPhoneId]
+      }
+      return false
     }
   }
 }

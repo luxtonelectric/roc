@@ -12,7 +12,7 @@
             :show-empty="false"
             :my-phones="myPhones"
             :is-group-call="true"
-            @end-call="endCall"
+            @end-call="terminateCall"
             @join-group-call="joinGroupCall"
             @leave-group-call="leaveGroupCall"
           />
@@ -51,7 +51,7 @@
             @accept-call="acceptCall"
             @reject-call="rejectCall"
             @leave-call="leaveCall"
-            @end-call="endCall"
+            @end-call="terminateCall"
           />
         </div>
 
@@ -67,7 +67,7 @@
             :show-empty="false"
             :my-phones="myPhones"
             :is-group-call="true"
-            @end-call="endCall"
+            @end-call="terminateCall"
             @join-group-call="joinGroupCall"
             @leave-group-call="leaveGroupCall"
           />
@@ -85,7 +85,7 @@
             :show-empty="false"
             :my-phones="myPhones"
             :is-group-call="false"
-            @end-call="endCall"
+            @end-call="terminateCall"
           />
         </div>
 
@@ -158,9 +158,9 @@ export default {
       props.showError,
       props.showSuccess,
       {
-        enableAudio: false,
+        enableAudio: true,
         autoAcceptREC: false,
-        enableQueueManagement: false
+        enableQueueManagement: true
       }
     )
     

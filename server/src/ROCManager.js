@@ -1,6 +1,8 @@
 // @ts-check
 import chalk from 'chalk'
+import User from './model/user.js';
 import Player from './model/player.js';
+import Admin from './model/admin.js';
 import Simulation from './model/simulation.js';
 import ClockData from './model/clockData.js';
 import Host, { InterfaceGateway } from './model/host.js';
@@ -8,7 +10,6 @@ import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
 /** @typedef {import("./bot.js").default} DiscordBot */
 /** @typedef {import("./phonemanager.js").default} PhoneManager */
-/** @typedef {import("./callManager.js").default} CallManager */
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("socket.io").Socket} Socket */
 /** @typedef {import("./stomp.js").default} STOMPManager */
@@ -29,9 +30,7 @@ export default class ROCManager {
     INVALID_DISCORD_USERNAME: 'That isn\'t a discord username.'
   };
 
-  prospects = {};
-  players = {};
-  admins = {};
+  users = {};
   /** @type {Simulation[]} */
   sims = [];
   /** @type {Host[]} */
@@ -41,9 +40,8 @@ export default class ROCManager {
   io = null;
   bot = null;
   phoneManager = null;
-  stompManager = null;
-  /** @type {CallManager} */
   callManager = null;
+  stompManager = null;
   /** @type {SimulationLoader} */
   simulationLoader = null;
   /** @type {ConfigurationManager} */
@@ -53,19 +51,25 @@ export default class ROCManager {
    * @param {Server} io 
    * @param {DiscordBot} bot 
    * @param {PhoneManager} phoneManager
-   * @param {STOMPManager} stompManager 
-   * @param {CallManager} callManager
+   * @param {STOMPManager} stompManager
    * @param {SimulationLoader} simulationLoader
    * @param {ConfigurationManager} configurationManager
    */
-  constructor(io, bot, phoneManager, stompManager, callManager, simulationLoader, configurationManager) {
+  constructor(io, bot, phoneManager, stompManager, simulationLoader, configurationManager) {
     this.io = io;
     this.bot = bot;
     this.phoneManager = phoneManager;
     this.stompManager = stompManager;
-    this.callManager = callManager;
     this.simulationLoader = simulationLoader;
     this.configurationManager = configurationManager;
+  }
+
+  /**
+   * Set the call manager instance
+   * @param {*} callManager The call manager instance
+   */
+  setCallManager(callManager) {
+    this.callManager = callManager;
   }
 
   /**
@@ -94,6 +98,21 @@ export default class ROCManager {
     
     // Only activate enabled games
     this.hosts.filter(host => host.enabled).forEach(host => { this.activateGame(host) }, this);
+    
+    // Initialize CallGroups after games are activated
+    this.initializeCallGroups();
+  }
+
+  /**
+   * Initialize CallGroups for all active simulations
+   */
+  initializeCallGroups() {
+    // Load CallGroups for each active simulation
+    this.sims.forEach(sim => {
+      if (sim && sim.enabled) {
+        this.phoneManager.loadCallGroupsForSim(sim, "default");
+      }
+    });
   }
 
   /**
@@ -370,240 +389,158 @@ export default class ROCManager {
   // ============================ BEGIN PLAYER CODE ============================
 
   /**
-   * 
-   * @param {Socket} socket 
-   * @param {string} discordId 
+   * Handle Discord voice channel events - users joining/leaving voice channels
+   * @param {string} discordId - Discord user ID
+   * @param {string|null} voiceChannelId - Voice channel ID (null if leaving voice)
    */
-  async registerWebUI(socket, discordId) {
-    if (typeof this.prospects[discordId] === 'undefined') {
-      // This is an unknown prospect are they a player already?
-      if (typeof this.players[discordId] === 'undefined') {
-        // They're totally new.
-        const p = new Player(socket, discordId, null);
-
-        const vc = await this.bot.getUserVoiceChannel(discordId);
-        if (vc === null) {
-          this.prospects[discordId] = p;
-          socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
+  async handleVoiceStateUpdate(discordId, voiceChannelId) {
+    if (discordId in this.users) {
+      const user = this.users[discordId];
+      
+      if (voiceChannelId === null) {
+        // User left voice channel - they will be disconnected if socket also disconnected
+        user.updateVoiceChannel(null);
+        if (!user.socket.disconnected) {
+          this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
             "loggedIn": false,
             "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
           });
         } else {
-          p.voiceChannelId = vc;
-          this.addPlayer(p);
+          this.checkDisconnectingUser(user);
         }
       } else {
-        // They're already a player...
-        this.players[discordId].socket = socket;
-        socket.join(discordId);
-        //@ts-expect-error
-        socket.discordId = discordId;
-        socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": true,
-          "error": ""
-        });
-        this.sendGameUpdateToPlayer(this.players[discordId]);
-        this.updatePlayerInfo(this.players[discordId]);
-      }
-    } else {
-      // They're a prospect already...
-      if (this.prospects[discordId].voiceChannelId !== null) {
-        // They're in a VC and we now have a socket, process the new player
-        this.prospects[discordId].socket = socket;
-        this.addPlayer(this.prospects[discordId]);
-      } else {
-        // They're refreshing? Update the socket and await both connections...
-        this.prospects[discordId].socket = socket;
-
-        socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": false,
-          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
-        });
-      }
-    }
-  }
-
-  registerDiscordVoice(discordId, voiceChannelId) {
-    if (typeof this.prospects[discordId] === 'undefined') {
-      // They're not a prospect... are they already a player?
-      if (typeof this.players[discordId] === 'undefined') {
-        // Not a prospect, not a player...
-        const p = new Player(null, discordId, voiceChannelId);
-        this.prospects[discordId] = p;
-      } else {
-        // They're already a player...
-        this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": true,
-          "error": ""
-        });
-        this.sendGameUpdateToPlayer(this.players[discordId]);
-        this.updatePlayerInfo(this.players[discordId]);
-      }
-    } else {
-      // They're a prospect already...
-      if (this.prospects[discordId].socket !== null && this.prospects[discordId].voiceChannelId === null) {
-        this.prospects[discordId].voiceChannelId = voiceChannelId;
-        this.addPlayer(this.prospects[discordId]);
-      }
-    }
-  }
-
-  unregisterDiscordVoice(discordId) {
-    if (discordId in this.players) {
-      this.players[discordId].voiceChannelId = null;
-      if (!this.players[discordId].socket.disconnected) {
-        this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": false,
-          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
-        });
-      } else {
-        this.checkDisconnectingPlayer(this.players[discordId])
-      }
-    }
-  }
-
-
-
-  async addPlayer(newPlayer) {
-    if (typeof newPlayer.discordId !== 'undefined' && newPlayer.discordId.length > 2) {
-      const channel = await this.bot.getUserVoiceChannel(newPlayer.discordId);
-      if (channel) {
-        if (this.players[newPlayer.discordId] !== undefined) {
-          // This player has already logged in!
-          const existingPlayer = this.players[newPlayer.discordId];
-          
-          if (existingPlayer.isConnected === false) {
-            // They DCd and we caught it just let them back in
-            if (existingPlayer.voiceChannelId === channel) {
-              // They're still in the same place they were before
-            } else {
-              // They've changed rooms, update their channel
-              existingPlayer.voiceChannelId = channel;
-            }
-            
-            existingPlayer.socket = newPlayer.socket;
-            existingPlayer.socket.join(existingPlayer.discordId);
-            existingPlayer.socket.discordId = existingPlayer.discordId;
-            existingPlayer.isConnected = true;
-            existingPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-              "loggedIn": true,
-              "error": ""
-            });
-            this.sendGameUpdateToPlayers();
-            this.updatePlayerInfo(existingPlayer);
-            this.phoneManager.sendPhonebookUpdateToPlayer(existingPlayer.discordId);
-            return true;
-          } else {
-            // They're connecting twice for the same person. Follow normal login.
-          }
-          
-        } else {
-          // Brand new Player
+        // User joined/changed voice channel
+        user.updateVoiceChannel(voiceChannelId);
+        if (user.socket && !user.socket.disconnected) {
+          // User is now fully connected again
+          this.io.to(discordId).emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
+            "loggedIn": true,
+            "error": ""
+          });
+          this.sendGameUpdateToUser(user);
+          this.updateUserInfo(user);
         }
-        const member = await this.bot.getMember(newPlayer.discordId);
-        const avatarURL = member.displayAvatarURL();
-
-        newPlayer.avatarURL = avatarURL;
-        newPlayer.displayName = member.displayName;
-        
-        this.players[newPlayer.discordId] = newPlayer;
-        newPlayer.socket.join(newPlayer.discordId);
-        newPlayer.socket.discordId = newPlayer.discordId;
-        newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": true,
-          "error": ""
-        });
-        this.sendGameUpdateToPlayers();
-        this.updatePlayerInfo(newPlayer);
-
-      } else {
-        newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-          "loggedIn": false,
-          "error": ROCManager.ERRORS.ROC_VC_DISCONNECTED
-        });
-        return false;
       }
-    } else {
-      newPlayer.socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, {
-        "loggedIn": false,
-        "error": ROCManager.ERRORS.INVALID_DISCORD_USERNAME
-      });
     }
   }
 
   updatePlayerPanel(user, panel) {
-    this.players[user].panel = panel;
+    const player = this.users[user];
+    if (player && typeof player.setPanel === 'function') {
+      player.setPanel(panel);
+    } else {
+      // Fallback for backward compatibility
+      player.panel = panel;
+    }
     this.sendGameUpdateToPlayers();
   }
 
   /**
    * @param {string} socketId 
-   * @returns {Player}
+   * @returns {User}
    */
-  findPlayerBySocketId(socketId) {
-    for (const [key, value] of Object.entries(this.players)) {
-      if (value.socket.id === socketId) {
-        return this.players[key];
+  findUserBySocketId(socketId) {
+    for (const [key, value] of Object.entries(this.users)) {
+      if (value.socket && value.socket.id === socketId) {
+        return this.users[key];
       }
     }
     return null;
   }
 
-  isPlayer(discordId) {
-    return !!this.players[discordId];
+  /**
+   * Get user by Discord ID directly (fallback for socket resolution issues)
+   * @param {string} discordId - Discord ID to lookup
+   * @returns {User|null} User instance if found
+   */
+  getUserByDiscordId(discordId) {
+    return this.users[discordId] || null;
   }
 
-  isProspect(discordId) {
-    return !!this.prospects[discordId];
+  /**
+   * Find active socket connection for a Discord user (for validation)
+   * @param {string} discordId - Discord ID to check
+   * @returns {string|null} Active socket ID if found and connected
+   */
+  getActiveSocketId(discordId) {
+    const user = this.getUserByDiscordId(discordId);
+    if (user && user.socket && !user.socket.disconnected) {
+      return user.socket.id;
+    }
+    return null;
   }
+
+  isUser(discordId) {
+    return !!this.users[discordId];
+  }
+
+  isAdmin(discordId) {
+    return this.users[discordId] instanceof Admin;
+  }
+
+  /**
+   * Get all admin users currently in the system
+   * @returns {Admin[]} Array of admin users
+   */
+  getAllAdmins() {
+    return Object.values(this.users).filter(user => user instanceof Admin);
+  }
+
+
 
 
   /**
-   * @param {Player} player 
+   * @param {User} user 
    * @returns {boolean}
    */
-  checkDisconnectingPlayer(player) {
-    if (!player) {
+  checkDisconnectingUser(user) {
+    if (!user) {
       return false;
     }
 
-    this.bot.getUserVoiceChannel(player.discordId).then((playerChannel) => {
-      if (playerChannel === null && player.socket.disconnected) {
-        // Player is not in voice, assume they've left and delete them
-        this.deletePlayer(player);
+    // Updated: Consistent disconnect handling for all user types
+    // All users (including admins) must maintain Discord voice connection
+    this.bot.getUserVoiceChannel(user.discordId).then((userChannel) => {
+      if (userChannel === null && user.socket.disconnected) {
+        // All users not in voice: delete consistently
+        console.log(chalk.yellow('ROCManager'), 
+          `${user.role} user ${user.discordId} disconnected from both socket and voice - removing from system`);
+        this.deleteUser(user);
       } else {
-        // Player is still in voice, assume they're coming back and mark them away
-        player.isConnected = false;
+        // User still in voice: mark away and allow reconnection
+        console.log(chalk.blue('ROCManager'), 
+          `${user.role} user ${user.discordId} socket disconnected but still in voice - marking as away`);
+        user.isConnected = false;
         this.sendGameUpdateToPlayers();
       }
-    }
-
-    );
+    });
+    
+    return true;
   }
 
   /**
-   * @param {Player} player 
+   * @param {User} user 
    */
-  deletePlayer(player) {
-    this.phoneManager.unassignPhonesForDiscordId(player.discordId)
+  deleteUser(user) {
+    this.phoneManager.unassignPhonesForDiscordId(user.discordId)
 
     // Unclaim any claimed panels
     for (const skey of Object.keys(this.sims)) {
       if (typeof this.sims[skey].panels !== "undefined") {
         for (const pkey of Object.keys(this.sims[skey].panels)) {
-          if (this.sims[skey].panels[pkey].player === player.discordId) {
+          if (this.sims[skey].panels[pkey].player === user.discordId) {
             this.sims[skey].panels[pkey].player = undefined;
           }
         }
       }
     }
-    delete this.players[player.discordId];
+    delete this.users[user.discordId];
 
     this.sendGameUpdateToPlayers();
   }
 
   claimPanel(user, requestedSim, requestedPanel) {
-    const player = this.players[user];
+    const player = this.users[user];
     if (typeof player === "undefined") {
       console.error(chalk.red("Claim panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
@@ -629,12 +566,12 @@ export default class ROCManager {
     };
     this.phoneManager.assignPhone(panel.phone, player)
     // Update the panel's phone to be assigned to the player
-    this.updatePlayerInfo(player);
+    this.updateUserInfo(player);
     this.sendGameUpdateToPlayers();
   }
 
   releasePanel(user, requestedSim, requestedPanel) {
-    const player = this.players[user];
+    const player = this.users[user];
     if (typeof player === "undefined") {
       console.error(chalk.red("Release panel called with undefined player"), user, requestedSim, requestedPanel);
       return false;
@@ -654,7 +591,7 @@ export default class ROCManager {
     panel.player = undefined;
     panel.playerDetails = undefined;
     this.phoneManager.unassignPhone(panel.phone);
-    this.updatePlayerInfo(player);
+    this.updateUserInfo(player);
     this.sendGameUpdateToPlayers();
   }
 
@@ -662,26 +599,29 @@ export default class ROCManager {
   // ============================== END PLAYER CODE ==============================
 
   async movePlayerToVoiceChannel(playerId, channelId) {
-    this.players[playerId].voiceChannelId = channelId;
-    await this.bot.setUserVoiceChannel(playerId, channelId);
+    const player = this.users[playerId];
+    if (player) {
+      player.updateVoiceChannel(channelId);
+      await this.bot.setUserVoiceChannel(playerId, channelId);
+    }
   }
 
-  async movePlayerToLobby(socketId) {
-    const player = this.findPlayerBySocketId(socketId);
+  async moveUserToLobby(socketId) {
+    const user = this.findUserBySocketId(socketId);
     const channelId = this.channels.lobby;
-    await this.bot.setUserVoiceChannel(player.discordId, channelId);
+    await this.bot.setUserVoiceChannel(user.discordId, channelId);
   }
 
-  async markPlayerAFK(socketId) {
-    const player = this.findPlayerBySocketId(socketId);
-    if (player === null) {
+  async markUserAFK(socketId) {
+    const user = this.findUserBySocketId(socketId);
+    if (user === null) {
       return false;
     }
     const channelId = this.channels.afk;
     if (channelId === null || typeof channelId === 'undefined') {
       return false;
     }
-    await this.bot.setUserVoiceChannel(player.discordId, channelId);
+    await this.bot.setUserVoiceChannel(user.discordId, channelId);
   }
 
   getGameState() {
@@ -702,47 +642,307 @@ export default class ROCManager {
     socket.emit(ROCManager.LOGIN_EVENTS.GAME_INFO, this.getGameState());
   }
 
-  sendGameUpdateToPlayer(player) {
-    this.sendGameUpdateToSocket(player.socket);
+  sendGameUpdateToUser(user) {
+    this.sendGameUpdateToSocket(user.socket);
   }
   /**
-   * @param {Player} player 
+   * @param {User} user 
    */
-  updatePlayerInfo(player) {
-    const phones = this.phoneManager.getPhonesForDiscordId(player.discordId);
+  updateUserInfo(user) {
+    const phones = this.phoneManager.getPhonesForDiscordId(user.discordId);
     const pm = this.phoneManager;
     phones.forEach(p => { p.setSpeedDial(pm.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(pm.getTrainsAndMobilesForPhone(p)) });
     const myPanels = [];
-    this.sims.forEach(s => myPanels.concat(s.panels.filter(p => p.player === player.discordId)))
+    this.sims.forEach(s => myPanels.concat(s.panels.filter(p => p.player === user.discordId)))
     const info = {};
     info.phones = phones.map(p => p.getPhoneBook());
     info.panels = myPanels;
-    player.socket.emit(ROCManager.LOGIN_EVENTS.PLAYER_INFO, info);
+    user.socket.emit(ROCManager.LOGIN_EVENTS.PLAYER_INFO, info);
+  }
+
+  // ================================= AUTHENTICATION HELPER METHODS =================================
+
+  /**
+   * Fetch user profile information from Discord
+   * @param {string} discordId - Discord user ID
+   * @returns {Promise<{avatarURL: string, displayName: string}>}
+   */
+  async _fetchUserProfile(discordId) {
+    const member = await this.bot.getMember(discordId);
+    return {
+      avatarURL: member.displayAvatarURL(),
+      displayName: member.displayName
+    };
+  }
+
+  /**
+   * Setup socket connection properties for a user
+   * @param {User} user - User instance
+   * @param {Socket} socket - Socket.IO connection
+   */
+  _setupSocketConnection(user, socket) {
+    // Clean up any previous socket connections for this user
+    if (user.socket && user.socket.id !== socket.id) {
+      console.log(chalk.blue('ROCManager'), `Cleaning up previous socket ${user.socket.id} for user ${user.discordId}`);
+      // Don't disconnect the old socket, just clear our reference
+      // Socket.IO will handle the actual connection cleanup
+    }
+    
+    // Join user-specific room
+    socket.join(user.discordId);
+    //@ts-expect-error
+    socket.discordId = user.discordId;
+    
+    // Add admin users to admin room
+    if (user instanceof Admin) {
+      socket.join('admins');
+    }
+    
+    // Update user's socket connection
+    user.updateSocket(socket);
+    
+    console.log(chalk.blue('ROCManager'), `Socket ${socket.id} assigned to user ${user.discordId}`);
+  }
+
+  /**
+   * Send standardized authentication response
+   * @param {Socket} socket - Socket.IO connection
+   * @param {boolean} success - Whether authentication was successful
+   * @param {string|null} error - Error message if authentication failed
+   * @param {string} authType - Type of authentication ('player' or 'admin')
+   */
+  _sendAuthResponse(socket, success, error, authType) {
+    if (authType === 'admin') {
+      socket.emit(ROCManager.LOGIN_EVENTS.AUTHD, { success, error });
+    } else {
+      socket.emit(ROCManager.LOGIN_EVENTS.LOGGED_IN, { 
+        loggedIn: success, 
+        error: error || "" 
+      });
+    }
+  }
+
+  /**
+   * Update game state after user authentication
+   * @param {User} user - Authenticated user
+   */
+  _updateGameState(user) {
+    if (user instanceof Admin) {
+      this.updateAdminUI();
+    } else {
+      this.sendGameUpdateToPlayers();
+      this.updateUserInfo(user);
+      this.phoneManager.sendPhonebookUpdateToUser(user.discordId);
+    }
+  }
+
+  // ================================= VALIDATION HELPER METHODS =================================
+
+  /**
+   * Validate user connection requirements
+   * @param {string} discordId - Discord user ID
+   * @param {Socket} socket - Socket.IO connection
+   * @param {string} requestedRole - Requested user role ('player' or 'admin')
+   * @returns {Promise<{isValid: boolean, hasSocket: boolean, hasVoice: boolean, isAuthorized: boolean, voiceChannelId: string|null, error: string|null}>}
+   */
+  async _validateUserConnection(discordId, socket, requestedRole = 'player') {
+    // Validate Discord ID format
+    if (!discordId || discordId.length <= 2) {
+      return { 
+        isValid: false, 
+        error: ROCManager.ERRORS.INVALID_DISCORD_USERNAME,
+        hasSocket: socket !== null,
+        hasVoice: false,
+        isAuthorized: false,
+        voiceChannelId: null
+      };
+    }
+
+    // Check voice channel connection
+    const voiceChannel = await this.bot.getUserVoiceChannel(discordId);
+    
+    // Check authorization for admin role
+    const isAuthorized = requestedRole === 'admin' 
+      ? this.config.superUsers.includes(discordId) 
+      : true;
+
+    const hasSocket = socket !== null;
+    const hasVoice = voiceChannel !== null;
+    const isValid = hasSocket && hasVoice && isAuthorized;
+
+    return {
+      isValid,
+      hasSocket,
+      hasVoice,
+      isAuthorized,
+      voiceChannelId: voiceChannel,
+      error: isValid ? null : this._getConnectionError(hasSocket, hasVoice, isAuthorized)
+    };
+  }
+
+  /**
+   * Get appropriate error message for connection validation failure
+   * @param {boolean} hasSocket - Whether user has socket connection
+   * @param {boolean} hasVoice - Whether user has Discord voice connection
+   * @param {boolean} isAuthorized - Whether user is authorized for requested role
+   * @returns {string} Error message
+   */
+  _getConnectionError(hasSocket, hasVoice, isAuthorized) {
+    if (!hasSocket) return 'Web UI connection required';
+    if (!hasVoice) return ROCManager.ERRORS.ROC_VC_DISCONNECTED;
+    if (!isAuthorized) return 'Unauthorized access';
+    return 'Connection validation failed';
+  }
+
+  // ================================= USER FACTORY METHODS =================================
+
+  /**
+   * Determine actual user role based on authorization
+   * @param {string} discordId - Discord user ID
+   * @param {string} requestedRole - Requested role ('player' or 'admin')
+   * @returns {string} Actual role ('player' or 'admin')
+   */
+  _determineActualRole(discordId, requestedRole) {
+    // Admin role requires authorization
+    if (requestedRole === 'admin') {
+      return this.config.superUsers.includes(discordId) ? 'admin' : 'player';
+    }
+    
+    // Check if existing user should be promoted to admin
+    if (this.config.superUsers.includes(discordId)) {
+      return 'admin';
+    }
+    
+    return 'player';
+  }
+
+  /**
+   * Create user instance based on role
+   * @param {string} role - User role ('player' or 'admin')
+   * @param {Socket} socket - Socket.IO connection
+   * @param {string} discordId - Discord user ID
+   * @param {string} voiceChannelId - Discord voice channel ID
+   * @returns {User} User instance
+   */
+  _createUserByRole(role, socket, discordId, voiceChannelId) {
+    switch (role) {
+      case 'admin':
+        return new Admin(socket, discordId, voiceChannelId);
+      case 'player':
+      default:
+        return new Player(socket, discordId, voiceChannelId);
+    }
+  }
+
+  /**
+   * Get existing user or create new user with appropriate role
+   * @param {string} discordId - Discord user ID
+   * @param {Socket} socket - Socket.IO connection
+   * @param {string} voiceChannelId - Discord voice channel ID
+   * @param {string} requestedRole - Requested role ('player' or 'admin')
+   * @returns {Promise<User>} User instance
+   */
+  async _getOrCreateUser(discordId, socket, voiceChannelId, requestedRole) {
+    const actualRole = this._determineActualRole(discordId, requestedRole);
+    
+    if (this.isUser(discordId)) {
+      // Handle existing user reconnection
+      const existingUser = this.users[discordId];
+      
+      // Check if role conversion is needed
+      if (actualRole === 'admin' && !(existingUser instanceof Admin)) {
+        console.warn(chalk.yellow('ROCManager'), `Converting user ${discordId} to Admin role`);
+        const adminUser = new Admin(socket, discordId, voiceChannelId);
+        adminUser.avatarURL = existingUser.avatarURL;
+        adminUser.displayName = existingUser.displayName;
+        adminUser.isConnected = true;
+        this.users[discordId] = adminUser;
+        return adminUser;
+      }
+      
+      // Update existing user connection
+      existingUser.updateSocket(socket);
+      existingUser.updateVoiceChannel(voiceChannelId);
+      existingUser.isConnected = true;
+      return existingUser;
+    }
+    
+    // Create new user
+    const newUser = this._createUserByRole(actualRole, socket, discordId, voiceChannelId);
+    const profile = await this._fetchUserProfile(discordId);
+    newUser.updateProfile(profile.avatarURL, profile.displayName);
+    
+    this.users[discordId] = newUser;
+    return newUser;
+  }
+
+  // ================================= UNIFIED REGISTRATION METHOD =================================
+
+  /**
+   * Unified user registration method that replaces registerWebUI, addPlayer, and addAdminUser
+   * @param {Socket} socket - Socket.IO connection
+   * @param {string} discordId - Discord user ID
+   * @param {string} requestedRole - Requested role ('player' or 'admin')
+   * @returns {Promise<boolean>} Success status
+   */
+  async registerUser(socket, discordId, requestedRole = 'player') {
+    try {
+      console.log(chalk.blue('ROCManager'), `Authentication attempt for ${discordId} as ${requestedRole}`);
+      
+      // 1. Validate connection requirements
+      const validation = await this._validateUserConnection(discordId, socket, requestedRole);
+      
+      if (!validation.isValid) {
+        console.log(chalk.yellow('ROCManager'), 
+          `Authentication failed for ${discordId}: ${validation.error}`);
+        this._sendAuthResponse(socket, false, validation.error, requestedRole);
+        return false;
+      }
+      
+      // 2. Get or create user with appropriate role
+      const user = await this._getOrCreateUser(
+        discordId, 
+        socket, 
+        validation.voiceChannelId, 
+        requestedRole
+      );
+      
+      // 3. Setup socket connection
+      this._setupSocketConnection(user, socket);
+      
+      // 4. Send success response
+      this._sendAuthResponse(socket, true, null, user.role);
+      
+      // 5. Update game state
+      this._updateGameState(user);
+      
+      console.log(chalk.green('ROCManager'), 
+        `${user.role} user ${discordId} successfully authenticated with socket ${socket.id}`);
+      
+      return true;
+      
+    } catch (error) {
+      console.error(chalk.red('ROCManager'), `Authentication error for ${discordId}:`, error);
+      console.error(chalk.red('ROCManager'), 'Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      this._sendAuthResponse(socket, false, 'Authentication failed', requestedRole);
+      return false;
+    }
   }
 
   // ================================================= ADMIN STUFF ================================================= 
 
+  /**
+   * Legacy method wrapper - use registerUser() instead
+   * @param {object} data - Contains discordId
+   * @param {Socket} socket - Socket.IO connection
+   */
   async addAdminUser(data, socket) {
-    this.admins[socket.id] = socket;
-
-    if(!this.isPlayer(data.discordId)) {
-      this.players[data.discordId] = new Player(socket,data.discordId,null);
-
-      const member = await this.bot.getMember(this.players[data.discordId].discordId);
-      const avatarURL = member.displayAvatarURL();
-
-      this.players[data.discordId].avatarURL = avatarURL;
-      this.players[data.discordId].displayName = member.displayName;
-
-    } else {
-      this.players[data.discordId].socket = socket;
-    }
-
-    socket.join('admins');
-    socket.join(data.discordId);
-    socket.discordId = data.discordId;
-    socket.emit(ROCManager.LOGIN_EVENTS.AUTHD, { "success": true });
-    this.updateAdminUI();
+    // Use the new unified registration system
+    return await this.registerUser(socket, data.discordId, 'admin');
   }
 
 
@@ -762,27 +962,25 @@ export default class ROCManager {
     
     // Add call manager data for admin interface
     if (this.callManager) {
-      // Add private calls from CallManager (P2P and GROUP calls)
+      // Add private calls from UnifiedCallManager (P2P and GROUP calls)
       adminStatus.privateCalls = this.callManager.getAllPrivateCalls();
       
-      // Add group call information from GroupCallManager (REC calls)
-      if (this.callManager.groupCallManager) {
-        const activeGroupCalls = this.callManager.groupCallManager.getAllActiveGroupCalls();
-        adminStatus.groupCalls = activeGroupCalls.map(groupCall => ({
-          id: groupCall.groupId,
-          type: groupCall.type,
-          level: groupCall.level,
-          originatorPhoneId: groupCall.originator.getId(),
-          participantCount: groupCall.participants.size,
-          status: groupCall.status,
-          timePlaced: groupCall.timePlaced,
-          channelId: groupCall.channel?.id || null,
-          participants: Array.from(groupCall.participants).map(phone => ({
-            phoneId: phone.getId(),
-            discordId: phone.getDiscordId()
-          }))
-        }));
-      }
+      // Add group call information from UnifiedCallManager (REC calls)
+      const activeGroupCalls = this.callManager.getAllActiveGroupCalls();
+      adminStatus.groupCalls = activeGroupCalls.map(groupCall => ({
+        id: groupCall.id,
+        type: groupCall.type,
+        level: groupCall.level,
+        originatorPhoneId: groupCall.originator?.getId() || 'unknown',
+        participantCount: groupCall.getAllPhones().length,
+        status: groupCall.status,
+        timePlaced: groupCall.timePlaced,
+        channelId: groupCall.channel?.id || null,
+        participants: groupCall.getAllPhones().map(phone => ({
+          phoneId: phone.getId(),
+          discordId: phone.getDiscordId()
+        }))
+      }));
     }
     
     return adminStatus;

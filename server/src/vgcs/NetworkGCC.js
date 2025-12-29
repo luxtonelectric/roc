@@ -79,13 +79,46 @@ export default class NetworkGCC {
 
     console.log(chalk.green('NetworkGCC.onStartReq'), `Call initiated - GroupId: ${groupId}, Options:`, this.options);
 
-    // Notify area of new group call
+    // Legacy VGCS notification for mobile stations
     this._broadcast({ 
       type: MSG.NOTIFICATION, 
       groupId, 
       priority: this.options.priority,
       autoAnswer: this.options.autoAnswer
     });
+
+    // Phase 6 standardized messages for subscribers
+    const callType = this.options.autoAnswer ? 'REC' : 'GROUP';
+    
+    if (callType === 'REC') {
+      // REC calls get special notification handling
+      this.bus.publish('SOCKET_BRIDGE', {
+        type: 'REC_NOTIFICATION',
+        groupId,
+        phoneId: fromMs,
+        data: {
+          originatorName: null, // Will be filled by socket bridge from phone manager
+          level: this.options.priority,
+          autoJoinCountdown: 5,
+          adminUsers: [] // Will be populated based on user roles
+        },
+        recipients: this.bus._getAllOnlineDiscordIds()
+      });
+    } else {
+      // Regular group calls
+      this.bus.publish('SOCKET_BRIDGE', {
+        type: 'GROUP_CALL_INITIATED',
+        groupId,
+        phoneId: fromMs,
+        data: {
+          originatorPhoneId: fromMs,
+          type: callType,
+          level: this.options.priority,
+          participants: Array.from(this.participants)
+        },
+        recipients: this.bus._getAllOnlineDiscordIds()
+      });
+    }
 
     // Establish resources based on setup mode
     this._gotoEstablishingThenActive(!!this.options.immediateSetup);
@@ -213,6 +246,19 @@ export default class NetworkGCC {
         this._send(ms, { type: MSG.CHANNEL_ASSIGN, groupId: this.groupId });
       }
 
+      // Phase 6 standardized message for active call
+      this.bus.publish('SOCKET_BRIDGE', {
+        type: 'GROUP_CALL_ACTIVE',
+        groupId: this.groupId,
+        phoneId: this.originator,
+        data: {
+          channelId: null, // Will be set by call manager
+          participantCount: this.participants.size,
+          participants: Array.from(this.participants)
+        },
+        recipients: this.bus._getAllOnlineDiscordIds()
+      });
+
       this._armIdleTimer();
     }, setupDelay);
   }
@@ -240,7 +286,21 @@ export default class NetworkGCC {
    */
   _releaseAll(reason) {
     console.log(chalk.red('NetworkGCC._releaseAll'), `Reason: ${reason}`);
+    
+    // Legacy VGCS release message for mobile stations
     this._broadcast({ type: MSG.RELEASE, groupId: this.groupId, reason });
+    
+    // Phase 6 standardized termination message
+    this.bus.publish('SOCKET_BRIDGE', {
+      type: 'GROUP_CALL_TERMINATED',
+      groupId: this.groupId,
+      phoneId: this.originator,
+      data: {
+        reason: reason
+      },
+      recipients: this.bus._getAllOnlineDiscordIds()
+    });
+    
     this._reset();
   }
 

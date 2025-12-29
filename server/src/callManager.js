@@ -411,7 +411,7 @@ export default class CallManager {
     
     allPhones.forEach((phone) => {
       if (phone.getDiscordId()) {
-        this.io.to(phone.getDiscordId()).emit('newCallInQueue', callRequest.toEmittable());
+        this.io.to(phone.getDiscordId()).emit('callUpdate', callRequest.toEmittable());
       }
     });
   }

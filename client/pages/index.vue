@@ -19,8 +19,8 @@ const loggedIn = ref(false);
 const error = ref("");
 const gameData = ref({});
 const username = ref("");
-const playerData = ref({ phones: {} })
-const phoneData = ref({});
+const playerData = ref({ phones: {} });
+const phoneData = ref({} as any);
 
 let socket: Socket | undefined
 const connected = ref(false)
@@ -30,17 +30,31 @@ const showTab = ref("panelSelector");
 // Create a reactive socket reference for call manager
 const socketRef = ref<any>(undefined)
 
+// Convert phoneData array to object format expected by call manager
+const myPhones = computed(() => {
+  if (!phoneData.value || !Array.isArray(phoneData.value)) return {};
+  
+  const phones: any = {};
+  phoneData.value.forEach((phone: any) => {
+    if (phone && phone.id) {
+      phones[phone.id] = phone;
+    }
+  });
+  return phones;
+});
+
 // Initialize unified call manager
 const callManager = useCallManager(
   socketRef, 
   gameData, 
-  phoneData, 
+  myPhones, 
   () => {}, // Silent error handler
   () => {}, // Silent info handler
   {
     enableAudio: true,
     autoAcceptREC: true,
-    enableQueueManagement: true
+    enableQueueManagement: true,
+    enableUnifiedInterface: true
   }
 )
 
@@ -50,25 +64,51 @@ const {
   nextCall,
   preparedCall,
   callQueue,
+  activeCalls,
   inCall,
   incomingCall,
+  
   queuedCallsCount,
+  currentCallStatus,
   sortedIncomingCalls,
+  highestPriorityCall,
+  callsByType,
+
   placeCall,
   acceptCall,
   rejectCall,
+  terminateCall,
   leaveCall,
   selectCall,
-  setupCallEventListeners,
-  removeCallEventListeners,
+  updateCallStatus,
+
+
+
+  createP2PCall,
+  createGroupCall,
+  createRECCall,
+
   // REC call properties
   recModalVisible,
   recCallInfo,
+  recCountdownActive,
+  handleRECCallOffer,
   acceptRECCall,
   declineRECCall,
+  forceDisconnectFromCurrentCall,
+
   // Group call functions
+  startGroupCall,
+  joinGroupCall,
   leaveGroupCall,
-  terminateGroupCall
+  terminateGroupCall,
+  requestGroupCallUpdate,
+
+  // Enhanced utilities
+  validateCallTransition,
+  getCallPriorityClass,
+  getCallTypeClass,
+  getCallStatusClass
 } = callManager
 
 onMounted(() => {
@@ -79,7 +119,7 @@ onMounted(() => {
     error.value = "";
     joinUser();
     socketRef.value = socket;
-    setupCallEventListeners();
+    callManager.setupCallEventListeners?.();
   });
 
   socket.on('connect_error', () => {
@@ -125,7 +165,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  removeCallEventListeners();
+  callManager.removeCallEventListeners?.();
   socket?.disconnect()
 })
 
@@ -175,13 +215,13 @@ function findCurrentPhoneId(): string | null {
   <div class="flex flex-col pb-0 px-4 bg-neutral-200 text-lg h-screen max-h-screen">
     <!-- Status Bar -->
     <StatusBar 
-      :gameData="gameData" 
+      :gameData="gameData || {}" 
       :username="username" 
-      :playerData="playerData" 
+      :playerData="playerData || {}" 
       :phoneData="phoneData" 
       :socket="socket"
       :error="error" 
-      :callData="callQueue" 
+      :callData="callQueue || {}" 
     >
       <template #call-status>
         <CallStatus 
@@ -271,7 +311,7 @@ function findCurrentPhoneId(): string | null {
 
     <!-- Railway Emergency Call Modal -->
     <RECModal 
-      :is-visible="recModalVisible"
+      :is-visible="recModalVisible || false"
       :caller-info="recCallInfo?.callerInfo"
       :initial-countdown="recCallInfo?.countdown ?? 5"
       :allow-decline="!recCallInfo?.isOriginator"

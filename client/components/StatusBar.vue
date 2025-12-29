@@ -6,7 +6,7 @@ const { getSession, status, data, signOut, signIn } = useAuth();
 const session: any = await getSession();
 const runtimeConfig: any = useRuntimeConfig()
 
-const props = defineProps({gameData: {type: Object, required: true},username: String, playerData: {type: Object, required: true}, phoneData: Object, socket: Socket, error: String, callData: {type: Object, required: true}})
+const props = defineProps({gameData: {type: Object, default: () => ({})},username: String, playerData: {type: Object, default: () => ({phones: []})}, phoneData: Object, socket: Socket, error: String, callData: {type: Object, default: () => ({})}})
 
 onMounted(() =>{
 
@@ -24,10 +24,10 @@ onMounted(() =>{
         <AuthenticationStatus :socket="socket" />
       </div>
       <div class="flex flex-col col-span-2 border-zinc-400 border-r-2 px-2 text-sm truncate justify-center">
-        <p>{{playerData.phones.length ? (playerData.phones as Array<any>).map(x => x.name).join(" | ") || "-": "-"}}</p>
+        <p>{{playerData?.phones?.length ? (playerData.phones as Array<any>).map(x => x.name).join(" | ") || "-": "-"}}</p>
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
-        Stack: {{ callData.length || 0}}
+        Stack: {{ callData?.length || 0}}
       </div>
       <div class="flex flex-col col-span-1 border-zinc-400 border-r-2 p-2 justify-center">
         <!-- TODO: Add text messages here. -->

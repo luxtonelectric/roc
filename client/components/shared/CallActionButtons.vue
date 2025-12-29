@@ -49,7 +49,7 @@
         'bg-red-600 hover:bg-red-700'
       ]"
     >
-      End Call
+      {{ getEndButtonText() }}
     </button>
     
     <!-- No Actions Available -->
@@ -130,13 +130,40 @@ export default {
     },
     canLeave() {
       if (!this.allowLeave) return false
-      return this.call.status === PreparedCall.STATUS.ACCEPTED || 
-             this.call.status === CallDetails.STATUS.ACCEPTED
+      
+      // Check if call is in acceptable state
+      const isAccepted = this.call.status === PreparedCall.STATUS.ACCEPTED || 
+                        this.call.status === CallDetails.STATUS.ACCEPTED
+      if (!isAccepted) return false
+      
+      // For REC and GROUP calls (VGCS), originators cannot leave - only terminate
+      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallOriginator) {
+        return false
+      }
+      
+      return true
     },
     canEnd() {
       if (!this.allowEnd) return false
       return this.call.status === PreparedCall.STATUS.ACCEPTED || 
              this.call.status === CallDetails.STATUS.ACCEPTED
+    },
+
+    isCallOriginator() {
+      // Check if the current user owns the sender phone (making them the originator)
+      if (this.call.sender && this.myPhones) {
+        const senderPhoneId = this.call.sender.id
+        return !!this.myPhones[senderPhoneId]
+      }
+      return false
+    },
+
+    getEndButtonText() {
+      // For REC and GROUP calls (VGCS), show different text for originators vs participants
+      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallOriginator) {
+        return 'Terminate for All'
+      }
+      return 'End Call'
     }
   }
 }

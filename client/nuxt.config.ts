@@ -15,7 +15,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      socketServer: '',
+      socketServer: 'https://localhost:3002',
       nextSession: 'No session scheduled'
     }
     //socketServer: 'http://roc.onourlines.co.uk:3001'
@@ -36,7 +36,7 @@ export default defineNuxtConfig({
 
   auth: {
     isEnabled: true,
-    baseUrl: process.env.AUTH_ORIGIN,
+    baseURL: process.env.AUTH_ORIGIN,
     provider: {
         type: 'authjs'
     },

@@ -162,12 +162,31 @@ export default {
     },
 
     callNumber(){
+      if (!this.phoneData || this.phoneData.length === 0) {
+        console.error('No phone available to place call');
+        return;
+      }
+
+      if (!this.phoneNumber.trim()) {
+        console.error('No phone number entered');
+        return;
+      }
+
+      // Create a temporary Phone object for the external number
+      // Backend will validate if this number exists and fail the call if not
+      const receiverPhone = {
+        id: this.phoneNumber.trim(),
+        name: this.phoneNumber.trim(),
+        type: 'external'
+      };
+
       const preparedCall = new PreparedCall(
         this.phoneData[0], 
-        [{id:this.phoneNumber, name:this.phoneNumber}], 
+        receiverPhone, 
         PreparedCall.TYPES.P2P, 
         this.callPriority
       );
+      
       this.$emit("prepareCall", preparedCall);
       this.$emit("placeCall", preparedCall);
     },

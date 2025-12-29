@@ -92,18 +92,18 @@ export default class DiscordBot {
 
     this.client.on('voiceStateUpdate', (oldState, newState) => {
       
-      if(!this.gameManager.isPlayer(newState.id) && !this.gameManager.isProspect(newState.id)) {
-        //Only handle voiceStateUpdates for player.
+      if(!this.gameManager.isUser(newState.id)) {
+        //Only handle voiceStateUpdates for existing users.
         return;
       }
       if(oldState.channel === null && newState.channel !== null) {
         // This is a someone joining voice...
         console.info(chalk.blueBright("Discord.js"), "someone joined voice...",newState.id, newState.channelId);
-        this.gameManager.registerDiscordVoice(newState.id, newState.channelId);
+        this.gameManager.handleVoiceStateUpdate(newState.id, newState.channelId);
       } else if(newState.channel === null && oldState.channel !== null) {
         // This is someone leaving voice...
         console.info(chalk.blueBright("Discord.js"), "someone left voice...", newState.id);
-        this.gameManager.unregisterDiscordVoice(newState.id);
+        this.gameManager.handleVoiceStateUpdate(newState.id, null);
       } else{
         const oldStatePrivateCall = this.privateCallChannels.find(c => c.id === oldState.channelId);
         const newStatePrivateCall = this.privateCallChannels.find(c => c.id === newState.channelId);
@@ -114,7 +114,7 @@ export default class DiscordBot {
           if(!(oldStatePrivateCall)) {
             // New Channel is private call, old is not.
             // This means they've left a chat and should go back to that when they leave a private call.
-            this.gameManager.players[newState.id].voiceChannelId = oldState.channelId;
+            this.gameManager.users[newState.id].voiceChannelId = oldState.channelId;
           }
 
           console.info(chalk.magenta('voiceStateUpdate PCC'), this.privateCallChannels);
@@ -255,7 +255,7 @@ export default class DiscordBot {
     const member = await this.getMember(discordId);
     try {
       if(channelId === null) {
-        channelId = this.gameManager.players[discordId].voiceChannelId;
+        channelId = this.gameManager.users[discordId].voiceChannelId;
       }
       const result = await member.voice.setChannel(channelId).catch((error)=>{
         console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", discordId),error);
@@ -467,7 +467,7 @@ export default class DiscordBot {
         const movePromises = members.map(async (member) => {
           try {
             const playerId = member.id;
-            const originalChannel = this.gameManager.players[playerId]?.voiceChannelId;
+            const originalChannel = this.gameManager.users[playerId]?.voiceChannelId;
             
             if (originalChannel && originalChannel !== channelId) {
               await member.voice.setChannel(originalChannel);

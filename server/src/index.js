@@ -2,7 +2,7 @@
 import betterLogging from 'better-logging';
 import chalk from 'chalk';
 betterLogging(console,{
-  format: ctx => `${ctx.date}${ctx.time}${ctx.type}${ctx.STAMP('ROC', chalk.blueBright)} ${ctx.msg}`
+  format: ctx => `${ctx.date}${ctx.time}${ctx.type}${ctx.STAMP('ROC')} ${ctx.msg}`
 });
 import { readFileSync } from "fs";
 import { createServer as createSecureServer} from "https";
@@ -12,11 +12,11 @@ import ROCManager from "./ROCManager.js";
 import DiscordBot from "./bot.js";
 
 import { rocSockets } from './sockets.js';
+import { callSockets } from './callSockets.js';
 import { adminSockets } from './adminSockets.js';
 import STOMPManager from './stomp.js';
 import PhoneManager from './phonemanager.js';
-import CallManager from './callManager.js';
-import GroupCallManager from './groupCallManager.js';
+import UnifiedCallManager from './UnifiedCallManager.js';
 import TrainManager from './trainManager.js';
 import SimulationLoader from './services/SimulationLoader.js';
 import ConfigurationManager from './services/ConfigurationManager.js';
@@ -76,15 +76,10 @@ trainManager.setPhoneManager(phoneManager);
 const stompManager = new STOMPManager();
 stompManager.setTrainManager (trainManager);
 
-// TASK-019: Initialize GroupCallManager and integrate with CallManager for Phase 4 REC delegation
-const groupCallManager = new GroupCallManager(phoneManager, discordBot, io);
-const callManager = new CallManager(phoneManager,discordBot,io);
+const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, simulationLoader, configurationManager);
 
-// Set up cross-references for Phase 4 VGCS integration
-callManager.setGroupCallManager(groupCallManager);
-groupCallManager.setCallManager(callManager);
-
-const rocManager = new ROCManager(io, discordBot, phoneManager, stompManager, callManager, simulationLoader, configurationManager);
+const callManager = new UnifiedCallManager(phoneManager, discordBot, io, rocManager);
+rocManager.setCallManager(callManager);
 rocManager.load();
 
 await discordBot.setUpBot().then(() => {
@@ -95,8 +90,9 @@ await discordBot.setUpBot().then(() => {
 io.on('connection', (socket) => {
   console.info(chalk.blueBright("SocketIO Connection"), chalk.yellow("Users connected:"), chalk.white(io.sockets.sockets.size));
   console.log("DEBUGGING: Socket connected from", socket.handshake.address, "with headers:", socket.handshake.headers);
-  rocSockets(socket, rocManager,callManager);
-  adminSockets(socket, rocManager, phoneManager,config);
+  rocSockets(socket, rocManager);
+  callSockets(socket, callManager, rocManager);
+  adminSockets(socket, rocManager, phoneManager, config);
 });
 
 

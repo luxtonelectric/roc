@@ -2,9 +2,12 @@
 import chalk from 'chalk'
 
 import Phone from "./model/phone.js";
+import CallGroup from "./model/CallGroup.js";
 import Location from './model/location.js';
 import Panel from './model/panel.js';
 import SimulationLoader from './services/SimulationLoader.js';
+import CallGroupLoader from './services/CallGroupLoader.js';
+import User from './model/user.js';
 /** @typedef {import("socket.io").Server} Server */
 /** @typedef {import("./model/simulation.js").default} Simulation */
 /** @typedef {import("./model/phonebookentry.js").default} PhonebookEntry */
@@ -19,17 +22,25 @@ export default class PhoneManager {
   /** @type {Phone[]} */
   phones = [];
 
+  /** @type {CallGroup[]} */
+  callGroups = [];
+
   /** @type {Simulation[]} */
   sims = [];
 
   /** @type {SimulationLoader} */
   simulationLoader;
 
+  /** @type {CallGroupLoader} */
+  callGroupLoader;
+
   /**
    * @param {SimulationLoader} simulationLoader The simulation loader service
+   * @param {CallGroupLoader} callGroupLoader The call group loader service (optional)
    */
-  constructor(simulationLoader) {
+  constructor(simulationLoader, callGroupLoader = null) {
     this.simulationLoader = simulationLoader;
+    this.callGroupLoader = callGroupLoader || new CallGroupLoader();
   }
 
   /**
@@ -314,7 +325,7 @@ export default class PhoneManager {
       return false;
     }
     phone.setPlayer(player);
-    this.sendPhonebookUpdateToPlayer(player);
+    this.sendPhonebookUpdateToUser(player);
     return true;
   }
 
@@ -328,14 +339,14 @@ export default class PhoneManager {
     }
     const player = phone.getPlayer();
     phone.setPlayer(null);
-    this.sendPhonebookUpdateToPlayer(player);
+    this.sendPhonebookUpdateToUser(player);
     return true;
   }
 
   unassignPhonesForDiscordId(discordId) {
     const phones = this.getPhonesForDiscordId(discordId);
     phones.forEach(p => p.setPlayer(null));
-    this.sendPhonebookUpdateToPlayer(discordId);
+    this.sendPhonebookUpdateToUser(discordId);
   }
 
   /**
@@ -444,14 +455,270 @@ export default class PhoneManager {
   }
 
   /**
-   * @param {Player} player 
+   * Get all phones for a specific simulation
+   * @param {string} simId 
+   * @returns {Phone[]}
    */
-  sendPhonebookUpdateToPlayer(player) {
-    const phones = this.getPhonesForDiscordId(player.discordId);
+  getPhonesForSim(simId) {
+    return this.phones.filter(phone => 
+      phone.getId().startsWith(simId + PhoneManager.PHONE_ID_SEPARATOR)
+    );
+  }
+
+  /**
+   * @param {User} user 
+   */
+  sendPhonebookUpdateToUser(user) {
+    const phones = this.getPhonesForDiscordId(user.discordId);
     phones.forEach((p) => { p.setSpeedDial(this.getSpeedDialForPhone(p)); p.setTrainsAndMobiles(this.getTrainsAndMobilesForPhone(p)) });
     const book = phones.map(p => p.getPhoneBook());
-    if(player.socket) {
-      player.socket.emit('phonebookUpdate', book);
+    if(user.socket) {
+      user.socket.emit('phonebookUpdate', book);
     }
+  }
+
+  // ========== Location-based Methods for REC Calls ==========
+
+  /**
+   * Get the location for a specific phone
+   * @param {string} phoneId 
+   * @returns {Object|null} Location object with sim and panel properties, or null if not found
+   */
+  getPhoneLocation(phoneId) {
+    const phone = this.getPhone(phoneId);
+    if (!phone) {
+      return null;
+    }
+    
+    const location = phone.getLocation();
+    if (!location) {
+      return null;
+    }
+    
+    return {
+      sim: location.simId,
+      panel: location.panelId
+    };
+  }
+
+  /**
+   * Find all phones in the same location (sim + panel)
+   * @param {Object} location Location object with sim and panel properties
+   * @returns {Phone[]} Array of phones in the same location
+   */
+  getPhonesInSameLocation(location) {
+    if (!location || !location.sim || !location.panel) {
+      return [];
+    }
+    
+    return this.phones.filter(phone => {
+      const phoneLocation = phone.getLocation();
+      if (!phoneLocation) {
+        return false;
+      }
+      
+      return phoneLocation.simId === location.sim && 
+             phoneLocation.panelId === location.panel;
+    });
+  }
+
+  /**
+   * Find phones in neighboring panels within the same simulation
+   * @param {Object} location Location object with sim and panel properties
+   * @returns {Phone[]} Array of phones in neighboring panels
+   */
+  getNeighboringPanelPhones(location) {
+    if (!location || !location.sim || !location.panel) {
+      return [];
+    }
+    
+    // Find the simulation to get panel neighbor information
+    const sim = this.sims.find(s => s.id === location.sim);
+    if (!sim) {
+      return [];
+    }
+    
+    // Find the panel to get its neighbors
+    const panel = sim.panels.find(p => p.id === location.panel);
+    if (!panel || !panel.neighbours) {
+      return [];
+    }
+    
+    const neighboringPhones = [];
+    
+    // For each neighbor panel, find phones in that location
+    panel.neighbours.forEach(neighbor => {
+      if (neighbor.simId === location.sim && neighbor.panelId !== location.panel) {
+        const neighborPhones = this.phones.filter(phone => {
+          const phoneLocation = phone.getLocation();
+          if (!phoneLocation) {
+            return false;
+          }
+          
+          return phoneLocation.simId === neighbor.simId && 
+                 phoneLocation.panelId === neighbor.panelId;
+        });
+        
+        neighboringPhones.push(...neighborPhones);
+      }
+    });
+    
+    return neighboringPhones;
+  }
+
+  /**
+   * Find the control phone for a simulation
+   * @param {string} simId The simulation ID
+   * @returns {Phone|null} The control phone for the simulation, or null if not found
+   */
+  getControlPhoneForSim(simId) {
+    if (!simId) {
+      return null;
+    }
+    
+    // Look for phone with control suffix pattern
+    const controlPhoneId = simId + PhoneManager.PHONE_ID_SEPARATOR + 'control';
+    let controlPhone = this.getPhone(controlPhoneId);
+    
+    // If not found with standard pattern, try alternative patterns
+    if (!controlPhone) {
+      // Try with _CONTROL suffix
+      const altControlId = simId + PhoneManager.PHONE_ID_SEPARATOR + 'CONTROL';
+      controlPhone = this.getPhone(altControlId);
+    }
+    
+    // If still not found, look for any phone with "control" in the name for this sim
+    if (!controlPhone) {
+      controlPhone = this.phones.find(phone => {
+        const phoneLocation = phone.getLocation();
+        if (!phoneLocation || phoneLocation.simId !== simId) {
+          return false;
+        }
+        
+        const name = phone.getName().toLowerCase();
+        return name.includes('control') || name.includes('centre') || name.includes('center');
+      });
+    }
+    
+    return controlPhone || null;
+  }
+
+  // ========== CallGroup Management Methods ==========
+
+  /**
+   * Load CallGroups from separate configuration for a simulation
+   * @param {Simulation} sim The simulation to load groups for
+   * @param {string} configName Configuration name to use (defaults to "default")
+   */
+  loadCallGroupsForSim(sim, configName = "default") {
+    // Get phones available for this simulation
+    const simPhones = this.getPhonesForSim(sim.id);
+    
+    // Create CallGroups using the CallGroupLoader
+    const callGroups = this.callGroupLoader.createCallGroupsForSim(
+      configName, 
+      sim.id, 
+      simPhones
+    );
+    
+    // Add all created CallGroups to the manager
+    callGroups.forEach(callGroup => {
+      this.addCallGroup(callGroup);
+    });
+  }
+
+  /**
+   * Add a CallGroup to the manager
+   * @param {CallGroup} callGroup 
+   */
+  addCallGroup(callGroup) {
+    // Remove existing group with same ID
+    this.callGroups = this.callGroups.filter(g => g.id !== callGroup.id);
+    // Add new group
+    this.callGroups.push(callGroup);
+  }
+
+  /**
+   * Get a CallGroup by ID
+   * @param {string} groupId 
+   * @returns {CallGroup|null}
+   */
+  getCallGroup(groupId) {
+    return this.callGroups.find(g => g.id === groupId) || null;
+  }
+
+  /**
+   * Get all CallGroups for a simulation
+   * @param {string} simId 
+   * @returns {CallGroup[]}
+   */
+  getCallGroupsForSim(simId) {
+    return this.callGroups.filter(g => g.simId === simId);
+  }
+
+  /**
+   * Get all CallGroups of a specific type
+   * @param {string} type - Group type (GROUP or REC)
+   * @returns {CallGroup[]}
+   */
+  getCallGroupsByType(type) {
+    return this.callGroups.filter(g => g.type === type);
+  }
+
+  /**
+   * Remove all CallGroups for a simulation
+   * @param {string} simId 
+   */
+  removeCallGroupsForSim(simId) {
+    this.callGroups = this.callGroups.filter(g => g.simId !== simId);
+  }
+
+  /**
+   * Update member status in all groups containing the phone
+   * @param {string} phoneId 
+   * @param {string} status 
+   */
+  updatePhoneStatusInGroups(phoneId, status) {
+    this.callGroups.forEach(group => {
+      if (group.includesPhone(phoneId)) {
+        group.updateMemberStatus(phoneId, status);
+      }
+    });
+  }
+
+  /**
+   * Get all groups that contain a specific phone
+   * @param {string} phoneId 
+   * @returns {CallGroup[]}
+   */
+  getGroupsContainingPhone(phoneId) {
+    return this.callGroups.filter(group => group.includesPhone(phoneId));
+  }
+
+  /**
+   * Create a predefined REC group for emergency calls
+   * @param {string} simId 
+   * @param {Phone[]} emergencyPhones - Phones that should be in the REC group
+   * @returns {CallGroup}
+   */
+  createRECGroup(simId, emergencyPhones) {
+    const members = emergencyPhones.map(phone => ({
+      id: phone.getId(),
+      name: phone.getName(),
+      type: phone.toSimple().type,
+      status: 'available'
+    }));
+
+    const recGroup = new CallGroup(
+      `${simId}_REC_emergency`,
+      'Railway Emergency Call Group',
+      'Emergency response group for REC calls',
+      CallGroup.TYPES.REC,
+      simId,
+      members
+    );
+
+    this.addCallGroup(recGroup);
+    return recGroup;
   }
 }

@@ -44,7 +44,7 @@ export default class NetworkGCC {
     this.bus = bus;
     this.state = NET.N0_NULL;
     this.groupId = null;
-    this.originator = null;
+    this.sender = null;
     this.participants = new Set();
     this.cells = new Set(); // opaque cell management
     this.options = { 
@@ -58,7 +58,7 @@ export default class NetworkGCC {
   }
 
   /**
-   * Handle START_REQ from originator mobile station
+   * Handle START_REQ from sender mobile station
    * @param {Object} params
    * @param {string} params.fromMs - Mobile station ID
    * @param {string} params.groupId - Group call ID
@@ -74,7 +74,7 @@ export default class NetworkGCC {
 
     this.state = NET.N1_INITIATED;
     this.groupId = groupId;
-    this.originator = fromMs;
+    this.sender = fromMs;
     this.options = { ...this.options, ...options };
 
     console.log(chalk.green('NetworkGCC.onStartReq'), `Call initiated - GroupId: ${groupId}, Options:`, this.options);
@@ -97,7 +97,7 @@ export default class NetworkGCC {
         groupId,
         phoneId: fromMs,
         data: {
-          originatorName: null, // Will be filled by socket bridge from phone manager
+          senderName: null, // Will be filled by socket bridge from phone manager
           level: this.options.priority,
           autoJoinCountdown: 5,
           adminUsers: [] // Will be populated based on user roles
@@ -111,7 +111,7 @@ export default class NetworkGCC {
         groupId,
         phoneId: fromMs,
         data: {
-          originatorPhoneId: fromMs,
+          senderPhoneId: fromMs,
           type: callType,
           level: this.options.priority,
           participants: Array.from(this.participants)
@@ -123,7 +123,7 @@ export default class NetworkGCC {
     // Establish resources based on setup mode
     this._gotoEstablishingThenActive(!!this.options.immediateSetup);
 
-    // Acknowledge originator
+    // Acknowledge sender
     this._send(fromMs, { type: MSG.START_ACK, groupId });
   }
 
@@ -182,7 +182,7 @@ export default class NetworkGCC {
   }
 
   /**
-   * Handle TERMINATE from originator or controller
+   * Handle TERMINATE from sender or controller
    * @param {Object} params
    * @param {string} params.fromMs - Mobile station ID
    */
@@ -195,7 +195,7 @@ export default class NetworkGCC {
     }
 
     // Authorization check
-    if (fromMs !== this.originator && !this._isController(fromMs)) {
+    if (fromMs !== this.sender && !this._isController(fromMs)) {
       console.log(chalk.red('NetworkGCC.onTerminate'), `Unauthorized termination attempt from: ${fromMs}`);
       return;
     }
@@ -238,9 +238,9 @@ export default class NetworkGCC {
       console.log(chalk.green('NetworkGCC'), 'Transitioning to ACTIVE state');
       this.state = NET.N2_ACTIVE;
 
-      // Send CHANNEL_ASSIGN to all participants including originator
+      // Send CHANNEL_ASSIGN to all participants including sender
       const targets = new Set(this.participants);
-      if (this.originator) targets.add(this.originator);
+      if (this.sender) targets.add(this.sender);
 
       for (const ms of targets) {
         this._send(ms, { type: MSG.CHANNEL_ASSIGN, groupId: this.groupId });
@@ -250,7 +250,7 @@ export default class NetworkGCC {
       this.bus.publish('SOCKET_BRIDGE', {
         type: 'GROUP_CALL_ACTIVE',
         groupId: this.groupId,
-        phoneId: this.originator,
+        phoneId: this.sender,
         data: {
           channelId: null, // Will be set by call manager
           participantCount: this.participants.size,
@@ -271,7 +271,7 @@ export default class NetworkGCC {
     this._idleTimer = setTimeout(() => {
       if (this.state !== NET.N2_ACTIVE) return;
       
-      const noUsers = this.participants.size === 0 && !this._originatorOnline();
+      const noUsers = this.participants.size === 0 && !this._senderOnline();
       if (noUsers) {
         console.log(chalk.yellow('NetworkGCC'), 'Idle timeout - clearing empty call');
         this.state = NET.N4_TERMINATING;
@@ -294,7 +294,7 @@ export default class NetworkGCC {
     this.bus.publish('SOCKET_BRIDGE', {
       type: 'GROUP_CALL_TERMINATED',
       groupId: this.groupId,
-      phoneId: this.originator,
+      phoneId: this.sender,
       data: {
         reason: reason
       },
@@ -318,7 +318,7 @@ export default class NetworkGCC {
     
     this.state = NET.N0_NULL;
     this.groupId = null;
-    this.originator = null;
+    this.sender = null;
     this.participants.clear();
     this.options = { 
       priority: "normal", 
@@ -340,7 +340,7 @@ export default class NetworkGCC {
     return {
       state: this.state,
       groupId: this.groupId,
-      originator: this.originator,
+      sender: this.sender,
       participants: Array.from(this.participants),
       participantCount: this.participants.size,
       options: { ...this.options }
@@ -386,11 +386,11 @@ export default class NetworkGCC {
       return; // Already in NULL state
     }
 
-    // If no originator or originator offline, and no participants, reset
-    const hasActiveOriginator = this.originator && this.bus.isOnline(this.originator);
+    // If no sender or sender offline, and no participants, reset
+    const hasActiveSender = this.sender && this.bus.isOnline(this.sender);
     const hasActiveParticipants = Array.from(this.participants).some(p => this.bus.isOnline(p));
 
-    if (!hasActiveOriginator && !hasActiveParticipants) {
+    if (!hasActiveSender && !hasActiveParticipants) {
       console.log(chalk.yellow('NetworkGCC._checkNetworkReset'), 'No active participants - resetting network');
       this._reset();
     }
@@ -406,10 +406,10 @@ export default class NetworkGCC {
   }
   
   /**
-   * Check if originator is online
+   * Check if sender is online
    * @returns {boolean}
    */
-  _originatorOnline() { 
-    return this.bus.isOnline(this.originator); 
+  _senderOnline() { 
+    return this.bus.isOnline(this.sender); 
   }
 }

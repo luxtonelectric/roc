@@ -324,7 +324,7 @@ function findCurrentPhoneId(): string | null {
       :is-visible="recModalVisible || false"
       :caller-info="recCallInfo?.callerInfo"
       :initial-countdown="recCallInfo?.countdown ?? 5"
-      :allow-decline="!recCallInfo?.isOriginator"
+      :allow-decline="!recCallInfo?.isSender"
       @accept="acceptRECCall"
       @decline="declineRECCall"
       @timeout="acceptRECCall"

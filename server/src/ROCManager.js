@@ -1088,7 +1088,7 @@ export default class ROCManager {
         id: groupCall.id,
         type: groupCall.type,
         level: groupCall.level,
-        originatorPhoneId: groupCall.originator?.getId() || 'unknown',
+        senderPhoneId: groupCall.sender?.getId() || 'unknown',
         participantCount: groupCall.getAllPhones().length,
         status: groupCall.status,
         timePlaced: groupCall.timePlaced,

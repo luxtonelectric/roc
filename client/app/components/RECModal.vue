@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <!-- Countdown Timer (only for recipients, not originators) -->
+        <!-- Countdown Timer (only for recipients, not senders) -->
         <div v-if="initialCountdown > 0" class="mb-8">
           <div class="bg-red-100 rounded-lg p-6 border-2 border-red-300">
             <p class="text-lg font-semibold text-red-800 mb-2">Auto-joining in:</p>
@@ -46,7 +46,7 @@
           </div>
         </div>
 
-        <!-- Originator Message (for call initiators) -->
+        <!-- Sender Message (for call initiators) -->
         <div v-else class="mb-8">
           <div class="bg-blue-100 rounded-lg p-6 border-2 border-blue-300">
             <p class="text-lg font-semibold text-blue-800 mb-2">Emergency Call Status:</p>

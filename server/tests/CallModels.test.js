@@ -84,7 +84,7 @@ describe('Call Models', () => {
     test('should create group call request correctly', () => {
       const call = new GroupCallRequest(mockPhone1, 'TEST_GROUP', BaseCall.TYPES.GROUP, BaseCall.LEVELS.URGENT);
       
-      expect(call.originator).toBe(mockPhone1);
+      expect(call.sender).toBe(mockPhone1);
       expect(call.groupId).toBe('TEST_GROUP');
       expect(call.level).toBe(BaseCall.LEVELS.URGENT);
       expect(call.type).toBe(BaseCall.TYPES.GROUP);
@@ -97,7 +97,7 @@ describe('Call Models', () => {
       
       expect(call.type).toBe(BaseCall.TYPES.REC);
       expect(call.level).toBe(BaseCall.LEVELS.EMERGENCY);
-      expect(call.originator).toBe(mockPhone1);
+      expect(call.sender).toBe(mockPhone1);
       expect(call.groupId).toBe('TEST_GROUP');
     });
 

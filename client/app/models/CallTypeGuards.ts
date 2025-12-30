@@ -17,7 +17,7 @@ export interface IGroupCall extends ICall {
 
 export interface IRECCall extends ICall {
   type: 'REC';
-  /** Information about the emergency call originator */
+  /** Information about the emergency call sender */
   callerInfo?: {
     name: string;
     location?: string;
@@ -25,8 +25,8 @@ export interface IRECCall extends ICall {
   };
   /** Auto-join countdown in seconds (for recipients) */
   countdown?: number;
-  /** Whether the current user is the originator of this REC call */
-  isOriginator?: boolean;
+  /** Whether the current user is the sender of this REC call */
+  isSender?: boolean;
 }
 
 // Union type for all call types

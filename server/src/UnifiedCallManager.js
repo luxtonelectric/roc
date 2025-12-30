@@ -196,18 +196,18 @@ export default class UnifiedCallManager {
         const mobileStation = this.mobileStations.get(phoneId);
         if (mobileStation) {
           try {
-            // Check if this phone is the originator
-            const isOriginator = groupCall.originator && groupCall.originator.getId() === phoneId;
+            // Check if this phone is the sender
+            const isSender = groupCall.sender && groupCall.sender.getId() === phoneId;
             
-            if (isOriginator) {
-              // Originators cannot leave - they must terminate the entire call
+            if (isSender) {
+              // Sender cannot leave - they must terminate the entire call
               console.log(chalk.red('UnifiedCallManager'), 
-                `Originator ${phoneId} attempted to leave call ${callId} - originators must use terminate instead`);
-              // Don't perform the leave operation for originators
-              // The client should use terminateCall instead of leaveCall for originators
-              throw new Error('Originators cannot leave calls - use terminate instead');
+                `Sender ${phoneId} attempted to leave call ${callId} - Sender must use terminate instead`);
+              // Don't perform the leave operation for Sender
+              // The client should use terminateCall instead of leaveCall for Sender
+              throw new Error('Sender cannot leave calls - use terminate instead');
             } else {
-              // Non-originators can leave normally
+              // Non-Sender can leave normally
               mobileStation.leave();
               console.log(chalk.green('UnifiedCallManager'), 
                 `Mobile station ${phoneId} left VGCS group call ${callId}`);
@@ -233,8 +233,8 @@ export default class UnifiedCallManager {
           return result;
         }
         
-        // Since originators cannot leave (only terminate), we don't need ownership transfer logic
-        // If we reach here, it means a non-originator participant left the call
+        // Since sender cannot leave (only terminate), we don't need ownership transfer logic
+        // If we reach here, it means a non-sender participant left the call
         
         // Notify remaining participants about participant leaving
         remainingParticipants.forEach(participant => {
@@ -670,7 +670,7 @@ export default class UnifiedCallManager {
               const memberId = member.id || member;
               const phone = this.phoneManager.getPhone(memberId);
               if (!phone) continue;
-              // Exclude originator's own phone and any phones owned by same discord user
+              // Exclude sender's own phone and any phones owned by same discord user
               if (phone.getId() === senderPhone.getId()) continue;
               if (originDiscordId && phone.getDiscordId && phone.getDiscordId() === originDiscordId) continue;
               // Only include claimed phones (must have discordId)
@@ -684,12 +684,12 @@ export default class UnifiedCallManager {
 
           // If no participants were resolved, reject the group placement as invalid
           if (!call.participants || call.participants.size === 0) {
-            throw new Error(`No available group recipients for originator: ${senderPhone.getId()}`);
+            throw new Error(`No available group recipients for sender: ${senderPhone.getId()}`);
           }
           break;
           
         case BaseCall.TYPES.REC:
-          // REC calls: participants determined by originator's location; REC calls are always EMERGENCY
+          // REC calls: participants determined by sender's location; REC calls are always EMERGENCY
           call = this.callFactory.createRECCall(senderPhone, null, request.options);
 
           // Auto-resolve REC participants using phoneManager helper if available
@@ -699,7 +699,7 @@ export default class UnifiedCallManager {
               if (!call.participants) call.participants = new Set();
               recipients.forEach(p => call.participants.add(p));
 
-              // Remove any recipients that belong to the same Discord user as the originator
+              // Remove any recipients that belong to the same Discord user as the sender
               const originDiscordId = senderPhone.getDiscordId();
               if (originDiscordId) {
                 for (const p of Array.from(call.participants)) {
@@ -715,7 +715,7 @@ export default class UnifiedCallManager {
 
           // If no recipients were resolved (or all were filtered out), reject the REC placement as invalid
           if (!call.participants || call.participants.size === 0) {
-            throw new Error(`No available REC recipients for originator: ${senderPhone.getId()}`);
+            throw new Error(`No available REC recipients for sender: ${senderPhone.getId()}`);
           }
 
           break;
@@ -757,26 +757,26 @@ export default class UnifiedCallManager {
   /**
    * Set up VGCS mobile stations for group calls
    * @param {GroupCallRequest} call - The group call
-   * @param {Phone} originatorPhone - The originating phone
+   * @param {Phone} senderPhone - The originating phone
    * @private
    */
-  async _setupGroupCall(call, originatorPhone) {
+  async _setupGroupCall(call, senderPhone) {
     // Set initial VGCS status
     call.updateStatus(BaseCall.STATUS.N1_INITIATED);
     
-    // Create VGCS mobile station for originator
+    // Create VGCS mobile station for sender
     const mobileStation = new MobileStationVGCS({
-      msId: originatorPhone.getId(), 
+      msId: senderPhone.getId(), 
       bus: this.vgcsBus,
       autoAnswer: call.type === BaseCall.TYPES.REC
     });
     
-    this.mobileStations.set(originatorPhone.getId(), mobileStation);
-    this.phoneToCallMap.set(originatorPhone.getId(), call.id);
+    this.mobileStations.set(senderPhone.getId(), mobileStation);
+    this.phoneToCallMap.set(senderPhone.getId(), call.id);
     
     // For REC calls, create mobile stations for all participants
     if (call.type === BaseCall.TYPES.REC) {
-      const participants = call.getAllPhones().filter(p => p.getId() !== originatorPhone.getId());
+      const participants = call.getAllPhones().filter(p => p.getId() !== senderPhone.getId());
       participants.forEach(phone => {
         const participantStation = new MobileStationVGCS({
           msId: phone.getId(),
@@ -1234,10 +1234,10 @@ export default class UnifiedCallManager {
   async _rejectGroupCall(call, phone, socketId, callId) {
     const groupCall = /** @type {GroupCallRequest} */ (call);
     
-    // If originator rejects, terminate the entire call
-    if (groupCall.isOriginator && groupCall.isOriginator(phone)) {
+    // If sender rejects, terminate the entire call
+    if (groupCall.isSender && groupCall.isSender(phone)) {
       call.updateStatus(BaseCall.STATUS.N4_TERMINATING);
-      return await this.terminateCall(socketId, callId, 'ORIGINATOR_REJECTED');
+      return await this.terminateCall(socketId, callId, 'SENDER_REJECTED');
     }
     
     // Otherwise, just remove this participant
@@ -1563,17 +1563,17 @@ _finalCallCleanup(call, reason) {
         // For REC calls, customize the data per participant
         if (call.type === BaseCall.TYPES.REC) {
           const groupCall = /** @type {GroupCallRequest} */ (call);
-          const isOriginator = groupCall.originator && groupCall.originator.getId() === phone.getId();
+          const isSender = groupCall.sender && groupCall.sender.getId() === phone.getId();
           
           // Add REC-specific fields
-          callData.isOriginator = isOriginator;
-          callData.countdown = isOriginator ? 0 : 5; // No countdown for originator, 5s for recipients
+          callData.isSender = isSender;
+          callData.countdown = isSender ? 0 : 5; // No countdown for sender, 5s for recipients
           
-          console.log(chalk.blue('UnifiedCallManager'), `REC call: phone ${phone.getId()} isOriginator=${isOriginator}, countdown=${callData.countdown}`);
+          console.log(chalk.blue('UnifiedCallManager'), `REC call: phone ${phone.getId()} isSender=${isSender}, countdown=${callData.countdown}`);
           
-          // Auto-accept for originator
-          if (isOriginator) {
-            console.log(chalk.green('UnifiedCallManager'), `Auto-accepting REC call for originator ${phone.getId()}`);
+          // Auto-accept for sender
+          if (isSender) {
+            console.log(chalk.green('UnifiedCallManager'), `Auto-accepting REC call for sender ${phone.getId()}`);
             // We'll auto-accept this call after sending notifications
             setImmediate(async () => {
               const user = this.rocManager?.getUserByDiscordId(discordId);

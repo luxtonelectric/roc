@@ -136,8 +136,8 @@ export default {
                         this.call.status === CallDetails.STATUS.ACCEPTED
       if (!isAccepted) return false
       
-      // For REC and GROUP calls (VGCS), originators cannot leave - only terminate
-      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallOriginator) {
+      // For REC and GROUP calls (VGCS), senders cannot leave - only terminate
+      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallSender()) {
         return false
       }
       
@@ -149,8 +149,8 @@ export default {
              this.call.status === CallDetails.STATUS.ACCEPTED
     },
 
-    isCallOriginator() {
-      // Check if the current user owns the sender phone (making them the originator)
+    isCallSender() {
+      // Check if the current user owns the sender phone (making them the sender)
       if (this.call.sender && this.myPhones) {
         const senderPhoneId = this.call.sender.id
         return !!this.myPhones[senderPhoneId]
@@ -159,8 +159,8 @@ export default {
     },
 
     getEndButtonText() {
-      // For REC and GROUP calls (VGCS), show different text for originators vs participants
-      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallOriginator) {
+      // For REC and GROUP calls (VGCS), show different text for sender vs participants
+      if ((this.call.type === PreparedCall.TYPES.REC || this.call.type === PreparedCall.TYPES.GROUP) && this.isCallSender()) {
         return 'Terminate for All'
       }
       return 'End Call'

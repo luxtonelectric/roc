@@ -12,7 +12,7 @@ export const MS = {
   NULL: "NULL",
   PRESENT: "PRESENT",    // received NOTIFICATION
   CONN_REQ: "CONN_REQ",  // sent JOIN_REQ
-  INITIATED: "INITIATED",// originator path
+  INITIATED: "INITIATED",// sender path
   ACTIVE: "ACTIVE",
   TERM_REQ: "TERM_REQ",
 };
@@ -29,7 +29,7 @@ export default class MobileStationVGCS {
     this.bus = bus;
     this.state = MS.NULL;
     this.groupId = null;
-    this.isOriginator = false;
+    this.isSender = false;
     this.autoAnswer = autoAnswer; // REC: true
     this._presentTimer = null;
     
@@ -40,7 +40,7 @@ export default class MobileStationVGCS {
   }
 
   /**
-   * Start a group call (originator path)
+   * Start a group call (sender path)
    * @param {string} groupId 
    * @param {Object} options
    * @param {boolean} options.immediateSetup - Skip establishment phase
@@ -54,7 +54,7 @@ export default class MobileStationVGCS {
       return false;
     }
 
-    this.isOriginator = true;
+    this.isSender = true;
     this.groupId = groupId;
     this.state = MS.INITIATED;
 
@@ -117,7 +117,7 @@ export default class MobileStationVGCS {
   leave() {
     console.log(chalk.yellow('MobileStationVGCS.leave'), `MS: ${this.id}, State: ${this.state}`);
     
-    if (this.state !== MS.ACTIVE || this.isOriginator) {
+    if (this.state !== MS.ACTIVE || this.isSender) {
       console.log(chalk.red('MobileStationVGCS.leave'), 'Cannot leave - not active participant');
       return false;
     }
@@ -135,13 +135,13 @@ export default class MobileStationVGCS {
   }
 
   /**
-   * Terminate group call (originator path)
+   * Terminate group call (sender path)
    */
   terminate() {
     console.log(chalk.yellow('MobileStationVGCS.terminate'), `MS: ${this.id}, State: ${this.state}`);
     
-    if (!this.isOriginator) {
-      console.log(chalk.red('MobileStationVGCS.terminate'), 'Cannot terminate - not originator');
+    if (!this.isSender) {
+      console.log(chalk.red('MobileStationVGCS.terminate'), 'Cannot terminate - not sender');
       return false;
     }
 
@@ -278,9 +278,9 @@ export default class MobileStationVGCS {
       id: this.id,
       state: this.state,
       groupId: this.groupId,
-      isOriginator: this.isOriginator,
+      isSender: this.isSender,
       autoAnswer: this.autoAnswer
-    };
+    }; 
   }
 
   // --- Internal helper methods ---
@@ -313,9 +313,9 @@ export default class MobileStationVGCS {
     // Only send termination messages if this is NOT due to a network release
     // (to prevent infinite loops when network releases participants)
     if (!fromNetworkRelease && this.state === MS.ACTIVE && this.groupId) {
-      if (this.isOriginator) {
-        // Originator should terminate the call
-        console.log(chalk.yellow('MobileStationVGCS._reset'), `Terminating group call as originator: ${this.groupId}`);
+      if (this.isSender) {
+        // Sender should terminate the call
+        console.log(chalk.yellow('MobileStationVGCS._reset'), `Terminating group call as sender: ${this.groupId}`);
         this.bus.sendFrom(this.id, {
           type: MSG.TERMINATE,
           groupId: this.groupId
@@ -333,6 +333,6 @@ export default class MobileStationVGCS {
     clearTimeout(this._presentTimer);
     this.state = MS.NULL;
     this.groupId = null;
-    this.isOriginator = false;
+    this.isSender = false;
   }
 }

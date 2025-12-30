@@ -342,7 +342,7 @@ export default class VGCSBus {
       networks: Array.from(this.networks.entries()).map(([groupId, network]) => ({
         groupId,
         state: network.state,
-        originator: network.originator,
+        sender: network.sender,
         participantCount: network.participants.size
       }))
     };

@@ -21,7 +21,7 @@ describe('E2E REC call flow', () => {
     const simulationLoaderStub = { loadSimulation: () => null, getSimulationMetadata: () => [] };
     phoneManager = new PhoneManager(simulationLoaderStub);
 
-    // Create two phones (originator A and neighbouring panel B)
+    // Create two phones (sender A and neighbouring panel B)
     const phone1 = new Phone('sim1_panelA', 'Panel A', Phone.TYPES.FIXED, new Location('sim1', 'panelA'));
     const phone2 = new Phone('sim1_panelB', 'Panel B', Phone.TYPES.FIXED, new Location('sim1', 'panelB'));
     phoneManager.phones.push(phone1, phone2);
@@ -123,7 +123,7 @@ describe('E2E REC call flow', () => {
     }
   });
 
-  test('originator places REC call and neighbour joins', async () => {
+  test('sender places REC call and neighbour joins', async () => {
     // Ensure both members appear to be in voice channels (validator requires this)
     fakeClient.__helpers.setMemberVoiceChannel('discordA', 'vc-A');
     fakeClient.__helpers.setMemberVoiceChannel('discordB', 'vc-B');
@@ -180,7 +180,7 @@ describe('E2E REC call flow', () => {
     const joinResult = await new Promise(resolve => socketB.trigger('joinGroupCall', { groupId: callId }, (res) => resolve(res)));
     expect(joinResult).toBe(true);
 
-    // --- New scenario: attempt REC from an originator that has no available (claimed) recipients ---
+    // --- New scenario: attempt REC from a sender that has no available (claimed) recipients ---
     // Create a separate simulation with a neighbour that is not claimed (no Discord IDs)
     // Sim structure with panels and neighbours
     const lonelySim = {
@@ -227,12 +227,12 @@ describe('E2E REC call flow', () => {
     await new Promise(resolve => setTimeout(resolve, 250));
   });
 
-  test('REC call rejected when only recipients are owned by originator', async () => {
+  test('REC call rejected when only recipients are owned by sender', async () => {
     // Both panels are in voice channels
     fakeClient.__helpers.setMemberVoiceChannel('discordA', 'vc-A');
     roc.users.discordA.voiceChannelId = 'vc-A';
 
-    // Reassign neighbouring panel B to the same player as originator A
+    // Reassign neighbouring panel B to the same player as sender A
     const phoneB = phoneManager.getPhone('sim1_panelB');
     expect(phoneB).toBeDefined();
     const playerA = phoneManager.getPhonesForDiscordId('discordA')[0] || new Player(null, 'discordA', null);
@@ -251,7 +251,7 @@ describe('E2E REC call flow', () => {
     expect(errorEvent.data.error).toEqual(expect.stringContaining('No available REC recipients'));
   });
 
-  test('GROUP call rejected when recipients are all owned by originator', async () => {
+  test('GROUP call rejected when recipients are all owned by sender', async () => {
     // Both panels in voice
     fakeClient.__helpers.setMemberVoiceChannel('discordA', 'vc-A');
     roc.users.discordA.voiceChannelId = 'vc-A';
@@ -263,7 +263,7 @@ describe('E2E REC call flow', () => {
 
     phoneManager.addCallGroup(cg);
 
-    // Ensure panelB is assigned to same player as originator
+    // Ensure panelB is assigned to same player as sender
     const playerA = phoneManager.getPhonesForDiscordId('discordA')[0] || new Player(null, 'discordA', null);
     phoneManager.assignPhone(phoneManager.getPhone('sim1_panelB'), playerA);
 
@@ -298,7 +298,7 @@ describe('E2E REC call flow', () => {
     expect(result).toBeNull();
 
     // No requested call should be created for the unassigned phone
-    const foundCall = Array.from(ucm.requestedCalls.values()).some(c => c.originator && c.originator.getId && c.originator.getId() === 'sim1_panelC');
+    const foundCall = Array.from(ucm.requestedCalls.values()).some(c => c.sender && c.sender.getId && c.sender.getId() === 'sim1_panelC');
     expect(foundCall).toBe(false);
 
     // The client socket should have received a callError notification

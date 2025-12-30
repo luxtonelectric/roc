@@ -117,7 +117,7 @@ describe('CallFactory', () => {
         CallFactory.createCall(CALL_TYPES.P2P, /** @type {any} */ ({
           receivers: mockPhone2
         }));
-      }).toThrow('Call sender/originator must be provided');
+      }).toThrow('Call sender must be provided');
     });
 
     test('should use default level when not provided', () => {
@@ -170,7 +170,7 @@ describe('CallFactory', () => {
         const call = CallFactory.createGroupCall(mockPhone1, 'group-123');
         
         expect(call.type).toBe(CALL_TYPES.GROUP);
-        expect(call.originator).toBe(mockPhone1);
+        expect(call.sender).toBe(mockPhone1);
         expect(call.groupId).toBe('group-123');
         expect(call.level).toBe(CALL_LEVELS.NORMAL);
       });
@@ -195,7 +195,7 @@ describe('CallFactory', () => {
         const call = CallFactory.createRECCall(mockPhone1, 'emergency-123');
         
         expect(call.type).toBe(CALL_TYPES.REC);
-        expect(call.originator).toBe(mockPhone1);
+        expect(call.sender).toBe(mockPhone1);
         expect(call.groupId).toBe('emergency-123');
         expect(call.level).toBe(CALL_LEVELS.EMERGENCY);
       });
@@ -241,7 +241,7 @@ describe('CallFactory', () => {
     test('should build GROUP call using fluent interface', () => {
       const call = CallFactory.builder()
         .type(CALL_TYPES.GROUP)
-        .originator(mockPhone1)
+        .sender(mockPhone1)
         .groupId('test-group')
         .level(CALL_LEVELS.NORMAL)
         .options({ priority: 'high' })
@@ -267,13 +267,13 @@ describe('CallFactory', () => {
       }).toThrow('Sender must be specified for P2P calls');
     });
 
-    test('should require originator for Group/REC calls', () => {
+    test('should require sender for Group/REC calls', () => {
       expect(() => {
         CallFactory.builder()
           .type(CALL_TYPES.GROUP)
           .groupId('test-group')
           .build();
-      }).toThrow('Originator must be specified for Group/REC calls');
+      }).toThrow('Sender must be specified for Group/REC calls');
     });
   });
 

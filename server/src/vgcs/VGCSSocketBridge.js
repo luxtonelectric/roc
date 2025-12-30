@@ -191,7 +191,7 @@ export default class VGCSSocketBridge {
   _emitGroupCallInitiated(data, groupId, recipients) {
     const eventData = {
       groupId,
-      originatorPhoneId: data.originatorPhoneId,
+      senderPhoneId: data.senderPhoneId,
       type: data.type,
       level: data.level,
       participants: data.participants || [],

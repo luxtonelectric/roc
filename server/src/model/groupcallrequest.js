@@ -15,7 +15,7 @@ import { validateICallInterface } from './ICall.js';
  */
 export default class GroupCallRequest extends BaseCall {
   /** @type {Phone} */
-  originator;
+  sender; 
   /** @type {Set<Phone>} */
   participants = new Set();
   /** @type {string} */
@@ -27,13 +27,13 @@ export default class GroupCallRequest extends BaseCall {
 
   /**
    * Create a new GroupCallRequest instance for GROUP or REC calls
-   * @param {Phone} originator - Phone initiating the group call
+   * @param {Phone} sender - Phone initiating the group call
    * @param {string} groupId - Group identifier for the call
    * @param {string} [type=BaseCall.TYPES.GROUP] - Call type (GROUP or REC)
    * @param {string} [level=BaseCall.LEVELS.NORMAL] - Call priority level
    * @param {Object} [options={}] - Additional call options
    */
-  constructor(originator, groupId, type = BaseCall.TYPES.GROUP, level = BaseCall.LEVELS.NORMAL, options = {}) {
+  constructor(sender, groupId, type = BaseCall.TYPES.GROUP, level = BaseCall.LEVELS.NORMAL, options = {}) {
     // Validate group call type
     if (type !== BaseCall.TYPES.GROUP && type !== BaseCall.TYPES.REC) {
       throw new Error(`GroupCallRequest only supports GROUP and REC types, got: ${type}`);
@@ -43,15 +43,15 @@ export default class GroupCallRequest extends BaseCall {
     super(type, level, BaseCall.STATUS.N0_NULL);
     
     // Validate required parameters
-    if (!originator) {
-      throw new Error('Originator phone is required for GroupCallRequest');
+    if (!sender) {
+      throw new Error('Sender phone is required for GroupCallRequest');
     }
     if (!groupId) {
       throw new Error('Group ID is required for GroupCallRequest');
     }
 
     // Initialize group call-specific properties
-    this.originator = originator;
+    this.sender = sender; 
     this.groupId = groupId;
     this.participants = new Set();
     this.options = {
@@ -115,14 +115,14 @@ export default class GroupCallRequest extends BaseCall {
   /**
    * Add a participant to the group call
    * @param {Phone} participant - Phone to add as participant
-   * @throws {Error} If participant is null or already the originator
+   * @throws {Error} If participant is null or already the sender
    */
   addParticipant(participant) {
     if (!participant) {
       throw new Error('Participant cannot be null');
     }
-    if (participant.getId() === this.originator.getId()) {
-      throw new Error('Originator cannot be added as participant');
+    if (participant.getId() === this.sender.getId()) {
+      throw new Error('Sender cannot be added as participant');
     }
     this.participants.add(participant);
   }
@@ -138,22 +138,22 @@ export default class GroupCallRequest extends BaseCall {
   }
 
   /**
-   * Get all participants including the originator
+   * Get all participants including the sender
    * @returns {Phone[]} Array of all phones in the group call
    */
   getAllParticipants() {
-    return [this.originator, ...Array.from(this.participants)];
+    return [this.sender, ...Array.from(this.participants)];
   }
 
   /**
    * Implementation of BaseCall abstract method
    * Check if a phone is part of this group call
    * @param {Phone} phone - Phone to check
-   * @returns {boolean} True if phone is originator or participant
+   * @returns {boolean} True if phone is sender or participant
    */
   includesPhone(phone) {
     if (!phone) return false;
-    return this.originator.getId() === phone.getId() || 
+    return this.sender.getId() === phone.getId() || 
            Array.from(this.participants).some(p => p.getId() === phone.getId());
   }
 
@@ -167,17 +167,17 @@ export default class GroupCallRequest extends BaseCall {
   }
 
   /**
-   * Check if a phone is the originator of this call
+   * Check if a phone is the sender of this call
    * @param {Phone} phone - Phone to check
-   * @returns {boolean} True if phone is the originator
+   * @returns {boolean} True if phone is the sender
    */
-  isOriginator(phone) {
+  isSender(phone) {
     if (!phone) return false;
-    return this.originator.getId() === phone.getId();
+    return this.sender.getId() === phone.getId();
   }
 
   /**
-   * Get the number of participants (excluding originator)
+   * Get the number of participants (excluding sender)
    * @returns {number} Number of participants
    */
   getParticipantCount() {
@@ -185,7 +185,7 @@ export default class GroupCallRequest extends BaseCall {
   }
 
   /**
-   * Get the total number of users (including originator)
+   * Get the total number of users (including sender)
    * @returns {number} Total number of users in the call
    */
   getTotalUserCount() {
@@ -210,9 +210,8 @@ export default class GroupCallRequest extends BaseCall {
     return {
       ...this._getCommonEmittableProperties(),
       groupId: this.groupId,
-      sender: this.originator.toSimple(), // Frontend expects 'sender' field
+      sender: this.sender.toSimple(), // Sender field
       receiver: callGroupData, // Frontend expects 'receiver' field - CallGroup representation
-      originator: this.originator.toSimple(), // Keep for legacy compatibility
       participants: Array.from(this.participants).map(p => p.toSimple()),
       participantCount: this.getParticipantCount(),
       totalUsers: this.getTotalUserCount(),
@@ -271,6 +270,6 @@ export default class GroupCallRequest extends BaseCall {
    * @returns {string} String representation
    */
   toString() {
-    return `GroupCallRequest(id=${this.id}, type=${this.type}, status=${this.status}, groupId=${this.groupId}, originator=${this.originator.getId()}, participants=${this.participants.size})`;
+    return `GroupCallRequest(id=${this.id}, type=${this.type}, status=${this.status}, groupId=${this.groupId}, sender=${this.sender.getId()}, participants=${this.participants.size})`;
   }
 }

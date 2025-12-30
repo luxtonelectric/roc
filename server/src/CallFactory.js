@@ -34,7 +34,7 @@ export default class CallFactory {
    * 
    * @param {string} type - Call type (P2P, GROUP, REC)
    * @param {Object} params - Call parameters
-   * @param {Phone} params.sender - Originating phone (for P2P) or originator (for GROUP/REC)
+   * @param {Phone} params.sender - Originating phone (for P2P) or sender (for GROUP/REC)
    * @param {Phone|Phone[]} [params.receivers] - Target phones (P2P only)
    * @param {string} [params.groupId] - Group identifier (GROUP/REC only)
    * @param {string} [params.level] - Call priority level
@@ -54,7 +54,7 @@ export default class CallFactory {
     }
 
     if (!params.sender) {
-      throw new Error('Call sender/originator must be provided');
+      throw new Error('Call sender must be provided');
     }
 
     // Set default level if not provided
@@ -118,14 +118,14 @@ export default class CallFactory {
   /**
    * Create a Group call instance
    * 
-   * @param {Phone} originator - Call originator
+   * @param {Phone} sender - Call sender
    * @param {string} groupId - Group identifier
    * @param {string} [level] - Call priority level  
    * @param {Object} [options] - Additional options
    * @returns {Object} Group call instance
    * @throws {Error} If invalid parameters
    */
-  static createGroupCall(originator, groupId, level = CALL_LEVELS.NORMAL, options = {}) {
+  static createGroupCall(sender, groupId, level = CALL_LEVELS.NORMAL, options = {}) {
     if (!groupId || typeof groupId !== 'string') {
       throw new Error('Group ID must be provided as a non-empty string');
     }
@@ -133,7 +133,7 @@ export default class CallFactory {
     // For now, return a placeholder that will be replaced with actual Group call class in TASK-008
     const callData = {
       type: CALL_TYPES.GROUP,
-      originator,
+      sender,
       groupId,
       level,
       options: {
@@ -150,13 +150,13 @@ export default class CallFactory {
   /**
    * Create a Railway Emergency Call (REC) instance
    * 
-   * @param {Phone} originator - Call originator
+   * @param {Phone} sender - Call sender
    * @param {string} [groupId] - Group identifier (auto-generated if not provided)
    * @param {Object} [options] - Additional options
    * @returns {Object} REC call instance
    * @throws {Error} If invalid parameters
    */
-  static createRECCall(originator, groupId = null, options = {}) {
+  static createRECCall(sender, groupId = null, options = {}) {
     // REC calls are always emergency priority
     const level = CALL_LEVELS.EMERGENCY;
     
@@ -166,7 +166,7 @@ export default class CallFactory {
     // For now, return a placeholder that will be replaced with actual REC call class in TASK-008
     const callData = {
       type: CALL_TYPES.REC,
-      originator,
+      sender,
       groupId: finalGroupId,
       level,
       options: {
@@ -193,7 +193,7 @@ export default class CallFactory {
       throw new Error('Emittable data must be provided as an object');
     }
 
-    const { type, sender, receivers, originator, groupId, level, options } = emittableData;
+    const { type, sender, receivers, groupId, level, options } = emittableData;
 
     if (!type) {
       throw new Error('Call type must be specified in emittable data');
@@ -209,12 +209,12 @@ export default class CallFactory {
         
       case CALL_TYPES.GROUP:
       case CALL_TYPES.REC:
-        if (!originator || !groupId) {
-          throw new Error(`${type} call data must include originator and groupId`);
+        if (!sender || !groupId) {
+          throw new Error(`${type} call data must include sender and groupId`);
         }
         return type === CALL_TYPES.REC 
-          ? CallFactory.createRECCall(originator, groupId, options)
-          : CallFactory.createGroupCall(originator, groupId, level, options);
+          ? CallFactory.createRECCall(sender, groupId, options)
+          : CallFactory.createGroupCall(sender, groupId, level, options);
         
       default:
         throw new Error(`Unsupported call type in emittable data: ${type}`);
@@ -326,7 +326,7 @@ export default class CallFactory {
       call.sender = callData.sender;
       call.receivers = callData.receivers;
     } else {
-      call.originator = callData.originator;
+      call.sender = callData.sender;
       call.groupId = callData.groupId;
       call.participants = new Set();
     }
@@ -338,7 +338,7 @@ export default class CallFactory {
         return callData.sender.getId() === phone.getId() || 
                callData.receivers.some(r => r.getId() === phone.getId());
       } else {
-        return callData.originator.getId() === phone.getId() ||
+        return callData.sender.getId() === phone.getId() ||
                (call.participants && Array.from(call.participants).some(p => p.getId() === phone.getId()));
       }
     };
@@ -347,7 +347,7 @@ export default class CallFactory {
       if (callData.type === CALL_TYPES.P2P) {
         return [callData.sender, ...callData.receivers];
       } else {
-        return [callData.originator, ...(call.participants ? Array.from(call.participants) : [])];
+        return [callData.sender, ...(call.participants ? Array.from(call.participants) : [])];
       }
     };
 
@@ -371,12 +371,12 @@ export default class CallFactory {
       } else {
         return {
           ...base,
-          originator: callData.originator.toSimple ? callData.originator.toSimple() : callData.originator,
+          sender: callData.sender.toSimple ? callData.sender.toSimple() : callData.sender,
           groupId: callData.groupId,
           participants: call.participants ? Array.from(call.participants).map(p => p.toSimple ? p.toSimple() : p) : []
         };
       }
-    };
+    }; 
 
     call.toString = () => `${callData.type}Call(id=${call.id}, type=${call.type}, status=${call.status})`;
 
@@ -393,7 +393,6 @@ export class CallBuilder {
     this._type = null;
     this._sender = null;
     this._receivers = null;
-    this._originator = null;
     this._groupId = null;
     this._level = /** @type {any} */ (CALL_LEVELS.NORMAL);
     this._options = {};
@@ -426,16 +425,6 @@ export class CallBuilder {
    */
   receivers(receivers) {
     this._receivers = receivers;
-    return this;
-  }
-
-  /**
-   * Set originator for Group/REC calls
-   * @param {Phone} originator - Originating phone
-   * @returns {CallBuilder} This builder for chaining
-   */
-  originator(originator) {
-    this._originator = originator;
     return this;
   }
 
@@ -504,10 +493,10 @@ export class CallBuilder {
       params.sender = this._sender;
       params.receivers = this._receivers;
     } else {
-      if (!this._originator) {
-        throw new Error('Originator must be specified for Group/REC calls');
+      if (!this._sender) {
+        throw new Error('Sender must be specified for Group/REC calls');
       }
-      params.sender = this._originator; // Use sender field for compatibility
+      params.sender = this._sender;
       params.groupId = this._groupId;
     }
 
@@ -532,21 +521,21 @@ export function createQuickP2PCall(sender, receiver, level = CALL_LEVELS.NORMAL)
 
 /**
  * Quick emergency call creation
- * @param {Phone} originator - Originating phone
+ * @param {Phone} sender - Originating phone
  * @param {string} [groupId] - Group identifier
  * @returns {Object} REC call instance
  */
-export function createEmergencyCall(originator, groupId = null) {
-  return CallFactory.createRECCall(originator, groupId);
+export function createEmergencyCall(sender, groupId = null) {
+  return CallFactory.createRECCall(sender, groupId);
 }
 
 /**
  * Quick group call creation
- * @param {Phone} originator - Originating phone
+ * @param {Phone} sender - Originating phone
  * @param {string} groupId - Group identifier
  * @param {string} [level] - Priority level
  * @returns {Object} Group call instance
  */
-export function createQuickGroupCall(originator, groupId, level = CALL_LEVELS.NORMAL) {
-  return CallFactory.createGroupCall(originator, groupId, level);
+export function createQuickGroupCall(sender, groupId, level = CALL_LEVELS.NORMAL) {
+  return CallFactory.createGroupCall(sender, groupId, level);
 }

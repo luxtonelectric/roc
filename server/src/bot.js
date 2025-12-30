@@ -453,12 +453,12 @@ export default class DiscordBot {
    * Request a voice channel for a group call with priority-based allocation
    * @param {string} callType - Type of call ('REC', 'GROUP', 'EMERGENCY')
    * @param {string} callId - Unique identifier for the group call
-   * @param {string} originatorId - Discord ID of the call originator
+   * @param {string} senderId - Discord ID of the call sender
    * @param {Array<string>} participantIds - Array of Discord IDs for participants
    * @param {Object} options - Additional options for channel allocation
    * @returns {Promise<Object|null>} Channel allocation result or null if none available
    */
-  async requestCallChannel(callType, callId, originatorId, participantIds = [], options = {}) {
+  async requestCallChannel(callType, callId, senderId, participantIds = [], options = {}) {
     try {
       // Priority mapping: EMERGENCY > REC > GROUP
       const priorityMap = {
@@ -492,7 +492,7 @@ export default class DiscordBot {
         channelData.callType = callType;
         channelData.callId = callId;
         channelData.priority = priority;
-        channelData.originatorId = originatorId;
+        channelData.senderId = senderId;
         channelData.participantIds = [...participantIds];
         channelData.startTime = new Date();
         channelData.lastActivity = new Date();
@@ -535,7 +535,7 @@ export default class DiscordBot {
           callType: channel.callType || null,
           callId: channel.callId || null,
           priority: channel.priority || null,
-          originatorId: channel.originatorId || null,
+          senderId: channel.senderId || null,
           participantCount: channel.participantIds ? channel.participantIds.length : 0,
           participantIds: channel.participantIds || [],
           startTime: channel.startTime || null,
@@ -606,10 +606,10 @@ export default class DiscordBot {
       }
 
       // Validate termination authority
-      if (requestorId && channel.originatorId && requestorId !== channel.originatorId) {
-        // Only originator or system can terminate (unless emergency preemption)
+      if (requestorId && channel.senderId && requestorId !== channel.senderId) {
+        // Only sender or system can terminate (unless emergency preemption)
         if (reason !== 'PREEMPTED' && reason !== 'TIMEOUT') {
-          console.warn(chalk.yellow("Terminate call - unauthorized:"), requestorId, "not originator:", channel.originatorId);
+          console.warn(chalk.yellow("Terminate call - unauthorized:"), requestorId, "not sender:", channel.senderId);
           return false;
         }
       }
@@ -651,7 +651,7 @@ export default class DiscordBot {
       delete channel.callType;
       delete channel.callId;
       delete channel.priority;
-      delete channel.originatorId;
+      delete channel.senderId;
       delete channel.participantIds;
       delete channel.startTime;
       delete channel.lastActivity;
@@ -750,7 +750,7 @@ export default class DiscordBot {
         callId: c.callId,
         callType: c.callType,
         inactiveDuration: now - c.lastActivity.getTime(),
-        originatorId: c.originatorId
+        senderId: c.senderId
       }));
   }
 }

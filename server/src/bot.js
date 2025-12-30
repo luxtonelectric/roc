@@ -1,7 +1,7 @@
 // @ts-check
 import chalk from 'chalk';
 
-import {Client, GatewayIntentBits, VoiceChannel, TextChannel, CategoryChannel, NewsChannel, StageChannel, ForumChannel} from 'discord.js';
+import {Client, GatewayIntentBits, VoiceChannel, TextChannel, CategoryChannel, NewsChannel, StageChannel, ForumChannel, Events} from 'discord.js';
 /** @typedef {import("./ROCManager.js").default} ROCManager */
 
 
@@ -60,12 +60,12 @@ export default class DiscordBot {
     this._onChannelUpdate = (oldChannel, newChannel) => { void this.onChannelUpdate(oldChannel, newChannel); };
     this._onVoiceStateUpdate = (oldState, newState) => { void this.onVoiceStateUpdate(oldState, newState); };
 
-    this.client.on('clientReady', this._onReady);
-    this.client.on('messageCreate', this._onMessage);
-    this.client.on('channelCreate', this._onChannelCreate);
-    this.client.on('channelDelete', this._onChannelDelete);
-    this.client.on('channelUpdate', this._onChannelUpdate);
-    this.client.on('voiceStateUpdate', this._onVoiceStateUpdate);
+    this.client.on(Events.ClientReady, this._onReady);
+    this.client.on(Events.MessageCreate, this._onMessage);
+    this.client.on(Events.ChannelCreate, this._onChannelCreate);
+    this.client.on(Events.ChannelDelete, this._onChannelDelete);
+    this.client.on(Events.ChannelUpdate, this._onChannelUpdate);
+    this.client.on(Events.VoiceStateUpdate, this._onVoiceStateUpdate);
 
     this.handlersAttached = true;
   }
@@ -76,12 +76,12 @@ export default class DiscordBot {
   detachEventHandlers() {
     if (!this.handlersAttached) return;
 
-    if (this._onReady) this.client.off('clientReady', this._onReady);
-    if (this._onMessage) this.client.off('messageCreate', this._onMessage);
-    if (this._onChannelCreate) this.client.off('channelCreate', this._onChannelCreate);
-    if (this._onChannelDelete) this.client.off('channelDelete', this._onChannelDelete);
-    if (this._onChannelUpdate) this.client.off('channelUpdate', this._onChannelUpdate);
-    if (this._onVoiceStateUpdate) this.client.off('voiceStateUpdate', this._onVoiceStateUpdate);
+    if (this._onReady) this.client.off(Events.ClientReady, this._onReady);
+    if (this._onMessage) this.client.off(Events.MessageCreate, this._onMessage);
+    if (this._onChannelCreate) this.client.off(Events.ChannelCreate, this._onChannelCreate);
+    if (this._onChannelDelete) this.client.off(Events.ChannelDelete, this._onChannelDelete);
+    if (this._onChannelUpdate) this.client.off(Events.ChannelUpdate, this._onChannelUpdate);
+    if (this._onVoiceStateUpdate) this.client.off(Events.VoiceStateUpdate, this._onVoiceStateUpdate);
 
     delete this._onReady;
     delete this._onMessage;

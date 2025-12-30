@@ -24,7 +24,7 @@
           <div class="grid grid-cols-1 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Simulation</label>
-              <select v-model="localNewHost.sim" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <select v-model="newHost.sim" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">Select a simulation</option>
                 <option v-for="sim in availableSimulations" :key="sim.id" :value="sim.id">
                   {{ sim.name }}
@@ -33,12 +33,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Host URL/IP</label>
-              <input v-model="localNewHost.host" required type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., localhost or 192.168.1.100"/>
+              <input v-model="newHost.host" required type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., localhost or 192.168.1.100"/>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Host Port</label>
               <input 
-                v-model="localNewHost.port" 
+                v-model="newHost.port" 
                 required 
                 type="number" 
                 min="1" 
@@ -50,7 +50,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Voice Channel</label>
-              <select v-model="localNewHost.channel" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <select v-model="newHost.channel" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 <option value="">{{ hasVoiceChannels ? 'Select a voice channel' : 'Loading channels...' }}</option>
                 <option v-for="channel in availableChannels" :key="channel.id" :value="channel.name">
                   {{ channel.name }}
@@ -63,7 +63,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700">Interface Gateway Port</label>
               <input 
-                v-model="localNewHost.interfaceGateway.port" 
+                v-model="newHost.interfaceGateway.port" 
                 required 
                 type="number" 
                 min="1" 
@@ -82,7 +82,7 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Username</label>
                   <input 
-                    v-model="localNewHost.interfaceGateway.username" 
+                    v-model="newHost.interfaceGateway.username" 
                     type="text" 
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     placeholder="Optional username for STOMP authentication"
@@ -91,16 +91,16 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Password</label>
                   <input 
-                    v-model="localNewHost.interfaceGateway.password" 
+                    v-model="newHost.interfaceGateway.password" 
                     type="password" 
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    :placeholder="formMode === 'edit' && localNewHost.interfaceGateway.hasPassword ? 'Leave blank to keep existing password' : 'Optional password for STOMP authentication'"
+                    :placeholder="formMode === 'edit' && newHost.interfaceGateway.hasPassword ? 'Leave blank to keep existing password' : 'Optional password for STOMP authentication'"
                   />
-                  <div v-if="formMode === 'edit' && localNewHost.interfaceGateway.hasPassword" class="mt-1 text-sm text-gray-500">
+                  <div v-if="formMode === 'edit' && newHost.interfaceGateway.hasPassword" class="mt-1 text-sm text-gray-500">
                     Current password is set. Enter new password to change it, or leave blank to keep existing.
                   </div>
                 </div>
-                <div v-if="localNewHost.interfaceGateway.password" class="grid grid-cols-1 gap-4">
+                <div v-if="newHost.interfaceGateway.password" class="grid grid-cols-1 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
                     <input 
@@ -109,7 +109,7 @@
                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       placeholder="Confirm the password"
                     />
-                    <div v-if="localNewHost.interfaceGateway.password && localPasswordConfirmation && localNewHost.interfaceGateway.password !== localPasswordConfirmation" class="mt-1 text-sm text-red-600">
+                    <div v-if="newHost.interfaceGateway.password && localPasswordConfirmation && newHost.interfaceGateway.password !== localPasswordConfirmation" class="mt-1 text-sm text-red-600">
                       Passwords do not match
                     </div>
                   </div>
@@ -182,29 +182,17 @@ export default {
   emits: ['close', 'update:newHost', 'update:passwordConfirmation'],
   setup(props, { emit }) {
     // Create local reactive copies of the props
-    const localNewHost = ref({ ...props.newHost })
     const localPasswordConfirmation = ref(props.passwordConfirmation)
-
-    // Watch for changes to props and update local copies
-    watch(() => props.newHost, (newValue) => {
-      localNewHost.value = { ...newValue }
-    }, { deep: true })
 
     watch(() => props.passwordConfirmation, (newValue) => {
       localPasswordConfirmation.value = newValue
     })
-
-    // Watch local copies and emit updates
-    watch(localNewHost, (newValue) => {
-      emit('update:newHost', newValue)
-    }, { deep: true })
 
     watch(localPasswordConfirmation, (newValue) => {
       emit('update:passwordConfirmation', newValue)
     })
 
     return {
-      localNewHost,
       localPasswordConfirmation
     }
   },
@@ -225,7 +213,6 @@ export default {
     },
     handleSubmit() {
       // Ensure all emitted values are current before submitting
-      this.$emit('update:newHost', this.localNewHost)
       this.$emit('update:passwordConfirmation', this.localPasswordConfirmation)
       // Call the actual submit function (which will work with the parent's reactive data)
       this.$nextTick(() => {

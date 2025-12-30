@@ -484,18 +484,41 @@ export function useCallManager(
       activeCalls.value.set(call.id, call)
       console.log('Updated unified call in queue:', call.id)
     }
-    
+
+    // If incoming update has a terminal state, route through existing helpers
+    if (call.status === PreparedCall.STATUS.REJECTED || call.status === PreparedCall.STATUS.ENDED) {
+      console.log('Terminal call state received for:', call.id, 'status:', call.status)
+
+      // Let the unified status update logic handle cleaning up currentCall and audio
+      updateCallStatus(call.id, call.status)
+
+      // Ensure it's removed from the queue if present
+      const queued = callQueue.value.find(c => c.id === call.id)
+      if (queued) removeCallFromQueue(queued)
+
+      // Notify / play audio for rejected terminal state
+      if (call.status === PreparedCall.STATUS.REJECTED) {
+        playRejectedAudio()
+        showSuccess('Call Rejected', 'Call has been rejected')
+      }
+
+      return
+    }
+
+    // Ensure any non-terminal status updates propagate to current/active state
+    updateCallStatus(call.id, call.status)
+
     // Handle REC-specific UI behavior
     if (isRECCall(call)) {
       console.log('REC call detected - triggering REC modal logic')
       recCallInfo.value = call as IRECCall
       recModalVisible.value = true
-      
+
       if (recAudio && enableAudioFlag.value) {
         recAudio.play().catch(console.error)
       }
     }
-    
+
     // Update nextCall and incomingCall state for UI display
     updateNextCallState()
   }

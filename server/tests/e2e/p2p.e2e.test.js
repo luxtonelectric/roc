@@ -450,4 +450,113 @@ describe('E2E P2P call flow', () => {
     channelObj.members = new Map([[mC.id, mC], [mD.id, mD]]);
 
   });
+
+  test('players place and reject a P2P call and both queues and updates reflect rejection', async () => {
+    // Ensure both members appear to be in voice channels (validator requires this)
+    fakeClient.__helpers.setMemberVoiceChannel('discordA', 'vc-A');
+    fakeClient.__helpers.setMemberVoiceChannel('discordB', 'vc-B');
+
+    // Record original voice channels in ROCManager so any cleanup can restore
+    roc.users.discordA.voiceChannelId = 'vc-A';
+    roc.users.discordB.voiceChannelId = 'vc-B';
+
+    // Place P2P call from A to B
+    const callId = await new Promise(resolve => socketA.trigger('placeCall', {
+      sender: 'sim1_panelA',
+      receiver: 'sim1_panelB',
+      type: BaseCall.TYPES.P2P,
+      level: BaseCall.LEVELS.NORMAL
+    }, (response) => resolve(response)));
+
+    expect(callId).toBeTruthy();
+    expect(ucm.requestedCalls.has(callId)).toBe(true);
+
+    // B rejects the call
+    const rejectRes = await new Promise(resolve => socketB.trigger('rejectCall', { id: callId }, (res) => resolve(res)));
+    const rejected = (rejectRes && typeof rejectRes === 'object') ? rejectRes.success : rejectRes;
+    expect(rejected).toBe(true);
+
+    // Call should be moved to pastCalls and marked REJECTED
+    expect(ucm.pastCalls.has(callId)).toBe(true);
+    const pastCall = ucm.pastCalls.get(callId);
+    expect(pastCall.status).toBe(BaseCall.STATUS.REJECTED);
+
+    // It should no longer be in requestedCalls
+    expect(ucm.requestedCalls.has(callId)).toBe(false);
+
+    // A and B should have received a callUpdate with the REJECTED status
+    const callUpdateEvents = ioMock.events.filter(e => e.ev === 'callUpdate' && (e.to === 'discordA' || e.to === 'discordB'));
+    const foundRejectedUpdate = callUpdateEvents.some(e => e.data && e.data.id === callId && e.data.status === BaseCall.STATUS.REJECTED);
+    expect(foundRejectedUpdate).toBe(true);
+
+    // Both players should have received callQueueUpdate and the queue should include the rejected call in past
+    const queueEventsA = ioMock.events.filter(e => e.ev === 'callQueueUpdate' && e.to === 'discordA');
+    const queueEventsB = ioMock.events.filter(e => e.ev === 'callQueueUpdate' && e.to === 'discordB');
+    expect(queueEventsA.length).toBeGreaterThan(0);
+    expect(queueEventsB.length).toBeGreaterThan(0);
+
+    const latestQA = queueEventsA[queueEventsA.length - 1].data.queue;
+    const latestQB = queueEventsB[queueEventsB.length - 1].data.queue;
+
+    const aHas = latestQA.some(c => c.id === callId && c.status === BaseCall.STATUS.REJECTED);
+    const bHas = latestQB.some(c => c.id === callId && c.status === BaseCall.STATUS.REJECTED);
+
+    expect(aHas).toBe(true);
+    expect(bHas).toBe(true);
+  });
+
+  test('players place, accept and explicit terminate a P2P call via terminateCall', async () => {
+    // Ensure both are in voice channels
+    fakeClient.__helpers.setMemberVoiceChannel('discordA', 'vc-A');
+    fakeClient.__helpers.setMemberVoiceChannel('discordB', 'vc-B');
+    roc.users.discordA.voiceChannelId = 'vc-A';
+    roc.users.discordB.voiceChannelId = 'vc-B';
+
+    // Prepare private call channel in fake guild
+    fakeClient.__helpers.addChannel('pcc-1', 'Private Call 1');
+    const guild = await fakeClient.guilds.fetch('GUILD_ID');
+    const memberA = await guild.members.fetch('discordA');
+    const memberB = await guild.members.fetch('discordB');
+    const channelObj = await guild.channels.fetch('pcc-1');
+    channelObj.members = new Map([[memberA.id, memberA], [memberB.id, memberB]]);
+
+    // Place P2P call via socket A
+    const callId = await new Promise(resolve => socketA.trigger('placeCall', {
+      sender: 'sim1_panelA',
+      receiver: 'sim1_panelB',
+      type: BaseCall.TYPES.P2P,
+      level: BaseCall.LEVELS.NORMAL
+    }, (response) => resolve(response)));
+
+    expect(callId).toBeTruthy();
+
+    // Accept via socket B
+    const acceptResult = await new Promise(resolve => socketB.trigger('acceptCall', { id: callId }, (res) => resolve(res)));
+    expect(acceptResult).toBe(true);
+
+    // Call should now be active
+    const call = ucm.activeCalls.get(callId);
+    expect(call).toBeDefined();
+    expect(call.status).toBe(BaseCall.STATUS.ACCEPTED);
+
+    // Simulate io emit throwing (non-Error) when broadcasting updates
+    const originalIo = ucm.io;
+    ucm.io = {
+      to: (discordId) => ({ emit: (ev, data) => { throw {}; } }),
+      emit: (ev, data) => { throw {}; }
+    };
+
+    // Termination should still succeed and not bubble the internal emit error
+    const termResult = await ucm.terminateCall(null, callId, 'TEST_TERMINATION');
+    expect(termResult).toBe(true);
+
+    // Call should be moved to pastCalls and final status should be ENDED
+    expect(ucm.pastCalls.has(callId)).toBe(true);
+    const past = ucm.pastCalls.get(callId);
+    expect(past.status).toBe(BaseCall.STATUS.ENDED);
+
+    // Restore io
+    ucm.io = originalIo;
+  });
+
 });

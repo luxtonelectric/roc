@@ -479,19 +479,32 @@ export default class UnifiedCallManager {
   }
 
   /**
-   * Get call queue for a specific phone with priority ordering
+   * Get call queue for a specific phone including requested, active and last 10 past calls
    * @param {Phone} phone - The phone to get queue for
-   * @returns {BaseCall[]} Sorted array of calls by priority
+   * @returns {BaseCall[]} Array of calls with current (requested/active) sorted by priority, then recent past
    */
   getCallQueueForPhone(phone) {
-    const calls = this.getCallsForPhone(phone);
-    
-    // Sort by priority (lower number = higher priority)
-    return calls.sort((a, b) => {
+    if (!phone) return [];
+
+    // Collect requested and active calls involving this phone
+    const requestedCalls = Array.from(this.requestedCalls.values()).filter(c => c.includesPhone(phone));
+    const activeCalls = Array.from(this.activeCalls.values()).filter(c => c.includesPhone(phone));
+
+    // Collect past calls and keep only the last 10
+    const pastCalls = Array.from(this.pastCalls.values()).filter(c => c.includesPhone(phone));
+    const last10Past = pastCalls.slice(-10);
+
+    // Sort current calls by priority (lower number = higher priority)
+    const current = requestedCalls.concat(activeCalls).sort((a, b) => {
       const priorityA = this.getCallPriority(a.type, a.level);
       const priorityB = this.getCallPriority(b.type, b.level);
       return priorityA - priorityB;
     });
+
+    // Append recent past calls
+    current.push(...last10Past);
+
+    return current;
   }
 
   /**
@@ -1296,14 +1309,23 @@ export default class UnifiedCallManager {
       // Move to past calls
       this.moveCallToPast(call);
       
-      // Update phone call queues
-      this.updatePhoneCallQueues(call.getAllPhones());
+      // Update phone call queues - guard against potential emit errors from sockets
+      try {
+        this.updatePhoneCallQueues(call.getAllPhones());
+      } catch (err) {
+        // Log gracefully - ensure we don't crash termination for downstream emit failures
+        console.error(chalk.red('UnifiedCallManager'), `Failed to update phone call queues during termination for ${callId}:`, err && (err.stack || err));
+      }
       
       //console.log(chalk.green('UnifiedCallManager'), `Call ${callId} terminated`);
       
       // Emit call ended event
       if (this.io) {
-        this.broadcastCallEnded(call, reason);
+        try {
+          this.broadcastCallEnded(call, reason);
+        } catch (err) {
+          console.error(chalk.red('UnifiedCallManager'), `Failed to broadcast call ended for ${callId}:`, err && (err.stack || err));
+        }
       }
       
       if (callback) callback(true);

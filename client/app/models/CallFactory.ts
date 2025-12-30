@@ -177,6 +177,29 @@ export class CallFactory {
         // If server included a resolved receiver, attach it to the call instance for client convenience
         call.receiver = CallGroupClass.fromSimple(data.receiver);
       }
+
+      // Preserve REC-specific metadata (countdown, isSender, caller info)
+      if (data.countdown !== undefined) {
+        // @ts-ignore - augmenting IRECCall interface
+        call.countdown = data.countdown;
+      }
+      if (data.isSender !== undefined) {
+        // @ts-ignore
+        call.isSender = !!data.isSender;
+      }
+      if (data.sender) {
+        try {
+          // Extract caller display info from sender payload
+          const senderSimple = data.sender;
+          const callerName = senderSimple.name || senderSimple.displayName || senderSimple.id || null;
+          // @ts-ignore
+          call.callerInfo = { name: callerName, id: senderSimple.id, location: senderSimple.location };
+        } catch (err) {
+          // Non-fatal if sender info is malformed
+          console.warn('Could not parse sender info for REC call', err);
+        }
+      }
+
       return call;
     } else {
       throw new Error(`Unknown call type: ${data.type}`);

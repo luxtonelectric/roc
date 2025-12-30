@@ -65,6 +65,7 @@
 
       <!-- End Call for All Button -->
       <button
+        v-if="props.allowEnd"
         @click="confirmEndCall"
         :disabled="isEnding"
         class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg border-2 border-red-700 hover:border-red-800 disabled:border-gray-500 transition-colors duration-200 shadow-sm"
@@ -136,6 +137,7 @@ interface Props {
   participants?: Participant[]
   startTime?: Date
   callId?: string
+  allowEnd?: boolean
 }
 
 interface Emits {
@@ -143,7 +145,9 @@ interface Emits {
   (e: 'endCall'): void
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  allowEnd: false
+})
 const emit = defineEmits<Emits>()
 
 const currentTime = ref(new Date())

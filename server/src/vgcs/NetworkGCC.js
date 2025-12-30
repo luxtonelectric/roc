@@ -90,35 +90,19 @@ export default class NetworkGCC {
     // Phase 6 standardized messages for subscribers
     const callType = this.options.autoAnswer ? 'REC' : 'GROUP';
     
-    if (callType === 'REC') {
-      // REC calls get special notification handling
-      this.bus.publish('SOCKET_BRIDGE', {
-        type: 'REC_NOTIFICATION',
-        groupId,
-        phoneId: fromMs,
-        data: {
-          senderName: null, // Will be filled by socket bridge from phone manager
-          level: this.options.priority,
-          autoJoinCountdown: 5,
-          adminUsers: [] // Will be populated based on user roles
-        },
-        recipients: this.bus._getAllOnlineDiscordIds()
-      });
-    } else {
-      // Regular group calls
-      this.bus.publish('SOCKET_BRIDGE', {
-        type: 'GROUP_CALL_INITIATED',
-        groupId,
-        phoneId: fromMs,
-        data: {
-          senderPhoneId: fromMs,
-          type: callType,
-          level: this.options.priority,
-          participants: Array.from(this.participants)
-        },
-        recipients: this.bus._getAllOnlineDiscordIds()
-      });
-    }
+    // Publish a unified GROUP_CALL_INITIATED message for both GROUP and REC calls
+    this.bus.publish('SOCKET_BRIDGE', {
+      type: 'GROUP_CALL_INITIATED',
+      groupId,
+      phoneId: fromMs,
+      data: {
+        senderPhoneId: fromMs,
+        type: callType, // 'REC' or 'GROUP'
+        level: this.options.priority,
+        participants: Array.from(this.participants)
+      },
+      recipients: this.bus._getAllOnlineDiscordIds()
+    });
 
     // Establish resources based on setup mode
     this._gotoEstablishingThenActive(!!this.options.immediateSetup);

@@ -101,12 +101,23 @@
                     Leave
                   </button>
                   <!-- Show Terminate for All button -->
-                  <button 
-                    @click="$emit('endCall', call.id)"
-                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                  >
-                    {{ isCallSender(call) ? 'Terminate for All' : 'End' }}
-                  </button>
+                  <div class="inline-flex items-center space-x-2">
+                    <button 
+                      @click="$emit('endCall', call.id)"
+                      class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                    >
+                      {{ isCallSender(call) ? 'Terminate for All' : 'End' }}
+                    </button>
+                    <!-- Admin-only: Force Terminate (bypass / for admins) -->
+                    <button
+                      v-if="isAdmin"
+                      @click="$emit('forceTerminate', call.groupId || call.id)"
+                      class="px-3 py-1 bg-red-100 text-red-800 text-xs rounded border border-red-300 hover:bg-red-200"
+                      title="Force terminate call (admin only)"
+                    >
+                      Force Terminate
+                    </button>
+                  </div>
                 </template>
                 <template v-else>
                   <!-- Regular Call Actions -->
@@ -243,6 +254,10 @@ export default {
       type: Boolean,
       default: true
     },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
     showEmpty: {
       type: Boolean,
       default: true
@@ -271,7 +286,8 @@ export default {
     'leaveCall',
     'endCall',
     'joinGroupCall',
-    'leaveGroupCall'
+    'leaveGroupCall',
+    'forceTerminate'
   ],
   methods: {
     getCallTypeClass(call) {

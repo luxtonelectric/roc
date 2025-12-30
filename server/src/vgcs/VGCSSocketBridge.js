@@ -155,8 +155,8 @@ export default class VGCSSocketBridge {
           this._emitGroupCallTerminated(data, groupId, discordIds);
           break;
           
-        // REC_NOTIFICATION removed - REC calls now use unified callUpdate events
-          
+
+        
         case 'FORCE_DISCONNECT':
           this._emitForceDisconnect(data, discordIds);
           break;
@@ -240,6 +240,16 @@ export default class VGCSSocketBridge {
       action: 'active',
       ...eventData
     });
+
+    // Ensure server-side call manager allocates channel and moves participants if required
+    try {
+      if (this.callManager && typeof this.callManager.handleVGCSGroupCallActive === 'function') {
+        // Fire-and-forget; call manager will log any failures
+        void this.callManager.handleVGCSGroupCallActive(groupId, eventData);
+      }
+    } catch (err) {
+      console.warn(chalk.yellow('VGCSSocketBridge'), 'Failed to notify callManager of GROUP_CALL_ACTIVE:', err?.message || err);
+    }
   }
 
   /**
@@ -413,6 +423,13 @@ export default class VGCSSocketBridge {
     }
   }
 
+  /**
+   * Emit REC notification to recipients and admin interface
+   * @param {Object} data - REC-specific data
+   * @param {string} groupId - Group call ID
+   * @param {string[]} recipients - Recipient Discord IDs
+   * @param {string} senderPhoneId - Sender phone ID
+   */
   /**
    * Resolve phone IDs to Discord IDs for message recipients
    * @param {string[]} phoneIds - Array of phone IDs

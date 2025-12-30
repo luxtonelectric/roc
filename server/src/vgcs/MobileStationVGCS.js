@@ -78,10 +78,10 @@ export default class MobileStationVGCS {
    * Accept an incoming group call (participant path)
    */
   accept() {
-    console.log(chalk.yellow('MobileStationVGCS.accept'), `MS: ${this.id}, State: ${this.state}`);
+    console.log(chalk.yellow('MobileStationVGCS.accept'), `MS: ${this.id}, State: ${this.state}, GroupId: ${this.groupId}, AutoAnswer: ${this.autoAnswer}`);
     
     if (this.state !== MS.PRESENT) {
-      console.log(chalk.red('MobileStationVGCS.accept'), 'Cannot accept - not in PRESENT state');
+      console.log(chalk.red('MobileStationVGCS.accept'), `Cannot accept - not in PRESENT state (current state=${this.state}, groupId=${this.groupId}, autoAnswer=${this.autoAnswer})`);
       return false;
     }
 

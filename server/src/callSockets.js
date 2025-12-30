@@ -212,6 +212,57 @@ export function callSockets(socket, unifiedCallManager, rocManager) {
     }
   });
 
+  // Admin: force terminate a group call (must be admin)
+  socket.on('forceTerminateGroupCall', async function(msg, callback) {
+    try {
+      const user = rocManager?.findUserBySocketId(socket.id);
+      if (!user || !rocManager.isAdmin(user.discordId)) {
+        if (callback && typeof callback === 'function') {
+          callback({ success: false, error: 'Unauthorized' });
+        }
+        return;
+      }
+
+      const groupId = msg.groupId || msg.id || msg.group;
+      if (!groupId) {
+        if (callback && typeof callback === 'function') {
+          callback({ success: false, error: 'Missing groupId' });
+        }
+        return;
+      }
+
+      // Force terminate via VGCSBus if available
+      try {
+        if (unifiedCallManager.vgcsBus && typeof unifiedCallManager.vgcsBus.forceTerminate === 'function') {
+          unifiedCallManager.vgcsBus.forceTerminate(groupId, msg.reason || 'admin-termination');
+        }
+      } catch (err) {
+        console.error('Error forcing VGCS termination for group', groupId, err);
+      }
+
+      // Also terminate associated call objects if present
+      const groupCalls = unifiedCallManager.getAllActiveGroupCalls();
+      for (const call of groupCalls) {
+        if (call.groupId === groupId) {
+          try {
+            await unifiedCallManager.terminateCall(null, call.id, 'ADMIN_FORCE_TERMINATE');
+          } catch (err) {
+            console.error('Failed to terminate call for groupId:', groupId, err);
+          }
+        }
+      }
+
+      if (callback && typeof callback === 'function') {
+        callback({ success: true });
+      }
+    } catch (error) {
+      console.error('Error handling forceTerminateGroupCall:', error);
+      if (callback && typeof callback === 'function') {
+        callback({ success: false, error: error.message || String(error) });
+      }
+    }
+  });
+
   socket.on("requestGroupCallUpdate", function(msg) {
     try {
       // Send current group call state to requesting client

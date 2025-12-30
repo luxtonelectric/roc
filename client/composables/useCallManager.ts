@@ -338,7 +338,8 @@ export function useCallManager(
           // Update call status using unified interface
           if (foundCall) {
             if (usesVGCSStates(foundCall)) {
-              foundCall.updateStatus(PreparedCall.STATUS.N2_ACTIVE)
+              // First acceptance moves VGCS call to establishing state; final ACTIVE will be set by server on CHANNEL_ASSIGN
+              foundCall.updateStatus(PreparedCall.STATUS.N3_ESTABLISHING)
             } else {
               foundCall.updateStatus(PreparedCall.STATUS.ACCEPTED)
             }
@@ -512,10 +513,33 @@ export function useCallManager(
     if (isRECCall(call)) {
       console.log('REC call detected - triggering REC modal logic')
       recCallInfo.value = call as IRECCall
-      recModalVisible.value = true
+      const isSender = !!recCallInfo.value.isSender
+      const countdown = typeof recCallInfo.value.countdown === 'number' ? recCallInfo.value.countdown : 0
 
-      if (recAudio && enableAudioFlag.value) {
-        recAudio.play().catch(console.error)
+      // Debug recording for REC events to help diagnose re-show or ringing loops
+      const __w = window as any
+      __w.__recDebug = __w.__recDebug || {}
+      __w.__recDebug[call.id] = __w.__recDebug[call.id] || []
+      __w.__recDebug[call.id].push({
+        event: 'addCallToQueue',
+        isSender,
+        countdown,
+        status: call.status,
+        time: Date.now()
+      })
+
+      // Only show modal for recipients (not for sender) AND only when there's an active countdown or the call is still initiating
+      const shouldShowModal = showRECModalFlag && !isSender && (countdown > 0 || call.status === PreparedCall.STATUS.N1_INITIATED)
+      if (shouldShowModal) {
+        console.info('REC modal show decision: true', { callId: call.id, isSender, countdown, status: call.status })
+        recModalVisible.value = true
+        if (recAudio && enableAudioFlag.value) {
+          recAudio.play().catch(console.error)
+        }
+      } else {
+        // For sender, or after countdown/when active, ensure modal hidden
+        console.info('REC modal show decision: false', { callId: call.id, isSender, countdown, status: call.status })
+        recModalVisible.value = false
       }
     }
 
@@ -746,7 +770,8 @@ export function useCallManager(
         phoneId
       }, (response: any) => {
         console.log('Join unified group call response:', response)
-        if (response && response.success) {
+        // Server may return boolean true or { success: true }
+        if (response === true || response?.success) {
           showSuccess('Group Call Joined', 'Successfully joined the group call')
           resolve(true)
         } else {
@@ -787,7 +812,8 @@ export function useCallManager(
     return new Promise((resolve) => {
       socketRef.value?.emit('terminateGroupCall', { phoneId }, (response: any) => {
         console.log('Terminate unified group call response:', response)
-        if (response && response.success) {
+        // Server may return boolean true or { success: true }
+        if (response === true || response?.success) {
           showSuccess('Group Call Terminated', 'Successfully terminated the group call')
           resolve(true)
         } else {
@@ -805,6 +831,9 @@ export function useCallManager(
     }
   }
 
+  // Options
+  const showRECModalFlag = options?.showRECModal !== undefined ? !!options.showRECModal : true;
+
   // REC call management (enhanced for unified interface)
   const handleRECCallOffer = (callInfo: any): void => {
     try {
@@ -819,6 +848,17 @@ export function useCallManager(
       
       if (recAudio && enableAudioFlag.value) {
         recAudio.play().catch(console.error)
+      }
+
+      // Auto-accept REC calls if configured and we're a recipient
+      if (autoAcceptREC && recCall && !recCall.isSender) {
+        console.log('Auto-accepting REC call due to autoAcceptREC option:', recCall.id)
+        // Immediately accept and hide modal
+        (async () => {
+          await acceptCall(recCall.id).catch(err => console.error('Auto-accept REC failed:', err))
+          recModalVisible.value = false
+          recCallInfo.value = undefined
+        })()
       }
     } catch (error) {
       console.error('Failed to process REC call offer:', error)
@@ -865,21 +905,189 @@ export function useCallManager(
         const unifiedCall = CallFactory.fromEmittedData(data)
         console.log('Created unified call object:', unifiedCall)
         console.log('Call toEmittable:', unifiedCall.toEmittable())
+        // debug
+        const __w = window as any
+        __w.__recDebug = __w.__recDebug || {}
+        __w.__recDebug[unifiedCall.id] = __w.__recDebug[unifiedCall.id] || []
+        __w.__recDebug[unifiedCall.id].push({ event: 'callUpdate_received', payload: data, time: Date.now() })
         addCallToQueue(unifiedCall)
       } catch (error) {
         console.error('Failed to process unified call update:', error)
       }
     })
 
+    // Generic status updates (legacy / unified)
     socketRef.value.on('callStatusUpdate', (data) => {
       console.log('Unified call status update:', data)
       updateCallStatus(data.callId, data.status)
     })
 
+    // VGCS / Group-specific events
+    socketRef.value.on('groupCallInitiated', (data) => {
+      console.log('groupCallInitiated received:', data)
+      try {
+        // Prefer server-provided call payload if available
+        const callData = data.callData || data.call || data
+        if (callData) {
+          const unifiedCall = CallFactory.fromEmittedData(callData)
+          // debug
+          const __w = window as any
+          __w.__recDebug = __w.__recDebug || {}
+          __w.__recDebug[unifiedCall.id] = __w.__recDebug[unifiedCall.id] || []
+          __w.__recDebug[unifiedCall.id].push({ event: 'groupCallInitiated_received', payload: data, time: Date.now() })
+          addCallToQueue(unifiedCall)
+        }
+      } catch (err) {
+        console.error('Failed to process groupCallInitiated:', err)
+      }
+    })
+
+    socketRef.value.on('groupCallActive', (data) => {
+      console.log('groupCallActive received:', data)
+      const callId = data.groupId || data.callId
+      // debug
+      if (callId) {
+        const __w = window as any
+        __w.__recDebug = __w.__recDebug || {}
+        __w.__recDebug[callId] = __w.__recDebug[callId] || []
+        __w.__recDebug[callId].push({ event: 'groupCallActive_received', payload: data, time: Date.now() })
+        updateCallStatus(callId, PreparedCall.STATUS.N2_ACTIVE)
+      }
+    })
+
+    socketRef.value.on('groupCallParticipantJoined', (data) => {
+      console.log('groupCallParticipantJoined received:', data)
+      // Best-effort: request full update for the group to reconcile state
+      requestGroupCallUpdate()
+    })
+
+    socketRef.value.on('groupCallParticipantLeft', (data) => {
+      console.log('groupCallParticipantLeft received:', data)
+      requestGroupCallUpdate()
+    })
+
+    socketRef.value.on('groupCallParticipantUpdate', (data) => {
+      console.log('groupCallParticipantUpdate received:', data)
+      requestGroupCallUpdate()
+    })
+
+    socketRef.value.on('groupCallTerminated', (data) => {
+      console.log('groupCallTerminated received:', data)
+      const callId = data.groupId || data.callId
+      if (callId) {
+        updateCallStatus(callId, PreparedCall.STATUS.N0_NULL)
+        // Cleanup local state
+        const idx = callQueue.value.findIndex(c => c.id === callId)
+        if (idx !== -1) removeCallFromQueue(callQueue.value[idx])
+        if (currentCall.value && currentCall.value.id === callId) {
+          currentCall.value = undefined
+          inCall.value = false
+          incomingCall.value = false
+        }
+        stopCallAudio()
+      }
+    })
+
+    socketRef.value.on('forceDisconnect', async (data) => {
+      console.log('forceDisconnect received:', data)
+      // Server requests clients to disconnect from current call (REC priority preemption)
+      await forceDisconnectFromCurrentCall()
+    })
+
+    // Bulk group call updates / admin responses
+    socketRef.value.on('groupCallUpdate', (calls) => {
+      console.log('groupCallUpdate received:', calls)
+      if (Array.isArray(calls)) {
+        calls.forEach(c => {
+          try {
+            addCallToQueue(CallFactory.fromEmittedData(c))
+          } catch (err) {
+            console.error('Failed to process groupCallUpdate item:', err, c)
+          }
+        })
+      }
+    })
+
+    // Per-phone queue updates
+    socketRef.value.on('callQueueUpdate', (data) => {
+      console.log('callQueueUpdate received:', data)
+      if (data && data.phoneId) {
+        processCallQueueUpdate(data.phoneId, data.queue || [])
+      }
+    })
+
+    // Map legacy or VGCS status updates
+    socketRef.value.on('groupCallStatusUpdate', (data) => {
+      console.log('groupCallStatusUpdate received:', data)
+      updateCallStatus(data.callId || data.groupId, data.status)
+    })
+
+    // Call lifecycle events
+    socketRef.value.on('joinedCall', (data) => {
+      console.log('joinedCall received:', data)
+      if (data && data.success) {
+        inCall.value = true
+        incomingCall.value = false
+        stopCallAudio()
+      }
+    })
+
+    socketRef.value.on('callEnded', (data) => {
+      console.log('callEnded received:', data)
+      const callId = data?.callId || data?.id || data?.groupId
+      if (callId) {
+        updateCallStatus(callId, PreparedCall.STATUS.ENDED)
+        const idx = callQueue.value.findIndex(c => c.id === callId)
+        if (idx !== -1) removeCallFromQueue(callQueue.value[idx])
+        if (currentCall.value && currentCall.value.id === callId) {
+          currentCall.value = undefined
+          inCall.value = false
+          incomingCall.value = false
+        }
+        stopCallAudio()
+        showSuccess('Call Ended', 'Call has ended')
+      }
+    })
+
+    socketRef.value.on('kickedFromCall', (data) => {
+      console.log('kickedFromCall received:', data)
+      const callId = data?.callId
+      const reason = data?.reason || 'Removed from call'
+      showError('Removed from call', reason)
+      if (callId) {
+        const idx = callQueue.value.findIndex(c => c.id === callId)
+        if (idx !== -1) removeCallFromQueue(callQueue.value[idx])
+        if (currentCall.value && currentCall.value.id === callId) {
+          currentCall.value = undefined
+          inCall.value = false
+          incomingCall.value = false
+        }
+        stopCallAudio()
+      }
+    })
+
+    // Error events
+    socketRef.value.on('callError', (data) => {
+      console.error('callError received:', data)
+      showError('Call Error', data?.error || data?.message || 'Unknown call error')
+    })
+
+    socketRef.value.on('groupCallError', (data) => {
+      console.error('groupCallError received:', data)
+      showError('Group Call Error', data?.error || data?.message || 'Unknown group call error')
+      if (data?.groupId) requestGroupCallUpdate()
+    })
+
+    socketRef.value.on('vgcsError', (data) => {
+      console.error('vgcsError received:', data)
+      showError('VGCS Error', data?.error || data?.message || 'VGCS error')
+      if (data?.groupId) requestGroupCallUpdate()
+    })
+
     // REC calls now handled through unified callUpdate events
     // REC-specific UI behavior (modal, countdown) is triggered in addCallToQueue when call.type === 'REC'
 
-    console.log('Unified call event listeners set up')
+    console.log('Unified call & VGCS event listeners set up')
   }
 
   function removeCallEventListeners(): void {
@@ -887,9 +1095,28 @@ export function useCallManager(
 
     socketRef.value.off('callUpdate')
     socketRef.value.off('callStatusUpdate')
-    // No more separate REC event listeners - REC calls handled through unified callUpdate
 
-    console.log('Unified call event listeners removed')
+    // VGCS / Group listeners
+    socketRef.value.off('groupCallInitiated')
+    socketRef.value.off('groupCallActive')
+    socketRef.value.off('groupCallParticipantJoined')
+    socketRef.value.off('groupCallParticipantLeft')
+    socketRef.value.off('groupCallParticipantUpdate')
+    socketRef.value.off('groupCallTerminated')
+    socketRef.value.off('forceDisconnect')
+    socketRef.value.off('groupCallUpdate')
+    socketRef.value.off('callQueueUpdate')
+    socketRef.value.off('groupCallStatusUpdate')
+
+    // Call lifecycle / error listeners
+    socketRef.value.off('joinedCall')
+    socketRef.value.off('callEnded')
+    socketRef.value.off('kickedFromCall')
+    socketRef.value.off('callError')
+    socketRef.value.off('groupCallError')
+    socketRef.value.off('vgcsError')
+
+    console.log('Unified call & VGCS event listeners removed')
   }
 
   return {

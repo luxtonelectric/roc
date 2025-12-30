@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import io from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import type { PreparedCall } from '~/models/PreparedCall';
 import { useCallManager } from '../../composables/useCallManager'
 import CallDisplay from '~/components/shared/CallDisplay.vue'
@@ -188,6 +189,24 @@ function changeTab(tab: string) {
   showTab.value = tab;
 }
 
+// Utility: determine an appropriate phone id to act with (first phone or sender matching the current call)
+function findCurrentPhoneId(): string | null {
+  const phoneKeys = Object.keys(myPhones.value || {})
+
+  // If current call has a sender that matches one of our phones, prefer that
+  try {
+    if (currentCall?.value && currentCall.value.sender && currentCall.value.sender.id) {
+      const sid = currentCall.value.sender.id
+      if (phoneKeys.includes(sid)) return sid
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // Fall back to the first available phone
+  return phoneKeys.length > 0 ? phoneKeys[0] : null
+}
+
 function prepareCall(call: PreparedCall) {
   preparedCall.value = call;
 }
@@ -207,18 +226,30 @@ function handleRECEndCall() {
   }
 }
 
-function findCurrentPhoneId(): string | null {
-  // Find any claimed phone from phoneData
-  if (phoneData.value) {
-    const phones = Array.isArray(phoneData.value) ? phoneData.value : Object.values(phoneData.value);
-    const phone = phones.find(p => p?.id);
-    return phone?.id || null;
-  }
-  
-  // Fallback to current call sender
-  return currentCall.value?.sender?.id || null;
-}
+// Determine if current user is the sender for the active REC/group call
+const isSenderInCall = computed(() => {
+  if (!currentCall.value || !currentCall.value.sender) return false
+  const phoneId = findCurrentPhoneId()
+  return phoneId && currentCall.value.sender?.id === phoneId
+})
 
+// REC modal accept handling with disabled state
+const isAcceptingREC = ref(false)
+async function onRecAccept() {
+  if (isAcceptingREC.value) return
+  isAcceptingREC.value = true
+  try {
+    const success = await acceptRECCall()
+    if (success) {
+      recModalVisible.value = false
+      recCallInfo.value = undefined
+    }
+  } catch (err) {
+    console.error('REC accept failed:', err)
+  } finally {
+    isAcceptingREC.value = false
+  }
+}
 </script>
 
 <template>
@@ -294,6 +325,7 @@ function findCurrentPhoneId(): string | null {
             @accept-call="acceptCall"
             @leave-call="leaveCall"
             @reject-call="rejectCall"
+            @terminate-group-call="terminateGroupCall"
           />
         </div>
 
@@ -306,6 +338,7 @@ function findCurrentPhoneId(): string | null {
           :caller-info="currentCall?.sender"
           :start-time="currentCall?.timePlaced ? new Date(currentCall.timePlaced) : undefined"
           :call-id="currentCall?.id"
+          :allow-end="isSenderInCall"
           @drop-out="handleRECDropOut"
           @end-call="handleRECEndCall"
         />
@@ -325,9 +358,10 @@ function findCurrentPhoneId(): string | null {
       :caller-info="recCallInfo?.callerInfo"
       :initial-countdown="recCallInfo?.countdown ?? 5"
       :allow-decline="!recCallInfo?.isSender"
-      @accept="acceptRECCall"
+      :is-accepting="isAcceptingREC"
+      @accept="onRecAccept"
       @decline="declineRECCall"
-      @timeout="acceptRECCall"
+      @timeout="onRecAccept"
       @close="declineRECCall"
     />
   </div>

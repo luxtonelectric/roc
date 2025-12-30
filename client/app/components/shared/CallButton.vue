@@ -14,7 +14,7 @@ import { CallDetails } from '~/models/CallDetails'
 
 export default {
   name: "CallButton",
-  emits: ["acceptCall", "changeTab", "placeCall", "leaveCall", "rejectCall"],
+  emits: ["acceptCall", "changeTab", "placeCall", "leaveCall", "rejectCall", "terminateGroupCall"],
   props: {
     currentCall: {
       type: Object,
@@ -98,9 +98,17 @@ export default {
   },
   methods: {
     takeAction() {
-      // If we're in a call, end it
+      // If we're in a call, decide whether to leave or terminate (sender of a GROUP/REC must terminate)
       if (this.inCall && this.currentCall) {
-        this.$emit("leaveCall", this.currentCall.id);
+        const isVGCS = (this.currentCall.type === 'group' || this.currentCall.type === 'REC');
+        const isSender = this.phoneData.some((p) => p.id === this.currentCall.sender?.id);
+        if (isVGCS && isSender) {
+          // Emit terminate for sender in group/REC calls (passes sender phone id)
+          this.$emit('terminateGroupCall', this.currentCall.sender?.id);
+        } else {
+          // Participant or P2P: leave the call (server will handle termination for P2P)
+          this.$emit('leaveCall', this.currentCall.id);
+        }
         return;
       }
       
@@ -141,7 +149,9 @@ export default {
       }
       
       if (this.inCall && this.currentCall) {
-        this.title = "End Call";
+        const isVGCS = (this.currentCall.type === 'group' || this.currentCall.type === 'REC');
+        const isSender = this.phoneData.some((p) => p.id === this.currentCall.sender?.id);
+        this.title = (isVGCS && isSender) ? "Terminate Call" : "End Call";
         this.line1 = "From: " + (this.currentCall.sender?.name || 'Unknown');
         this.line2 = " ↔ ";
         // Use unified architecture method for active call receiver display

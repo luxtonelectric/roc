@@ -60,7 +60,7 @@ export default class DiscordBot {
     this._onChannelUpdate = (oldChannel, newChannel) => { void this.onChannelUpdate(oldChannel, newChannel); };
     this._onVoiceStateUpdate = (oldState, newState) => { void this.onVoiceStateUpdate(oldState, newState); };
 
-    this.client.on('ready', this._onReady);
+    this.client.on('clientReady', this._onReady);
     this.client.on('messageCreate', this._onMessage);
     this.client.on('channelCreate', this._onChannelCreate);
     this.client.on('channelDelete', this._onChannelDelete);
@@ -76,7 +76,7 @@ export default class DiscordBot {
   detachEventHandlers() {
     if (!this.handlersAttached) return;
 
-    if (this._onReady) this.client.off('ready', this._onReady);
+    if (this._onReady) this.client.off('clientReady', this._onReady);
     if (this._onMessage) this.client.off('messageCreate', this._onMessage);
     if (this._onChannelCreate) this.client.off('channelCreate', this._onChannelCreate);
     if (this._onChannelDelete) this.client.off('channelDelete', this._onChannelDelete);
@@ -392,12 +392,15 @@ export default class DiscordBot {
       if(channelId === null) {
         channelId = this.gameManager.users[discordId].voiceChannelId;
       }
+      console.info(chalk.blue('DiscordBot'), 'Attempting to move user to channel', { discordId, channelId });
       const result = await member.voice.setChannel(channelId).catch((error)=>{
         console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Promise):", discordId),error);
         return false;
       });
 
-      return !(result === false);
+      const success = !(result === false);
+      console.info(chalk.blue('DiscordBot'), 'setUserVoiceChannel result', { discordId, channelId, success });
+      return success;
     } catch (error) {
       console.warn(chalk.red("Member is not in a voice channel and cannot be moved (Exception):", discordId),JSON.stringify(error, Object.getOwnPropertyNames(error)));
       return false;

@@ -12,9 +12,11 @@
             :show-empty="false"
             :my-phones="myPhones"
             :is-group-call="true"
+            :is-admin="true"
             @end-call="terminateCall"
             @join-group-call="joinGroupCall"
             @leave-group-call="leaveGroupCall"
+            @force-terminate="forceTerminateCall"
           />
         </div>
         
@@ -67,9 +69,11 @@
             :show-empty="false"
             :my-phones="myPhones"
             :is-group-call="true"
+            :is-admin="true"
             @end-call="terminateCall"
             @join-group-call="joinGroupCall"
             @leave-group-call="leaveGroupCall"
+            @force-terminate="forceTerminateCall"
           />
         </div>
 
@@ -164,7 +168,8 @@ export default {
       {
         enableAudio: props.enableAudio,
         autoAcceptREC: false,
-        enableQueueManagement: true
+        enableQueueManagement: true,
+        showRECModal: false
       }
     )
 
@@ -177,31 +182,81 @@ export default {
     // Admins should receive audio notification only, no modal or auto-join
     watch(() => socketRef.value, (socket) => {
       if (socket) {
-        // Override the default recNotification handler to prevent modal
-        socket.off('recNotification') // Remove default handler
-        socket.on('recNotification', (msg) => {
-          console.log('Admin REC notification (audio only):', msg)
-          // Play audio notification without showing modal
-          // This satisfies REQ-004: "Admins receive REC audio notification but no auto-join or special modal"
-          callManager.playCallAudio()
-          // Explicitly do NOT show modal or trigger auto-join for admin users
+
+
+        // Admin-specific group call update listeners
+        socket.off('adminGroupCallUpdate')
+        socket.on('adminGroupCallUpdate', (data) => {
+          console.log('adminGroupCallUpdate received:', data)
+          try {
+            if (Array.isArray(data)) {
+              // Normalize into map keyed by call id or groupId
+              const map = {}
+              data.forEach(item => {
+                const key = item.id || item.groupId || item.callId
+                if (key) map[key] = item
+              })
+              gameState.value.groupCalls = map
+            } else if (data && typeof data === 'object') {
+              gameState.value.groupCalls = data
+            }
+          } catch (err) {
+            console.error('Failed to process adminGroupCallUpdate:', err)
+          }
+        })
+
+        socket.off('adminGroupCallError')
+        socket.on('adminGroupCallError', (err) => {
+          console.error('adminGroupCallError received:', err)
+          props.showError('Admin Group Call Error', err?.message || err || 'Unknown error')
         })
       }
     }, { immediate: true })
     
-    // Group call management methods
-    const joinGroupCall = (groupId) => {
-      console.log('Admin joining group call:', groupId)
-      if (socketRef.value) {
-        socketRef.value.emit('joinGroupCall', { groupId })
-      }
+    // Group call management methods (centralized via callManager)
+    const getAdminPhoneId = () => {
+      const keys = Object.keys(myPhones.value || {})
+      return keys[0] || null
     }
 
-    const leaveGroupCall = (groupId) => {
-      console.log('Admin leaving group call:', groupId)
-      if (socketRef.value) {
-        socketRef.value.emit('leaveGroupCall', { groupId })
+    const joinGroupCall = async (groupId) => {
+      console.log('Admin joining group call (via callManager):', groupId)
+      const phoneId = getAdminPhoneId()
+      if (!phoneId) {
+        props.showError('Join Failed', 'No admin phone available to join the call')
+        return
       }
+      const ok = await callManager.joinGroupCall(groupId, phoneId)
+      if (!ok) props.showError('Join Failed', 'Failed to join group call')
+    }
+
+    const leaveGroupCall = async (groupId) => {
+      console.log('Admin leaving group call (via callManager):', groupId)
+      const phoneId = getAdminPhoneId()
+      if (!phoneId) {
+        props.showError('Leave Failed', 'No admin phone available to leave the call')
+        return
+      }
+      const ok = await callManager.leaveGroupCall(phoneId)
+      if (!ok) props.showError('Leave Failed', 'Failed to leave group call')
+    }
+
+    const forceTerminateCall = async (groupId) => {
+      console.log('Admin force terminating group call:', groupId)
+      if (!socketRef.value) {
+        props.showError('Force Terminate Failed', 'Socket not available')
+        return
+      }
+
+      socketRef.value.emit('forceTerminateGroupCall', { groupId }, (resp) => {
+        if (resp && (resp.success || resp === true)) {
+          props.showSuccess('Force Terminated', `Group ${groupId} has been force terminated`)
+          // Refresh admin group call list
+          callManager.requestGroupCallUpdate()
+        } else {
+          props.showError('Force Terminate Failed', resp?.error || resp?.message || 'Unknown error')
+        }
+      })
     }
 
     return {
@@ -220,9 +275,10 @@ export default {
     // Clean up call event listeners when component unmounts
     this.removeCallEventListeners()
     
-    // Clean up admin-specific REC notification override
+    // Clean up admin-specific listeners
     if (this.socket) {
-      this.socket.off('recNotification')
+      this.socket.off('adminGroupCallUpdate')
+      this.socket.off('adminGroupCallError')
     }
   }
 }

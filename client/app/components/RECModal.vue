@@ -63,14 +63,16 @@
         <div class="flex space-x-4 justify-center">
           <button
             @click="acceptCall"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl border-2 border-green-700 transition-colors duration-200 shadow-lg"
+            :disabled="props.isAccepting"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl border-2 border-green-700 transition-colors duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ initialCountdown > 0 ? 'Join Now' : 'Continue' }}
+            {{ props.isAccepting ? (initialCountdown > 0 ? 'Joining...' : 'Processing...') : (initialCountdown > 0 ? 'Join Now' : 'Continue') }}
           </button>
           <button
             v-if="allowDecline"
             @click="declineCall"
-            class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-lg text-xl border-2 border-gray-700 transition-colors duration-200 shadow-lg"
+            :disabled="props.isAccepting"
+            class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-lg text-xl border-2 border-gray-700 transition-colors duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ initialCountdown > 0 ? 'Decline' : 'Cancel Call' }}
           </button>
@@ -100,6 +102,7 @@ interface Props {
   callerInfo?: CallerInfo
   initialCountdown?: number
   allowDecline?: boolean
+  isAccepting?: boolean
 }
 
 interface Emits {
@@ -111,7 +114,8 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   initialCountdown: 5,
-  allowDecline: true
+  allowDecline: true,
+  isAccepting: false
 })
 
 const emit = defineEmits<Emits>()

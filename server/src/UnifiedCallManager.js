@@ -5,7 +5,7 @@ import CallRequest from './model/callrequest.js';
 import GroupCallRequest from './model/groupcallrequest.js';
 import CallGroup from './model/CallGroup.js';
 import VGCSBus from './vgcs/VGCSBus.js';
-import MobileStationVGCS from './vgcs/MobileStationVGCS.js';
+import MobileStationVGCS, { MS } from './vgcs/MobileStationVGCS.js';
 import VGCSSocketBridge from './vgcs/VGCSSocketBridge.js';
 import CallFactory from './CallFactory.js';
 import CallValidator from './CallValidator.js';
@@ -988,7 +988,9 @@ export default class UnifiedCallManager {
       const discordId = phone.getDiscordId();
       if (discordId) {
         try {
+          console.info(chalk.magenta('UnifiedCallManager'), `Moving user ${phone.getId()} (discord=${discordId}) to channel ${call.channel}`);
           const moved = await this.bot.setUserVoiceChannel(discordId, call.channel);
+          console.info(chalk.magenta('UnifiedCallManager'), `setUserVoiceChannel returned for ${phone.getId()}:`, moved);
           if (!moved) {
             console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${phone.getId()} to channel (returned false)`);
             moveFailed = true;
@@ -1038,8 +1040,48 @@ export default class UnifiedCallManager {
     // Update mobile station state
     const mobileStation = this.mobileStations.get(acceptingPhone.getId());
     if (mobileStation) {
-      // Accept the group call on the mobile station
-      mobileStation.accept();
+      console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Attempting accept - phone=${acceptingPhone.getId()} call=${call.id} status=${call.status} msState=${JSON.stringify(mobileStation.getStateInfo())}`);
+      let acceptResult = false;
+      const msState = mobileStation.state;
+      const isSender = mobileStation.isSender;
+
+      // If the MS is already in PRESENT, attempt accept
+      if (msState === MS.PRESENT) {
+        acceptResult = mobileStation.accept();
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Accept result for phone=${acceptingPhone.getId()}: ${acceptResult}`);
+        if (!acceptResult) console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Failed to accept group call ${call.id} for phone ${acceptingPhone.getId()} - mobile station state invalid`);
+      }
+      // If the MS is already joining or active, treat as success
+      else if ([MS.CONN_REQ, MS.ACTIVE].includes(msState)) {
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `MobileStation already in state ${msState} - treating as accepted for phone=${acceptingPhone.getId()}`);
+        acceptResult = true;
+      }
+      // Sender who already initiated doesn't need to accept
+      else if (msState === MS.INITIATED && isSender) {
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Sender already initiated call - treating as accepted for phone=${acceptingPhone.getId()}`);
+        acceptResult = true;
+      }
+      // Null state: try to simulate NOTIFICATION then accept
+      else if (msState === MS.NULL) {
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `MobileStation in NULL state - simulating NOTIFICATION for phone=${acceptingPhone.getId()} group=${call.id}`);
+        try {
+          mobileStation._onNotification({ groupId: call.id, priority: 'normal', autoAnswer: false });
+        } catch (err) {
+          console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Error while simulating NOTIFICATION for ${acceptingPhone.getId()}:`, err);
+        }
+        acceptResult = mobileStation.accept();
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Accept result for phone=${acceptingPhone.getId()} after simulated NOTIFICATION: ${acceptResult}`);
+        if (!acceptResult) console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Failed to accept group call ${call.id} for phone ${acceptingPhone.getId()} after simulated NOTIFICATION`);
+      }
+      // Unknown/invalid state
+      else {
+        console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Cannot accept - unexpected MobileStation state ${msState} for phone=${acceptingPhone.getId()}`);
+        acceptResult = false;
+      }
+
+      if (!acceptResult) {
+        console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Failed to accept group call ${call.id} for phone ${acceptingPhone.getId()} - mobile station state invalid`);
+      }
     } else {
       // Create new mobile station for late joiner
       const newMobileStation = new MobileStationVGCS({
@@ -1049,11 +1091,86 @@ export default class UnifiedCallManager {
       });
       this.mobileStations.set(acceptingPhone.getId(), newMobileStation);
       this.phoneToCallMap.set(acceptingPhone.getId(), call.id);
+      console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Created new MobileStation for late joiner phone=${acceptingPhone.getId()} call=${call.id} msState=${JSON.stringify(newMobileStation.getStateInfo())}`);
       
+      // Simulate network NOTIFICATION for this late joiner so accept() can proceed
+      console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Simulating VGCS NOTIFICATION for late joiner phone=${acceptingPhone.getId()} group=${call.id}`);
+      try {
+        newMobileStation._onNotification({ groupId: call.id, priority: 'normal', autoAnswer: false });
+      } catch (err) {
+        console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Error while simulating NOTIFICATION for ${acceptingPhone.getId()}:`, err);
+      }
+
       // Join the existing group call
-      newMobileStation.accept();
+      const acceptResult = newMobileStation.accept();
+      console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Accept result for newMS phone=${acceptingPhone.getId()}: ${acceptResult}`);
+      if (!acceptResult) {
+        console.error(chalk.red('UnifiedCallManager.acceptGroupCall'), `Failed to accept group call ${call.id} for new mobile station ${acceptingPhone.getId()} - mobile station state invalid`);
+      }
     }
     
+    // If the network/backend already moved this call to ESTABLISHING or ACTIVE but we haven't allocated a Discord channel yet,
+    // allocate one now and move all participants. This handles immediateSetup flows (e.g., REC) where the VGCS can become ACTIVE
+    // before we get a chance to run the 'first accept' allocation logic.
+    if (!call.channel && [BaseCall.STATUS.N3_ESTABLISHING, BaseCall.STATUS.N2_ACTIVE].includes(call.status)) {
+      console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Detected call ${call.id} in ${call.status} without channel - allocating and moving participants`);
+
+      const channelId = this.bot.getAvailableCallChannel();
+      if (!channelId) {
+        console.error(chalk.red('UnifiedCallManager'), `Failed to allocate channel for group call ${call.id}`);
+        return false;
+      }
+
+      call.channel = channelId;
+
+      // Move call to active in our maps if not already
+      this.requestedCalls.delete(call.id);
+      this.activeCalls.set(call.id, call);
+
+      // Attempt to move all participants into the allocated channel
+      const allPhones = call.getAllPhones();
+      let moveFailed = false;
+
+      for (const phone of allPhones) {
+        const discordId = phone.getDiscordId();
+        if (discordId) {
+          try {
+            console.info(chalk.magenta('UnifiedCallManager'), `Moving user ${phone.getId()} (discord=${discordId}) to channel ${call.channel} for active group call ${call.id}`);
+            const moved = await this.bot.setUserVoiceChannel(discordId, call.channel);
+            console.info(chalk.magenta('UnifiedCallManager'), `setUserVoiceChannel returned for ${phone.getId()}:`, moved);
+            if (!moved) {
+              console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${phone.getId()} to channel (returned false)`);
+              moveFailed = true;
+              break;
+            }
+          } catch (error) {
+            console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${phone.getId()} to channel:`, error);
+            moveFailed = true;
+            break;
+          }
+        }
+      }
+
+      if (moveFailed) {
+        // Release reservation and roll back call state for group calls
+        if (call.channel) {
+          this.bot.releasePrivateCallChannelReservation(call.channel);
+        }
+        call.updateStatus(BaseCall.STATUS.N4_TERMINATING);
+        this.activeCalls.delete(call.id);
+        this.requestedCalls.set(call.id, call);
+        return false;
+      }
+
+      // Update phone call queues
+      this.updatePhoneCallQueues(allPhones);
+
+      // Ensure the call status is active locally
+      if (call.status !== BaseCall.STATUS.N2_ACTIVE) {
+        call.updateStatus(BaseCall.STATUS.N2_ACTIVE);
+      }
+    }
+
     // If this is the first acceptance and call is still in N1_INITIATED, move to N3_ESTABLISHING
     if (call.status === BaseCall.STATUS.N1_INITIATED) {
       call.updateStatus(BaseCall.STATUS.N3_ESTABLISHING);
@@ -1078,7 +1195,9 @@ export default class UnifiedCallManager {
     // Move accepting phone to voice channel
     if (call.channel) {
       try {
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `Moving accepting phone ${acceptingPhone.getId()} to channel ${call.channel}`);
         const moved = await this.bot.setUserVoiceChannel(acceptingPhone.getDiscordId(), call.channel);
+        console.info(chalk.yellow('UnifiedCallManager.acceptGroupCall'), `setUserVoiceChannel returned for ${acceptingPhone.getId()}:`, moved);
         if (!moved) {
           console.error(chalk.red('UnifiedCallManager'), `Failed to move user ${acceptingPhone.getId()} to channel (returned false)`);
           // Release reservation and roll back call state for group calls as well
@@ -1103,6 +1222,76 @@ export default class UnifiedCallManager {
     this.updatePhoneCallQueues(call.getAllPhones());
     
     //console.log(chalk.green('UnifiedCallManager'), `Group call ${call.id} accepted by ${acceptingPhone.getId()}`);
+    return true;
+  }
+
+  /**
+   * Handle VGCS GROUP_CALL_ACTIVE notification when emitted by the VGCS bus/bridge.
+   * This ensures a Discord channel is allocated and participants are moved even if the
+   * VGCS becomes ACTIVE before the first server-side accept logic ran (e.g., immediateSetup flows).
+   * @param {string} groupId
+   * @param {Object} data
+   */
+  async handleVGCSGroupCallActive(groupId, data) {
+    const call = this.requestedCalls.get(groupId) || this.activeCalls.get(groupId);
+    if (!call) {
+      console.info(chalk.yellow('UnifiedCallManager'), `handleVGCSGroupCallActive: No call found for group ${groupId}`);
+      return false;
+    }
+
+    if (call.channel) {
+      console.info(chalk.yellow('UnifiedCallManager'), `handleVGCSGroupCallActive: Call ${groupId} already has channel ${call.channel}`);
+      return true;
+    }
+
+    console.info(chalk.yellow('UnifiedCallManager'), `handleVGCSGroupCallActive: Allocating channel for call ${groupId}`);
+    const channelId = this.bot.getAvailableCallChannel();
+    if (!channelId) {
+      console.error(chalk.red('UnifiedCallManager'), `handleVGCSGroupCallActive: Failed to allocate channel for group ${groupId}`);
+      return false;
+    }
+
+    call.channel = channelId;
+    this.requestedCalls.delete(call.id);
+    this.activeCalls.set(call.id, call);
+
+    // Attempt to move all participants into the allocated channel
+    const allPhones = call.getAllPhones();
+    let moveFailed = false;
+
+    for (const phone of allPhones) {
+      const discordId = phone.getDiscordId();
+      if (discordId) {
+        try {
+          console.info(chalk.magenta('UnifiedCallManager'), `handleVGCSGroupCallActive: Moving user ${phone.getId()} (discord=${discordId}) to channel ${call.channel}`);
+          const moved = await this.bot.setUserVoiceChannel(discordId, call.channel);
+          console.info(chalk.magenta('UnifiedCallManager'), `handleVGCSGroupCallActive: setUserVoiceChannel returned for ${phone.getId()}:`, moved);
+          if (!moved) {
+            console.error(chalk.red('UnifiedCallManager'), `handleVGCSGroupCallActive: Failed to move user ${phone.getId()} to channel (returned false)`);
+            moveFailed = true;
+            break;
+          }
+        } catch (error) {
+          console.error(chalk.red('UnifiedCallManager'), `handleVGCSGroupCallActive: Failed to move user ${phone.getId()} to channel:`, error);
+          moveFailed = true;
+          break;
+        }
+      }
+    }
+
+    if (moveFailed) {
+      if (call.channel) {
+        this.bot.releasePrivateCallChannelReservation(call.channel);
+      }
+      call.updateStatus(BaseCall.STATUS.N4_TERMINATING);
+      this.activeCalls.delete(call.id);
+      this.requestedCalls.set(call.id, call);
+      return false;
+    }
+
+    this.updatePhoneCallQueues(allPhones);
+    call.updateStatus(BaseCall.STATUS.N2_ACTIVE);
+    console.info(chalk.green('UnifiedCallManager'), `handleVGCSGroupCallActive: Call ${groupId} is now active and participants moved to channel ${call.channel}`);
     return true;
   }
 
@@ -1909,15 +2098,23 @@ _finalCallCleanup(call, reason) {
     }
     
     // Send complete call data so frontend can recreate the call object properly
-    const callData = call.toEmittable();
-
-    // Send to all participants
     const allPhones = call.getAllPhones();
+
+    // Send per-recipient call data (include REC-specific fields per recipient)
     allPhones.forEach(phone => {
       const discordId = phone.getDiscordId();
-      if (discordId) {
-        this.io.to(discordId).emit('callUpdate', callData);
+      if (!discordId) return;
+
+      // Build emittable copy per recipient so we can add isSender/countdown for REC
+      const perPhoneCallData = call.toEmittable();
+      if (call.type === BaseCall.TYPES.REC) {
+        const isSender = call.isSender && call.isSender(phone);
+        perPhoneCallData.isSender = !!isSender;
+        // Countdown only applies in initial offering state
+        perPhoneCallData.countdown = (call.status === BaseCall.STATUS.N1_INITIATED) ? (perPhoneCallData.countdown ?? 5) : 0;
       }
+
+      this.io.to(discordId).emit('callUpdate', perPhoneCallData);
     });
 
     // Also emit for admin interfaces with minimal data

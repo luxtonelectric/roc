@@ -60,7 +60,7 @@ export default class DiscordBot {
     this._onChannelUpdate = (oldChannel, newChannel) => { void this.onChannelUpdate(oldChannel, newChannel); };
     this._onVoiceStateUpdate = (oldState, newState) => { void this.onVoiceStateUpdate(oldState, newState); };
 
-    this.client.on('clientReady', this._onReady);
+    this.client.on('ready', this._onReady);
     this.client.on('messageCreate', this._onMessage);
     this.client.on('channelCreate', this._onChannelCreate);
     this.client.on('channelDelete', this._onChannelDelete);

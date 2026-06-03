@@ -4,6 +4,7 @@
 		{
 			"id": "wa",
 			"name": "West Anglia",
+			"code": "LVA",
 			"neighbours": [
 				{
 					"simId": "livst",
@@ -18,6 +19,7 @@
 		{
 			"id": "ge",
 			"name": "Great Eastern",
+			"code": "LVE",
 			"neighbours": [
 				{
 					"simId": "livst",

@@ -4,6 +4,7 @@
 		{
 			"id": "richmond",
 			"name": "Richmond SB",
+			"code": "NLR",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -14,6 +15,7 @@
 		{
 			"id": "actonwellsjn",
 			"name": "Acton Wells Jn SB",
+			"code": "NLW",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -44,6 +46,7 @@
 		{
 			"id": "actoncanalwharf",
 			"name": "Acton Canal Wharf SB",
+			"code": "NLC",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -62,6 +65,7 @@
 		{
 			"id": "neasdenjn",
 			"name": "Neasden Jn SB",
+			"code": "NLN",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -80,6 +84,7 @@
 		{
 			"id": "duddinghilljn",
 			"name": "Dudding Hill Jn SB",
+			"code": "NLD",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -94,6 +99,7 @@
 		{
 			"id": "central",
 			"name": "NLL Central Workstation",
+			"code": "NLM",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -128,6 +134,7 @@
 		{
 			"id": "eastern",
 			"name": "NLL Eastern Workstation",
+			"code": "NLE",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -154,6 +161,7 @@
 		{
 			"id": "templemills",
 			"name": "Temple Mills Workstation",
+			"code": "NLT",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -180,6 +188,7 @@
 		{
 			"id": "upperholloway",
 			"name": "Upper Holloway SB",
+			"code": "NLH",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -198,6 +207,7 @@
 		{
 			"id": "harringayparkjn",
 			"name": "Harringay Park Junction SB",
+			"code": "NLP",
 			"neighbours": [
 				{
 					"simId": "nll",
@@ -216,6 +226,7 @@
 		{
 			"id": "southtottenham",
 			"name": "South Tottenham Station Junction SB",
+			"code": "NLS",
 			"neighbours": [
 				{
 					"simId": "nll",

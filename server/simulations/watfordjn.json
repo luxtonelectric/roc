@@ -4,6 +4,7 @@
 		{
 			"id": "watfordjn",
 			"name": "Watford Junction",
+			"code": "WJ",
 			"neighbours": [
 				{
 					"simId": "rugbysouth",

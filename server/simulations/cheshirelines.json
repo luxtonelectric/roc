@@ -4,6 +4,7 @@
 		{
 			"id": "greenbank",
 			"name": "Greenbank",
+			"code": "CHG",
 			"neighbours": [
 				{
 					"simId": "chester",
@@ -26,6 +27,7 @@
 		{
 			"id": "plumleywest",
 			"name": "Plumley West",
+			"code": "CHP",
 			"neighbours": [
 				{
 					"simId": "cheshirelines",
@@ -40,6 +42,7 @@
 		{
 			"id": "mobberley",
 			"name": "Mobberley",
+			"code": "CHM",
 			"neighbours": [
 				{
 					"simId": "cheshirelines",
@@ -54,6 +57,7 @@
 		{
 			"id": "deansgatejn",
 			"name": "Deansgate Jn",
+			"code": "CHD",
 			"neighbours": [
 				{
 					"simId": "cheshirelines",
@@ -68,6 +72,7 @@
 		{
 			"id": "northendenjn",
 			"name": "Northenden Jn",
+			"code": "CHN",
 			"neighbours": [
 				{
 					"simId": "cheshirelines",

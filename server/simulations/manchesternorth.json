@@ -4,6 +4,7 @@
 		{
 			"id": "west",
 			"name": "West",
+			"code": "MNW",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -22,6 +23,7 @@
 		{
 			"id": "east",
 			"name": "East",
+			"code": "MNE",
 			"neighbours": [
 				{
 					"simId": "manchesternorth",
@@ -44,6 +46,7 @@
 		{
 			"id": "vitriolworks",
 			"name": "Vitriol Works",
+			"code": "MNV",
 			"neighbours": [
 				{
 					"simId": "manchesternorth",
@@ -58,6 +61,7 @@
 		{
 			"id": "castletoneast",
 			"name": "Castleton East",
+			"code": "MNC",
 			"neighbours": [
 				{
 					"simId": "manchesternorth",
@@ -72,6 +76,7 @@
 		{
 			"id": "rochdalewest",
 			"name": "Rochdale West",
+			"code": "MNR",
 			"neighbours": [
 				{
 					"simId": "manchesternorth",

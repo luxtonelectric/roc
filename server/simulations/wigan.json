@@ -4,6 +4,7 @@
 		{
 			"id": "wiganwallgate",
 			"name": "Wigan Wallgate",
+			"code": "WIW",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",
@@ -22,6 +23,7 @@
 		{
 			"id": "rainfordjn",
 			"name": "Rainford Jnc",
+			"code": "WIR",
 			"neighbours": [
 				{
 					"simId": "wigan",
@@ -32,6 +34,7 @@
 		{
 			"id": "parbold",
 			"name": "Parbold",
+			"code": "WIP",
 			"neighbours": [
 				{
 					"simId": "wigan",
@@ -46,6 +49,7 @@
 		{
 			"id": "burscoughbridgejn",
 			"name": "Burscough Bridge Jnc",
+			"code": "WIB",
 			"neighbours": [
 				{
 					"simId": "wigan",

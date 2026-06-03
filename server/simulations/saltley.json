@@ -4,6 +4,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "SLN",
 			"neighbours": [
 				{
 					"simId": "derby",
@@ -26,6 +27,7 @@
 		{
 			"id": "centre",
 			"name": "Centre",
+			"code": "SLC",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -48,6 +50,7 @@
 		{
 			"id": "southtop",
 			"name": "South Top",
+			"code": "SLST",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -66,6 +69,7 @@
 		{
 			"id": "southbottom",
 			"name": "South Bottom",
+			"code": "SLSB",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -88,6 +92,7 @@
 		{
 			"id": "stratforduponavon",
 			"name": "Stratford-Upon-Avon",
+			"code": "SLS",
 			"neighbours": [
 				{
 					"simId": "saltley",

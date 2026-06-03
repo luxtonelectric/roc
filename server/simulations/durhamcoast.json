@@ -4,6 +4,7 @@
 		{
 			"id": "lowgates",
 			"name": "Low Gates SB",
+			"code": "DCL",
 			"neighbours": [
 				{
 					"simId": "yorkns",
@@ -18,6 +19,7 @@
 		{
 			"id": "bowesfield",
 			"name": "Bowesfield SB",
+			"code": "DCB",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -32,6 +34,7 @@
 		{
 			"id": "ferryhill",
 			"name": "Ferryhill SB",
+			"code": "DCF",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -42,6 +45,7 @@
 		{
 			"id": "ryhopegrangejn",
 			"name": "Ryhope Grange Jn SB",
+			"code": "DCR",
 			"neighbours": [
 				{
 					"simId": "tyneside",

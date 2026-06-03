@@ -4,6 +4,7 @@
 		{
 			"id": "leedsnw",
 			"name": "Leeds Northwest",
+			"code": "LN",
 			"neighbours": [
 				{
 					"simId": "leedsew",

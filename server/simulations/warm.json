@@ -4,6 +4,7 @@
 		{
 			"id": "hackney",
 			"name": "Hackney",
+			"code": "WAK",
 			"neighbours": [
 				{
 					"simId": "livst",
@@ -22,6 +23,7 @@
 		{
 			"id": "brimsdown",
 			"name": "Brimsdown",
+			"code": "WAD",
 			"neighbours": [
 				{
 					"simId": "warm",
@@ -44,6 +46,7 @@
 		{
 			"id": "harlow",
 			"name": "Harlow",
+			"code": "WAL",
 			"neighbours": [
 				{
 					"simId": "warm",

@@ -4,6 +4,7 @@
 		{
 			"id": "wolverhampton",
 			"name": "Wolverhampton",
+			"code": "WM",
 			"neighbours": [
 				{
 					"simId": "newstreet",

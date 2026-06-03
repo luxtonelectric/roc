@@ -4,6 +4,7 @@
 		{
 			"id": "derbyline",
 			"name": "Derby Line",
+			"code": "STD",
 			"neighbours": [
 				{
 					"simId": "derby",
@@ -18,6 +19,7 @@
 		{
 			"id": "stokenorth",
 			"name": "Stoke North",
+			"code": "STSN",
 			"neighbours": [
 				{
 					"simId": "staffordshire",
@@ -40,6 +42,7 @@
 		{
 			"id": "stokesouth",
 			"name": "Stoke South",
+			"code": "STSS",
 			"neighbours": [
 				{
 					"simId": "staffordshire",
@@ -58,6 +61,7 @@
 		{
 			"id": "stafford",
 			"name": "Stafford",
+			"code": "STS",
 			"neighbours": [
 				{
 					"simId": "staffordshire",
@@ -80,6 +84,7 @@
 		{
 			"id": "colwich",
 			"name": "Colwich",
+			"code": "STC",
 			"neighbours": [
 				{
 					"simId": "staffordshire",

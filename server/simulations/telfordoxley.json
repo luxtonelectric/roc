@@ -4,6 +4,7 @@
 		{
 			"id": "madeleyjn",
 			"name": "Madeley Jn.",
+			"code": "TOM",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -18,6 +19,7 @@
 		{
 			"id": "oxley",
 			"name": "Oxley",
+			"code": "TOX",
 			"neighbours": [
 				{
 					"simId": "telfordoxley",

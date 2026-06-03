@@ -4,6 +4,7 @@
 		{
 			"id": "taptonjn",
 			"name": "Tapton Jn",
+			"code": "TRA",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -22,6 +23,7 @@
 		{
 			"id": "claycross",
 			"name": "Clay Cross panel",
+			"code": "TRC",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -40,6 +42,7 @@
 		{
 			"id": "erewashvalley",
 			"name": "Erewash Valley panel",
+			"code": "TRV",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -62,6 +65,7 @@
 		{
 			"id": "pinxton",
 			"name": "Pinxton SB & Sleights East SB",
+			"code": "TRP",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -76,6 +80,7 @@
 		{
 			"id": "kirkbysummit",
 			"name": "Kirkby Summit SB",
+			"code": "TRK",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -94,6 +99,7 @@
 		{
 			"id": "robinhood",
 			"name": "Robin Hood line panel",
+			"code": "TRR",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -108,6 +114,7 @@
 		{
 			"id": "nottingham",
 			"name": "Nottingham panel",
+			"code": "TRN",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -130,6 +137,7 @@
 		{
 			"id": "eastnottingham",
 			"name": "East Nottinghamshire panel",
+			"code": "TRE",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -144,6 +152,7 @@
 		{
 			"id": "trent",
 			"name": "Trent panel",
+			"code": "TRT",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -170,6 +179,7 @@
 		{
 			"id": "stapleford",
 			"name": "Stapleford & Sandiacre panel",
+			"code": "TRS",
 			"neighbours": [
 				{
 					"simId": "trent",

@@ -1,14 +1,11 @@
 {
-	"name": "Guildford PSB",
+	"name": "Guildford",
 	"panels": [
 		{
-			"id": "east",
-			"name": "East",
+			"id": "guildford",
+			"name": "Guildford",
+			"code": "GDD",
 			"neighbours": [
-				{
-					"simId": "guildford",
-					"panelId": "west"
-				},
 				{
 					"simId": "woking",
 					"panelId": "aldershot"
@@ -28,20 +25,55 @@
 				{
 					"simId": "wimbledon",
 					"panelId": "panel4"
-				}
-			]
-		},
-		{
-			"id": "west",
-			"name": "West",
-			"neighbours": [
-				{
-					"simId": "guildford",
-					"panelId": "east"
 				},
 				{
 					"simId": "threebridges",
 					"panelId": "reigate"
+				}
+			]
+		},
+		{
+			"id": "farncombe",
+			"name": "Farncombe",
+			"code": "GDF",
+			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "guildford"
+				},
+				{
+					"simId": "guildford",
+					"panelId": "haslemere"
+				}
+			]
+		},
+		{
+			"id": "haslemere",
+			"name": "Haslemere",
+			"code": "GDH",
+			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "farncombe"
+				},
+				{
+					"simId": "guildford",
+					"panelId": "petersfield"
+				}
+			]
+		},
+		{
+			"id": "petersfield",
+			"name": "Petersfield",
+			"code": "GDP",
+			"neighbours": [
+				{
+					"simId": "guildford",
+					"panelId": "haslemere"
+				},
+				{
+					"simId": "havant",
+					"panelId": "portsmouth"
 				}
 			]
 		}

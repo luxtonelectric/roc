@@ -4,6 +4,7 @@
 		{
 			"id": "salisbury",
 			"name": "Salisbury",
+			"code": "SB",
 			"neighbours": [
 				{
 					"simId": "westbury",

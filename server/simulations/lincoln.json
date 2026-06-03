@@ -4,6 +4,7 @@
 		{
 			"id": "south",
 			"name": "South Workstation",
+			"code": "LCS",
 			"neighbours": [
 				{
 					"simId": "peterborough",
@@ -18,6 +19,7 @@
 		{
 			"id": "east",
 			"name": "East Workstation",
+			"code": "LCE",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -40,6 +42,7 @@
 		{
 			"id": "city",
 			"name": "City Workstation",
+			"code": "LCC",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -58,6 +61,7 @@
 		{
 			"id": "west",
 			"name": "West Workstation",
+			"code": "LCW",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -76,6 +80,7 @@
 		{
 			"id": "swinderby",
 			"name": "Swinderby SB",
+			"code": "LCSB",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -90,6 +95,7 @@
 		{
 			"id": "langworth",
 			"name": "Langworth SB",
+			"code": "LCLG",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -104,6 +110,7 @@
 		{
 			"id": "wickenby",
 			"name": "Wickenby SB",
+			"code": "LCWB",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -118,6 +125,7 @@
 		{
 			"id": "holtonlemoor",
 			"name": "Holton-le-Moor SB",
+			"code": "LCHM",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -132,6 +140,7 @@
 		{
 			"id": "allington",
 			"name": "Allington SB",
+			"code": "LCAL",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -150,6 +159,7 @@
 		{
 			"id": "ancaster",
 			"name": "Ancaster SB",
+			"code": "LCAC",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -164,6 +174,7 @@
 		{
 			"id": "rauceby",
 			"name": "Rauceby SB",
+			"code": "LCRA",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -178,6 +189,7 @@
 		{
 			"id": "sleafordwest",
 			"name": "Sleaford West SB",
+			"code": "LCSW",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -196,6 +208,7 @@
 		{
 			"id": "sleafordeast",
 			"name": "Sleaford East SB",
+			"code": "LCSE",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -214,6 +227,7 @@
 		{
 			"id": "heckington",
 			"name": "Heckington SB",
+			"code": "LCHE",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -228,6 +242,7 @@
 		{
 			"id": "hubbertsbridge",
 			"name": "Hubberts Bridge SB",
+			"code": "LCHB",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -242,6 +257,7 @@
 		{
 			"id": "weststreetjn",
 			"name": "Boston West Street Jn SB",
+			"code": "LCBW",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -256,6 +272,7 @@
 		{
 			"id": "sibsey",
 			"name": "Sibsey SB",
+			"code": "LCSY",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -270,6 +287,7 @@
 		{
 			"id": "bellwaterjn",
 			"name": "Bellwater Jn SB",
+			"code": "LCBJ",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -284,6 +302,7 @@
 		{
 			"id": "thorpeculvert",
 			"name": "Thorpe Culvert SB",
+			"code": "LCTC",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -298,6 +317,7 @@
 		{
 			"id": "wainfleet",
 			"name": "Wainfleet SB",
+			"code": "LCWA",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -312,6 +332,7 @@
 		{
 			"id": "skegness",
 			"name": "Skegness SB",
+			"code": "LCSK",
 			"neighbours": [
 				{
 					"simId": "lincoln",

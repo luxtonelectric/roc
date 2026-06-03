@@ -4,6 +4,7 @@
 		{
 			"id": "wks1",
 			"name": "Workstation 1",
+			"code": "SW1",
 			"neighbours": [
 				{
 					"simId": "bristol",
@@ -26,6 +27,7 @@
 		{
 			"id": "wks2",
 			"name": "Workstation 2",
+			"code": "SW2",
 			"neighbours": [
 				{
 					"simId": "swindid",
@@ -44,6 +46,7 @@
 		{
 			"id": "wks3",
 			"name": "Workstation 3",
+			"code": "SW3",
 			"neighbours": [
 				{
 					"simId": "swindid",

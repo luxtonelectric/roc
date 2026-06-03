@@ -4,6 +4,7 @@
 		{
 			"id": "bedlington",
 			"name": "Bedlington SB",
+			"code": "MOB",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -14,6 +15,7 @@
 		{
 			"id": "morpeth",
 			"name": "Morpeth SB",
+			"code": "MOM",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -28,6 +30,7 @@
 		{
 			"id": "alnmouth",
 			"name": "Alnmouth SB",
+			"code": "MOA",
 			"neighbours": [
 				{
 					"simId": "morpeth",
@@ -42,6 +45,7 @@
 		{
 			"id": "tweedmouth",
 			"name": "Tweedmouth SB",
+			"code": "MOT",
 			"neighbours": [
 				{
 					"simId": "morpeth",

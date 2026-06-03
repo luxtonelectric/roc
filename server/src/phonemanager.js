@@ -63,7 +63,7 @@ export default class PhoneManager {
    * @returns {Phone}
    */
   generatePhoneForPanel(sim, panel) {
-    const phone = new Phone(sim.id +'_' + panel.id, sim.name + " " + panel.name, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
+    const phone = new Phone(sim.id +'_' + panel.id, panel.code, Phone.TYPES.FIXED, new Location(sim.id, panel.id))
     this.phones.push(phone);
     return phone;
   }

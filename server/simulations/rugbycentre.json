@@ -4,6 +4,7 @@
 		{
 			"id": "rugby",
 			"name": "Rugby",
+			"code": "RCR",
 			"neighbours": [
 				{
 					"simId": "rugbynorth",
@@ -22,6 +23,7 @@
 		{
 			"id": "northampton",
 			"name": "Northampton",
+			"code": "RCN",
 			"neighbours": [
 				{
 					"simId": "rugbycentre",

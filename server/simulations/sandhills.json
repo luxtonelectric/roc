@@ -4,6 +4,7 @@
 		{
 			"id": "wirral",
 			"name": "Wirral",
+			"code": "SHW",
 			"neighbours": [
 				{
 					"simId": "sandhills",
@@ -22,6 +23,7 @@
 		{
 			"id": "northern",
 			"name": "Northern",
+			"code": "SHN",
 			"neighbours": [
 				{
 					"simId": "sandhills",

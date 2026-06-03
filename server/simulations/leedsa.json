@@ -4,6 +4,7 @@
 		{
 			"id": "ardsley",
 			"name": "Ardsley",
+			"code": "LA",
 			"neighbours": [
 				{
 					"simId": "sheffield",

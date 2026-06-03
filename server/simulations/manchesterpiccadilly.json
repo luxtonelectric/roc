@@ -4,6 +4,7 @@
 		{
 			"id": "healdgreen",
 			"name": "Heald Green",
+			"code": "MPH",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -18,6 +19,7 @@
 		{
 			"id": "longsight",
 			"name": "Longsight",
+			"code": "MPL",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -36,6 +38,7 @@
 		{
 			"id": "piccadilly",
 			"name": "Piccadilly",
+			"code": "MPP",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -54,6 +57,7 @@
 		{
 			"id": "oxfordroad",
 			"name": "Oxford Road",
+			"code": "MPO",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -76,6 +80,7 @@
 		{
 			"id": "windsor1",
 			"name": "Windsor Bridge 1",
+			"code": "MPW1",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -102,6 +107,7 @@
 		{
 			"id": "windsor2",
 			"name": "Windsor Bridge 2",
+			"code": "MPW2",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",
@@ -120,6 +126,7 @@
 		{
 			"id": "crownest",
 			"name": "Crow Nest",
+			"code": "MPC",
 			"neighbours": [
 				{
 					"simId": "manchesterpiccadilly",

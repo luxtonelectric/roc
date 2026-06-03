@@ -4,6 +4,7 @@
 		{
 			"id": "nuneaton",
 			"name": "Nuneaton",
+			"code": "RNN",
 			"neighbours": [
 				{
 					"simId": "coventry",
@@ -30,6 +31,7 @@
 		{
 			"id": "trentvalley",
 			"name": "Trent Valley",
+			"code": "RNT",
 			"neighbours": [
 				{
 					"simId": "rugbynorth",

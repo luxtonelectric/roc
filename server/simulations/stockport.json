@@ -4,6 +4,7 @@
 		{
 			"id": "edgeley1",
 			"name": "Edgeley No. 1",
+			"code": "SPE1",
 			"neighbours": [
 				{
 					"simId": "cheshirelines",
@@ -26,6 +27,7 @@
 		{
 			"id": "edgeley2",
 			"name": "Edgeley No. 2",
+			"code": "SPE2",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -44,6 +46,7 @@
 		{
 			"id": "stockport1",
 			"name": "Stockport No. 1",
+			"code": "SPS1",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -62,6 +65,7 @@
 		{
 			"id": "stockport2",
 			"name": "Stockport No. 2",
+			"code": "SPS2",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -80,6 +84,7 @@
 		{
 			"id": "heatonnorrisjn",
 			"name": "Heaton Norris Jn",
+			"code": "SPH",
 			"neighbours": [
 				{
 					"simId": "stockport",

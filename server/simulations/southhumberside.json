@@ -4,6 +4,7 @@
 		{
 			"id": "scunthorpewest",
 			"name": "Scunthorpe PSB West",
+			"code": "SMW",
 			"neighbours": [
 				{
 					"simId": "doncasternorth",
@@ -18,6 +19,7 @@
 		{
 			"id": "scunthorpeeast",
 			"name": "Scunthorpe PSB East",
+			"code": "SME",
 			"neighbours": [
 				{
 					"simId": "southhumberside",
@@ -32,6 +34,7 @@
 		{
 			"id": "gainsborough",
 			"name": "Gainsborough",
+			"code": "SMG",
 			"neighbours": [
 				{
 					"simId": "doncasterstation",
@@ -54,6 +57,7 @@
 		{
 			"id": "barnetby",
 			"name": "Barnetby",
+			"code": "SMB",
 			"neighbours": [
 				{
 					"simId": "lincoln",
@@ -76,6 +80,7 @@
 		{
 			"id": "ulcebyjn",
 			"name": "Ulceby Jn",
+			"code": "SMU",
 			"neighbours": [
 				{
 					"simId": "southhumberside",
@@ -94,6 +99,7 @@
 		{
 			"id": "grimsby",
 			"name": "Grimsby",
+			"code": "SMM",
 			"neighbours": [
 				{
 					"simId": "southhumberside",
@@ -108,6 +114,7 @@
 		{
 			"id": "immingham",
 			"name": "Immingham",
+			"code": "SMI",
 			"neighbours": [
 				{
 					"simId": "southhumberside",

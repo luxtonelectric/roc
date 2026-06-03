@@ -4,6 +4,7 @@
 		{
 			"id": "london",
 			"name": "London",
+			"code": "LTL",
 			"neighbours": [
 				{
 					"simId": "gemlsouth",
@@ -30,6 +31,7 @@
 		{
 			"id": "tilbury",
 			"name": "Tilbury",
+			"code": "LTT",
 			"neighbours": [
 				{
 					"simId": "lts",
@@ -48,6 +50,7 @@
 		{
 			"id": "southend",
 			"name": "Southend",
+			"code": "LTS",
 			"neighbours": [
 				{
 					"simId": "lts",
@@ -62,6 +65,7 @@
 		{
 			"id": "crossings",
 			"name": "Crossings",
+			"code": "LTC",
 			"neighbours": [
 				{
 					"simId": "lts",

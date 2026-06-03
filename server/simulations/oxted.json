@@ -4,6 +4,7 @@
 		{
 			"id": "oxted",
 			"name": "Oxted",
+			"code": "OXT",
 			"neighbours": [
 				{
 					"simId": "threebridges",

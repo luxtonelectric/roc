@@ -4,6 +4,7 @@
 		{
 			"id": "south",
 			"name": "South",
+			"code": "MBS",
 			"neighbours": [
 				{
 					"simId": "marylebone",
@@ -26,6 +27,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "MBN",
 			"neighbours": [
 				{
 					"simId": "marylebone",
@@ -52,6 +54,7 @@
 		{
 			"id": "lul",
 			"name": "London Underground Metropolitan line",
+			"code": "MBL",
 			"neighbours": [
 				{
 					"simId": "marylebone",
@@ -66,6 +69,7 @@
 		{
 			"id": "banbury",
 			"name": "Banbury",
+			"code": "MBB",
 			"neighbours": [
 				{
 					"simId": "marylebone",

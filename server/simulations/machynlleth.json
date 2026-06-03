@@ -4,6 +4,7 @@
 		{
 			"id": "west",
 			"name": "West Workstation",
+			"code": "MHW",
 			"neighbours": [
 				{
 					"simId": "machynlleth",
@@ -14,6 +15,7 @@
 		{
 			"id": "east",
 			"name": "East Workstation",
+			"code": "MHE",
 			"neighbours": [
 				{
 					"simId": "machynlleth",

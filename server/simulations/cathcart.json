@@ -4,6 +4,7 @@
 		{
 			"id": "cathcart",
 			"name": "Cathcart",
+			"code": "CC",
 			"neighbours": [
 				{
 					"simId": "motherwell",

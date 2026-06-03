@@ -4,6 +4,7 @@
 		{
 			"id": "leamington",
 			"name": "Leamington",
+			"code": "LM",
 			"neighbours": [
 				{
 					"simId": "saltley",

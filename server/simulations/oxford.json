@@ -4,6 +4,7 @@
 		{
 			"id": "oxford",
 			"name": "Oxford",
+			"code": "OXF",
 			"neighbours": [
 				{
 					"simId": "marylebone",

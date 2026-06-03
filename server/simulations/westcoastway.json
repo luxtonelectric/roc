@@ -4,6 +4,7 @@
 		{
 			"id": "billingshurst",
 			"name": "Billingshurst SB",
+			"code": "WCB",
 			"neighbours": [
 				{
 					"simId": "horsham",
@@ -14,6 +15,7 @@
 		{
 			"id": "lancingwest",
 			"name": "Lancing Panel 2",
+			"code": "WCL",
 			"neighbours": [
 				{
 					"simId": "lancing",

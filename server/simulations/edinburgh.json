@@ -4,6 +4,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "EB1",
 			"neighbours": [
 				{
 					"simId": "morpeth",
@@ -26,6 +27,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "EB2",
 			"neighbours": [
 				{
 					"simId": "edinburgh",
@@ -48,6 +50,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "EB3",
 			"neighbours": [
 				{
 					"simId": "edinburgh",
@@ -70,6 +73,7 @@
 		{
 			"id": "panel4",
 			"name": "Panel 4",
+			"code": "EB4",
 			"neighbours": [
 				{
 					"simId": "edinburgh",
@@ -100,6 +104,7 @@
 		{
 			"id": "panel5",
 			"name": "Panel 5",
+			"code": "EB5",
 			"neighbours": [
 				{
 					"simId": "edinburgh",
@@ -126,6 +131,7 @@
 		{
 			"id": "panel6",
 			"name": "Panel 6",
+			"code": "EB6",
 			"neighbours": [
 				{
 					"simId": "edinburgh",
@@ -144,6 +150,7 @@
 		{
 			"id": "millerhill",
 			"name": "Millerhill",
+			"code": "EBM",
 			"neighbours": [
 				{
 					"simId": "edinburgh",

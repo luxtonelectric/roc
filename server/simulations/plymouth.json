@@ -4,6 +4,7 @@
 		{
 			"id": "west",
 			"name": "West Workstation",
+			"code": "PLW",
 			"neighbours": [
 				{
 					"simId": "cornwall",
@@ -18,6 +19,7 @@
 		{
 			"id": "east",
 			"name": "East Workstation",
+			"code": "PLE",
 			"neighbours": [
 				{
 					"simId": "plymouth",

@@ -4,6 +4,7 @@
 		{
 			"id": "manchestersouthscc",
 			"name": "Manchester South SCC",
+			"code": "MS",
 			"neighbours": [
 				{
 					"simId": "stockport",
@@ -34,6 +35,7 @@
 		{
 			"id": "macclesfield",
 			"name": "Macclesfield",
+			"code": "MC",
 			"neighbours": [
 				{
 					"simId": "manchestersouth",

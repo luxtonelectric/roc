@@ -4,6 +4,7 @@
 		{
 			"id": "suttonbridgejn",
 			"name": "Sutton Bridge Junction",
+			"code": "SRU",
 			"neighbours": [
 				{
 					"simId": "hereford",
@@ -22,6 +23,7 @@
 		{
 			"id": "severnbridgejn",
 			"name": "Severn Bridge Junction",
+			"code": "SRE",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -40,6 +42,7 @@
 		{
 			"id": "abbeyforegate",
 			"name": "Abbey Foregate",
+			"code": "SRA",
 			"neighbours": [
 				{
 					"simId": "telfordoxley",
@@ -54,6 +57,7 @@
 		{
 			"id": "crewejunction",
 			"name": "Crewe Junction",
+			"code": "SRCJ",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -72,6 +76,7 @@
 		{
 			"id": "crewebank",
 			"name": "Crewe Bank",
+			"code": "SRCB",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -86,6 +91,7 @@
 		{
 			"id": "harlescottcrossing",
 			"name": "Harlescott Crossing",
+			"code": "SRH",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -100,6 +106,7 @@
 		{
 			"id": "wem",
 			"name": "Wem",
+			"code": "SRW",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -114,6 +121,7 @@
 		{
 			"id": "prees",
 			"name": "Prees",
+			"code": "SRP",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -128,6 +136,7 @@
 		{
 			"id": "whitchurch",
 			"name": "Whitchurch",
+			"code": "SRT",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -142,6 +151,7 @@
 		{
 			"id": "wrenbury",
 			"name": "Wrenbury",
+			"code": "SRR",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",
@@ -156,6 +166,7 @@
 		{
 			"id": "nantwich",
 			"name": "Nantwich",
+			"code": "SRN",
 			"neighbours": [
 				{
 					"simId": "shrewsbury",

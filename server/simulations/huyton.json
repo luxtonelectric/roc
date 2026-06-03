@@ -4,6 +4,7 @@
 		{
 			"id": "mroc",
 			"name": "MROC",
+			"code": "HYL",
 			"neighbours": [
 				{
 					"simId": "huyton",
@@ -22,6 +23,7 @@
 		{
 			"id": "sthelens",
 			"name": "St Helens",
+			"code": "HYH",
 			"neighbours": [
 				{
 					"simId": "huyton",

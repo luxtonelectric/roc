@@ -4,6 +4,7 @@
 		{
 			"id": "bletchley",
 			"name": "Bletchley",
+			"code": "RSB",
 			"neighbours": [
 				{
 					"simId": "rugbycentre",
@@ -22,6 +23,7 @@
 		{
 			"id": "tring",
 			"name": "Tring",
+			"code": "RST",
 			"neighbours": [
 				{
 					"simId": "rugbysouth",

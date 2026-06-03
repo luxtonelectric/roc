@@ -4,6 +4,7 @@
 		{
 			"id": "northkent1",
 			"name": "North Kent 1",
+			"code": "NK1",
 			"neighbours": [
 				{
 					"simId": "northkent",
@@ -22,6 +23,7 @@
 		{
 			"id": "northkent2",
 			"name": "North Kent 2",
+			"code": "NK2",
 			"neighbours": [
 				{
 					"simId": "northkent",

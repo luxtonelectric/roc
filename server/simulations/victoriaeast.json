@@ -4,6 +4,7 @@
 		{
 			"id": "panel5",
 			"name": "Panel 5",
+			"code": "VE5",
 			"neighbours": [
 				{
 					"simId": "victoriac",
@@ -18,6 +19,7 @@
 		{
 			"id": "panel6",
 			"name": "Panel 6",
+			"code": "VE6",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
@@ -44,6 +46,7 @@
 		{
 			"id": "panel7",
 			"name": "Panel 7",
+			"code": "VE7",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
@@ -78,6 +81,7 @@
 		{
 			"id": "panel8",
 			"name": "Panel 8",
+			"code": "VE8",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
@@ -104,6 +108,7 @@
 		{
 			"id": "panel9",
 			"name": "Panel 9",
+			"code": "VE9",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
@@ -130,6 +135,7 @@
 		{
 			"id": "panel10a",
 			"name": "Panel 10A",
+			"code": "VE10A",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",
@@ -152,6 +158,7 @@
 		{
 			"id": "panel10b",
 			"name": "Panel 10B",
+			"code": "VE10B",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",

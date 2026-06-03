@@ -4,6 +4,7 @@
 		{
 			"id": "royston",
 			"name": "Royston",
+			"code": "RY",
 			"neighbours": [
 				{
 					"simId": "kingsx",

@@ -4,6 +4,7 @@
 		{
 			"id": "panel1a",
 			"name": "Panel 1A",
+			"code": "TB1A",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -26,6 +27,7 @@
 		{
 			"id": "panel1b",
 			"name": "Panel 1B",
+			"code": "TB1B",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -48,6 +50,7 @@
 		{
 			"id": "panel1c",
 			"name": "Panel 1C",
+			"code": "TB1C",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -70,6 +73,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "TB2",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -84,6 +88,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "TB3",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -106,6 +111,7 @@
 		{
 			"id": "panel4",
 			"name": "Panel 4",
+			"code": "TB4",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -124,6 +130,7 @@
 		{
 			"id": "panel5",
 			"name": "Panel 5",
+			"code": "TB5",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -142,6 +149,7 @@
 		{
 			"id": "panel6",
 			"name": "Panel 6",
+			"code": "TB6",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -160,6 +168,7 @@
 		{
 			"id": "reigate",
 			"name": "Reigate SB",
+			"code": "TBR",
 			"neighbours": [
 				{
 					"simId": "threebridges",
@@ -167,7 +176,7 @@
 				},
 				{
 					"simId": "guildford",
-					"panelId": "west"
+					"panelId": "guildford"
 				}
 			]
 		}

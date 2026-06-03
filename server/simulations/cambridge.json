@@ -4,6 +4,7 @@
 		{
 			"id": "south",
 			"name": "South",
+			"code": "CBS",
 			"neighbours": [
 				{
 					"simId": "warm",
@@ -22,6 +23,7 @@
 		{
 			"id": "station",
 			"name": "Station",
+			"code": "CBC",
 			"neighbours": [
 				{
 					"simId": "cambridge",
@@ -36,6 +38,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "CBN",
 			"neighbours": [
 				{
 					"simId": "cambridge",
@@ -50,6 +53,7 @@
 		{
 			"id": "kingsdyke",
 			"name": "Kings Dyke SB",
+			"code": "CBK",
 			"neighbours": [
 				{
 					"simId": "cambridge",

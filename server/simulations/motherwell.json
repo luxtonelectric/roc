@@ -4,6 +4,7 @@
 		{
 			"id": "wks1",
 			"name": "Workstation 1",
+			"code": "MW1",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -26,6 +27,7 @@
 		{
 			"id": "wks2",
 			"name": "Workstation 2",
+			"code": "MW2",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -48,6 +50,7 @@
 		{
 			"id": "wks3",
 			"name": "Workstation 3",
+			"code": "MW3",
 			"neighbours": [
 				{
 					"simId": "motherwell",
@@ -70,6 +73,7 @@
 		{
 			"id": "wks4",
 			"name": "Workstation 4",
+			"code": "MW4",
 			"neighbours": [
 				{
 					"simId": "motherwell",
@@ -88,6 +92,7 @@
 		{
 			"id": "wks5",
 			"name": "Workstation 5",
+			"code": "MW5",
 			"neighbours": [
 				{
 					"simId": "motherwell",
@@ -110,6 +115,7 @@
 		{
 			"id": "wks6",
 			"name": "Workstation 6",
+			"code": "MW6",
 			"neighbours": [
 				{
 					"simId": "motherwell",

@@ -4,6 +4,7 @@
 		{
 			"id": "surbiton",
 			"name": "Surbiton",
+			"code": "WOS",
 			"neighbours": [
 				{
 					"simId": "wimbledon",
@@ -11,7 +12,7 @@
 				},
 				{
 					"simId": "guildford",
-					"panelId": "east"
+					"panelId": "guildford"
 				},
 				{
 					"simId": "feltham",
@@ -26,6 +27,7 @@
 		{
 			"id": "woking",
 			"name": "Woking",
+			"code": "WOW",
 			"neighbours": [
 				{
 					"simId": "woking",
@@ -33,7 +35,7 @@
 				},
 				{
 					"simId": "guildford",
-					"panelId": "east"
+					"panelId": "guildford"
 				},
 				{
 					"simId": "woking",
@@ -48,10 +50,11 @@
 		{
 			"id": "aldershot",
 			"name": "Aldershot",
+			"code": "WOA",
 			"neighbours": [
 				{
 					"simId": "guildford",
-					"panelId": "east"
+					"panelId": "guildford"
 				},
 				{
 					"simId": "woking",

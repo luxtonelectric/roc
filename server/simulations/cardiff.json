@@ -4,6 +4,7 @@
 		{
 			"id": "east",
 			"name": "East",
+			"code": "CDE",
 			"neighbours": [
 				{
 					"simId": "newport",
@@ -18,6 +19,7 @@
 		{
 			"id": "west",
 			"name": "West",
+			"code": "CDW",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -40,6 +42,7 @@
 		{
 			"id": "taff",
 			"name": "Taff",
+			"code": "CDT",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -62,6 +65,7 @@
 		{
 			"id": "stfagans",
 			"name": "St Fagan's",
+			"code": "CDF",
 			"neighbours": [
 				{
 					"simId": "cardiff",

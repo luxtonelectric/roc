@@ -4,6 +4,7 @@
 		{
 			"id": "wembleysub",
 			"name": "Wembley Suburban",
+			"code": "WS",
 			"neighbours": [
 				{
 					"simId": "watfordjn",

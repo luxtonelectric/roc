@@ -4,6 +4,7 @@
 		{
 			"id": "walsall2006",
 			"name": "Walsall (2006)",
+			"code": "WA6",
 			"neighbours": [
 				{
 					"simId": "saltley",
@@ -26,6 +27,7 @@
 		{
 			"id": "bloxwich",
 			"name": "Bloxwich SB",
+			"code": "WAX",
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -40,6 +42,7 @@
 		{
 			"id": "hednesford",
 			"name": "Hednesford SB",
+			"code": "WAH",
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -54,6 +57,7 @@
 		{
 			"id": "brereton",
 			"name": "Brereton Sidings SB",
+			"code": "WAS",
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -64,6 +68,7 @@
 		{
 			"id": "walsall2019",
 			"name": "Walsall (2019)",
+			"code": "WA9",
 			"neighbours": [
 				{
 					"simId": "walsall",
@@ -78,6 +83,7 @@
 		{
 			"id": "bescot",
 			"name": "Bescot",
+			"code": "WAB",
 			"neighbours": [
 				{
 					"simId": "walsall",

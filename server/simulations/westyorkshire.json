@@ -4,6 +4,7 @@
 		{
 			"id": "horburyjn",
 			"name": "Horbury Jn",
+			"code": "WYH",
 			"neighbours": [
 				{
 					"simId": "caldervalley",
@@ -22,6 +23,7 @@
 		{
 			"id": "wakefieldkirkgate",
 			"name": "Wakefield Kirkgate",
+			"code": "WYW",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -44,6 +46,7 @@
 		{
 			"id": "castleford",
 			"name": "Castleford",
+			"code": "WYC",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -66,6 +69,7 @@
 		{
 			"id": "powcutsyke",
 			"name": "Prince of Wales & Cutsyke Boxes",
+			"code": "WYP",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -84,6 +88,7 @@
 		{
 			"id": "ferrybridge",
 			"name": "Ferrybridge",
+			"code": "WYF",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -110,6 +115,7 @@
 		{
 			"id": "milford",
 			"name": "Milford",
+			"code": "WYM",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",
@@ -136,6 +142,7 @@
 		{
 			"id": "milfordwest",
 			"name": "Milford West",
+			"code": "WYS",
 			"neighbours": [
 				{
 					"simId": "westyorkshire",

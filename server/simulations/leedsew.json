@@ -4,6 +4,7 @@
 		{
 			"id": "west1",
 			"name": "West 1",
+			"code": "LSW1",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -38,6 +39,7 @@
 		{
 			"id": "west2",
 			"name": "West 2",
+			"code": "LSW2",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -52,6 +54,7 @@
 		{
 			"id": "east1",
 			"name": "East 1",
+			"code": "LSE1",
 			"neighbours": [
 				{
 					"simId": "leedsew",
@@ -66,6 +69,7 @@
 		{
 			"id": "east2",
 			"name": "East 2",
+			"code": "LSE2",
 			"neighbours": [
 				{
 					"simId": "leedsew",

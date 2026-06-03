@@ -4,6 +4,7 @@
 		{
 			"id": "reading",
 			"name": "Reading Newbury",
+			"code": "WBR",
 			"neighbours": [
 				{
 					"simId": "reading",
@@ -18,6 +19,7 @@
 		{
 			"id": "panela",
 			"name": "Panel A",
+			"code": "WBA",
 			"neighbours": [
 				{
 					"simId": "westbury",
@@ -44,6 +46,7 @@
 		{
 			"id": "panelb",
 			"name": "Panel B",
+			"code": "WBB",
 			"neighbours": [
 				{
 					"simId": "westbury",

@@ -4,6 +4,7 @@
 		{
 			"id": "greenford",
 			"name": "Greenford East SB",
+			"code": "PDG",
 			"neighbours": [
 				{
 					"simId": "paddington",
@@ -22,6 +23,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "PD2",
 			"neighbours": [
 				{
 					"simId": "slough",
@@ -40,6 +42,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "PD1",
 			"neighbours": [
 				{
 					"simId": "paddington",

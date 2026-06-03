@@ -1,0 +1,20 @@
+{
+	"name": "Havant",
+	"panels": [
+		{
+			"id": "portsmouth",
+			"name": "Portsmouth",
+			"code": "HTP",
+			"neighbours": [
+				{
+					"simId": "eastleigh",
+					"panelId": "panel2"
+				},
+				{
+					"simId": "guildford",
+					"panelId": "petersfield"
+				}
+			]
+		}
+	]
+}

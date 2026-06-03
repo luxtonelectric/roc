@@ -4,6 +4,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "NSN",
 			"neighbours": [
 				{
 					"simId": "stourbridge",
@@ -34,6 +35,7 @@
 		{
 			"id": "centre",
 			"name": "Centre",
+			"code": "NSC",
 			"neighbours": [
 				{
 					"simId": "newstreet",
@@ -52,6 +54,7 @@
 		{
 			"id": "south1",
 			"name": "South 1",
+			"code": "NSS1",
 			"neighbours": [
 				{
 					"simId": "newstreet",
@@ -70,6 +73,7 @@
 		{
 			"id": "south2",
 			"name": "South 2",
+			"code": "NSS2",
 			"neighbours": [
 				{
 					"simId": "newstreet",

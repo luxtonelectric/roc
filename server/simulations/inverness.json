@@ -4,6 +4,7 @@
 		{
 			"id": "dunkeld",
 			"name": "Dunkeld SB",
+			"code": "IVK",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -14,6 +15,7 @@
 		{
 			"id": "dyce",
 			"name": "Dyce SB",
+			"code": "IVY",
 			"neighbours": [
 				{
 					"simId": "nescot",

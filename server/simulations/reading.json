@@ -4,6 +4,7 @@
 		{
 			"id": "reading",
 			"name": "Reading Panel",
+			"code": "RD",
 			"neighbours": [
 				{
 					"simId": "swindid",

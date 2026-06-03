@@ -4,6 +4,7 @@
 		{
 			"id": "panela",
 			"name": "Panel A",
+			"code": "PNA",
 			"neighbours": [
 				{
 					"simId": "caldervalley",
@@ -26,6 +27,7 @@
 		{
 			"id": "panelb",
 			"name": "Panel B",
+			"code": "PNB",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -48,6 +50,7 @@
 		{
 			"id": "panelc",
 			"name": "Panel C",
+			"code": "PNC",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -70,6 +73,7 @@
 		{
 			"id": "paneld",
 			"name": "Panel D",
+			"code": "PND",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -92,6 +96,7 @@
 		{
 			"id": "daisyfield",
 			"name": "Daisyfield SB",
+			"code": "PNY",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -106,6 +111,7 @@
 		{
 			"id": "horrocksfordjn",
 			"name": "Horrocksford Jn SB",
+			"code": "PNH",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -120,6 +126,7 @@
 		{
 			"id": "midgehall",
 			"name": "Midge Hall SB",
+			"code": "PNM",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -134,6 +141,7 @@
 		{
 			"id": "rufford",
 			"name": "Rufford SB",
+			"code": "PNR",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -144,6 +152,7 @@
 		{
 			"id": "barelane",
 			"name": "Bare Lane LC",
+			"code": "PNL",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -154,6 +163,7 @@
 		{
 			"id": "carnforth",
 			"name": "Carnforth Station Junction",
+			"code": "PNF",
 			"neighbours": [
 				{
 					"simId": "preston",

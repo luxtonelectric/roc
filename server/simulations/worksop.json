@@ -4,6 +4,7 @@
 		{
 			"id": "thrumpton",
 			"name": "Thrumpton SB",
+			"code": "WST",
 			"neighbours": [
 				{
 					"simId": "southhumberside",
@@ -22,6 +23,7 @@
 		{
 			"id": "worksop",
 			"name": "Worksop SB",
+			"code": "WSW",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -44,6 +46,7 @@
 		{
 			"id": "maltby",
 			"name": "Maltby Colliery SB",
+			"code": "WSM",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -58,6 +61,7 @@
 		{
 			"id": "kiveton",
 			"name": "Kiveton Park SB",
+			"code": "WSK",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -72,6 +76,7 @@
 		{
 			"id": "creswell",
 			"name": "Elmton & Creswell Jn SB",
+			"code": "WSE",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -86,6 +91,7 @@
 		{
 			"id": "shirebrookjn",
 			"name": "Shirebrook Jn SB",
+			"code": "WSS",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -104,6 +110,7 @@
 		{
 			"id": "clipstone",
 			"name": "Clipstone SB",
+			"code": "WSC",
 			"neighbours": [
 				{
 					"simId": "worksop",
@@ -118,6 +125,7 @@
 		{
 			"id": "thoresby",
 			"name": "Thoresby Colliery Jn SB",
+			"code": "WSL",
 			"neighbours": [
 				{
 					"simId": "worksop",

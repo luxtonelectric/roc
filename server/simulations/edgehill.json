@@ -4,6 +4,7 @@
 		{
 			"id": "haltonjn",
 			"name": "Halton Jn",
+			"code": "EDH",
 			"neighbours": [
 				{
 					"simId": "crewe",
@@ -22,6 +23,7 @@
 		{
 			"id": "runcorn",
 			"name": "Runcorn",
+			"code": "EDR",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -36,6 +38,7 @@
 		{
 			"id": "monkssidings",
 			"name": "Monks Sidings",
+			"code": "EDM",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -50,6 +53,7 @@
 		{
 			"id": "fiddlersferry",
 			"name": "Fiddlers Ferry",
+			"code": "EDF",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -64,6 +68,7 @@
 		{
 			"id": "ditton",
 			"name": "Ditton",
+			"code": "EDD",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -82,6 +87,7 @@
 		{
 			"id": "spekejn",
 			"name": "Speke Jn",
+			"code": "EDS",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -96,6 +102,7 @@
 		{
 			"id": "allerton",
 			"name": "Allerton",
+			"code": "EDA",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -114,6 +121,7 @@
 		{
 			"id": "edgehill",
 			"name": "Edge Hill",
+			"code": "EDE",
 			"neighbours": [
 				{
 					"simId": "edgehill",
@@ -136,6 +144,7 @@
 		{
 			"id": "limestreet",
 			"name": "Lime Street",
+			"code": "EDL",
 			"neighbours": [
 				{
 					"simId": "edgehill",

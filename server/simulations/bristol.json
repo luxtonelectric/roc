@@ -4,6 +4,7 @@
 		{
 			"id": "weston",
 			"name": "Weston Panel",
+			"code": "BRW",
 			"neighbours": [
 				{
 					"simId": "exeter",
@@ -18,6 +19,7 @@
 		{
 			"id": "bristol",
 			"name": "Bristol Panel",
+			"code": "BRS",
 			"neighbours": [
 				{
 					"simId": "bristol",
@@ -40,6 +42,7 @@
 		{
 			"id": "bath",
 			"name": "Bath Panel",
+			"code": "BRB",
 			"neighbours": [
 				{
 					"simId": "bristol",
@@ -58,6 +61,7 @@
 		{
 			"id": "filton",
 			"name": "Filton Panel",
+			"code": "BRF",
 			"neighbours": [
 				{
 					"simId": "bristol",
@@ -84,6 +88,7 @@
 		{
 			"id": "standrewsjn",
 			"name": "St Andrews Jn SB",
+			"code": "BRA",
 			"neighbours": [
 				{
 					"simId": "bristol",

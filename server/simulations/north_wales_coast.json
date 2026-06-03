@@ -4,6 +4,7 @@
 		{
 			"id": "rockcliffehall",
 			"name": "Rockcliffe Hall",
+			"code": "NWS",
 			"neighbours": [
 				{
 					"simId": "chester",
@@ -18,6 +19,7 @@
 		{
 			"id": "holywelljunction",
 			"name": "Holywell Junction",
+			"code": "NWO",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -32,6 +34,7 @@
 		{
 			"id": "mostyn",
 			"name": "Mostyn",
+			"code": "NWM",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -46,6 +49,7 @@
 		{
 			"id": "talacre",
 			"name": "Talacre",
+			"code": "NWT",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -60,6 +64,7 @@
 		{
 			"id": "prestatyn",
 			"name": "Prestatyn",
+			"code": "NWE",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -74,6 +79,7 @@
 		{
 			"id": "rhyl",
 			"name": "Rhyl",
+			"code": "NWR",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -88,6 +94,7 @@
 		{
 			"id": "abergele",
 			"name": "Abergele",
+			"code": "NWA",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -102,6 +109,7 @@
 		{
 			"id": "llandudnojunction",
 			"name": "Llandudno Junction",
+			"code": "NWLJ",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -124,6 +132,7 @@
 		{
 			"id": "llanwrst",
 			"name": "Llanwrst",
+			"code": "NWL",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -134,6 +143,7 @@
 		{
 			"id": "deganwy",
 			"name": "Deganwy",
+			"code": "NWD",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -148,6 +158,7 @@
 		{
 			"id": "llandudno",
 			"name": "Llandudno",
+			"code": "NWLS",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -158,6 +169,7 @@
 		{
 			"id": "penmaenmawr",
 			"name": "Penmaenmawr",
+			"code": "NWP",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -172,6 +184,7 @@
 		{
 			"id": "bangor",
 			"name": "Bangor",
+			"code": "NWB",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -186,6 +199,7 @@
 		{
 			"id": "gaerwen",
 			"name": "Gaerwen",
+			"code": "NWG",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -200,6 +214,7 @@
 		{
 			"id": "valley",
 			"name": "Valley",
+			"code": "NWV",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",
@@ -214,6 +229,7 @@
 		{
 			"id": "holyhead",
 			"name": "Holyhead",
+			"code": "NWH",
 			"neighbours": [
 				{
 					"simId": "north_wales_coast",

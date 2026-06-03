@@ -4,6 +4,7 @@
 		{
 			"id": "stourbridgejn",
 			"name": "Stourbridge Junction",
+			"code": "SJ",
 			"neighbours": [
 				{
 					"simId": "saltley",

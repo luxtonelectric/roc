@@ -4,6 +4,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "PA1",
 			"neighbours": [
 				{
 					"simId": "glasgow",
@@ -18,6 +19,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "PA2",
 			"neighbours": [
 				{
 					"simId": "paisley",
@@ -32,6 +34,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "PA3",
 			"neighbours": [
 				{
 					"simId": "paisley",

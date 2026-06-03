@@ -4,6 +4,7 @@
 		{
 			"id": "darlington",
 			"name": "Darlington",
+			"code": "TYD",
 			"neighbours": [
 				{
 					"simId": "yorkns",
@@ -30,6 +31,7 @@
 		{
 			"id": "heighingtonsb",
 			"name": "Heighington Signal Box",
+			"code": "TYH",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -44,6 +46,7 @@
 		{
 			"id": "shildonsb",
 			"name": "Shildon Signal Box",
+			"code": "TYL",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -54,6 +57,7 @@
 		{
 			"id": "gateshead",
 			"name": "Gateshead",
+			"code": "TYG",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -72,6 +76,7 @@
 		{
 			"id": "newcastle",
 			"name": "Newcastle",
+			"code": "TYN",
 			"neighbours": [
 				{
 					"simId": "tyneside",
@@ -90,6 +95,7 @@
 		{
 			"id": "sunderland",
 			"name": "Sunderland",
+			"code": "TYS",
 			"neighbours": [
 				{
 					"simId": "tyneside",

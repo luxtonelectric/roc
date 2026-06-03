@@ -4,6 +4,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "LB1",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -18,6 +19,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "LB2",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -36,6 +38,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "LB3",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -58,6 +61,7 @@
 		{
 			"id": "panel4",
 			"name": "Panel 4",
+			"code": "LB4",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -72,6 +76,7 @@
 		{
 			"id": "panel5",
 			"name": "Panel 5",
+			"code": "LB5",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -94,6 +99,7 @@
 		{
 			"id": "panel6",
 			"name": "Panel 6",
+			"code": "LB6",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -112,6 +118,7 @@
 		{
 			"id": "panel7",
 			"name": "Panel 7",
+			"code": "LB7",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -130,6 +137,7 @@
 		{
 			"id": "panel8",
 			"name": "Panel 8",
+			"code": "LB8",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",
@@ -156,6 +164,7 @@
 		{
 			"id": "panel9",
 			"name": "Panel 9",
+			"code": "LB9",
 			"neighbours": [
 				{
 					"simId": "londonbridgeasc",

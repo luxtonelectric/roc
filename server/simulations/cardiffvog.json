@@ -4,6 +4,7 @@
 		{
 			"id": "barry",
 			"name": "Barry",
+			"code": "CGB",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -18,6 +19,7 @@
 		{
 			"id": "aberthaw",
 			"name": "Aberthaw",
+			"code": "CGA",
 			"neighbours": [
 				{
 					"simId": "cardiffvog",
@@ -32,6 +34,7 @@
 		{
 			"id": "cowbridgeroad",
 			"name": "Cowbridge Road",
+			"code": "CGC",
 			"neighbours": [
 				{
 					"simId": "cardiffvog",

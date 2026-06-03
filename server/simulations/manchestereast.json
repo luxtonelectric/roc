@@ -4,6 +4,7 @@
 		{
 			"id": "dinting",
 			"name": "Dinting",
+			"code": "MED",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -14,6 +15,7 @@
 		{
 			"id": "guidebridge",
 			"name": "Guide Bridge",
+			"code": "MEG",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -40,6 +42,7 @@
 		{
 			"id": "stalybridge",
 			"name": "Stalybridge",
+			"code": "MES",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -58,6 +61,7 @@
 		{
 			"id": "romileyjn",
 			"name": "Romiley Junction",
+			"code": "MER",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -76,6 +80,7 @@
 		{
 			"id": "ashtonmossnorth",
 			"name": "Ashton Moss North",
+			"code": "MEM",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -94,6 +99,7 @@
 		{
 			"id": "baguleyfoldjn",
 			"name": "Baguley Fold Junction",
+			"code": "MEB",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -108,6 +114,7 @@
 		{
 			"id": "denton",
 			"name": "Denton",
+			"code": "MEE",
 			"neighbours": [
 				{
 					"simId": "manchestereast",
@@ -126,6 +133,7 @@
 		{
 			"id": "ashburys",
 			"name": "Ashburys",
+			"code": "MEA",
 			"neighbours": [
 				{
 					"simId": "manchestereast",

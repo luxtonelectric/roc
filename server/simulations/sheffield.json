@@ -4,6 +4,7 @@
 		{
 			"id": "sheffield",
 			"name": "Sheffield",
+			"code": "SFS",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -30,6 +31,7 @@
 		{
 			"id": "rotherham1",
 			"name": "Rotherham 1",
+			"code": "SFR1",
 			"neighbours": [
 				{
 					"simId": "sheffield",
@@ -56,6 +58,7 @@
 		{
 			"id": "rotherham2",
 			"name": "Rotherham 2",
+			"code": "SFR2",
 			"neighbours": [
 				{
 					"simId": "trent",
@@ -74,6 +77,7 @@
 		{
 			"id": "beightonstnjn",
 			"name": "Beighton Station Junction",
+			"code": "SFE",
 			"neighbours": [
 				{
 					"simId": "sheffield",
@@ -88,6 +92,7 @@
 		{
 			"id": "woodhousejn",
 			"name": "Woodhouse Junction",
+			"code": "SFH",
 			"neighbours": [
 				{
 					"simId": "sheffield",
@@ -106,6 +111,7 @@
 		{
 			"id": "woodburnjn",
 			"name": "Woodburn Junction",
+			"code": "SFD",
 			"neighbours": [
 				{
 					"simId": "sheffield",
@@ -124,6 +130,7 @@
 		{
 			"id": "barnsley",
 			"name": "Barnsley",
+			"code": "SFB",
 			"neighbours": [
 				{
 					"simId": "sheffield",
@@ -142,6 +149,7 @@
 		{
 			"id": "woolleycoalsdgs",
 			"name": "Woolley Coal Sidings",
+			"code": "SFC",
 			"neighbours": [
 				{
 					"simId": "sheffield",

@@ -4,6 +4,7 @@
 		{
 			"id": "cross",
 			"name": "Cross",
+			"code": "KXX",
 			"neighbours": [
 				{
 					"simId": "kingsx",
@@ -22,6 +23,7 @@
 		{
 			"id": "finsbury",
 			"name": "Finsbury",
+			"code": "KXF",
 			"neighbours": [
 				{
 					"simId": "kingsx",
@@ -44,6 +46,7 @@
 		{
 			"id": "palace",
 			"name": "Palace",
+			"code": "KXP",
 			"neighbours": [
 				{
 					"simId": "kingsx",
@@ -62,6 +65,7 @@
 		{
 			"id": "welwyn",
 			"name": "Welwyn",
+			"code": "KXW",
 			"neighbours": [
 				{
 					"simId": "kingsx",
@@ -76,6 +80,7 @@
 		{
 			"id": "hitchin",
 			"name": "Hitchin",
+			"code": "KXH",
 			"neighbours": [
 				{
 					"simId": "kingsx",

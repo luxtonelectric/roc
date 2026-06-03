@@ -4,6 +4,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "WRN",
 			"neighbours": [
 				{
 					"simId": "preston",
@@ -30,6 +31,7 @@
 		{
 			"id": "middle",
 			"name": "Middle",
+			"code": "WRM",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",
@@ -52,6 +54,7 @@
 		{
 			"id": "south",
 			"name": "South",
+			"code": "WRS",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",
@@ -74,6 +77,7 @@
 		{
 			"id": "arpleyjunction",
 			"name": "Arpley Junction",
+			"code": "WRJ",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",
@@ -88,6 +92,7 @@
 		{
 			"id": "astley",
 			"name": "Astley",
+			"code": "WRA",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",
@@ -102,6 +107,7 @@
 		{
 			"id": "eccles",
 			"name": "Eccles",
+			"code": "WRE",
 			"neighbours": [
 				{
 					"simId": "warringtonpsb",

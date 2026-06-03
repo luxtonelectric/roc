@@ -4,6 +4,7 @@
 		{
 			"id": "south",
 			"name": "South panel",
+			"code": "LSS",
 			"neighbours": [
 				{
 					"simId": "westhampstead",
@@ -26,6 +27,7 @@
 		{
 			"id": "croft",
 			"name": "Croft SB",
+			"code": "LSC",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -40,6 +42,7 @@
 		{
 			"id": "north",
 			"name": "North panel",
+			"code": "LSN",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -62,6 +65,7 @@
 		{
 			"id": "bardonhill",
 			"name": "Bardon Hill SB",
+			"code": "LSB",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -76,6 +80,7 @@
 		{
 			"id": "frisby",
 			"name": "Frisby SB",
+			"code": "LSF",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -90,6 +95,7 @@
 		{
 			"id": "melton",
 			"name": "Melton Station SB",
+			"code": "LSM",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -104,6 +110,7 @@
 		{
 			"id": "whissendine",
 			"name": "Whissendine SB",
+			"code": "LSW",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -118,6 +125,7 @@
 		{
 			"id": "ashwell",
 			"name": "Ashwell SB",
+			"code": "LSA",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -132,6 +140,7 @@
 		{
 			"id": "langhamjn",
 			"name": "Langham Junction SB",
+			"code": "LSL",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -146,6 +155,7 @@
 		{
 			"id": "oakham",
 			"name": "Oakham Level Crossing SB",
+			"code": "LSO",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -160,6 +170,7 @@
 		{
 			"id": "mantonjn",
 			"name": "Manton Junction SB",
+			"code": "LST",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -178,6 +189,7 @@
 		{
 			"id": "ketton",
 			"name": "Ketton SB",
+			"code": "LSK",
 			"neighbours": [
 				{
 					"simId": "leicester",
@@ -192,6 +204,7 @@
 		{
 			"id": "uffington",
 			"name": "Uffington & Barnack SB",
+			"code": "LSU",
 			"neighbours": [
 				{
 					"simId": "leicester",

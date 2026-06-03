@@ -4,6 +4,7 @@
 		{
 			"id": "severntunnel",
 			"name": "Severn Tunnel",
+			"code": "NPS",
 			"neighbours": [
 				{
 					"simId": "gloucester",
@@ -22,6 +23,7 @@
 		{
 			"id": "magor",
 			"name": "Magor",
+			"code": "NPM",
 			"neighbours": [
 				{
 					"simId": "newport",
@@ -44,6 +46,7 @@
 		{
 			"id": "station",
 			"name": "Station",
+			"code": "NPC",
 			"neighbours": [
 				{
 					"simId": "newport",
@@ -62,6 +65,7 @@
 		{
 			"id": "parkjunction",
 			"name": "Park Junction",
+			"code": "NPP",
 			"neighbours": [
 				{
 					"simId": "newport",
@@ -72,6 +76,7 @@
 		{
 			"id": "eastusk",
 			"name": "East Usk",
+			"code": "NPU",
 			"neighbours": [
 				{
 					"simId": "newport",

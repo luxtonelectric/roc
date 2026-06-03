@@ -4,6 +4,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "LC",
 			"neighbours": [
 				{
 					"simId": "threebridges",

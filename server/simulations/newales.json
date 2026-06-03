@@ -4,6 +4,7 @@
 		{
 			"id": "deemarshjn",
 			"name": "Dee Marsh Junction",
+			"code": "WXD",
 			"neighbours": [
 				{
 					"simId": "sandhills",
@@ -26,6 +27,7 @@
 		{
 			"id": "shotwickgf",
 			"name": "Shotwick Ground Frame",
+			"code": "WXS",
 			"neighbours": [
 				{
 					"simId": "newales",
@@ -36,6 +38,7 @@
 		{
 			"id": "penyfford",
 			"name": "Penyfford",
+			"code": "WXP",
 			"neighbours": [
 				{
 					"simId": "newales",
@@ -50,6 +53,7 @@
 		{
 			"id": "croesnewydd",
 			"name": "Croes Newydd North Fork",
+			"code": "WXN",
 			"neighbours": [
 				{
 					"simId": "newales",
@@ -68,6 +72,7 @@
 		{
 			"id": "gobowennorth",
 			"name": "Gobowen North",
+			"code": "WXG",
 			"neighbours": [
 				{
 					"simId": "newales",

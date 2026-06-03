@@ -4,6 +4,7 @@
 		{
 			"id": "south",
 			"name": "South",
+			"code": "YKS",
 			"neighbours": [
 				{
 					"simId": "doncasternorth",
@@ -30,6 +31,7 @@
 		{
 			"id": "north",
 			"name": "North",
+			"code": "YKN",
 			"neighbours": [
 				{
 					"simId": "yorkns",
@@ -52,6 +54,7 @@
 		{
 			"id": "gascoignewood",
 			"name": "Gascoigne Wood",
+			"code": "YKG",
 			"neighbours": [
 				{
 					"simId": "yorkns",

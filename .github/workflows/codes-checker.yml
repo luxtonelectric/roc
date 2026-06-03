@@ -1,0 +1,35 @@
+name: Check panel short codes
+
+on:
+  push:
+    branches:
+      - '*'
+      - '**'
+    paths:
+      - 'docs/Panel Codes.md'
+      - 'server/simulations/**'
+      - '.github/workflows/codes-checker.yml'
+      - '.github/workflows/scripts/code-checker.py'
+  pull_request:
+    types: [opened, synchronize]
+    paths: 
+      - 'docs/Panel Codes.md'
+      - 'server/simulations/**'
+      - '.github/workflows/codes-checker.yml'
+      - '.github/workflows/scripts/code-checker.py'
+
+jobs:
+  Check_panel_short_codes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      
+      - name: Run python script
+        run: python .github/workflows/scripts/code-checker.py 

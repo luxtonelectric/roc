@@ -4,6 +4,7 @@
 		{
 			"id": "maidstoneeast",
 			"name": "Maidstone East",
+			"code": "MD",
 			"neighbours": [
 				{
 					"simId": "victoriaeast",

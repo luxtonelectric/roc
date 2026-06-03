@@ -4,6 +4,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "DN3",
 			"neighbours": [
 				{
 					"simId": "doncasternorth",
@@ -26,6 +27,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "DN2",
 			"neighbours": [
 				{
 					"simId": "doncasterstation",

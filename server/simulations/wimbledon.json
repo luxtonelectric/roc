@@ -4,6 +4,7 @@
 		{
 			"id": "panel1",
 			"name": "Panel 1",
+			"code": "WI1",
 			"neighbours": [
 				{
 					"simId": "wimbledon",
@@ -22,6 +23,7 @@
 		{
 			"id": "panel2",
 			"name": "Panel 2",
+			"code": "WI2",
 			"neighbours": [
 				{
 					"simId": "wimbledon",
@@ -52,6 +54,7 @@
 		{
 			"id": "panel3",
 			"name": "Panel 3",
+			"code": "WI3",
 			"neighbours": [
 				{
 					"simId": "wimbledon",
@@ -82,6 +85,7 @@
 		{
 			"id": "panel4",
 			"name": "Panel 4",
+			"code": "WI4",
 			"neighbours": [
 				{
 					"simId": "wimbledon",
@@ -89,7 +93,7 @@
 				},
 				{
 					"simId": "guildford",
-					"panelId": "east"
+					"panelId": "guildford"
 				},
 				{
 					"simId": "horsham",
@@ -104,6 +108,7 @@
 		{
 			"id": "claphamyd",
 			"name": "Clapham Yard Panel",
+			"code": "WIC",
 			"neighbours": [
 				{
 					"simId": "wimbledon",

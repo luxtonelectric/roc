@@ -4,6 +4,7 @@
 		{
 			"id": "cwacc",
 			"name": "Canterbury/Wye ACC",
+			"code": "CBW",
 			"neighbours": [
 				{
 					"simId": "ashford",
@@ -14,6 +15,7 @@
 		{
 			"id": "folkestoneeast",
 			"name": "Folkestone East SB",
+			"code": "CBF",
 			"neighbours": [
 				{
 					"simId": "ashford",

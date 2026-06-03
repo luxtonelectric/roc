@@ -4,6 +4,7 @@
 		{
 			"id": "panela",
 			"name": "Panel A",
+			"code": "PTA",
 			"neighbours": [
 				{
 					"simId": "cardiff",
@@ -26,6 +27,7 @@
 		{
 			"id": "panelb",
 			"name": "Panel B",
+			"code": "PTB",
 			"neighbours": [
 				{
 					"simId": "porttalbot",
@@ -48,6 +50,7 @@
 		{
 			"id": "panelc",
 			"name": "Panel C",
+			"code": "PTC",
 			"neighbours": [
 				{
 					"simId": "porttalbot",
@@ -62,6 +65,7 @@
 		{
 			"id": "tondu",
 			"name": "Tondu",
+			"code": "PTT",
 			"neighbours": [
 				{
 					"simId": "porttalbot",
@@ -72,6 +76,7 @@
 		{
 			"id": "neathbrecon",
 			"name": "Neath & Brecon Junction",
+			"code": "PTN",
 			"neighbours": [
 				{
 					"simId": "porttalbot",

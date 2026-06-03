@@ -4,6 +4,7 @@
 		{
 			"id": "greenloaning",
 			"name": "Greenloaning",
+			"code": "ESGL",
 			"neighbours": [
 				{
 					"simId": "cscot",
@@ -18,6 +19,7 @@
 		{
 			"id": "blackford",
 			"name": "Blackford",
+			"code": "ESBF",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -32,6 +34,7 @@
 		{
 			"id": "auchterarder",
 			"name": "Auchterarder",
+			"code": "ESAH",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -46,6 +49,7 @@
 		{
 			"id": "hiltonjn",
 			"name": "Hilton Jn",
+			"code": "ESH",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -64,6 +68,7 @@
 		{
 			"id": "perth",
 			"name": "Perth",
+			"code": "ESP",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -82,6 +87,7 @@
 		{
 			"id": "barnhill",
 			"name": "Barnhill",
+			"code": "ESBH",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -96,6 +102,7 @@
 		{
 			"id": "errol",
 			"name": "Errol",
+			"code": "ESER",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -110,6 +117,7 @@
 		{
 			"id": "longforgan",
 			"name": "Longforgan",
+			"code": "ESLF",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -124,6 +132,7 @@
 		{
 			"id": "dundee",
 			"name": "Dundee",
+			"code": "ESD",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -142,6 +151,7 @@
 		{
 			"id": "taybridgesouth",
 			"name": "Tay Bridge South",
+			"code": "EST",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -156,6 +166,7 @@
 		{
 			"id": "leuchars",
 			"name": "Leuchars",
+			"code": "ESL",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -170,6 +181,7 @@
 		{
 			"id": "cupar",
 			"name": "Cupar",
+			"code": "ESC",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -184,6 +196,7 @@
 		{
 			"id": "stanleyjn",
 			"name": "Stanley Jn",
+			"code": "ESS",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -198,6 +211,7 @@
 		{
 			"id": "carnoustie",
 			"name": "Carnoustie",
+			"code": "ESCN",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -212,6 +226,7 @@
 		{
 			"id": "arbroath",
 			"name": "Arbroath",
+			"code": "ESAB",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -226,6 +241,7 @@
 		{
 			"id": "inverkeilor",
 			"name": "Inerkeilor",
+			"code": "ESI",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -240,6 +256,7 @@
 		{
 			"id": "usan",
 			"name": "Usan",
+			"code": "ESU",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -254,6 +271,7 @@
 		{
 			"id": "montrosenorth",
 			"name": "Montrose North",
+			"code": "ESM",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -268,6 +286,7 @@
 		{
 			"id": "craigo",
 			"name": "Craigo",
+			"code": "ESCR",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -282,6 +301,7 @@
 		{
 			"id": "laurencekirk",
 			"name": "Laurencekirk",
+			"code": "ESLK",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -296,6 +316,7 @@
 		{
 			"id": "carmont",
 			"name": "Carmont",
+			"code": "ESCA",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -310,6 +331,7 @@
 		{
 			"id": "stonehaven",
 			"name": "Stonehaven",
+			"code": "ESSH",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -324,6 +346,7 @@
 		{
 			"id": "newtonhill",
 			"name": "Newtonhill",
+			"code": "ESNH",
 			"neighbours": [
 				{
 					"simId": "nescot",
@@ -338,6 +361,7 @@
 		{
 			"id": "aberdeen",
 			"name": "Aberdeen",
+			"code": "ESA",
 			"neighbours": [
 				{
 					"simId": "nescot",

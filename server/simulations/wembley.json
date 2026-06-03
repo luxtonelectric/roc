@@ -4,6 +4,7 @@
 		{
 			"id": "wembley",
 			"name": "Wembley",
+			"code": "WMW",
 			"neighbours": [
 				{
 					"simId": "watfordjn",
@@ -18,6 +19,7 @@
 		{
 			"id": "willesden",
 			"name": "Willesden",
+			"code": "WML",
 			"neighbours": [
 				{
 					"simId": "wembley",
@@ -48,6 +50,7 @@
 		{
 			"id": "camden",
 			"name": "Camden",
+			"code": "WMC",
 			"neighbours": [
 				{
 					"simId": "wembley",
@@ -70,6 +73,7 @@
 		{
 			"id": "euston",
 			"name": "Euston",
+			"code": "WME",
 			"neighbours": [
 				{
 					"simId": "wembley",
